@@ -1,0 +1,74 @@
+.account-sidebar ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.account-sidebar {
+  margin-top: 15px;
+  /* background-color: #fff;  */
+  border-radius: 10px;
+  /* box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); */
+  padding: 12px 0;
+  width: 230px; /* fixed width */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.account-sidebar li {
+  margin-bottom: 8px;
+}
+
+.account-sidebar li:last-child {
+  margin-bottom: 0;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  color: #444;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-left: 5px solid transparent;
+  border-radius: 0 8px 8px 0;
+  transition: 
+    background-color 0.3s ease, 
+    color 0.3s ease, 
+    border-color 0.3s ease,
+    transform 0.2s ease;
+}
+
+.sidebar-item:hover {
+  background-color: #fff3e0;
+  color: #d35400;
+  cursor: pointer;
+  transform: translateX(5px);
+  border-left-color: #d35400;
+}
+
+.sidebar-item.active {
+  font-weight: 600;
+  color: #d35400;
+  background-color: #ffe6cc;
+  border-left: 5px solid #d35400;
+  padding-left: 18px; /* a little tighter padding for active */
+  box-shadow: 2px 0 8px rgba(211, 84, 0, 0.3);
+  transform: translateX(5px);
+}
+
+.sidebar-item .icon {
+  display: inline-flex;
+  margin-right: 12px;
+  font-size: 18px;
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+.sidebar-item.active .icon {
+  color: #d35400;
+}
+
+.sidebar-item .label {
+  font-size: 15px;
+  white-space: nowrap;
+  user-select: none;
+}

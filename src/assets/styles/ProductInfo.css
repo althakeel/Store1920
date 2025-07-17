@@ -1,0 +1,77 @@
+/* Container */
+.product-info {
+  padding: 5px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* === TITLE ROW === */
+.product-title-row {
+  display: flex;
+  align-items: center;            /* vertical center */
+  justify-content: space-between; /* title left, share right */
+  gap: 12px;
+  margin: 16px 0;
+}
+
+/* Title with badges */
+.product-title-row h1 {
+  margin: 0;
+  font-size: .9rem;
+  font-weight: 400;
+  display: flex;           /* flex for badges + text */
+  align-items: center;     /* vertical center badges and text */
+  gap: 6px;
+  flex-grow: 1;            /* take available space */
+  line-height: 1.2;
+  color: #222;
+}
+
+/* Ensure badge spans inside h1 are aligned well */
+.product-title-row h1 span {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  margin: 0;
+}
+
+/* ShareDropdown container */
+.product-title-row > *:last-child {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+/* === VARIATIONS LIST === */
+.variants-list {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.variant-btn {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.variant-btn.selected,
+.variant-btn:hover {
+  border-color: #007bff;
+  background: #e6f0ff;
+}
+
+/* === OFFER BOX === */
+.product-info > .offer-box {
+  margin-bottom: 12px;
+}
+
+
+/* product price  */
+
+
+/* product price end */

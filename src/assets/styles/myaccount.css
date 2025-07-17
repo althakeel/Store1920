@@ -1,0 +1,17 @@
+.account-layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 60vh;
+  gap: 10px;
+}
+
+.account-main {
+  flex-grow: 1;
+  padding: 10px 10px;
+  min-width: 0; /* helps with flex shrink/overflow */
+}
+
+.account-sidebar {
+  flex: 0 0 250px;
+}

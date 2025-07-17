@@ -1,0 +1,103 @@
+.topbar-wrapper {
+  background-color: #000;
+  color: #fff;
+  width: 100%;
+}
+
+.topbar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 5px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.topbar-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+
+.topbar-col:hover {
+  opacity: 0.8;
+}
+
+.text-box {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.topbar-center-item {
+  color: #fff !important;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.subtitle {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Center Rotating Area */
+.topbar-center {
+  flex: 1;
+  overflow: hidden;
+  height: 35px; /* height of one item */
+  position: relative;
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center;     /* vertical center */
+}
+
+/* Slide wrapper with fade transition */
+.slide-wrapper {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
+  width: 100%;
+  opacity: 1;
+}
+
+.slide-wrapper.fade {
+  opacity: 0;
+}
+
+.topbar-center-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  height: 35px; /* fixed height */
+  justify-content: center; /* center horizontally */
+  width: 100%;
+  color: inherit;
+  user-select: none;
+}
+
+/* Subtle top and bottom fade shadows */
+.topbar-center::before,
+.topbar-center::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.topbar-center::before {
+  top: 0;
+  background: linear-gradient(to bottom, #000, transparent);
+}
+
+.topbar-center::after {
+  bottom: 0;
+  background: linear-gradient(to top, #000, transparent);
+}

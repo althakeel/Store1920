@@ -1,0 +1,124 @@
+.cart-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    /* border-bottom: 1px solid #eee; */
+    align-items: flex-start;
+  }
+  
+  .cart-item.unavailable {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  .item-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    background-color: #f8f8f8;
+    flex-shrink: 0;
+  }
+  
+  .item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .item-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .item-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #222;
+    max-width: 90%;
+    line-height: 1.4;
+  }
+  
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px;
+  }
+  
+  .remove-btn:hover {
+    color: red;
+  }
+  
+  .item-variant {
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .price-qty-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; /* align price and qty at bottom */
+    gap: 12px;
+  }
+
+  .price-row span {
+    display: inline-flex; /* makes the spans flex containers, respects align-items */
+    align-items: flex-end; /* align text bottom inside each span */
+    margin: 0;
+    line-height: 1.2; /* consistent line height */
+    height: auto;
+  }
+  
+  
+  .price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .item-price {
+    color: #e60012;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+  
+  .item-original {
+    text-decoration: line-through;
+    color: #aaa;
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  
+  .item-discount {
+    color: #ff8000;
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid #ff8000;
+    border-radius: 4px;
+    padding: 1px 6px;
+    line-height: 1.2;
+  }
+  
+  .qty-select {
+    margin: 0;
+    padding: 4px 6px;
+    height: auto;
+    line-height: 1.2;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  
+  
+  .sold-out-text {
+    font-size: 13px;
+    color: #d32f2f;
+    font-weight: 500;
+  }
+  

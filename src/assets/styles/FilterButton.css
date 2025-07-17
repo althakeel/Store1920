@@ -1,0 +1,228 @@
+/* Container */
+.filter-btn-container {
+  position: relative;
+  display: inline-block;
+  font-family: 'Montserrat', sans-serif;
+  user-select: none;
+}
+
+/* Filter Button */
+.filter-btn {
+  padding: 10px 24px;
+  background-color: #fb7701;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
+  transition: background-color 0.25s ease;
+}
+.filter-btn:hover,
+.filter-btn:focus {
+  background-color: #e26300;
+  outline: none;
+}
+
+/* Dropdown */
+.filter-dropdown {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  width: 360px;
+  max-width: 100vw;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+  padding: 20px 24px;
+  z-index: 10000;
+  color: #333;
+  font-size: 14px;
+}
+
+/* Filter section */
+.filter-section {
+  margin-bottom: 20px;
+}
+
+/* Section labels */
+.filter-label {
+  font-weight: 700;
+  font-size: 15px;
+  display: block;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+/* Price inputs container */
+.price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Price inputs */
+.price-input {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  transition: border-color 0.3s ease;
+}
+
+.price-input:focus {
+  border-color: #fb7701;
+  outline: none;
+}
+
+.price-separator {
+  font-weight: 700;
+  font-size: 18px;
+  color: #999;
+}
+
+/* Price range display */
+.price-range-display {
+  margin-top: 8px;
+  font-weight: 600;
+  color: #666;
+}
+
+/* Categories scroll */
+.categories-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Category button */
+.category-btn {
+  white-space: nowrap;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #ccc;
+  background-color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.category-btn.selected {
+  border-color: #fb7701;
+  background-color: #fff3cd;
+  font-weight: 700;
+}
+
+/* Sort select */
+.sort-select {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+.sort-select:focus {
+  border-color: #fb7701;
+  outline: none;
+}
+
+/* Rating options container */
+.rating-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Rating label */
+.rating-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+  gap: 10px;
+  user-select: none;
+}
+
+/* Stars container */
+.stars {
+  color: #ddd;
+  font-size: 18px;
+  display: inline-block;
+}
+
+/* Filled star */
+.star.filled {
+  color: #fb7701;
+}
+
+/* Checkboxes */
+.checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+  gap: 8px;
+  user-select: none;
+}
+
+.checkbox-label input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Buttons container */
+.filter-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Reset Button */
+.reset-btn {
+  flex: 1;
+  background-color: #eee;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 0;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.reset-btn:hover,
+.reset-btn:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+/* Apply Button */
+.apply-btn {
+  flex: 1;
+  background-color: #fb7701;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 0;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.apply-btn:hover,
+.apply-btn:focus {
+  background-color: #e26300;
+  outline: none;
+}

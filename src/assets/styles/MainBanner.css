@@ -1,0 +1,67 @@
+.banner-wrap {
+  position: relative;
+  width: 100%;
+  height: 260px; /* Increased height */
+  max-height: 650px; /* Optional: you can increase this further */
+  overflow: hidden;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  color: #666;
+  font-size: 16px;
+  user-select: none;
+  min-height: 200px;
+}
+.banner-wrap.loading,
+.banner-wrap.error {
+  padding: 20px;
+  text-align: center;
+}
+
+.banner-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.05);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  pointer-events: none;
+}
+
+.banner-img.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Dots navigation */
+.banner-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.dot.active,
+.dot:hover {
+  background: #ff6a00;
+}

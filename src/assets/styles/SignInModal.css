@@ -1,0 +1,233 @@
+/* Modal overlay */
+.signin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+/* Modal container */
+.signin-modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 14px;
+  padding: 30px 35px 40px;
+  width: 380px;
+  max-width: 90vw;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Close button */
+.signin-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  user-select: none;
+  color: #333;
+}
+
+/* Heading */
+.signin-modal-container h2 {
+  margin-bottom: 25px;
+  font-weight: 700;
+  font-size: 24px;
+  color: #222;
+  user-select: none;
+  text-align: center;
+}
+
+/* Form */
+.signin-modal-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Inputs */
+.signin-modal-input {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 8px;
+  border: 1.8px solid #ddd;
+  font-size: 16px;
+  outline-offset: 2px;
+  outline-color: #ff6a00;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.signin-modal-input:focus {
+  border-color: #ff6a00;
+}
+
+/* Input wrapper */
+.signin-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Toggle password button */
+.signin-toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+  color: #777;
+  padding: 0;
+}
+
+/* Submit button */
+.signin-submit-btn {
+  margin-top: 8px;
+  background-color: #ff6a00;
+  color: white;
+  font-weight: 700;
+  font-size: 17px;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 0;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.25s ease;
+  width: 100%;
+  box-shadow: 0 4px 15px rgb(255 106 0 / 0.6);
+}
+
+.signin-submit-btn:hover:not(:disabled) {
+  background-color: #e65a00;
+}
+
+.signin-submit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Error message */
+.signin-error-msg {
+  color: red;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* Toggle text */
+.signin-toggle-text {
+  margin-top: 20px;
+  font-size: 15px;
+  color: #555;
+  text-align: center;
+}
+
+.signin-toggle-link {
+  background: none;
+  border: none;
+  color: #ff6a00;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  padding: 0 6px;
+  font-size: 15px;
+}
+
+.signin-toggle-link:hover {
+  text-decoration: underline;
+}
+
+/* Social login container */
+.signin-social-login {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 380px;
+}
+
+/* Social login buttons */
+.signin-social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s ease;
+  border: 1.5px solid transparent;
+  box-sizing: border-box;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 0.1);
+  width: 100%;
+}
+
+.signin-social-btn span {
+  flex-grow: 1;
+  text-align: center;
+  user-select: none;
+}
+
+/* Social logos */
+.signin-social-logo {
+  width: 20px;
+  height: 20px;
+}
+
+/* Google button */
+.signin-google-btn {
+  border-color: #dcdcdc;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  color: #000;
+}
+
+.signin-google-btn:hover:not(:disabled) {
+  background-color: #f5f5f5;
+}
+
+/* Facebook button */
+.signin-facebook-btn {
+  border-color: #1877f2;
+  background-color: #1877f2;
+  color: white;
+  box-shadow: 0 3px 7px rgba(24,119,242,0.5);
+}
+
+.signin-facebook-btn:hover:not(:disabled) {
+  background-color: #145dbf;
+}
+
+/* Apple button (disabled) */
+.signin-apple-btn {
+  border-color: #000;
+  background-color: #000;
+  color: white;
+  box-shadow: 0 3px 7px rgba(0,0,0,0.6);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+  
+/* Responsive */
+@media (max-width: 480px) {
+  .signin-modal-container {
+    width: 95vw;
+    padding: 25px 20px 35px;
+  }
+}

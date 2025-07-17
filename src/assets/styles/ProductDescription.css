@@ -1,0 +1,90 @@
+.product-description-section {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 20px 5px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background: #fff;
+  border-radius: 8px;
+  /* box-shadow: 0 0 8px rgba(0,0,0,0.1); */
+  line-height: 1.6;
+  overflow-wrap: break-word; /* better text wrapping */
+}
+
+/* Keep your heading styling as is */
+.product-description-section h2 {
+  font-size: 1.9rem;
+  margin-bottom: 18px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+  font-weight: 600;
+}
+
+.product-description-content {
+  margin-bottom: 24px;
+  font-size: 1rem;
+  color: #444;
+
+  /* NEW: Make images inside responsive */
+}
+
+.product-description-content img {
+  max-width: 100%;  /* Image won't exceed container width */
+  height: auto;     /* Maintain aspect ratio */
+  display: block;
+  margin: 15px 0;   /* vertical spacing */
+  border-radius: 6px; /* optional: rounded corners */
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+/* Existing styles for SKU, categories, tags, attributes */
+.product-sku,
+.product-categories,
+.product-tags {
+  margin-bottom: 16px;
+}
+
+.product-sku dt,
+.product-categories dt,
+.product-tags dt {
+  font-weight: 700;
+  display: inline;
+  margin-right: 6px;
+  color: #222;
+}
+
+.product-sku dd,
+.product-categories dd,
+.product-tags dd {
+  display: inline;
+  margin: 0;
+  color: #0073e6;
+}
+
+.category-name,
+.tag-name {
+  cursor: default;
+}
+
+.product-attributes {
+  margin-top: 20px;
+}
+
+.product-attributes h3 {
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #222;
+}
+
+.product-attributes ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.product-attributes li {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: #444;
+}

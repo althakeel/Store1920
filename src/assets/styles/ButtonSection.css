@@ -1,0 +1,44 @@
+.button-section {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 18px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.add-to-cart-btn,
+.go-to-cart-btn,
+.go-to-checkout-btn,
+.buy-now-btn {
+  flex: 1;
+  padding: 10px 20px;
+  border-radius: 55px;
+  cursor: pointer;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.add-to-cart-btn {
+  background-color: #ff7a00;
+  border-radius: 25px;
+}
+
+.go-to-cart-btn {
+  background-color: #fff !important;
+  border-radius: 25px !important;
+  color: #ff7a00 !important;
+  border: 1px solid #ff7a00 !important;
+}
+
+.go-to-checkout-btn {
+  background-color: #4caf50;
+  border-radius: 25px !important;
+}
+
+.buy-now-btn {
+  background-color: #4caf50;
+  border-radius: 25px !important;
+}
