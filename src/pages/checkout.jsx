@@ -12,8 +12,12 @@ const buildUrl = (endpoint) =>
   `${API_BASE}/${endpoint}?consumer_key=${CK}&consumer_secret=${CS}`;
 
 export default function CheckoutPage() {
-  const { cartItems } = useCart();
+  const { cartItems: contextCartItems } = useCart();
 
+  // State declarations: always define state BEFORE useEffect hooks that use them
+  const [cartItems, setCartItems] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [formData, setFormData] = useState({
     shipping: {
       fullName: '',
@@ -36,26 +40,27 @@ export default function CheckoutPage() {
       phone: '',
     },
     billingSameAsShipping: true,
-    // You can add other checkout fields here like paymentMethod, couponCode, etc.
+    paymentMethod: '',
+    paymentMethodTitle: '',
   });
-
   const [countries, setCountries] = useState([]);
-  const [paymentMethods, setPaymentMethods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Fetch WooCommerce data on mount
+  // Sync local cart items with context cart items
+  useEffect(() => {
+    setCartItems(contextCartItems);
+  }, [contextCartItems]);
+
+  // Fetch countries and payment methods on mount
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
-
-        // Fetch countries - keep as object for easy use in AddressForm
         const countriesRes = await fetch(buildUrl('data/countries'));
         const countriesData = await countriesRes.json();
         setCountries(countriesData);
 
-        // Fetch payment methods
         const paymentRes = await fetch(buildUrl('payment_gateways'));
         const paymentData = await paymentRes.json();
         setPaymentMethods(paymentData);
@@ -68,13 +73,34 @@ export default function CheckoutPage() {
     fetchData();
   }, []);
 
-  // Calculate subtotal
+  // Update formData payment method fields when selectedPaymentMethod or paymentMethods change
+  useEffect(() => {
+    if (!selectedPaymentMethod) return;
+
+    const method = paymentMethods.find((m) => m.id === selectedPaymentMethod);
+    if (method) {
+      setFormData((prev) => ({
+        ...prev,
+        paymentMethod: method.id,
+        paymentMethodTitle: method.title,
+      }));
+    }
+  }, [selectedPaymentMethod, paymentMethods]);
+
+  // Handler to remove an item by id/product_id
+  const handleRemoveItem = (itemId) => {
+    setCartItems((prev) =>
+      prev.filter((item) => (item.id || item.product_id) !== itemId)
+    );
+  };
+
+  // Calculate subtotal based on local cartItems state
   const subtotal = cartItems.reduce(
     (sum, item) => sum + parseFloat(item.price || 0) * item.quantity,
     0
   );
 
-  // Unified form change handler
+  // Unified form change handler for shipping/billing inputs and checkbox
   const handleChange = (e, section) => {
     const { name, value, checked, type } = e.target;
     if (section === 'checkbox') {
@@ -97,6 +123,8 @@ export default function CheckoutPage() {
         onChange={handleChange}
         countries={countries}
         cartItems={cartItems}
+        onRemoveItem={handleRemoveItem}
+        onPaymentMethodSelect={setSelectedPaymentMethod} // Pass selected payment method setter
       />
 
       <CheckoutRight
@@ -105,6 +133,7 @@ export default function CheckoutPage() {
         formData={formData}
         onFormChange={handleChange}
         paymentMethods={paymentMethods}
+        selectedPaymentMethod={selectedPaymentMethod}
       />
     </div>
   );

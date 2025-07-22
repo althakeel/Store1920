@@ -5,6 +5,7 @@ import CartItem from '../components/CartItem';
 import OrderSummary from '../components/OrderSummary';
 import CouponInput from '../components/CouponInput';
 import '../assets/styles/cart.css';
+import CartMessages from '../components/sub/CartMessages';
 
 export default function CartPage() {
   const { cartItems } = useCart();
@@ -19,6 +20,7 @@ export default function CartPage() {
   return (
     <div className="cartGrid">
       <section className="cartLeft">
+        <CartMessages/>
         <h2>Shopping Cart</h2>
 
         {cartItems.length === 0 ? (

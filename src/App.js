@@ -36,6 +36,9 @@ import Returnandrefundpolicy from './pages/Returnandrefundpolicy';
 import About from './pages/about';
 import Shippinginfo from './pages/shippinginfo';
 import Intellectualproperty from './pages/intellectual-property-policy';
+import DeliveryGuarantee from './pages/delivery-guarantee';
+import PrivacyPolicy from './/pages/privacy-policy';
+import Terms0fuse from './pages/TermsOfuse'
 
 // Components
 import Topbar from './components/topbar';
@@ -52,7 +55,7 @@ const AppContent = () => {
 
   const isHomePage = path === '/';
   const onCartPage = path.startsWith('/cart');
-const onCheckoutPage = /^\/checkout(\/|$)/.test(path);
+ const onCheckoutPage = path === '/checkout' || path.startsWith('/checkout/');
 
 
 
@@ -102,6 +105,12 @@ const onCheckoutPage = /^\/checkout(\/|$)/.test(path);
     }
   }, [onCartPage, onCheckoutPage, is404Page, isCartOpen, setIsCartOpen]);
 
+
+    useEffect(() => {
+    if (onCheckoutPage && isCartOpen) {
+      setIsCartOpen(false);
+    }
+  }, [onCheckoutPage, isCartOpen, setIsCartOpen]);
   return (
     // <SignOutModalProvider>
     <AuthProvider>
@@ -109,7 +118,7 @@ const onCheckoutPage = /^\/checkout(\/|$)/.test(path);
       <NavbarWithMegaMenu
   openCart={() => setIsCartOpen(true)}
   backgroundColor={navbarColor}
-  isCartOpen={isCartOpen}  // <-- pass this prop here
+  isCartOpen={isCartOpen} 
 />
       <div style={{ display: 'flex', position: 'relative' }}>
         <main
@@ -159,19 +168,22 @@ const onCheckoutPage = /^\/checkout(\/|$)/.test(path);
             <Route path="/Intellectual-property-policy" element={<Intellectualproperty />} />
             <Route path="/shippinginfo" element={<Shippinginfo />} />
             <Route path="/about" element={<About />} />
-            <Route path="/testregister" element={<TestRegister />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+             <Route path="/privacy-policy" element={<PrivacyPolicy />} />   
+             <Route path="/terms-0f-use" element={<Terms0fuse />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
 
         {/* MiniCart on public pages */}
-        {!onCartPage && !onCheckoutPage && !is404Page && (
-         <MiniCart
-  isOpen={isCartOpen}
-  onClose={() => setIsCartOpen(false)}
-  navbarColor={navbarColor}
-/>
-        )}
+     {!onCartPage && !onCheckoutPage && !is404Page && (
+  <MiniCart
+    isOpen={isCartOpen}
+    onClose={() => setIsCartOpen(false)}
+
+  />
+)}
+
       </div>
 
       <Footer />

@@ -26,3 +26,6 @@ body::-webkit-scrollbar-thumb {
                      var(--sb-track-color);
   }
 }
+body {
+  font-family: 'Montserrat', sans-serif !important;
+}

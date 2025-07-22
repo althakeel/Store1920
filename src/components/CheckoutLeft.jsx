@@ -8,13 +8,14 @@ import PaymentMethods from '../components/checkoutleft/PaymentMethods';
 import AddressForm from '../components/checkoutleft/AddressForm';
 import ItemList from './checkoutleft/ItemList';
 
-const CheckoutLeft = ({ formData, onChange, countries, cartItems }) => {
+const CheckoutLeft  = ({ formData, onChange, countries, cartItems, onRemoveItem, onPaymentMethodSelect  }) => {
   const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [shippingStates, setShippingStates] = useState([]);
   const [billingStates, setBillingStates] = useState([]);
   const [shippingMethods, setShippingMethods] = useState([]);
+  
 
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -29,6 +30,17 @@ const CheckoutLeft = ({ formData, onChange, countries, cartItems }) => {
     return () => unsubscribe();
   }, []);
 
+const handleRemoveItem = (itemId) => {
+  // WRONG: setCartItems is not defined here
+  // setCartItems((prev) =>
+  //   prev.filter(item => (item.id || item.product_id) !== itemId)
+  // );
+
+  // Correct: call the onRemoveItem prop function passed from parent
+  if (onRemoveItem) {
+    onRemoveItem(itemId);
+  }
+};
   // Fetch shipping methods for zone 0
   useEffect(() => {
     fetch(
@@ -151,11 +163,12 @@ const CheckoutLeft = ({ formData, onChange, countries, cartItems }) => {
       </div>
 
       <div className="section-block">
-        <ItemList items={cartItems} />
+      <ItemList items={cartItems} onRemove={handleRemoveItem} />
+
       </div>
 
       <div className="section-block">
-        <PaymentMethods onMethodSelect={(method) => console.log('Selected:', method)} />
+          <PaymentMethods onMethodSelect={onPaymentMethodSelect} />
       </div>
 
       <HelpText />

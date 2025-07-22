@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../assets/styles/orderSummary.css";
+import TrustSection from "./checkout/TrustSection";
 
 export default function OrderSummary({
   subtotal,
@@ -57,41 +58,7 @@ export default function OrderSummary({
     <section className="os-container" aria-label="Order Summary">
       <h3 className="os-title">Order Summary</h3>
 
-      <div className="os-coupon-section">
-        <label htmlFor="coupon" className="os-coupon-label">Have a coupon?</label>
-        <div className="os-coupon-input-wrapper">
-          <input
-            id="coupon"
-            type="text"
-            className="os-coupon-input"
-            value={coupon}
-            onChange={(e) => {
-              setCoupon(e.target.value);
-              setCouponError("");
-            }}
-            placeholder="Enter coupon code"
-            aria-describedby="coupon-feedback"
-          />
-          <button
-            type="button"
-            className="os-apply-btn"
-            onClick={handleApplyCoupon}
-            aria-label="Apply coupon"
-          >
-            Apply
-          </button>
-        </div>
-        {couponApplied && (
-          <p id="coupon-feedback" className="os-coupon-success" role="alert">
-            ✔ Coupon applied
-          </p>
-        )}
-        {couponError && (
-          <p id="coupon-feedback" className="os-coupon-error" role="alert">
-            ✖ {couponError}
-          </p>
-        )}
-      </div>
+      
 
       <div className="os-row">
         <span>Item(s) total:</span>
@@ -175,40 +142,8 @@ export default function OrderSummary({
       <p className="os-footnote">
         <span>ⓘ</span> Item availability and pricing are not guaranteed until payment is final.
       </p>
+      <TrustSection/>
 
-      <div className="os-info-block" aria-label="Safe Payment Options">
-        <h4>🔐 Safe Payment Options</h4>
-        <p className="os-desc">
-          Temu is committed to protecting your payment information. We follow PCI DSS
-          standards, use strong encryption, and perform regular reviews of its system
-          to protect your privacy.
-        </p>
-        <div className="os-logos-row">
-          <img src="/img/visa.png" alt="Visa" />
-          <img src="/img/mastercard.png" alt="Mastercard" />
-          <img src="/img/paypal.png" alt="PayPal" />
-          <img src="/img/applepay.png" alt="Apple Pay" />
-          <img src="/img/googlepay.png" alt="Google Pay" />
-        </div>
-      </div>
-
-      <div className="os-info-block" aria-label="Delivery Guarantee">
-        <h4><img src='https://store1920.com/wp-content/uploads/2025/07/padlock.png' /> Delivery Guarantee</h4>
-        <ul>
-          <li>✔ AED20.00 Credit for delay</li>
-          <li>✔ 15-day no update refund</li>
-          <li>✔ Return if item damaged</li>
-          <li>✔ 40-day no delivery refund</li>
-        </ul>
-      </div>
-
-      <div className="os-info-block" aria-label="Temu Purchase Protection">
-        <h4>🛡️ Temu Purchase Protection</h4>
-        <p className="os-desc">
-          Shop confidently on Temu knowing that if something goes wrong, we've always
-          got your back.
-        </p>
-      </div>
     </section>
   );
 }

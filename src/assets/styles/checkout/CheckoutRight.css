@@ -1,0 +1,134 @@
+/* CheckoutRight.module.css or unique-prefixed CSS */
+
+.checkoutRightContainer {
+  font-family: 'Montserrat', sans-serif;
+  max-width: 360px;
+  padding: 20px;
+  background-color: #fff;
+  color: #111827; /* dark text */
+  user-select: none;
+  border: none !important;
+  border-radius: 8px;
+}
+
+.checkoutRightContainer h2 {
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+.summaryRowCR {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.summaryRowCR.discountCR {
+  color: #dc2626; /* red-600 */
+  font-weight: 600;
+}
+
+.summaryRowCR.totalCR {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #111827;
+  margin-top: 8px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.checkoutRightContainer p {
+  font-size: 0.875rem;
+  color: #6b7280; /* gray-500 */
+  line-height: 1.4;
+  margin-top: 16px;
+}
+
+.checkoutRightContainer p a {
+  color: #2563eb; /* blue-600 */
+  text-decoration: underline;
+}
+
+.checkoutRightContainer p a:hover,
+.checkoutRightContainer p a:focus {
+  color: #1d4ed8; /* blue-700 */
+  outline: none;
+  text-decoration: none;
+}
+
+.placeOrderBtnCR {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 14px 36px;
+  border-radius: 25px;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+  transition: background-color 0.3s ease, transform 0.15s ease;
+  user-select: none;
+  display: inline-block;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.placeOrderBtnCR:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.placeOrderBtnCR:not(:disabled):hover {
+  transform: scale(1.03);
+}
+
+.placeOrderBtnCR:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.placeOrderBtnCR:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+}
+
+/* Alert Styles */
+
+.alertCR {
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  color: white;
+  font-weight: 600;
+}
+
+.alertCR.infoCR {
+  background-color: #2f86eb;
+}
+
+.alertCR.successCR {
+  background-color: #28a745;
+}
+
+.alertCR.errorCR {
+  background-color: #dc3545;
+}
+
+.alertCR button {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+}

@@ -1,63 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../../assets/styles/checkoutleft/paymentmethods.css';
 
 const API_BASE = 'https://store1920.com/wp-json/wc/v3';
-const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
-const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
+const CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
+const CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
 
 const buildUrl = (endpoint) =>
-  `${API_BASE}/${endpoint}?consumer_key=${CK}&consumer_secret=${CS}`;
+  `${API_BASE}/${endpoint}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`;
 
 const PaymentMethods = ({ onMethodSelect }) => {
-  const [selected, setSelected] = useState(null);
-  const [methods, setMethods] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [selectedMethod, setSelectedMethod] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchMethods = async () => {
+    const fetchPaymentMethods = async () => {
       try {
-        const res = await axios.get(buildUrl('payment_gateways'));
-        const enabledMethods = res.data.filter((method) => method.enabled);
-        setMethods(enabledMethods);
+        const response = await axios.get(buildUrl('payment_gateways'));
+        const enabled = response.data.filter(method => method.enabled);
+        setPaymentMethods(enabled);
       } catch (err) {
-        console.error('Error fetching payment methods:', err);
+        console.error('Failed to load payment methods:', err);
         setError('Unable to load payment methods.');
       }
     };
 
-    fetchMethods();
+    fetchPaymentMethods();
   }, []);
 
-  const handleSelect = (id) => {
-    setSelected(id);
-    if (onMethodSelect) onMethodSelect(id);
+  const handleSelection = (methodId) => {
+    setSelectedMethod(methodId);
+    if (onMethodSelect) {
+      onMethodSelect(methodId);
+    }
   };
 
   return (
     <div className="payment-methods-wrapper">
       <h2 className="payment-heading">Choose a Payment Method</h2>
+
       {error && <div className="payment-error">{error}</div>}
 
       <div className="payment-options">
-        {methods.map((method) => (
+        {paymentMethods.length === 0 && !error && (
+          <div className="payment-loading">Loading payment options...</div>
+        )}
+
+        {paymentMethods.map((method) => (
           <div
             key={method.id}
-            className={`payment-option ${selected === method.id ? 'active' : ''}`}
-            onClick={() => handleSelect(method.id)}
+            className={`payment-option ${selectedMethod === method.id ? 'active' : ''}`}
+            onClick={() => handleSelection(method.id)}
           >
-            <div className="payment-radio">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value={method.id}
-                checked={selected === method.id}
-                onChange={() => handleSelect(method.id)}
-              />
-            </div>
+            <input
+              type="radio"
+              name="paymentMethod"
+              value={method.id}
+              checked={selectedMethod === method.id}
+              onChange={() => handleSelection(method.id)}
+            />
             <div className="payment-info">
               <div className="payment-title">{method.title}</div>
-              {/* Optional: replace with real logos */}
               <div className="payment-icon">💳</div>
             </div>
           </div>

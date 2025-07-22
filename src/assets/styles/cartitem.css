@@ -1,6 +1,6 @@
 .cart-item {
     display: flex;
-    gap: 12px;
+    gap: 18px;
     padding: 12px 0;
     /* border-bottom: 1px solid #eee; */
     align-items: flex-start;
@@ -10,10 +10,14 @@
     opacity: 0.6;
     pointer-events: none;
   }
-  
+  .divider {
+  border: none;
+  border-bottom: 1px solid #ddd;
+  margin: 8px 0;
+}
   .item-image {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
     border-radius: 6px;
     background-color: #f8f8f8;

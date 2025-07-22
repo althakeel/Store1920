@@ -52,7 +52,7 @@ function CartItem({ item, isUnavailable = false }) {
             </button>
           )}
         </div>
-
+  
         {/* Variant info */}
         {item.variants && <div className="item-variant">{item.variants}</div>}
 
@@ -89,7 +89,9 @@ function CartItem({ item, isUnavailable = false }) {
             <div className="sold-out-text">This item is sold out.</div>
           )}
         </div>
+        <hr className="divider" />
       </div>
+      
     </div>
   );
 }

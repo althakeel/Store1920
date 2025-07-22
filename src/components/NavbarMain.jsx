@@ -347,7 +347,7 @@ onMouseLeave={() => {
         onClose={() => setSignInOpen(false)}
         onLogin={handleLogin}
       />
-<MiniCart openSignInModal={() => setSignInOpen(true)} />
+{/* <MiniCart openSignInModal={() => setSignInOpen(true)} /> */}
       
     </>
   );

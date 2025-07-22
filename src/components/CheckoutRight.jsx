@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../assets/styles/checkout/CheckoutRight.css';
+import TrustSection from './checkout/TrustSection';
+import CouponDiscount from './sub/account/CouponDiscount';
 
 const API_BASE = 'https://store1920.com/wp-json/wc/v3';
 const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
@@ -8,9 +11,8 @@ const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
 const buildUrl = (endpoint) =>
   `${API_BASE}/${endpoint}?consumer_key=${CK}&consumer_secret=${CS}`;
 
-// Alert component to show messages
 function Alert({ message, type = 'info', onClose }) {
-  React.useEffect(() => {
+  useEffect(() => {
     if (!message) return;
     const timer = setTimeout(onClose, 4000);
     return () => clearTimeout(timer);
@@ -35,6 +37,8 @@ function Alert({ message, type = 'info', onClose }) {
         position: 'relative',
         boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
       }}
+      role="alert"
+      aria-live="assertive"
     >
       {message}
       <button
@@ -59,25 +63,34 @@ function Alert({ message, type = 'info', onClose }) {
   );
 }
 
-export default function CheckoutRight({ cartItems, formData, onFormChange }) {
+export default function CheckoutRight({ cartItems, formData }) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [discount, setDiscount] = useState(0);
 
-  // Calculate subtotal dynamically from cart items
-  const subtotal = cartItems.reduce(
+  // Calculate totals
+  const itemsTotal = cartItems.reduce(
     (acc, item) => acc + parseFloat(item.price) * item.quantity,
     0
   );
 
-  const total = subtotal; // No discount logic anymore
+  const subtotal = Math.max(0, itemsTotal - discount);
+  const orderTotal = subtotal; // You can add tax/fees here if needed
 
   const showAlert = (message, type = 'info') => {
     setAlert({ message, type });
   };
 
   const handlePlaceOrder = async () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.address) {
-      showAlert('Please fill in all required billing details.', 'error');
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.address ||
+      !formData.paymentMethod ||
+      !formData.paymentMethodTitle
+    ) {
+      showAlert('Please fill in all billing details and select a payment method.', 'error');
       return;
     }
 
@@ -114,10 +127,12 @@ export default function CheckoutRight({ cartItems, formData, onFormChange }) {
 
     try {
       const res = await axios.post(buildUrl('orders'), {
-        // Remove payment_method, payment_method_title, set_paid for now
         billing,
         shipping,
         line_items,
+        payment_method: formData.paymentMethod,
+        payment_method_title: formData.paymentMethodTitle,
+        set_paid: formData.paymentMethod !== 'cod',
       });
 
       showAlert(`Order placed successfully! Order ID: ${res.data.id}`, 'success');
@@ -133,27 +148,143 @@ export default function CheckoutRight({ cartItems, formData, onFormChange }) {
     }
   };
 
+  // Handler to receive coupon data from CouponDiscount component
+  const handleCoupon = (couponData) => {
+    if (couponData) {
+      let discountAmount = 0;
+
+      if (couponData.discount_type === 'percent') {
+        discountAmount = (itemsTotal * parseFloat(couponData.amount)) / 100;
+      } else {
+        discountAmount = parseFloat(couponData.amount);
+      }
+
+      discountAmount = Math.min(discountAmount, itemsTotal);
+
+      setDiscount(discountAmount);
+      showAlert(`Coupon applied! You saved AED ${discountAmount.toFixed(2)}`, 'success');
+      console.log('Coupon applied:', couponData);
+    } else {
+      setDiscount(0);
+      showAlert('Coupon removed or invalid.', 'error');
+      console.log('Coupon invalid or removed');
+    }
+  };
+
+  const getButtonStyle = () => {
+    switch (formData.paymentMethod) {
+      case 'apple_pay':
+        return {
+          backgroundColor: '#000',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '25px',
+          fontWeight: '600',
+          padding: '14px 36px',
+          cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
+        };
+      case 'cod':
+        return {
+          backgroundColor: '#f97316', // orange
+          color: '#fff',
+          border: 'none',
+          borderRadius: '25px',
+          fontWeight: '600',
+          padding: '14px 36px',
+          cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
+        };
+      case 'card':
+        return {
+          backgroundColor: '#2563eb',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '25px',
+          fontWeight: '600',
+          padding: '14px 36px',
+          cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
+        };
+      default:
+        return {
+          backgroundColor: '#10b981', // default green
+          color: '#fff',
+          border: 'none',
+          borderRadius: '25px',
+          fontWeight: '600',
+          padding: '14px 36px',
+          cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
+        };
+    }
+  };
+
   return (
-    <aside className="checkoutRight">
-      <Alert message={alert.message} type={alert.type} onClose={() => setAlert({ message: '', type: 'info' })} />
+    <aside className="checkoutRightContainer">
+      <Alert
+        message={alert.message}
+        type={alert.type}
+        onClose={() => setAlert({ message: '', type: 'info' })}
+      />
 
       <h2>Order Summary</h2>
+      <CouponDiscount onApplyCoupon={handleCoupon} />
 
-      <div className="summaryRow">
+      <div className="summaryRowCR discountCR">
+        <span>Item(s) total:</span>
+        <span>AED {itemsTotal.toFixed(2)}</span>
+      </div>
+
+      <div
+        className="summaryRow discount"
+        style={{ color: 'red', fontWeight: '600' }}
+        aria-label={`Discount AED ${discount.toFixed(2)}`}
+      >
+        <span>Item(s) discount:</span>
+        <span>-AED {discount.toFixed(2)}</span>
+      </div>
+
+      <div className="summaryRowCR">
         <span>Subtotal:</span>
-        <span>${subtotal.toFixed(2)}</span>
+        <span>AED {subtotal.toFixed(2)}</span>
       </div>
 
-      <div className="summaryRow total">
-        <span>Total:</span>
-        <span>${total.toFixed(2)}</span>
+      <div className="summaryRowCR totalCR" style={{ fontWeight: '700', fontSize: '1.1rem' }}>
+        <span>Order total:</span>
+        <span>AED {orderTotal.toFixed(2)}</span>
       </div>
 
-      {/* Removed coupon code and payment methods */}
+      <p
+        style={{
+          fontSize: '0.875rem',
+          color: '#666',
+          marginTop: '1rem',
+          lineHeight: '1.4',
+        }}
+      >
+        All fees and applicable taxes are included, and no additional charges will apply.
+      </p>
+      <p style={{ fontSize: '0.75rem', color: '#999', marginTop: '0.5rem' }}>
+        By submitting your order, you agree to our{' '}
+        <a href="/terms-0f-use" target="_blank" rel="noopener noreferrer">
+          Terms of Use
+        </a>{' '}
+        and{' '}
+        <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">
+          Privacy Policy
+        </a>
+        .
+      </p>
 
-      <button className="placeOrderBtn" onClick={handlePlaceOrder} disabled={isPlacingOrder}>
-        {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
+      <button
+        className="placeOrderBtnCR"
+        onClick={handlePlaceOrder}
+        disabled={isPlacingOrder}
+        style={getButtonStyle()}
+        aria-disabled={isPlacingOrder}
+      >
+        {isPlacingOrder
+          ? `Placing Order${formData.paymentMethodTitle ? ` with ${formData.paymentMethodTitle}` : ''}...`
+          : `Place Order${formData.paymentMethodTitle ? ` with ${formData.paymentMethodTitle}` : ''}`}
       </button>
+      <TrustSection />
     </aside>
   );
 }

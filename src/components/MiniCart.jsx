@@ -41,14 +41,14 @@ const MiniCart = ({ isOpen, onClose, navbarColor }) => {
     0
   );
 
-  const onCheckoutClick = () => {
-    if (!user) {
-      setSignInOpen(true); // Open modal internally
-      return;
-    }
-    navigate('/checkout');
-  };
-
+const onCheckoutClick = () => {
+  if (!user) {
+    setSignInOpen(true);
+    return;
+  }
+  setIsCartOpen(false);  // <-- close mini cart
+  navigate('/checkout'); // <-- then redirect
+};
   const qualifiesFreeShipping = totalPrice >= FREE_SHIPPING_THRESHOLD;
   const progressPercent = Math.min((totalPrice / FREE_SHIPPING_THRESHOLD) * 100, 100);
 
