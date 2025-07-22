@@ -1,6 +1,7 @@
-// SignOutConfirmModal.jsx
+// src/components/sub/SignOutConfirmModal.jsx
 import React from 'react';
 import ReactDOM from 'react-dom';
+import '../../assets/styles/SignOutConfirmModal.css'; // optional CSS for modal styling
 
 const SignOutConfirmModal = ({ isOpen, onConfirm, onCancel }) => {
   if (!isOpen) return null;

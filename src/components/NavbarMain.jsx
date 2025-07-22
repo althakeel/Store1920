@@ -8,6 +8,9 @@ import UserDropdownMenu from './UserDropdownMenu';
 import MobileMenu from './sub/MobileMenu';
 import SupportDropdownMenu from './sub/SupportDropdownMenu';
 import CoinWidget from './CoinWidget';
+import chroma from 'chroma-js';
+import MiniCart from './MiniCart';
+
 
 const API_BASE = 'https://store1920.com/wp-json/wc/v3';
 const CK = 'ck_2e4ba96dde422ed59388a09a139cfee591d98263';
@@ -21,7 +24,9 @@ const decodeHtml = (html) => {
   return txt.value;
 };
 
-const NavbarWithMegaMenu = () => {
+const NavbarWithMegaMenu = ({ openCart, backgroundColor = '#fff' }) => {
+    const isDark = chroma(backgroundColor).luminance() < 0.5;
+  const textColor = isDark ? '#fff' : '#000';
   const [sitelogo, setSitelogo] = useState(null);
   const [categories, setCategories] = useState([]);
   const [activeCategoryId, setActiveCategoryId] = useState(null);
@@ -35,18 +40,36 @@ const NavbarWithMegaMenu = () => {
   const [supportDropdownOpen, setSupportDropdownOpen] = useState(false);
   const timeoutRef = useRef(null);
   const supportTimeoutRef = useRef(null); // 👈 Add this line
+     
+  
 
   const userTimeoutRef = useRef(null); // ✅ Add this line
+
+  const { addToCart } = useCart();
+
+  const handleAddToCart = (product, quantity = 1) => {
+  if (!user) {
+    setSignInOpen(true); // show login modal if not logged in
+    return false; // or return to stop further processing
+  }
+  addToCart(product, quantity); // proceed if logged in
+  return true;
+};
+
+
 
 
 const truncateName = (name, maxLength = 10) => {
   if (!name) return '';
   return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
+  
 };
 const capitalizeFirst = (str) => {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
+
+
 
 
   useEffect(() => {
@@ -102,10 +125,15 @@ const capitalizeFirst = (str) => {
 
   return (
     <>
-      <nav className="navbar" style={{
-        width: isCartOpen ? 'calc(100% - 250px)' : '100%',
-        transition: 'width 0.3s ease',
-      }}>
+    <nav
+  className="navbar"
+  style={{
+    width: isCartOpen ? 'calc(100% - 250px)' : '100%',
+    transition: 'width 0.3s ease',
+    backgroundColor: backgroundColor || '#0aa6ee',
+    color: textColor,
+  }}
+>
         <div className="navbar-inner">
           <div className="nav-left">
             {sitelogo ? (
@@ -121,7 +149,9 @@ const capitalizeFirst = (str) => {
 />
 
             ) : (
-              <div className="logo" onClick={closeMobileMenu}>Store1920</div>
+           <div className="logo" onClick={closeMobileMenu} style={{ color: textColor }}>
+  Store1920
+</div>
             )}
           </div>
 
@@ -135,7 +165,7 @@ const capitalizeFirst = (str) => {
 
           <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
             <div className="nav-left-links">
-              <div className="nav-icon-with-text">
+              <div className="nav-icon-with-text"  onClick={() => window.location.href = '/bestrated'}>
                 <img
                   src="https://store1920.com/wp-content/uploads/2025/07/7.png"
                   alt="Best Rated"
@@ -144,7 +174,7 @@ const capitalizeFirst = (str) => {
                 <span>Best Rated</span>
               </div>
 
-              <div className="nav-icon-with-text star-rating">
+              <div className="nav-icon-with-text star-rating" onClick={() => window.location.href = '/rated'}>
                 <img
                   src="https://store1920.com/wp-content/uploads/2025/07/6.png"
                   alt="5 Star"
@@ -224,15 +254,20 @@ onMouseLeave={() => {
       </div>
     )}
   </div>
-<div className="user-name">Hi, {capitalizeFirst(truncateName(user.name))} <CoinWidget/></div>
+<div className="user-name">
+  Hi, {capitalizeFirst(truncateName(user.name))} <CoinWidget userId={user.id} /> 
+</div>
 
 
- <UserDropdownMenu
-    user={user}
-    isOpen={userDropdownOpen}
-    onSignOut={handleSignOut}
-    onClose={() => setUserDropdownOpen(false)}
-  />
+<UserDropdownMenu
+  user={user}
+  setUser={setUser} // ✅ pass the function as a prop
+  isOpen={userDropdownOpen}
+  onSignOut={handleSignOut}
+  onClose={() => setUserDropdownOpen(false)}
+  setUserDropdownOpen={setUserDropdownOpen}
+  setMobileMenuOpen={setMobileMenuOpen}
+/>
 </div>
 ) : (
     <div className="account guest-account" onClick={() => setSignInOpen(true)}>
@@ -241,7 +276,7 @@ onMouseLeave={() => {
         alt="Profile Icon"
         className="icon-small"
       />
-      <div className="account-text">
+      <div className="account-text" style={{ color: textColor }}>
         <span className="account-title">Sign In / Register</span>
         <span className="small-text">Orders & Account</span>
       </div>
@@ -259,7 +294,7 @@ onMouseLeave={() => {
       setSupportDropdownOpen(false);
     }, 200);
   }}
-  style={{ position: 'relative', cursor: 'pointer', marginRight: '20px' }}
+  style={{ position: 'relative', cursor: 'pointer', marginRight: '20px', color: textColor  }}
 >
   <img
     src="https://store1920.com/wp-content/uploads/2025/07/3-2.png"
@@ -312,7 +347,7 @@ onMouseLeave={() => {
         onClose={() => setSignInOpen(false)}
         onLogin={handleLogin}
       />
-
+<MiniCart openSignInModal={() => setSignInOpen(true)} />
       
     </>
   );

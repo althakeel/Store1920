@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCompare } from '../contexts/CompareContext';
 import { useNavigate } from 'react-router-dom';
+import { MdCompareArrows } from 'react-icons/md';
 
 const CompareButton = ({ productId }) => {
   const { addToCompare } = useCompare();
@@ -15,16 +16,17 @@ const CompareButton = ({ productId }) => {
     <button
       onClick={handleCompare}
       style={{
-        padding: '6px 12px',
-        fontSize: '14px',
-        background: '#ff6600',
-        color: '#fff',
+        background: 'transparent',
         border: 'none',
-        borderRadius: 4,
         cursor: 'pointer',
+        padding: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
+      title="Compare"
     >
-      Compare
+      <MdCompareArrows size={22} color="#ff6600" />
     </button>
   );
 };

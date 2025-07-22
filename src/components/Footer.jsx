@@ -26,9 +26,9 @@ const Footer = () => {
           <div className="footer-section">
             <h4>Customer Service</h4>
             <ul>
-              <li><a href="/returns">Return & Refund Policy</a></li>
-              <li><a href="/shipping">Shipping Info</a></li>
-              <li><a href="/intellectual-property">Intellectual Property</a></li>
+              <li><a href="/returnandrefundpolicy">Return & Refund Policy</a></li>
+              <li><a href="/shippinginfo">Shipping Info</a></li>
+              <li><a href="/Intellectual-property-policy">Intellectual Property</a></li>
               <li><a href="/report-abuse">Report Abuse</a></li>
               <li><a href="/terms-of-sale">Terms of Sale</a></li>
             </ul>
@@ -39,10 +39,10 @@ const Footer = () => {
             <ul>
               <li><a href="/support">Support & FAQ</a></li>
               <li><a href="/safety">Safety Center</a></li>
-              <li><a href="/protection">Purchase Protection</a></li>
+              <li><a href="/purchaseprotection">Purchase Protection</a></li>
               <li><a href="/track-order">Track Order</a></li>
               <li><a href="/sitemap">Sitemap</a></li>
-              <li><a href="/partner">Partner With Us</a></li>
+              <li><a href="/partnerwithus">Partner With Us</a></li>
             </ul>
           </div>
 

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+// ProductGallery.jsx
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../assets/styles/ProductGallery.css';
 
 export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, activeModal, openModal, closeModal }) {
@@ -6,15 +7,42 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
   const [mainLoading, setMainLoading] = useState(true);
   const modalThumbListRef = useRef(null);
 
+  // Zoom and pan state for modal
+  const [zoomScale, setZoomScale] = useState(1);
+  const [zoomTranslate, setZoomTranslate] = useState({ x: 0, y: 0 });
+  const zoomedImageRef = useRef(null);
+  const containerRef = useRef(null);
+  const lastDragPosition = useRef(null);
+ 
+
+  // Sync mainIndex when mainImageUrl changes
   useEffect(() => {
-    const index = images.findIndex(img => img.src === mainImageUrl);
-    if (index !== -1) setMainIndex(index);
+    const idx = images.findIndex(img => img.src === mainImageUrl);
+    if (idx !== -1) setMainIndex(idx);
   }, [mainImageUrl, images]);
 
+  // Reset loading and zoom state when mainIndex changes
   useEffect(() => {
     setMainLoading(true);
+    setZoomScale(1);
+    setZoomTranslate({ x: 0, y: 0 });
+    if (modalThumbListRef.current) {
+      scrollModalThumbnails(mainIndex);
+    }
   }, [mainIndex]);
 
+  // Thumbnail scrolling inside modal to keep active thumb visible
+  const scrollModalThumbnails = (index) => {
+    if (!modalThumbListRef.current) return;
+    const thumbWidth = 108; // 100px width + 8px gap approx
+    const scrollPos = Math.max(0, (index * thumbWidth) - (thumbWidth * 2));
+    modalThumbListRef.current.scrollTo({
+      left: scrollPos,
+      behavior: 'smooth',
+    });
+  };
+
+  // Handlers for previous/next image in gallery
   const handlePrev = () => {
     const newIndex = mainIndex === 0 ? images.length - 1 : mainIndex - 1;
     setMainIndex(newIndex);
@@ -27,6 +55,7 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
     setMainImageUrl(images[newIndex].src);
   };
 
+  // Modal prev/next buttons with thumbnail scroll
   const handleModalPrev = (e) => {
     e.stopPropagation();
     handlePrev();
@@ -39,16 +68,7 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
     scrollModalThumbnails(mainIndex === images.length - 1 ? 0 : mainIndex + 1);
   };
 
-  const scrollModalThumbnails = (index) => {
-    if (!modalThumbListRef.current) return;
-    const thumbWidth = 108; // 100px width + 8px gap approx
-    const scrollPos = Math.max(0, (index * thumbWidth) - (thumbWidth * 2));
-    modalThumbListRef.current.scrollTo({
-      left: scrollPos,
-      behavior: 'smooth',
-    });
-  };
-
+  // Modal thumbnail scroll buttons
   const scrollModalThumbsLeft = (e) => {
     e.stopPropagation();
     modalThumbListRef.current?.scrollBy({ left: -100, behavior: 'smooth' });
@@ -59,6 +79,69 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
     modalThumbListRef.current?.scrollBy({ left: 100, behavior: 'smooth' });
   };
 
+  // Zoom and pan logic inside modal
+
+  // Handle wheel zoom on modal image container
+  const onWheel = (e) => {
+    e.preventDefault();
+    if (e.deltaY === 0) return;
+    let newScale = zoomScale - e.deltaY * 0.001;
+    newScale = Math.min(Math.max(newScale, 1), 4); // clamp between 1 and 4
+    setZoomScale(newScale);
+    if (newScale === 1) {
+      setZoomTranslate({ x: 0, y: 0 });
+    }
+  };
+
+  // Handle drag start on zoomed image
+  const onDragStart = (e) => {
+    e.preventDefault();
+    lastDragPosition.current = {
+      x: e.clientX || e.touches?.[0]?.clientX,
+      y: e.clientY || e.touches?.[0]?.clientY,
+    };
+    containerRef.current.style.cursor = 'grabbing';
+  };
+
+  // Handle drag move on zoomed image
+  const onDragMove = (e) => {
+    if (!lastDragPosition.current) return;
+    const x = e.clientX || e.touches?.[0]?.clientX;
+    const y = e.clientY || e.touches?.[0]?.clientY;
+    if (x === undefined || y === undefined) return;
+    const dx = x - lastDragPosition.current.x;
+    const dy = y - lastDragPosition.current.y;
+    lastDragPosition.current = { x, y };
+
+    // Calculate new translate but limit it to avoid empty spaces (basic clamp)
+    const maxTranslateX = (zoomScale - 1) * containerRef.current.clientWidth / 2;
+    const maxTranslateY = (zoomScale - 1) * containerRef.current.clientHeight / 2;
+
+    setZoomTranslate(prev => {
+      let newX = prev.x + dx;
+      let newY = prev.y + dy;
+      newX = Math.min(Math.max(newX, -maxTranslateX), maxTranslateX);
+      newY = Math.min(Math.max(newY, -maxTranslateY), maxTranslateY);
+      return { x: newX, y: newY };
+    });
+  };
+
+  // Handle drag end
+  const onDragEnd = (e) => {
+    e.preventDefault();
+    lastDragPosition.current = null;
+    if (containerRef.current) containerRef.current.style.cursor = zoomScale > 1 ? 'grab' : 'default';
+  };
+
+  // Prevent scrolling the background when modal is open
+  useEffect(() => {
+    if (activeModal === 'zoom') {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [activeModal]);
+
   if (!images || images.length === 0) {
     return <div className="product-gallery no-images"><p>No images available</p></div>;
   }
@@ -68,6 +151,7 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
   return (
     <>
       <div className="product-gallery-wrapper">
+        {/* Thumbnail strip */}
         <div className="thumbnail-list" role="list">
           {images.map((img, idx) => (
             <button
@@ -91,6 +175,7 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
           ))}
         </div>
 
+        {/* Main image area */}
         <div className="main-image-wrapper">
           {mainLoading && <div className="main-skeleton" />}
           <img
@@ -123,16 +208,34 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
         </div>
       </div>
 
+      {/* Zoom modal */}
       {isZoomModalOpen && (
         <ModalWrapper onClose={closeModal} titleId="zoomModalTitle" label="Zoomed Image Modal">
-          <img
-            src={images[mainIndex].src}
-            alt={images[mainIndex].alt || 'Zoomed Product Image'}
-            className="zoomed-image"
-            draggable={false}
-            style={{ cursor: 'default' }}
-          />
+          <div
+            className="zoomed-image-container"
+            ref={containerRef}
+            onWheel={onWheel}
+            onMouseDown={onDragStart}
+            onMouseMove={onDragMove}
+            onMouseUp={onDragEnd}
+            onMouseLeave={onDragEnd}
+            onTouchStart={onDragStart}
+            onTouchMove={onDragMove}
+            onTouchEnd={onDragEnd}
+          >
+            <img
+              src={images[mainIndex].src}
+              alt={images[mainIndex].alt || 'Zoomed Product Image'}
+              className="zoomed-image"
+              draggable={false}
+              ref={zoomedImageRef}
+              style={{
+                transform: `translate(calc(-50% + ${zoomTranslate.x}px), calc(-50% + ${zoomTranslate.y}px)) scale(${zoomScale})`,
+              }}
+            />
+          </div>
 
+          {/* Modal navigation arrows */}
           <button
             className="modal-arrow-btn modal-arrow-left"
             onClick={handleModalPrev}
@@ -151,6 +254,7 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
             ›
           </button>
 
+          {/* Modal thumbnail strip */}
           <div className="modal-thumbnail-container" onClick={e => e.stopPropagation()}>
             <button
               className="modal-thumb-scroll arrow-left"
@@ -169,6 +273,8 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
                   onClick={() => {
                     setMainImageUrl(img.src);
                     setMainIndex(idx);
+                    setZoomScale(1);
+                    setZoomTranslate({ x: 0, y: 0 });
                   }}
                   type="button"
                   aria-label={`Thumbnail ${idx + 1}`}

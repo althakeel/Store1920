@@ -82,63 +82,76 @@ export default function HorizontalRelatedProducts({ productId }) {
   if (!relatedProducts.length)
     return <p style={{ textAlign: 'center' }}>No related products found.</p>;
 
-  return (
-    <div className="horizontal-related-wrapper">
-      <div className="horizontal-related-list">
-        {relatedProducts.map((prod) => {
-          const regular = parseFloat(prod.regular_price);
-          const sale = parseFloat(prod.sale_price);
-          const discount = calcDiscount(regular, sale);
-          const image = prod.images?.[0]?.src;
+return (
+  <div className="horizontal-related-wrapper">
+    <h2
+      style={{
+        fontFamily: "'Montserrat', sans-serif",
+        fontWeight: 700,
+        fontSize: 22,
+        marginBottom: 20,
+        textAlign: 'left',
+        paddingLeft: 10,
+      }}
+    >
+      Recommended for You
+    </h2>
+    <div className="horizontal-related-list">
+      {relatedProducts.map((prod) => {
+        const regular = parseFloat(prod.regular_price);
+        const sale = parseFloat(prod.sale_price);
+        const discount = calcDiscount(regular, sale);
+        const image = prod.images?.[0]?.src;
 
-          return (
-            <div className="horizontal-related-card" key={prod.id}>
-              <img
-                src={image}
-                alt={prod.name}
-                className="hr-product-image"
+        return (
+          <div className="horizontal-related-card" key={prod.id}>
+            <img
+              src={image}
+              alt={prod.name}
+              className="hr-product-image"
+              onClick={() => handleNavigate(prod)}
+            />
+            <div className="hr-card-info">
+              <div
+                className="hr-product-name"
+                title={prod.name}
                 onClick={() => handleNavigate(prod)}
-              />
-              <div className="hr-card-info">
-                <div
-                  className="hr-product-name"
-                  title={prod.name}
-                  onClick={() => handleNavigate(prod)}
+              >
+                {truncateText(prod.name, 25)}
+              </div>
+              <div className="hr-bottom-row">
+                <div className="hr-price-info">
+                  <span className="hr-sale-price">
+                    {(sale || regular).toFixed(2)}
+                  </span>
+                  {sale && sale < regular && (
+                    <>
+                      <span className="hr-regular-price">
+                        {regular.toFixed(2)}
+                      </span>
+                      <span className="hr-discount-badge">{discount}% OFF</span>
+                    </>
+                  )}
+                </div>
+                <button
+                  className="hr-cart-btn"
+                  onClick={() => alert(`Added "${prod.name}" to cart!`)}
+                  aria-label={`Add ${prod.name} to cart`}
                 >
-                  {truncateText(prod.name, 25)}
-                </div>
-                <div className="hr-bottom-row">
-                  <div className="hr-price-info">
-                    <span className="hr-sale-price">
-                     {(sale || regular).toFixed(2)}
-                    </span>
-                    {sale && sale < regular && (
-                      <>
-                        <span className="hr-regular-price">
-                          {regular.toFixed(2)}
-                        </span>
-                        <span className="hr-discount-badge">{discount}% OFF</span>
-                      </>
-                    )}
-                  </div>
-                  <button
-                    className="hr-cart-btn"
-                    onClick={() => alert(`Added "${prod.name}" to cart!`)}
-                    aria-label={`Add ${prod.name} to cart`}
-                  >
-                    <img
-                      src='https://store1920.com/wp-content/uploads/2025/07/ADD-TO-CART-1.png'
-                      alt=""
-                      className="hr-cart-icon"
-                      aria-hidden="true"
-                    />
-                  </button>
-                </div>
+                  <img
+                    src="https://store1920.com/wp-content/uploads/2025/07/ADD-TO-CART-1.png"
+                    alt=""
+                    className="hr-cart-icon"
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
-  );
+  </div>
+);
+
 }

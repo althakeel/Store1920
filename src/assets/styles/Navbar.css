@@ -1,6 +1,6 @@
 /* ========== NAVBAR ========== */
 .navbar {
-  background-color: #0aa6ee;
+  /* background-color: ; */
   width: 100%;
    font-family: 'Montserrat',  sans-serif !important;
   color: white;
@@ -414,75 +414,9 @@
 
 
 /* When mobile menu open on small screen */
-.navbar-menu.open {
-  display: block;
-  position: fixed;
-  top: 56px;
-  right: 0;
-  width: 80%;
-  max-width: 320px;
-  height: calc(100% - 56px);
-  background: #ff6a00;
-  color: white;
-  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3);
-  z-index: 1500;
-  overflow-y: auto;
-  padding: 20px;
-  border-radius: 8px 0 0 8px;
-}
 
 /* MOBILE MENU OVERLAY for small screens */
-.mobile-menu-overlay {
-  position: fixed;
-  top: 56px;
-  right: 0;
-  width: 80%;
-  max-width: 320px;
-  height: calc(100% - 56px);
-  background: #ff6a00;
-  color: white;
-  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3);
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
-  z-index: 1500;
-  overflow-y: auto;
-  padding: 20px;
-  user-select: none;
-  border-radius: 8px 0 0 8px;
-}
 
-.mobile-menu-overlay.open {
-  transform: translateX(0);
-}
-
-.mobile-menu-content ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.mobile-menu-content ul li {
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
-  cursor: pointer;
-  font-size: 16px;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.mobile-menu-content ul li.mobile-categories-title {
-  font-weight: 700;
-  font-size: 18px;
-  margin-top: 16px;
-  margin-bottom: 8px;
-  cursor: default;
-}
-
-.mobile-menu-content ul li:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
 
 /* RESPONSIVE */
 
@@ -514,22 +448,7 @@
   .navbar-menu {
     display: none;
   }
-  .navbar-menu.open {
-    display: block;
-    position: fixed;
-    top: 56px;
-    right: 0;
-    width: 80%;
-    max-width: 320px;
-    height: calc(100% - 56px);
-    background: #ff6a00;
-    color: white;
-    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3);
-    z-index: 1500;
-    overflow-y: auto;
-    padding: 20px;
-    border-radius: 8px 0 0 8px;
-  }
+
 }
 
 

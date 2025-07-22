@@ -1,42 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Coin from '../assets/images/coin.png'
+import Coin from '../assets/images/coin.png';
 
 const API_BASE = 'https://store1920.com/wp-json/custom/v1';
 
-const CoinWidget = ({ userId }) => {
+const CoinWidget = () => {
   const [coins, setCoins] = useState(0);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!userId) return;
-
-    const fetchCoins = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/coins/${userId}`);
-        if (!res.ok) throw new Error('Failed to fetch coins');
-        const data = await res.json();
-        setCoins(data.coins || 0);
-      } catch (error) {
-        console.error('Error fetching coins:', error);
-      }
-    };
+const fetchCoins = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/my-coins`, {
+      credentials: 'include',
+    });
+    console.log('Response status:', res.status);
+    if (!res.ok) throw new Error('Failed to fetch coins');
+    const data = await res.json();
+    console.log('Coins fetched:', data.coins);
+    setCoins(data.coins || 0);
+  } catch (error) {
+    console.error('Error fetching coins:', error);
+    setCoins(0);
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchCoins();
-  }, [userId]);
+  }, []);
 
-  const handleClick = () => {
-    navigate('/my-coins'); // your page for coin details
-  };
+  const handleClick = () => navigate('/my-coins');
 
   return (
-    <div style={styles.widget} onClick={handleClick} role="button" tabIndex={0} onKeyPress={handleClick}>
-      <img
-        src={Coin}
-        alt="Coins"
-        style={styles.icon}
-      />
-      <span style={styles.text}>{coins} Coins</span>
+    <div
+      style={styles.widget}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyPress={(e) => ['Enter', ' '].includes(e.key) && handleClick()}
+    >
+      <img src={Coin} alt="Coins" style={styles.icon} />
+      <span style={styles.text}>
+        {loading ? 'Loading...' : `${coins} Coins`}
+      </span>
     </div>
   );
 };
@@ -45,7 +53,7 @@ const styles = {
   widget: {
     display: 'flex',
     alignItems: 'center',
-    gap: '3px',
+    gap: 4,
     cursor: 'pointer',
     fontFamily: 'Montserrat, sans-serif',
   },

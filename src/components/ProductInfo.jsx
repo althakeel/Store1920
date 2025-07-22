@@ -56,7 +56,7 @@ export default function ProductInfo({ product, variations, selectedVariation, on
           <QuantitySelector quantity={quantity} setQuantity={setQuantity} />
         </>
       )}
-   <CompareButton/>
+   {/* <CompareButton/> */}
       <ButtonSection
         product={product}
         selectedVariation={selectedVariation}

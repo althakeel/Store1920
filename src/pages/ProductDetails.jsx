@@ -10,7 +10,6 @@ import RelatedProducts from '../components/RelatedProducts';
 import Whislistreport from '../components/products/Whislist-report';
 import ProductReviewList from '../components/products/ProductReviewList';
 
-
 import '../assets/styles/product-details.css';
 
 const API_BASE = 'https://store1920.com/wp-json/wc/v3/products';
@@ -25,12 +24,28 @@ export default function ProductDetails() {
   const [product, setProduct] = useState(null);
   const [variations, setVariations] = useState([]);
   const [selectedVariation, setSelectedVariation] = useState(null);
+
+  // Initialize mainImageUrl with null to avoid undefined 'images' error
   const [mainImageUrl, setMainImageUrl] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeModal, setActiveModal] = useState(null);
+
+  // Derive images array safely from product (after product is loaded)
+  const images = product?.images || [];
+
+  // Set initial mainImageUrl when images are available
+  useEffect(() => {
+    if (images.length > 0 && !mainImageUrl) {
+      setMainImageUrl(images[0].src);
+    }
+  }, [images, mainImageUrl]);
 
   // Login modal and user state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const openModal = (type) => setActiveModal(type);
+  const closeModal = () => setActiveModal(null);
 
   useEffect(() => {
     async function fetchProductData() {
@@ -50,7 +65,7 @@ export default function ProductDetails() {
         const prod = response.data[0];
         setProduct(prod);
         setSelectedVariation(null);
-        setMainImageUrl(prod.images?.[0]?.src || null);
+        // Note: Do not setMainImageUrl here, handled by useEffect above
 
         if (prod.variations?.length) {
           const variationsData = await Promise.all(
@@ -117,9 +132,12 @@ export default function ProductDetails() {
         <div className="left">
           <div className="gallery-and-description">
             <ProductGallery
-              images={product.images || []}
+              images={images}
               mainImageUrl={mainImageUrl}
               setMainImageUrl={setMainImageUrl}
+              activeModal={activeModal}
+              openModal={openModal}
+              closeModal={closeModal}
             />
 
             <Whislistreport
@@ -128,7 +146,7 @@ export default function ProductDetails() {
               isLoggedIn={isLoggedIn}
               onOpenLoginPopup={() => setShowLoginModal(true)}
             />
-            <ProductReviewList/>
+            <ProductReviewList />
 
             <ProductDescription
               product={product}
@@ -152,21 +170,26 @@ export default function ProductDetails() {
       </div>
 
       {showLoginModal && (
-        <div className="login-modal" style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-        }}>
-          <div style={{
-            background: '#fff',
-            padding: 20,
-            borderRadius: 8,
-            minWidth: 300,
-          }}>
+        <div
+          className="login-modal"
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              background: '#fff',
+              padding: 20,
+              borderRadius: 8,
+              minWidth: 300,
+            }}
+          >
             <h3>Login Required</h3>
             {/* Replace below with your real login form */}
             <button onClick={mockLogin} style={{ marginRight: 10 }}>Mock Login</button>

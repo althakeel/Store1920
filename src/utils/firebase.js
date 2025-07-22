@@ -1,10 +1,9 @@
-// src/firebase.js
-
 // Import Firebase functions from the SDK
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore'; // ✅ Add this
 
-// Your Firebase project configuration
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyC1_taRzacQqdbjL4qdjsv_HxRS4lEThKA",
   authDomain: "store1920-7d673.firebaseapp.com",
@@ -15,17 +14,19 @@ const firebaseConfig = {
   measurementId: "G-9ELKQ87BJ1"
 };
 
-// Initialize Firebase app
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication and providers
+// Initialize services
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
+const db = getFirestore(app); // ✅ Add this line
 
-// Export the auth instance and providers for use in your app
+// Export
 export {
   auth,
   googleProvider,
   facebookProvider,
+  db // ✅ Export Firestore instance
 };

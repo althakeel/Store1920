@@ -1,0 +1,205 @@
+/* SupportPage.css */
+
+.support-wrapper {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  /* min-height: 100vh; */
+  background-color: #fff
+}
+
+/* === HEADER SECTION === */
+.support-header {
+  background: url('https://store1920.com/wp-content/uploads/2025/07/checkout_bg_05.jpg') center/cover no-repeat;
+  padding: 60px 20px;
+  text-align: center;
+  color: #fff;
+}
+
+.support-header-content h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.support-search {
+  padding: 12px 20px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  width: 90%;
+  max-width: 600px;
+  outline: none;
+}
+
+/* === MAIN BODY === */
+.support-body {
+  display: flex;
+  padding: 40px 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+  gap: 40px;
+  background-color: #fff;
+  /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); */
+}
+
+/* === SIDEBAR === */
+.support-sidebar {
+  width: 250px;
+  border-right: 1px solid #ddd;
+  padding-right: 20px;
+}
+
+.support-sidebar h2 {
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  color: #444;
+}
+
+.support-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.support-sidebar li {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.support-sidebar li:hover {
+  background-color: #f0f0f0;
+}
+
+.support-sidebar li.active {
+  background-color: #ffffff;
+  color: #ff6702 !important;
+  font-weight: bold;
+}
+
+/* === RIGHT PANEL CONTENT === */
+.support-content {
+  flex: 1;
+  padding: 0 10px;
+}
+
+.support-content h3 {
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.support-content p,
+.support-content li {
+  line-height: 1.6;
+  font-size: 1rem;
+  color: #555;
+}
+
+.support-content ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin-bottom: 20px;
+}
+
+.support-content ol {
+  padding-left: 20px;
+}
+
+.support-content strong {
+  font-weight: 600;
+}
+
+
+.support-sidebar ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.support-sidebar li {
+  cursor: pointer;
+  padding: 10px 12px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.support-sidebar li:hover {
+  background-color: #f0f0f0;
+}
+
+.support-sidebar li.active {
+  background-color: #0071e3;
+  color: #fff;
+  font-weight: 600;
+}
+
+.support-sidebar .submenu {
+  margin-left: 15px;
+  padding-left: 10px;
+  border-left: 2px solid #ddd;
+}
+
+.support-sidebar .submenu li {
+  background: none;
+  padding: 6px 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.support-sidebar .submenu li.active {
+  color: #0071e3;
+  font-weight: bold;
+}
+
+
+.support-sidebar ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.support-sidebar li {
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 15px;
+  border-left: 3px solid transparent;
+}
+
+.support-sidebar li.active {
+  background-color: #f0f0f0;
+  border-left: 3px solid orange;
+  font-weight: bold;
+}
+
+.submenu {
+  padding-left: 20px;
+}
+
+.submenu li {
+  font-size: 14px;
+  color: #666;
+}
+.submenu li.active {
+  color: #000;
+  font-weight: 600;
+}
+
+
+@media (max-width: 768px) {
+  .support-body {
+    flex-direction: column;
+  }
+
+  .support-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+  }
+
+  .support-content {
+    padding-top: 20px;
+  }
+}
