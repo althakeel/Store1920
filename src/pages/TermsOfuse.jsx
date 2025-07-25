@@ -34,7 +34,7 @@ const TermsOfUse = () => {
       <p>These Terms of Use are governed by the laws of the United Arab Emirates.</p>
 
       <h2>10. Contact Us</h2>
-      <p>If you have any questions about these terms, please contact us at support@store1920.com.</p>
+      <p>If you have any questions about these terms, please contact us at support@db.store1920.com.</p>
       
       <p>Thank you for shopping with Store 1920!</p>
     </div>

@@ -3,7 +3,7 @@ import axios from 'axios';
 import '../../../../assets/styles/myaccount/browsingHistorySection.css';
 import NoItemImage from '../../../../assets/images/noitem.png';
 
-const API_BASE = 'https://store1920.com/wp-json/custom/v1';
+const API_BASE = 'https://db.store1920.com/wp-json/custom/v1';
 
 const BrowsingHistorySection = ({ customerEmail }) => {
   const [history, setHistory] = useState([]);

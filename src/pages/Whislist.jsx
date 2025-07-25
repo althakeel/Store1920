@@ -6,7 +6,7 @@ export default function WishlistPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('https://store1920.com/wp-json/wishlist/v1/items', { credentials: 'include' })
+    fetch('https://db.store1920.com/wp-json/wishlist/v1/items', { credentials: 'include' })
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch wishlist');
         return res.json();

@@ -29,3 +29,16 @@ body::-webkit-scrollbar-thumb {
 body {
   font-family: 'Montserrat', sans-serif !important;
 }
+/* Hide MiniCart on mobile and tablet (up to 1024px width) */
+@media (max-width: 1024px) {
+  .mini-cart-wrapper {
+    display: none;
+  }
+}
+
+/* Show MiniCart on desktop */
+@media (min-width: 1025px) {
+  .mini-cart-wrapper {
+    display: block; /* or flex depending on your layout */
+  }
+}

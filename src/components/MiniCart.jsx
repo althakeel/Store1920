@@ -8,9 +8,9 @@ import '../assets/styles/MiniCart.css';
 const FREE_SHIPPING_THRESHOLD = 100;
 
 const banners = [
-  'https://store1920.com/wp-content/uploads/2025/07/Layer-1-copy-2.png',
-  'https://store1920.com/wp-content/uploads/2025/07/Layer-1.png',
-  'https://store1920.com/wp-content/uploads/2025/07/Layer-1-copy.png',
+  'https://db.store1920.com/wp-content/uploads/2025/07/Layer-1-copy-2.png',
+  'https://db.store1920.com/wp-content/uploads/2025/07/Layer-1.png',
+  'https://db.store1920.com/wp-content/uploads/2025/07/Layer-1-copy.png',
 ];
 
 const MiniCart = ({ isOpen, onClose, navbarColor }) => {
@@ -199,7 +199,7 @@ const onCheckoutClick = () => {
         {showStars && (
           <div className="celebration-overlay">
             <img
-              src="https://store1920.com/wp-content/uploads/2025/07/Pop-up-video.gif"
+              src="https://db.store1920.com/wp-content/uploads/2025/07/Pop-up-video.gif"
               alt="Celebration"
               className="celebration-gif"
             />

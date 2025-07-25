@@ -9,7 +9,7 @@ const HelpText = () => {
         padding: "20px",
         marginTop: "30px",
         borderRadius: "10px",
-        fontSize: "15px",
+        fontSize: "12px",
         color: "#333",
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
         lineHeight: "1.7",
@@ -55,14 +55,14 @@ const HelpText = () => {
         type="button"
         onClick={() => window.history.back()}
         style={{
-          marginTop: "25px",
-          backgroundColor: "#8f6900ff",
-          color: "#fff",
-          border: "none",
-          padding: "10px 20px",
+          marginTop: "10px",
+          backgroundColor: "#ffffffff",
+          color: "#000",
+          border: "1px solid #ddd",
+          padding: "5px 10px",
           borderRadius: "6px",
           cursor: "pointer",
-          fontSize: "15px",
+          fontSize: "12px",
         }}
       >
         Back to Cart

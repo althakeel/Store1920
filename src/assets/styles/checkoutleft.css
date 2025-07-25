@@ -31,6 +31,7 @@
 }
 .shippingadress{
   font-size: 1rem;
+  margin-bottom: 5px;
  
 }
 .shippingmethod{
@@ -79,7 +80,7 @@
 
 /* Success & Error Messages */
 .success-message {
-  margin-bottom: 20px;
+  margin-bottom: 0px;
   color: #27ae60;
   font-weight: 600;
   text-align: center;
@@ -93,22 +94,22 @@
 }
 
 /* Form Container */
-.checkout-left form {
+/* .checkout-left form {
   border: 1px solid #eee;
   padding: 24px 28px;
   border-radius: 12px;
   background-color: #fafafa;
   box-shadow: inset 0 0 8px rgb(0 0 0 / 0.03);
-}
+} */
 
 /* Headings inside form */
-.checkout-left h3 {
+/* .checkout-left h3 {
   margin-bottom: 16px;
   color: #ff5a5f;
   font-weight: 700;
   border-bottom: 2px solid #ff5a5f;
   padding-bottom: 6px;
-}
+} */
 
 /* Form labels */
 .checkout-left label {
@@ -171,7 +172,7 @@
   color: white;
   width: 100%;
   font-weight: 700;
-  box-shadow: 0 6px 12px rgb(39 174 96 / 0.5);
+  /* box-shadow: 0 6px 12px rgb(39 174 96 / 0.5); */
 }
 
 .checkout-left form button[type="submit"]:hover:not(:disabled) {
@@ -344,6 +345,121 @@
   border-radius: 6px;
   font-size: 14px;
   margin-bottom: 12px;
+}
+
+
+
+/* Change Address & Cancel button */
+.btn-add-address1 {
+  background-color: #ffffff;
+  color: rgb(43, 43, 43);
+  padding: 8px 10px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  border: none;
+  border-radius: 6px;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.btn-add-address:hover {
+  background-color: #0056b3;
+}
+.cancel-btn1 {
+  background-color: #999;
+}
+.cancel-btn:hover {
+  background-color: #666;
+}
+
+/* Toast popup for address save success */
+.addrf-toast {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: fadeSlide 3s forwards;
+}
+
+.saved-address-box {
+  background-color: #fff;
+  border: 1px solid #ddd;        /* lighter border */
+  border-radius: 4px;
+  padding: 8px 12px;             /* tighter padding */
+  max-width: 420px;
+  font-family: 'Montserrat', sans-serif;
+  color: #444;                   /* softer text color */
+  margin-bottom: 8px;            /* smaller bottom margin */
+  font-size: 12px;
+  line-height: 1.3;              /* tighter line height */
+}
+
+.saved-address-box h4 {
+  margin: 0 0 8px 0;             /* remove bottom padding, smaller margin */
+  font-weight: 600;              /* lighter weight */
+  font-size: 13px;
+  border-bottom: 1.5px solid #f39c12; /* subtle orange */
+  padding-bottom: 4px;
+  color: #b75d0c;                /* softer orange */
+  text-align: left;
+  user-select: none;
+}
+
+.saved-address-grid {
+  display: grid;
+  grid-template-columns: 75px 8px 1fr; /* slightly narrower label and colon */
+  row-gap: 4px;                   /* less vertical gap */
+  column-gap: 6px;                /* minimal horizontal gap */
+  align-items: center;
+}
+
+.saved-address-label {
+  font-weight: 500;               /* lighter than before */
+  color: #666;
+  text-align: left;
+  user-select: none;
+  line-height: 1.2;
+}
+
+.saved-address-colon {
+  text-align: center;
+  font-weight: 500;
+  color: #666;
+  user-select: none;
+  line-height: 1.2;
+}
+
+.saved-address-value {
+  word-wrap: break-word;
+  color: #555;
+  line-height: 1.2;
+}
+
+
+
+@keyframes fadeSlide {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
 }
 
 /* === Responsive Adjustments === */

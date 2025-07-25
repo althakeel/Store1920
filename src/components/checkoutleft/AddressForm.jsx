@@ -1,4 +1,3 @@
-// src/components/checkoutleft/AddressForm.jsx
 import React from 'react';
 
 const AddressForm = ({
@@ -12,14 +11,110 @@ const AddressForm = ({
   saving,
   error,
 }) => {
+  const popupWrapperStyle = {
+    position: 'fixed',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // translucent dark overlay
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  };
+
+ const popupBoxStyle = {
+  position: 'relative', // <-- Add this
+  backgroundColor: '#fff',
+  padding: '20px 30px',
+  borderRadius: '8px',
+  width: '90%',
+  maxWidth: '600px',
+  maxHeight: '90vh',
+  overflowY: 'auto',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+};
+
+  const closeBtnStyle = {
+    background: 'transparent',
+    border: 'none',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    position: 'absolute',
+    top: '10px',
+    right: '15px',
+  };
+
+  const formStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+  };
+
+  const headingStyle = {
+    marginBottom: '10px',
+    fontSize: '1.25rem',
+    fontWeight: '600',
+  };
+
+  const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '15px',
+  };
+
+  const labelStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    fontSize: '0.9rem',
+    fontWeight: '500',
+  };
+
+  const inputStyle = {
+    marginTop: '6px',
+    padding: '8px',
+    fontSize: '1rem',
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+  };
+
+  const selectStyle = {
+    ...inputStyle,
+    appearance: 'none',
+  };
+
+  const checkboxWrapperStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '0.95rem',
+  };
+
+  const errorStyle = {
+    color: 'red',
+    fontWeight: '600',
+    marginTop: '10px',
+  };
+
+  const submitBtnStyle = {
+    backgroundColor: '#ff5100ff',
+    color: '#fff',
+    padding: '10px 18px',
+    fontSize: '1rem',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: saving ? 'not-allowed' : 'pointer',
+    opacity: saving ? 0.6 : 1,
+    alignSelf: 'flex-start',
+  };
+
   // Render address fields for shipping or billing
   const renderAddressSection = (section, states) => {
     const title = section.charAt(0).toUpperCase() + section.slice(1);
     return (
       <>
-        <h3 className="addrf-heading">{title} Address</h3>
-        <div className="addrf-grid">
-          <label className="addrf-label">
+        <h3 style={headingStyle}>{title} Address</h3>
+        <div style={gridStyle}>
+          <label style={labelStyle}>
             Full Name
             <input
               type="text"
@@ -27,10 +122,10 @@ const AddressForm = ({
               value={formData[section].fullName}
               onChange={e => onChange(e, section)}
               required
-              className="addrf-input"
+              style={inputStyle}
             />
           </label>
-          <label className="addrf-label">
+          <label style={labelStyle}>
             Address Line 1
             <input
               type="text"
@@ -38,20 +133,20 @@ const AddressForm = ({
               value={formData[section].address1}
               onChange={e => onChange(e, section)}
               required
-              className="addrf-input"
+              style={inputStyle}
             />
           </label>
-          <label className="addrf-label">
+          <label style={labelStyle}>
             Address Line 2
             <input
               type="text"
               name="address2"
               value={formData[section].address2}
               onChange={e => onChange(e, section)}
-              className="addrf-input"
+              style={inputStyle}
             />
           </label>
-          <label className="addrf-label">
+          <label style={labelStyle}>
             City
             <input
               type="text"
@@ -59,10 +154,10 @@ const AddressForm = ({
               value={formData[section].city}
               onChange={e => onChange(e, section)}
               required
-              className="addrf-input"
+              style={inputStyle}
             />
           </label>
-          <label className="addrf-label">
+          <label style={labelStyle}>
             Postal Code
             <input
               type="text"
@@ -70,10 +165,10 @@ const AddressForm = ({
               value={formData[section].postalCode}
               onChange={e => onChange(e, section)}
               required
-              className="addrf-input"
+              style={inputStyle}
             />
           </label>
-          <label className="addrf-label">
+          <label style={labelStyle}>
             Phone
             <input
               type="tel"
@@ -81,17 +176,17 @@ const AddressForm = ({
               value={formData[section].phone}
               onChange={e => onChange(e, section)}
               required
-              className="addrf-input"
+              style={inputStyle}
             />
           </label>
-          <label className="addrf-label">
+          <label style={labelStyle}>
             State / Province
             {states.length > 0 ? (
               <select
                 name="state"
                 value={formData[section].state}
                 onChange={e => onChange(e, section)}
-                className="addrf-select"
+                style={selectStyle}
               >
                 <option value="">Select state</option>
                 {states.map(state => (
@@ -106,17 +201,17 @@ const AddressForm = ({
                 name="state"
                 value={formData[section].state}
                 onChange={e => onChange(e, section)}
-                className="addrf-input"
+                style={inputStyle}
               />
             )}
           </label>
-          <label className="addrf-label">
+          <label style={labelStyle}>
             Country
             <select
               name="country"
               value={formData[section].country}
               onChange={e => onChange(e, section)}
-              className="addrf-select"
+              style={selectStyle}
             >
               <option value="">Select country</option>
               {Object.entries(countries).map(([code, countryData]) => (
@@ -132,30 +227,44 @@ const AddressForm = ({
   };
 
   return (
-    <div className="addrf-popup-wrapper">
-      <div className="addrf-popup-box">
-        <button type="button" className="addrf-close-btn" onClick={onClose}>
-          &times;
-        </button>
-        <form onSubmit={onSubmit} noValidate className="addrf-form">
+    <div style={popupWrapperStyle}>
+      <div style={popupBoxStyle}>
+    <button type="button" style={closeBtnStyle} onClick={onClose} aria-label="Close">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+</button>
+
+        <form onSubmit={onSubmit} noValidate style={formStyle}>
           {renderAddressSection('shipping', shippingStates)}
 
-          <label className="addrf-checkbox-wrapper">
+          <label style={checkboxWrapperStyle}>
             <input
               type="checkbox"
               name="billingSameAsShipping"
               checked={formData.billingSameAsShipping}
               onChange={e => onChange(e, 'checkbox')}
-              className="addrf-checkbox"
+              style={{ cursor: 'pointer' }}
             />
             Same address for billing
           </label>
 
           {!formData.billingSameAsShipping && renderAddressSection('billing', billingStates)}
 
-          {error && <div className="addrf-error">{error}</div>}
+          {error && <div style={errorStyle}>{error}</div>}
 
-          <button type="submit" disabled={saving} className="addrf-submit-btn">
+          <button type="submit" disabled={saving} style={submitBtnStyle}>
             {saving ? 'Saving...' : 'Save Address'}
           </button>
         </form>

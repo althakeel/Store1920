@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import '../assets/styles/MainBanner.css';
 
-const API_BANNERS = 'https://store1920.com/wp-json/custom/v1/banners';
+const API_BANNERS = 'https://db.store1920.com/wp-json/custom/v1/banners';
 
 const MainBanner = () => {
   const [banners, setBanners] = useState(null);

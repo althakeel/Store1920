@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Badge labels and styles
 const BADGE_MAP = {
   below_price: {
     label: 'Below Comparable Price',
@@ -27,8 +26,18 @@ const BADGE_MAP = {
 export default function SellerBadges({ badges }) {
   if (!Array.isArray(badges) || badges.length === 0) return null;
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 480;
+
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginBottom: '10px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '5px',
+        marginBottom: '10px',
+        justifyContent: 'flex-start',
+      }}
+    >
       {badges.map((badge) => {
         const badgeData = BADGE_MAP[badge];
         if (!badgeData) return null;
@@ -37,10 +46,13 @@ export default function SellerBadges({ badges }) {
           <span
             key={badge}
             style={{
-              padding: '2px 5px',
-              borderRadius: '4px',
-              fontSize: '10px',
+              padding: isMobile ? '4px 6px' : '4px 8px',
+              borderRadius: '5px',
+              fontSize: isMobile ? '10px' : '11px',
               fontWeight: 600,
+              lineHeight: 1.2,
+              whiteSpace: 'nowrap',
+              maxWidth: '100%',
               ...badgeData.style,
             }}
           >

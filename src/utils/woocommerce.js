@@ -1,7 +1,7 @@
 // src/utils/woocommerce.js
 import axios from 'axios';
 
-const API_BASE = 'https://store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_b56a66f53d1cb273b66097e1347cdfc7a49a4834';
 const CONSUMER_SECRET = 'cs_2ef308464511bd90cc976fbc04d65458d7b37d2f';
 

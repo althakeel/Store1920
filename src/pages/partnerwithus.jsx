@@ -128,7 +128,7 @@ const PartnerWithStore1920 = () => {
           text: (
             <>
               Do you have a product to showcase on Store1920? Reach out to our sourcing team at: <br />
-              <a href="mailto:merchandise@store1920.com" style={linkStyle}>merchandise@store1920.com</a>
+              <a href="mailto:merchandise@db.store1920.com" style={linkStyle}>merchandise@db.store1920.com</a>
             </>
           )
         },
@@ -138,7 +138,7 @@ const PartnerWithStore1920 = () => {
           text: (
             <>
               Help us reach customers faster with efficient logistics. Contact: <br />
-              <a href="mailto:shipping@store1920.com" style={linkStyle}>shipping@store1920.com</a>
+              <a href="mailto:shipping@db.store1920.com" style={linkStyle}>shipping@db.store1920.com</a>
             </>
           )
         },
@@ -148,7 +148,7 @@ const PartnerWithStore1920 = () => {
           text: (
             <>
               Build brand synergy with us! Co-market or create exclusive launches: <br />
-              <a href="mailto:partners@store1920.com" style={linkStyle}>partners@store1920.com</a>
+              <a href="mailto:partners@db.store1920.com" style={linkStyle}>partners@db.store1920.com</a>
             </>
           )
         }].map((card, idx) => (

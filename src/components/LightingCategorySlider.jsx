@@ -11,7 +11,7 @@ const LightingCategorySlider = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_BASE = 'https://store1920.com/wp-json';
+  const API_BASE = 'https://db.store1920.com/wp-json';
 
   useEffect(() => {
     const fetchLightingCategoriesAndProducts = async () => {

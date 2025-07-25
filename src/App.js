@@ -9,6 +9,7 @@ import {
 import { CartProvider, useCart } from './contexts/CartContext';
 import { CompareProvider } from './contexts/CompareContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { BrowserRouter } from 'react-router-dom';
 // import { SignOutModalProvider } from './contexts/SignOutModalProvider';
 
 // Pages
@@ -47,12 +48,14 @@ import Footer from './components/Footer';
 import Breadcrumbs from './components/Breadcrumbs';
 import MiniCart from './components/MiniCart';
 import ProtectedRoute from './components/ProtectedRoute';
+import Preloader from './components/sub/Preloader';
+import CheckoutNavbar from './components/checkout/CheckoutNavbar';
 
 const AppContent = () => {
   const { isCartOpen, setIsCartOpen } = useCart();
   const location = useLocation();
   const path = location.pathname;
-
+ const [loading, setLoading] = useState(true);
   const isHomePage = path === '/';
   const onCartPage = path.startsWith('/cart');
  const onCheckoutPage = path === '/checkout' || path.startsWith('/checkout/');
@@ -81,6 +84,14 @@ const AppContent = () => {
   );
 
   const [navbarColor, setNavbarColor] = useState('#0aa6ee');
+
+useEffect(() => {
+  setLoading(true);
+  const timer = setTimeout(() => {
+    setLoading(false);
+  }, 800);
+  return () => clearTimeout(timer);
+}, [location.pathname]);
 
   useEffect(() => {
     if (isHomePage) {
@@ -115,11 +126,15 @@ const AppContent = () => {
     // <SignOutModalProvider>
     <AuthProvider>
       <Topbar />
-      <NavbarWithMegaMenu
-  openCart={() => setIsCartOpen(true)}
-  backgroundColor={navbarColor}
-  isCartOpen={isCartOpen} 
-/>
+  {onCheckoutPage ? (
+  <CheckoutNavbar />
+) : (
+  <NavbarWithMegaMenu
+    openCart={() => setIsCartOpen(true)}
+    backgroundColor={navbarColor}
+    isCartOpen={isCartOpen}
+  />
+)}
       <div style={{ display: 'flex', position: 'relative' }}>
         <main
           style={{
@@ -185,6 +200,8 @@ const AppContent = () => {
 )}
 
       </div>
+{/* <div className="spinner" /> */}
+
 
       <Footer />
     </AuthProvider>

@@ -1,4 +1,3 @@
-// CheckoutLeft.jsx
 import React, { useState, useEffect } from 'react';
 import '../assets/styles/checkoutleft.css';
 import SignInModal from './sub/SignInModal';
@@ -7,21 +6,31 @@ import { auth } from '../utils/firebase';
 import PaymentMethods from '../components/checkoutleft/PaymentMethods';
 import AddressForm from '../components/checkoutleft/AddressForm';
 import ItemList from './checkoutleft/ItemList';
+import ShippingMethods from './checkout/ShippingMethods';
 
-const CheckoutLeft  = ({ formData, onChange, countries, cartItems, onRemoveItem, onPaymentMethodSelect  }) => {
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
+const CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
+const CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
+
+const CheckoutLeft = ({
+  formData,
+  onChange,
+  countries,
+  cartItems,
+  onRemoveItem,
+  onPaymentMethodSelect,
+}) => {
   const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [shippingStates, setShippingStates] = useState([]);
   const [billingStates, setBillingStates] = useState([]);
   const [shippingMethods, setShippingMethods] = useState([]);
-  
-
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedShippingMethodId, setSelectedShippingMethodId] = useState(null);
 
-  // Listen to Firebase auth state
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser);
@@ -30,75 +39,102 @@ const CheckoutLeft  = ({ formData, onChange, countries, cartItems, onRemoveItem,
     return () => unsubscribe();
   }, []);
 
-const handleRemoveItem = (itemId) => {
-  // WRONG: setCartItems is not defined here
-  // setCartItems((prev) =>
-  //   prev.filter(item => (item.id || item.product_id) !== itemId)
-  // );
+  const handleRemoveItem = (itemId) => {
+    if (onRemoveItem) onRemoveItem(itemId);
+  };
 
-  // Correct: call the onRemoveItem prop function passed from parent
-  if (onRemoveItem) {
-    onRemoveItem(itemId);
-  }
-};
-  // Fetch shipping methods for zone 0
-  useEffect(() => {
-    fetch(
-      'https://store1920.com/wp-json/wc/v3/shipping/zones/0/methods?consumer_key=ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8&consumer_secret=cs_c65538cff741bd9910071c7584b3d070609fec24'
-    )
-      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
-      .then(setShippingMethods)
-      .catch(() => setShippingMethods([]));
-  }, []);
-
-  // Fetch shipping states when shipping country changes
   useEffect(() => {
     const country = formData.shipping.country;
-    if (!country) {
-      setShippingStates([]);
-      return;
-    }
+    if (!country) return setShippingStates([]);
 
     fetch(
-      `https://store1920.com/wp-json/wc/v3/data/states/${country}?consumer_key=ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8&consumer_secret=cs_c65538cff741bd9910071c7584b3d070609fec24`
+      `${API_BASE}/data/states/${country}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
     )
-      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+      .then((res) => (res.ok ? res.json() : []))
       .then(setShippingStates)
       .catch(() => setShippingStates([]));
   }, [formData.shipping.country]);
 
-  // Fetch billing states when billing country changes (if billing is not same as shipping)
   useEffect(() => {
-    if (formData.billingSameAsShipping) {
-      setBillingStates([]);
-      return;
-    }
+    if (formData.billingSameAsShipping) return setBillingStates([]);
     const country = formData.billing.country;
-    if (!country) {
-      setBillingStates([]);
-      return;
-    }
+    if (!country) return setBillingStates([]);
 
     fetch(
-      `https://store1920.com/wp-json/wc/v3/data/states/${country}?consumer_key=ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8&consumer_secret=cs_c65538cff741bd9910071c7584b3d070609fec24`
+      `${API_BASE}/data/states/${country}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
     )
-      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+      .then((res) => (res.ok ? res.json() : []))
       .then(setBillingStates)
       .catch(() => setBillingStates([]));
   }, [formData.billing.country, formData.billingSameAsShipping]);
 
-  // Toggle address form or show sign-in modal if not logged in
-  const handleAddAddressClick = () => {
-    if (user) {
-      setShowForm((prev) => !prev);
-      setSaveSuccess(false);
-      setError(null);
+
+  useEffect(() => {
+  setSelectedShippingMethodId(formData.shippingMethodId || null);
+}, [formData.shippingMethodId]);
+
+
+
+  useEffect(() => {
+    const fetchShippingMethods = async () => {
+      try {
+        const zonesRes = await fetch(
+          `https://db.store1920.com/wp-json/custom/v1/shipping-zones`
+        );
+        const zones = await zonesRes.json();
+
+        const countryCode = formData.shipping.country?.toUpperCase() || '';
+        const match = zones.find((zone) =>
+          zone.locations.some(
+            (loc) => loc.code.toUpperCase() === countryCode
+          )
+        );
+
+        if (!match) {
+          setShippingMethods([]);
+          return;
+        }
+
+        const methodsRes = await fetch(
+          `https://db.store1920.com/wp-json/custom/v1/shipping-zones/${match.id}/methods`
+        );
+
+        const methods = await methodsRes.json();
+
+        setShippingMethods(methods);
+      } catch (err) {
+        console.error('Error fetching shipping methods:', err);
+        setShippingMethods([]);
+      }
+    };
+
+    if (formData.shipping.country) {
+      fetchShippingMethods();
     } else {
-      setShowSignInModal(true);
+      setShippingMethods([]);
     }
+  }, [formData.shipping.country]);
+
+  // NEW handler: mocks event object to conform with onChange
+  const handleShippingMethodChange = (id) => {
+    onChange(
+      {
+        target: {
+          name: 'shippingMethodId',
+          value: id,
+          type: 'radio',
+        },
+      },
+      'shipping'
+    );
   };
 
-  // Submit address form
+  const handleAddAddressClick = () => {
+    setShowForm((prev) => !prev);
+    setSaveSuccess(false);
+    setError(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -107,21 +143,31 @@ const handleRemoveItem = (itemId) => {
 
     const payload = {
       shipping: formData.shipping,
-      billing: formData.billingSameAsShipping ? formData.shipping : formData.billing,
+      billing: formData.billingSameAsShipping
+        ? formData.shipping
+        : formData.billing,
       billingSameAsShipping: formData.billingSameAsShipping,
+      shippingMethodId: formData.shippingMethodId || null,
     };
 
+    if (user) payload.userId = user.uid;
+
     try {
-      const res = await fetch('https://store1920.com/wp-json/custom/v1/save-address', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        'https://db.store1920.com/wp-json/custom/v1/save-address',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        }
+      );
+
       if (!res.ok) throw new Error('Failed to save');
       await res.json();
       setSaveSuccess(true);
       setShowForm(false);
+      setTimeout(() => setSaveSuccess(false), 3000);
     } catch {
       setError('Failed to save address. Please try again.');
     } finally {
@@ -134,41 +180,91 @@ const handleRemoveItem = (itemId) => {
       <div className="shipping-container">
         <div className="section-block">
           <div className="section-header">
-            <h2 className="shippingadress">Shipping Address</h2>
-            <button onClick={handleAddAddressClick} className="btn-add-address">
+            <h2 className="shippingadress"><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              
+             Shipping Address <button
+              onClick={handleAddAddressClick}
+              className={`btn-add-address1 ${showForm ? 'cancel-btn1' : ''}`}
+            >
               {showForm ? 'Cancel' : 'Change Address'}
             </button>
-          </div>
-          {saveSuccess && <div className="success-message">Address saved successfully!</div>}
-        </div>
+             </div></h2>
 
-        <div className="section-block shipping-method-block">
-          <h2 className="shippingmethod">Shipping Method</h2>
-          {shippingMethods.length > 0 ? (
-            shippingMethods.map((method) => (
-              <div key={method.id} className="shipping-method">
-                <p>
-                  <strong>{method.title}</strong>:{' '}
-                  {method.settings?.cost?.value === '0' || !method.settings?.cost?.value
-                    ? 'FREE'
-                    : `${method.settings.cost.value} AED`}
-                </p>
-                {method.description && <p>{method.description}</p>}
+            {/* Saved address summary */}
+            {formData?.shipping && formData.shipping.address1 && (
+              <div className="saved-address-box">
+                <div className="saved-address-grid">
+                  <div className="saved-address-label">Name</div>
+                  <div className="saved-address-colon">:</div>
+                  <div className="saved-address-value">
+                    {formData.shipping.fullName}
+                  </div>
+
+                  <div className="saved-address-label">Address</div>
+                  <div className="saved-address-colon">:</div>
+                  <div className="saved-address-value">
+                    {formData.shipping.address1}
+                  </div>
+
+                  {/* Uncomment if you want Address 2 */}
+                  {/* {formData.shipping.address2 && (
+                    <>
+                      <div className="saved-address-label">Address 2</div>
+                      <div className="saved-address-colon">:</div>
+                      <div className="saved-address-value">
+                        {formData.shipping.address2}
+                      </div>
+                    </>
+                  )} */}
+
+                  <div className="saved-address-label">City</div>
+                  <div className="saved-address-colon">:</div>
+                  <div className="saved-address-value">
+                    {formData.shipping.city}
+                  </div>
+
+                  <div className="saved-address-label">State</div>
+                  <div className="saved-address-colon">:</div>
+                  <div className="saved-address-value">
+                    {formData.shipping.state}
+                  </div>
+
+                  <div className="saved-address-label">Postal Code</div>
+                  <div className="saved-address-colon">:</div>
+                  <div className="saved-address-value">
+                    {formData.shipping.postalCode}
+                  </div>
+
+                  <div className="saved-address-label">Country</div>
+                  <div className="saved-address-colon">:</div>
+                  <div className="saved-address-value">
+                    {countries[formData.shipping.country]?.name ||
+                      formData.shipping.country}
+                  </div>
+                </div>
               </div>
-            ))
-          ) : (
-            <p>No shipping methods found for this zone.</p>
-          )}
+            )}
+
+            
+          </div>
         </div>
       </div>
 
-      <div className="section-block">
-      <ItemList items={cartItems} onRemove={handleRemoveItem} />
+     <ShippingMethods
+  countryCode={formData.shipping.country?.toUpperCase() || 'AE'}
+  selectedMethodId={selectedShippingMethodId}
+  onSelect={(id) => {
+    setSelectedShippingMethodId(id);
+    handleShippingMethodChange(id);
+  }}
+/>
 
+      <div className="section-block">
+        <ItemList items={cartItems} onRemove={handleRemoveItem} />
       </div>
 
       <div className="section-block">
-          <PaymentMethods onMethodSelect={onPaymentMethodSelect} />
+        <PaymentMethods onMethodSelect={onPaymentMethodSelect} />
       </div>
 
       <HelpText />
@@ -197,6 +293,8 @@ const handleRemoveItem = (itemId) => {
           error={error}
         />
       )}
+
+      {saveSuccess && <div className="addrf-toast">✅ Address saved successfully!</div>}
     </div>
   );
 };

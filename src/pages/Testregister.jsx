@@ -91,7 +91,7 @@ const payload = {
 
     try {
       const res = await axios.post(
-        'https://store1920.com/wp-json/wc/v3/customers',
+        'https://db.store1920.com/wp-json/wc/v3/customers',
         payload,
         {
           auth: {

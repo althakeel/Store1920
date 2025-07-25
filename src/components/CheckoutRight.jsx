@@ -1,10 +1,11 @@
+// src/components/checkout/CheckoutRight.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../assets/styles/checkout/CheckoutRight.css';
 import TrustSection from './checkout/TrustSection';
 import CouponDiscount from './sub/account/CouponDiscount';
 
-const API_BASE = 'https://store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
 const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
 
@@ -75,18 +76,18 @@ export default function CheckoutRight({ cartItems, formData }) {
   );
 
   const subtotal = Math.max(0, itemsTotal - discount);
-  const orderTotal = subtotal; // You can add tax/fees here if needed
+  const orderTotal = subtotal; // Add tax/fees if needed
 
   const showAlert = (message, type = 'info') => {
     setAlert({ message, type });
   };
 
   const handlePlaceOrder = async () => {
+    // Validation
     if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.address ||
+      !formData.billing.fullName ||
+      !formData.billing.address1 ||
+      !formData.billing.email ||
       !formData.paymentMethod ||
       !formData.paymentMethodTitle
     ) {
@@ -96,29 +97,33 @@ export default function CheckoutRight({ cartItems, formData }) {
 
     setIsPlacingOrder(true);
 
+    // Split fullName into first and last names
+    const [first_name, ...lastNameParts] = formData.billing.fullName.trim().split(' ');
+    const last_name = lastNameParts.join(' ') || '';
+
     const billing = {
-      first_name: formData.firstName,
-      last_name: formData.lastName,
-      address_1: formData.address,
-      city: formData.city || '',
-      state: formData.state || '',
-      postcode: formData.postcode || '',
-      country: formData.country || '',
-      email: formData.email,
-      phone: formData.phone || '',
+      first_name,
+      last_name,
+      address_1: formData.billing.address1,
+      city: formData.billing.city || '',
+      state: formData.billing.state || '',
+      postcode: formData.billing.postalCode || '',
+      country: formData.billing.country || '',
+      email: formData.billing.email,
+      phone: formData.billing.phone || '',
     };
 
-    const shipping = formData.shipToDifferentAddress
-      ? {
-          first_name: formData.shippingFirstName,
-          last_name: formData.shippingLastName,
-          address_1: formData.shippingAddress,
-          city: formData.shippingCity || '',
-          state: formData.shippingState || '',
-          postcode: formData.shippingPostcode || '',
-          country: formData.shippingCountry || '',
-        }
-      : { ...billing };
+    const shipping = formData.billingSameAsShipping
+      ? { ...billing }
+      : {
+          first_name: (formData.shipping.fullName || '').split(' ')[0] || '',
+          last_name: (formData.shipping.fullName || '').split(' ').slice(1).join(' ') || '',
+          address_1: formData.shipping.address1,
+          city: formData.shipping.city || '',
+          state: formData.shipping.state || '',
+          postcode: formData.shipping.postalCode || '',
+          country: formData.shipping.country || '',
+        };
 
     const line_items = cartItems.map((item) => ({
       product_id: item.id,
@@ -148,17 +153,15 @@ export default function CheckoutRight({ cartItems, formData }) {
     }
   };
 
-  // Handler to receive coupon data from CouponDiscount component
+  // Handle coupon from child component
   const handleCoupon = (couponData) => {
     if (couponData) {
       let discountAmount = 0;
-
       if (couponData.discount_type === 'percent') {
         discountAmount = (itemsTotal * parseFloat(couponData.amount)) / 100;
       } else {
         discountAmount = parseFloat(couponData.amount);
       }
-
       discountAmount = Math.min(discountAmount, itemsTotal);
 
       setDiscount(discountAmount);
@@ -185,7 +188,7 @@ export default function CheckoutRight({ cartItems, formData }) {
         };
       case 'cod':
         return {
-          backgroundColor: '#f97316', // orange
+          backgroundColor: '#f97316',
           color: '#fff',
           border: 'none',
           borderRadius: '25px',
@@ -205,7 +208,7 @@ export default function CheckoutRight({ cartItems, formData }) {
         };
       default:
         return {
-          backgroundColor: '#10b981', // default green
+          backgroundColor: '#10b981',
           color: '#fff',
           border: 'none',
           borderRadius: '25px',
@@ -284,6 +287,7 @@ export default function CheckoutRight({ cartItems, formData }) {
           ? `Placing Order${formData.paymentMethodTitle ? ` with ${formData.paymentMethodTitle}` : ''}...`
           : `Place Order${formData.paymentMethodTitle ? ` with ${formData.paymentMethodTitle}` : ''}`}
       </button>
+
       <TrustSection />
     </aside>
   );

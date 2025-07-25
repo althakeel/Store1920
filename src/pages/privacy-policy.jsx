@@ -114,7 +114,7 @@ const SectionContent = ({ id }) => {
       return (
         <>
           <p>
-            This Privacy Policy describes how, Whaleco Technology Limited, an Irish company ("Store1920", "we", "us" or "our") handles personal information that we collect through our digital properties that link to this Privacy Policy, including our website (www.Store1920.com), Store1920's mobile application (collectively, the "Service"), and other activities as described in this Privacy Policy. At Store1920, we care deeply about privacy and strive to be transparent about our privacy practices, including how we treat your personal information. This Privacy Policy explains how we collect, use, share, and otherwise process the personal information of users in connection with our Service.
+            This Privacy Policy describes how, Whaleco Technology Limited, an Irish company ("Store1920", "we", "us" or "our") handles personal information that we collect through our digital properties that link to this Privacy Policy, including our website (www.db.store1920.com), Store1920's mobile application (collectively, the "Service"), and other activities as described in this Privacy Policy. At Store1920, we care deeply about privacy and strive to be transparent about our privacy practices, including how we treat your personal information. This Privacy Policy explains how we collect, use, share, and otherwise process the personal information of users in connection with our Service.
           </p>
           <p><em>Last updated: May 28, 2025</em></p>
         </>
@@ -263,7 +263,7 @@ const SectionContent = ({ id }) => {
         <>
           <p>Questions or comments? Contact Store1920's Data Protection Office:</p>
           <ul>
-            <li>Email: <a href="mailto:privacy@Store1920.com">privacy@Store1920.com</a></li>
+            <li>Email: <a href="mailto:privacy@db.store1920.com">privacy@db.store1920.com</a></li>
             <li>Postal Address: Whaleco Technology Limited, First Floor, 25 St, Stephens Green, Dublin 2, Ireland</li>
           </ul>
         </>

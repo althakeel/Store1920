@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE = 'https://store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_0cc00ad6554d017f130b65642953d83acde22263';
 const CS = 'cs_3f59e3e45b0269a54280323df649b51b05cb9875';
 

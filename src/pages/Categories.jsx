@@ -21,7 +21,7 @@ const CategoryList = () => {
   // Fetch Categories
   useEffect(() => {
     axios
-      .get('https://store1920.com/wp-json/wc/v3/products/categories', { auth: API_AUTH })
+      .get('https://db.store1920.com/wp-json/wc/v3/products/categories', { auth: API_AUTH })
       .then((res) => {
         setCategories(res.data);
         setLoading(false);
@@ -35,7 +35,7 @@ const CategoryList = () => {
   // Fetch Brands
   useEffect(() => {
     axios
-      .get('https://store1920.com/wp-json/wp/v2/product_brand', { auth: API_AUTH, params: { per_page: 100 } })
+      .get('https://db.store1920.com/wp-json/wp/v2/product_brand', { auth: API_AUTH, params: { per_page: 100 } })
       .then((res) => {
         const brandNames = res.data.map((brand) => brand.name);
         setBrands(brandNames);

@@ -5,7 +5,7 @@ import MiniCart from '../components/MiniCart';
 import FilterButton from '../components/sub/FilterButton';
 import '../assets/styles/allproducts.css';
 
-const API_BASE = 'https://store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_be7e3163c85f7be7ca616ab4d660d65117ae5ac5';
 const CONSUMER_SECRET = 'cs_df731e48bf402020856ff21450c53503d545ac35';
 const PRODUCTS_PER_PAGE = 50;
@@ -338,7 +338,7 @@ const AllProducts = () => {
                       aria-label={`Add ${decodeHTML(p.name)} to cart`}
                     >
                       <img
-                        src="https://store1920.com/wp-content/uploads/2025/07/ADD-TO-CART-1.png"
+                        src="https://db.store1920.com/wp-content/uploads/2025/07/ADD-TO-CART-1.png"
                         alt="Add to cart"
                         className="pcus-prd-add-cart-icon-img"
                       />

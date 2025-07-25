@@ -4,7 +4,7 @@ import CheckoutLeft from '../components/CheckoutLeft';
 import CheckoutRight from '../components/CheckoutRight';
 import '../assets/styles/checkout.css';
 
-const API_BASE = 'https://store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
 const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
 
@@ -29,16 +29,17 @@ export default function CheckoutPage() {
       country: '',
       phone: '',
     },
-    billing: {
-      fullName: '',
-      address1: '',
-      address2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: '',
-      phone: '',
-    },
+   billing: {
+  fullName: '',
+  address1: '',
+  address2: '',
+  city: '',
+  state: '',
+  postalCode: '',
+  country: '',
+  phone: '',
+  email: '', // add this
+},
     billingSameAsShipping: true,
     paymentMethod: '',
     paymentMethodTitle: '',
@@ -94,6 +95,16 @@ export default function CheckoutPage() {
     );
   };
 
+
+  const handleShippingMethodSelect = (id) => {
+  setFormData((prev) => ({
+    ...prev,
+    shipping: {
+      ...prev.shipping,
+      shippingMethodId: id,
+    },
+  }));
+};
   // Calculate subtotal based on local cartItems state
   const subtotal = cartItems.reduce(
     (sum, item) => sum + parseFloat(item.price || 0) * item.quantity,
@@ -131,6 +142,7 @@ export default function CheckoutPage() {
         cartItems={cartItems}
         subtotal={subtotal}
         formData={formData}
+         onShippingMethodSelect={handleShippingMethodSelect}
         onFormChange={handleChange}
         paymentMethods={paymentMethods}
         selectedPaymentMethod={selectedPaymentMethod}

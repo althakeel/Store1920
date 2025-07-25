@@ -1,0 +1,71 @@
+.unique-shipping-container {
+  max-width: 700px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: #333;
+  margin: 0px !important;
+  
+}
+
+.unique-shipping-title {
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.unique-shipping-loading,
+.unique-shipping-no-methods {
+  font-style: italic;
+  color: #666;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.unique-shipping-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+  padding: 0;
+  border-radius: 0;
+  transition: background-color 0.15s ease;
+  justify-content: flex-start;
+    padding: 5px 10px;
+    border-radius: 25px;
+}
+
+.unique-shipping-label:hover {
+  background-color: #f9f9f9;
+}
+
+.unique-shipping-radio {
+  margin-right: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.unique-shipping-method-title {
+  font-weight: normal;
+}
+
+.unique-shipping-method-desc {
+  font-style: italic;
+  color: #555;
+  margin-left: 6px;
+  flex-grow: 1;
+}
+
+.unique-shipping-free .unique-shipping-method-title {
+  color: green;
+  font-weight: 600;
+  
+}
+
+.unique-shipping-selected .unique-shipping-method-title {
+  font-weight: 700;
+}
+
+.unique-shipping-selected {
+  background-color: #e6f4ea; /* subtle highlight for selected */
+}

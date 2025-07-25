@@ -1,44 +1,63 @@
 .button-section {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
-  align-items: center;
-  margin-top: 20px;
-  margin-bottom: 18px;
+  margin: 20px 0 18px;
   font-family: 'Montserrat', sans-serif;
+  width: 100%;
 }
 
-.add-to-cart-btn,
-.go-to-cart-btn,
-.go-to-checkout-btn,
-.buy-now-btn {
-  flex: 1;
-  padding: 10px 20px;
-  border-radius: 55px;
+/* Common button styles */
+.button-section button {
+  flex: 1 1 100%;
+  padding: 12px 18px;
+  border-radius: 6px;
   cursor: pointer;
   border: none;
-  color: #fff;
   font-weight: 600;
   font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  transition: all 0.2s ease;
 }
 
+/* Individual buttons */
 .add-to-cart-btn {
   background-color: #ff7a00;
-  border-radius: 25px;
+  color: #fff;
 }
 
 .go-to-cart-btn {
-  background-color: #fff !important;
-  border-radius: 25px !important;
-  color: #ff7a00 !important;
-  border: 1px solid #ff7a00 !important;
+  background-color: #f57c00;
+  color: #fff;
 }
 
 .go-to-checkout-btn {
   background-color: #4caf50;
-  border-radius: 25px !important;
+  color: #fff;
 }
 
 .buy-now-btn {
-  background-color: #4caf50;
-  border-radius: 25px !important;
+  background-color: #d32f2f;
+  color: #fff;
+}
+
+/* Responsive for tablets and up */
+@media (min-width: 769px) {
+  .button-section button {
+    flex: 1 1 calc(50% - 5px);
+  }
+}
+
+/* Responsive fix for small screens (below 480px) */
+@media (max-width: 480px) {
+  .button-section {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .button-section button {
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 5px;
+  }
 }

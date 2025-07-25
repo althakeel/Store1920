@@ -5,7 +5,7 @@ import axios from 'axios';
 
 
 
-const API_URL = 'https://store1920.com/wp-json/custom/v1/account/security';
+const API_URL = 'https://db.store1920.com/wp-json/custom/v1/account/security';
 
 const fallbackData = {
   email: 'rohithsagar14325@gmail.com',

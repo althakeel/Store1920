@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SignInModal from '../sub/SignInModal';
 
-const wishlistIconBefore = 'https://store1920.com/wp-content/uploads/2025/07/WHISHLIST-1.png';
-const wishlistIconAfter = 'https://store1920.com/wp-content/uploads/2025/07/WHISHLIST-2-1.png';
+const wishlistIconBefore = 'https://db.store1920.com/wp-content/uploads/2025/07/WHISHLIST-1.png';
+const wishlistIconAfter = 'https://db.store1920.com/wp-content/uploads/2025/07/WHISHLIST-2-1.png';
 
 export default function ProductPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

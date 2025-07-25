@@ -6,7 +6,7 @@ const PaymentMethods = ({ onMethodSelect }) => {
   useEffect(() => {
     const fetchPaymentMethods = async () => {
       try {
-        const res = await fetch('https://store1920.com/wp-json/wc/v3/payment_gateways', {
+        const res = await fetch('https://db.store1920.com/wp-json/wc/v3/payment_gateways', {
           headers: {
             Authorization: 'Basic ' + btoa('ck_XXX:cs_XXX') // Replace with your real WooCommerce API keys
           },

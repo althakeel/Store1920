@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import '../assets/styles/breadcrumb.css'
+import '../assets/styles/breadcrumb.css';
 
 const routeNameMap = {
   '': 'Home',
@@ -15,42 +15,30 @@ const routeNameMap = {
   categories: 'Categories',
   category: 'Category',
   recommended: 'Recommended',
-  // Add more route names as needed
+  // Add more routes as needed
 };
 
 const Breadcrumbs = () => {
   const location = useLocation();
   const { pathname } = location;
-
-  // Split pathname and filter out empty strings
-  const pathnames = pathname.split('/').filter((x) => x);
+  const pathnames = pathname.split('/').filter(Boolean);
 
   return (
     <nav aria-label="breadcrumb" className="breadcrumbs-nav">
       <ol>
-        {/* Always show Home */}
         <li>
           <Link to="/">Home</Link>
         </li>
-
         {pathnames.map((segment, index) => {
           const to = `/${pathnames.slice(0, index + 1).join('/')}`;
           const isLast = index === pathnames.length - 1;
-
-          // Map known routes or prettify slug
-          let name = routeNameMap[segment.toLowerCase()] || segment;
-          if (!routeNameMap[segment.toLowerCase()]) {
-            name = decodeURIComponent(segment).replace(/-/g, ' ');
-            name = name.charAt(0).toUpperCase() + name.slice(1);
-          }
+          const name =
+            routeNameMap[segment.toLowerCase()] ||
+            segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
 
           return (
             <li key={to} aria-current={isLast ? 'page' : undefined}>
-              {isLast ? (
-                <span>{name}</span>
-              ) : (
-                <Link to={to}>{name}</Link>
-              )}
+              {isLast ? <span>{name}</span> : <Link to={to}>{name}</Link>}
             </li>
           );
         })}

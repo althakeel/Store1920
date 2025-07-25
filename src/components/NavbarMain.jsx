@@ -12,10 +12,10 @@ import chroma from 'chroma-js';
 import MiniCart from './MiniCart';
 
 
-const API_BASE = 'https://store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_2e4ba96dde422ed59388a09a139cfee591d98263';
 const CS = 'cs_43b449072b8d7d63345af1b027f2c8026fd15428';
-const WP_LOGO_API = 'https://store1920.com/wp-json/custom/v1/logo';
+const WP_LOGO_API = 'https://db.store1920.com/wp-json/custom/v1/logo';
 
 
 const decodeHtml = (html) => {
@@ -40,6 +40,7 @@ const NavbarWithMegaMenu = ({ openCart, backgroundColor = '#fff' }) => {
   const [supportDropdownOpen, setSupportDropdownOpen] = useState(false);
   const timeoutRef = useRef(null);
   const supportTimeoutRef = useRef(null); // 👈 Add this line
+  const loggedInUserId = user?.id || null;
      
   
 
@@ -57,7 +58,7 @@ const NavbarWithMegaMenu = ({ openCart, backgroundColor = '#fff' }) => {
 };
 
 
-
+console.log('Navbar user.id:', user?.id);
 
 const truncateName = (name, maxLength = 10) => {
   if (!name) return '';
@@ -68,8 +69,20 @@ const capitalizeFirst = (str) => {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
+useEffect(() => {
+  if (user) {
+    console.log('Current user:', user);
+    console.log('User ID passed to CoinWidget:', user.id);
+  }
+}, [user]);
 
 
+
+useEffect(() => {
+  console.log('Full user object:', user);
+  console.log('user.id:', user?.id);
+  console.log('user.userId:', user?.userId);
+}, [user]);
 
 
   useEffect(() => {
@@ -138,7 +151,7 @@ const capitalizeFirst = (str) => {
           <div className="nav-left">
             {sitelogo ? (
             <img
-  src='https://store1920.com/wp-content/uploads/2025/07/cropped-1.webp'
+  src='https://db.store1920.com/wp-content/uploads/2025/07/cropped-1.webp'
   alt="Site Logo"
   className="logo"
   style={{ maxHeight: 55, cursor: 'pointer' }}
@@ -167,7 +180,7 @@ const capitalizeFirst = (str) => {
             <div className="nav-left-links">
               <div className="nav-icon-with-text"  onClick={() => window.location.href = '/bestrated'}>
                 <img
-                  src="https://store1920.com/wp-content/uploads/2025/07/7.png"
+                  src="https://db.store1920.com/wp-content/uploads/2025/07/7.png"
                   alt="Best Rated"
                   className="icon-small"
                 />
@@ -176,7 +189,7 @@ const capitalizeFirst = (str) => {
 
               <div className="nav-icon-with-text star-rating" onClick={() => window.location.href = '/rated'}>
                 <img
-                  src="https://store1920.com/wp-content/uploads/2025/07/6.png"
+                  src="https://db.store1920.com/wp-content/uploads/2025/07/6.png"
                   alt="5 Star"
                   className="icon-star"
                 />
@@ -255,8 +268,10 @@ onMouseLeave={() => {
     )}
   </div>
 <div className="user-name">
-  Hi, {capitalizeFirst(truncateName(user.name))} <CoinWidget userId={user.id} /> 
+  Hi, {capitalizeFirst(truncateName(user.name))}{' '}
+  <CoinWidget userId={Number(user.id)} />
 </div>
+
 
 
 <UserDropdownMenu
@@ -272,7 +287,7 @@ onMouseLeave={() => {
 ) : (
     <div className="account guest-account" onClick={() => setSignInOpen(true)}>
       <img
-        src="https://store1920.com/wp-content/uploads/2025/07/2-2.png"
+        src="https://db.store1920.com/wp-content/uploads/2025/07/2-2.png"
         alt="Profile Icon"
         className="icon-small"
       />
@@ -297,7 +312,7 @@ onMouseLeave={() => {
   style={{ position: 'relative', cursor: 'pointer', marginRight: '20px', color: textColor  }}
 >
   <img
-    src="https://store1920.com/wp-content/uploads/2025/07/3-2.png"
+    src="https://db.store1920.com/wp-content/uploads/2025/07/3-2.png"
     alt="Support Icon"
     className="icon-small"
   />
@@ -319,7 +334,7 @@ onMouseLeave={() => {
     style={{ cursor: 'pointer' }}
   >
     <img
-      src="https://store1920.com/wp-content/uploads/2025/07/1-3.png"
+      src="https://db.store1920.com/wp-content/uploads/2025/07/1-3.png"
       alt="Cart"
       className="icon-cart"
     />

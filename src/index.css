@@ -26,3 +26,17 @@ body::-webkit-scrollbar-thumb {
                      var(--sb-track-color);
   }
 }
+/* Add in your CSS */
+.spinner {
+  border: 6px solid #eee;
+  border-top: 6px solid #0aa6ee;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

@@ -75,3 +75,100 @@
 
 
 /* product price end */
+
+/* === Responsive Styles === */
+
+@media (max-width: 1024px) {
+  /* For tablets and smaller */
+  .product-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .product-title-row h1 {
+    font-size: 0.85rem;
+  }
+
+  .variant-btn {
+    padding: 7px 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* For large mobile and portrait tablets */
+  .product-info {
+    padding: 10px;
+  }
+
+  .product-title-row h1 {
+    font-size: 0.8rem;
+  }
+
+  .variant-btn {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
+
+  .product-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .product-title-row > *:last-child {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  /* For small mobile devices */
+  .product-title-row h1 {
+    font-size: 0.75rem;
+    line-height: 1.1;
+  }
+
+  .variant-btn {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    flex: 1 1 48%;
+  }
+
+  .variants-list {
+    gap: 8px;
+  }
+
+  .product-title-row {
+    gap: 6px;
+  }
+}
+
+
+/* === Responsive Fixes for Small Screens === */
+
+.product-info {
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;  /* include padding in width */
+  max-width: 100%;
+  overflow-x: hidden;      /* prevent horizontal scroll */
+}
+
+.product-title-row {
+  flex-wrap: wrap;         /* allow wrapping on small widths */
+  min-width: 0;            /* allow flex children to shrink */
+}
+
+.product-title-row h1 {
+  min-width: 0;            /* fix flex shrink bug on Firefox/Chrome */
+  word-break: break-word;  /* break long words if needed */
+}
+
+.product-title-row > *:last-child {
+  flex-shrink: 0;          /* prevent share dropdown shrinking too much */
+  margin-left: auto;       /* keep it aligned right on wrap */
+}
+
+.variant-btn {
+  min-width: 0;            /* allow buttons to shrink */
+  flex-shrink: 1;
+}

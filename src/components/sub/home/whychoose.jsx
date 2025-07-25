@@ -22,22 +22,22 @@ const WhyChoose = () => {
           {/* Green Bar */}
           <div className="whychoose-bar" onClick={openModal}>
             <div className="whychoose-left">
-              <img src="https://store1920.com/wp-content/uploads/2025/07/padlock.png" alt="Check" className="whychoose-icon" />
+              <img src="https://db.store1920.com/wp-content/uploads/2025/07/padlock.png" alt="Check" className="whychoose-icon" />
               <span className="whychoose-title">Why choose Store1920</span>
             </div>
             <div className="whychoose-right">
               <a href="#">
-                <img src="https://store1920.com/wp-content/uploads/2025/07/security-1.png" alt="Secure" className="whychoose-link-icon" />
+                <img src="https://db.store1920.com/wp-content/uploads/2025/07/security-1.png" alt="Secure" className="whychoose-link-icon" />
                 <span>Secure privacy</span>
               </a>
               <span className="divider">|</span>
               <a href="#">
-                <img src="https://store1920.com/wp-content/uploads/2025/07/credit-card.png" alt="Payment" className="whychoose-link-icon" />
+                <img src="https://db.store1920.com/wp-content/uploads/2025/07/credit-card.png" alt="Payment" className="whychoose-link-icon" />
                 <span>Safe payments</span>
               </a>
               <span className="divider">|</span>
               <a href="#">
-                <img src="https://store1920.com/wp-content/uploads/2025/07/van.png" alt="Delivery" className="whychoose-link-icon" />
+                <img src="https://db.store1920.com/wp-content/uploads/2025/07/van.png" alt="Delivery" className="whychoose-link-icon" />
                 <span>Delivery guarantee&nbsp;&nbsp;&nbsp;&nbsp;</span>
               </a>
             </div>
@@ -45,7 +45,7 @@ const WhyChoose = () => {
 
           {/* Reminder Bar */}
           <div className="whychoose-reminder">
-            <img src="https://store1920.com/wp-content/uploads/2025/07/notification.png" alt="Alert" className="reminder-icon" />
+            <img src="https://db.store1920.com/wp-content/uploads/2025/07/notification.png" alt="Alert" className="reminder-icon" />
             <p className="reminder-text">
               <strong>Security reminder:</strong> Please be wary of scam messages and links. Store1920 won't ask for extra fees via SMS or email.
             </p>

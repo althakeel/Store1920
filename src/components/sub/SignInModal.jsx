@@ -51,14 +51,14 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     setErrorMsg('');
 
     try {
-      const res = await axios.post('https://store1920.com/wp-json/custom/v1/register', {
+      const res = await axios.post('https://db.store1920.com/wp-json/custom/v1/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
       });
 
-      const loginRes = await axios.post('https://store1920.com/wp-json/jwt-auth/v1/token', {
+      const loginRes = await axios.post('https://db.store1920.com/wp-json/jwt-auth/v1/token', {
         username: formData.email,
         password: formData.password,
       });
@@ -89,7 +89,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     setErrorMsg('');
 
     try {
-      const res = await axios.post('https://store1920.com/wp-json/jwt-auth/v1/token', {
+      const res = await axios.post('https://db.store1920.com/wp-json/jwt-auth/v1/token', {
         username: formData.email,
         password: formData.password,
       });
@@ -128,7 +128,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
       const user = result.user;
       const idToken = await user.getIdToken();
 
-      const res = await axios.post('https://store1920.com/wp-json/firebase/v1/verify_token', { idToken });
+      const res = await axios.post('https://db.store1920.com/wp-json/firebase/v1/verify_token', { idToken });
 
       if (res.data?.token) {
         const userInfo = {
@@ -198,17 +198,17 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
 
         <div className="signin-social-login">
           <button className="signin-social-btn signin-google-btn" onClick={() => handleSocialLogin('google')} disabled={socialLoading}>
-            <img src="https://store1920.com/wp-content/uploads/2025/07/google.png" alt="Google logo" className="signin-social-logo" />
+            <img src="https://db.store1920.com/wp-content/uploads/2025/07/google.png" alt="Google logo" className="signin-social-logo" />
             <span>Sign in with Google</span>
           </button>
 
           <button className="signin-social-btn signin-facebook-btn" onClick={() => handleSocialLogin('facebook')} disabled={socialLoading}>
-            <img src="https://store1920.com/wp-content/uploads/2025/07/facebook.png" alt="Facebook logo" className="signin-social-logo" />
+            <img src="https://db.store1920.com/wp-content/uploads/2025/07/facebook.png" alt="Facebook logo" className="signin-social-logo" />
             <span>Sign in with Facebook</span>
           </button>
 
           <button className="signin-social-btn signin-apple-btn" disabled>
-            <img src="https://store1920.com/wp-content/uploads/2025/07/apple-black-logo.png" alt="Apple logo" className="signin-social-logo" />
+            <img src="https://db.store1920.com/wp-content/uploads/2025/07/apple-black-logo.png" alt="Apple logo" className="signin-social-logo" />
             <span>Sign in with Apple</span>
           </button>
         </div>

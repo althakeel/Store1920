@@ -11,7 +11,7 @@ const CategoryProducts = () => {
   const [loading, setLoading] = useState(true);
   const [sortType, setSortType] = useState('');
 
-  const API_BASE = 'https://store1920.com/wp-json/wc/v3';
+  const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
   const AUTH = {
     username: 'ck_c4e35c0d93df1f96cae81fccae967b8969a1eb85',
     password: 'cs_b2b2ab3b1cdbc7db01cd718dc52b8f5a5711a6e5',

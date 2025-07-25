@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../../assets/styles/checkoutleft/paymentmethods.css';
 
-const API_BASE = 'https://store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
 const CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
 
@@ -38,7 +38,7 @@ const PaymentMethods = ({ onMethodSelect }) => {
 
   return (
     <div className="payment-methods-wrapper">
-      <h2 className="payment-heading">Choose a Payment Method</h2>
+      <h2 className="payment-heading1">Choose a Payment Method</h2>
 
       {error && <div className="payment-error">{error}</div>}
 

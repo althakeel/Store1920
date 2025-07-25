@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'; // if you use react-router
 // import cartIcon from '../assets/cart-icon.svg'; 
 import '../assets/styles/related-products.css';
 
-const API_BASE = 'https://store1920.com/wp-json/wc/v3/products';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3/products';
 const AUTH = {
   username: 'ck_8adb881aaff96e651cf69b9a8128aa5d9c80eb46',
   password: 'cs_595f6cb2c159c14024d77a2a87fa0b6947041f9f',
@@ -139,7 +139,7 @@ return (
                   aria-label={`Add ${prod.name} to cart`}
                 >
                   <img
-                    src="https://store1920.com/wp-content/uploads/2025/07/ADD-TO-CART-1.png"
+                    src="https://db.store1920.com/wp-content/uploads/2025/07/ADD-TO-CART-1.png"
                     alt=""
                     className="hr-cart-icon"
                     aria-hidden="true"

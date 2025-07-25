@@ -4,9 +4,9 @@ import { useCart } from '../../../contexts/CartContext';
 import MiniCart from '../../MiniCart';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE = 'https://store1920.com/wp-json/wc/v3';
-const CONSUMER_KEY = 'ck_be7e3163c85f7be7ca616ab4d660d65117ae5ac5';
-const CONSUMER_SECRET = 'cs_df731e48bf402020856ff21450c53503d545ac35';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
+const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
+const CONSUMER_SECRET = 'cs_92458ba6ab5458347082acc6681560911a9e993d';
 const PAGE_SIZE = 10; // For categories pagination
 const PRODUCTS_PER_PAGE = 50; // Change here to 50 for products pagination
 const TITLE_LIMIT = 35;
@@ -39,7 +39,7 @@ const ReviewPills = ({ productId }) => {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    fetch(`https://store1920.com/wp-json/custom-reviews/v1/product/${productId}`)
+    fetch(`https://db.store1920.com/wp-json/custom-reviews/v1/product/${productId}`)
       .then((res) => res.json())
       .then((data) => setReviews(data.reviews || []))
       .catch((err) => console.error('Review fetch error', err));
@@ -385,7 +385,7 @@ const ProductCategory = () => {
                           aria-label={`Add ${decodeHTML(p.name)} to cart`}
                         >
                           <img
-                            src="https://store1920.com/wp-content/uploads/2025/07/ADD-TO-CART-1.png"
+                            src="https://db.store1920.com/wp-content/uploads/2025/07/ADD-TO-CART-1.png"
                             alt="Add to cart"
                             className="pcus-prd-add-cart-icon-img"
                           />

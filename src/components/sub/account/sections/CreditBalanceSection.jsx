@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import '../../../../assets/styles/myaccount/creditBalanceSection.css'
 import axios from 'axios';
 
-const API_BASE = 'https://store1920.com/wp-json/custom/v1'; // Replace with your actual API if different
+const API_BASE = 'https://db.store1920.com/wp-json/custom/v1'; // Replace with your actual API if different
 
 const CreditBalanceSection = ({ customerEmail }) => {
   const [coinBalance, setCoinBalance] = useState(0);

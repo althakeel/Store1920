@@ -142,7 +142,7 @@ const MobileMenu = ({
               aria-label="Open Sign In/Register"
             >
               <img
-                src="https://store1920.com/wp-content/uploads/2025/07/2-2.png"
+                src="https://db.store1920.com/wp-content/uploads/2025/07/2-2.png"
                 alt="Profile Icon"
                 className="mobile-menu-unique__icon-small"
               />
@@ -161,7 +161,7 @@ const MobileMenu = ({
               aria-label="Support"
             >
               <img
-                src="https://store1920.com/wp-content/uploads/2025/07/3-2.png"
+                src="https://db.store1920.com/wp-content/uploads/2025/07/3-2.png"
                 alt="Support Icon"
                 className="mobile-menu-unique__icon-small"
               />
@@ -174,7 +174,7 @@ const MobileMenu = ({
               aria-label="Cart"
             >
               <img
-                src="https://store1920.com/wp-content/uploads/2025/07/1-3.png"
+                src="https://db.store1920.com/wp-content/uploads/2025/07/1-3.png"
                 alt="Cart Icon"
                 className="mobile-menu-unique__icon-cart"
               />

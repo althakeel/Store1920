@@ -4,14 +4,14 @@
   padding: 10px 10px;
   font-family: 'Montserrat', sans-serif;
   font-size: 12px;
-  border-radius: 4px;
+  color: #444;
 }
 
 .breadcrumbs-nav ol {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   margin: 0;
   padding: 0;
   align-items: center;
@@ -20,11 +20,13 @@
 .breadcrumbs-nav li {
   display: flex;
   align-items: center;
+  color: #444;
 }
 
 .breadcrumbs-nav li a {
   text-decoration: none;
-  transition: color 0.3s;
+  color: inherit;
+  transition: text-decoration 0.2s;
 }
 
 .breadcrumbs-nav li a:hover {
@@ -39,9 +41,10 @@
 .breadcrumbs-nav li:not(:last-child)::after {
   content: "/";
   margin-left: 6px;
+  margin-right: 2px;
+  color: #888;
 }
 
-/* Responsive font size */
 @media (max-width: 600px) {
   .breadcrumbs-nav {
     font-size: 13px;

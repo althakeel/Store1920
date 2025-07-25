@@ -7,7 +7,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import '../../../assets/styles/CategorySlider.css';
 import placeholderImg from '../../../assets/images/Skelton.png';
 
-const API_BASE = 'https://store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
 const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
 

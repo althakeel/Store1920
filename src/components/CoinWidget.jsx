@@ -2,36 +2,71 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Coin from '../assets/images/coin.png';
 
-const API_BASE = 'https://store1920.com/wp-json/custom/v1';
+const API_BASE = 'https://db.store1920.com/wp-json/custom/v1';
 
-const CoinWidget = () => {
+const CoinWidget = ({ user, userId: propUserId, useMyCoins = false }) => {
+  const userId = propUserId || user?.id;
   const [coins, setCoins] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-const fetchCoins = async () => {
-  try {
-    const res = await fetch(`${API_BASE}/my-coins`, {
-      credentials: 'include',
-    });
-    console.log('Response status:', res.status);
-    if (!res.ok) throw new Error('Failed to fetch coins');
-    const data = await res.json();
-    console.log('Coins fetched:', data.coins);
-    setCoins(data.coins || 0);
-  } catch (error) {
-    console.error('Error fetching coins:', error);
-    setCoins(0);
-  } finally {
-    setLoading(false);
-  }
-};
+    // Fetch coin balance when userId or useMyCoins flag changes
+    const fetchCoins = async () => {
+      setLoading(true);
+      setError(null);
+
+      // Build the API URL dynamically
+      let url = '';
+      if (useMyCoins) {
+        url = `${API_BASE}/my-coins`;
+      } else {
+        if (!userId) {
+          console.warn('CoinWidget: No userId provided');
+          setCoins(0);
+          setLoading(false);
+          return;
+        }
+        url = `${API_BASE}/coins/${userId}`;
+      }
+
+      try {
+        const res = await fetch(url, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (!res.ok) {
+          throw new Error(`API request failed with status ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        // Assuming the API returns { coins: number }
+        setCoins(data.coins ?? 0);
+      } catch (err) {
+        console.error('Error fetching coins:', err);
+        setError('Failed to load coins');
+        setCoins(0);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchCoins();
-  }, []);
+  }, [userId, useMyCoins]);
 
-  const handleClick = () => navigate('/my-coins');
+  // Navigate to the user's coin page on click
+  const handleClick = () => {
+    navigate('/my-coins');
+  };
+
+
+  useEffect(() => {
+  console.log('CoinWidget fetching for userId:', userId);
+  // ...
+}, [userId]);
 
   return (
     <div
@@ -40,10 +75,12 @@ const fetchCoins = async () => {
       role="button"
       tabIndex={0}
       onKeyPress={(e) => ['Enter', ' '].includes(e.key) && handleClick()}
+      title="View my coins"
+      aria-label="View my coins"
     >
       <img src={Coin} alt="Coins" style={styles.icon} />
       <span style={styles.text}>
-        {loading ? 'Loading...' : `${coins} Coins`}
+        {loading ? 'Loading...' : error ? error : `${coins} Coins`}
       </span>
     </div>
   );
@@ -56,6 +93,7 @@ const styles = {
     gap: 4,
     cursor: 'pointer',
     fontFamily: 'Montserrat, sans-serif',
+    userSelect: 'none',
   },
   icon: {
     width: 18,
