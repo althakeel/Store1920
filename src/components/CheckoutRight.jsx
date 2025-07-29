@@ -4,10 +4,11 @@ import axios from 'axios';
 import '../assets/styles/checkout/CheckoutRight.css';
 import TrustSection from './checkout/TrustSection';
 import CouponDiscount from './sub/account/CouponDiscount';
+import CoinBalance from './sub/account/CoinBalace';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
-const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
+const CK = 'ck_680365deac11404c39d7d9b523ac5dc2e1795863';
+const CS = 'cs_adb204011230ed75ddee65df8b446d9a2ca32426';
 
 const buildUrl = (endpoint) =>
   `${API_BASE}/${endpoint}?consumer_key=${CK}&consumer_secret=${CS}`;
@@ -68,26 +69,31 @@ export default function CheckoutRight({ cartItems, formData }) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discount, setDiscount] = useState(0);
+  const [coinDiscount, setCoinDiscount] = useState(0);
 
-  // Calculate totals
   const itemsTotal = cartItems.reduce(
     (acc, item) => acc + parseFloat(item.price) * item.quantity,
     0
   );
 
-  const subtotal = Math.max(0, itemsTotal - discount);
-  const orderTotal = subtotal; // Add tax/fees if needed
+  const subtotal = Math.max(0, itemsTotal - discount - coinDiscount);
+  const orderTotal = subtotal;
 
   const showAlert = (message, type = 'info') => {
     setAlert({ message, type });
   };
 
   const handlePlaceOrder = async () => {
-    // Validation
+    const populatedBilling = formData.billingSameAsShipping
+      ? { ...formData.shipping }
+      : formData.billing;
+
+    const [firstNameCheck, ...lastNamePartsCheck] = (populatedBilling?.fullName || '').trim().split(' ');
+    const lastNameCheck = lastNamePartsCheck.join(' ');
+
     if (
-      !formData.billing.fullName ||
-      !formData.billing.address1 ||
-      !formData.billing.email ||
+      !firstNameCheck ||
+      !populatedBilling.address1 ||
       !formData.paymentMethod ||
       !formData.paymentMethodTitle
     ) {
@@ -97,20 +103,19 @@ export default function CheckoutRight({ cartItems, formData }) {
 
     setIsPlacingOrder(true);
 
-    // Split fullName into first and last names
     const [first_name, ...lastNameParts] = formData.billing.fullName.trim().split(' ');
     const last_name = lastNameParts.join(' ') || '';
 
     const billing = {
       first_name,
       last_name,
-      address_1: formData.billing.address1,
-      city: formData.billing.city || '',
-      state: formData.billing.state || '',
-      postcode: formData.billing.postalCode || '',
-      country: formData.billing.country || '',
-      email: formData.billing.email,
-      phone: formData.billing.phone || '',
+      address_1: populatedBilling.address1,
+      city: populatedBilling.city || '',
+      state: populatedBilling.state || '',
+      postcode: populatedBilling.postalCode || '',
+      country: populatedBilling.country || '',
+      email: populatedBilling.email,
+      phone: populatedBilling.phone || '',
     };
 
     const shipping = formData.billingSameAsShipping
@@ -131,19 +136,39 @@ export default function CheckoutRight({ cartItems, formData }) {
     }));
 
     try {
-      const res = await axios.post(buildUrl('orders'), {
-        billing,
-        shipping,
-        line_items,
-        payment_method: formData.paymentMethod,
-        payment_method_title: formData.paymentMethodTitle,
-        set_paid: formData.paymentMethod !== 'cod',
-      });
+      const meta_data = [];
+
+if (coinDiscount > 0) {
+  meta_data.push({
+    key: 'coin_discount',
+    value: coinDiscount.toFixed(2),
+  });
+}
+
+const res = await axios.post(
+  `${API_BASE}/orders`,
+  {
+    billing,
+    shipping,
+    line_items,
+    payment_method: formData.paymentMethod,
+    payment_method_title: formData.paymentMethodTitle,
+    set_paid: formData.paymentMethod !== 'cod',
+    meta_data,
+  },
+  {
+    auth: {
+      username: CK,
+      password: CS,
+    },
+  }
+);
+
 
       showAlert(`Order placed successfully! Order ID: ${res.data.id}`, 'success');
 
       setTimeout(() => {
-        window.location.href = `/order-confirmation/${res.data.id}`;
+        window.location.href = `/order-success?order_id=${res.data.id}`;
       }, 2000);
     } catch (err) {
       console.error(err.response?.data || err.message);
@@ -153,7 +178,6 @@ export default function CheckoutRight({ cartItems, formData }) {
     }
   };
 
-  // Handle coupon from child component
   const handleCoupon = (couponData) => {
     if (couponData) {
       let discountAmount = 0;
@@ -173,6 +197,13 @@ export default function CheckoutRight({ cartItems, formData }) {
       console.log('Coupon invalid or removed');
     }
   };
+
+
+  const handleCoinRedemption = ({ coinsUsed, discountAED }) => {
+    setCoinDiscount(discountAED);
+    showAlert(`You redeemed ${coinsUsed} coins for AED ${discountAED}`, 'success');
+  };
+  
 
   const getButtonStyle = () => {
     switch (formData.paymentMethod) {
@@ -244,14 +275,21 @@ export default function CheckoutRight({ cartItems, formData }) {
         <span>-AED {discount.toFixed(2)}</span>
       </div>
 
+      <CoinBalance onCoinRedeem={handleCoinRedemption} />
+
+      {coinDiscount > 0 && (
+        <div
+          className="summaryRow"
+          style={{ color: 'green', fontWeight: '600' }}
+        >
+          <span>Coin discount:</span>
+          <span>-AED {coinDiscount.toFixed(2)}</span>
+        </div>
+      )}
+
       <div className="summaryRowCR">
         <span>Subtotal:</span>
         <span>AED {subtotal.toFixed(2)}</span>
-      </div>
-
-      <div className="summaryRowCR totalCR" style={{ fontWeight: '700', fontSize: '1.1rem' }}>
-        <span>Order total:</span>
-        <span>AED {orderTotal.toFixed(2)}</span>
       </div>
 
       <p
@@ -288,6 +326,7 @@ export default function CheckoutRight({ cartItems, formData }) {
           : `Place Order${formData.paymentMethodTitle ? ` with ${formData.paymentMethodTitle}` : ''}`}
       </button>
 
+   
       <TrustSection />
     </aside>
   );

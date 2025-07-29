@@ -68,6 +68,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
           name: formData.name,
           image: '',
           token: loginRes.data.token,
+          id: res.data.id || res.data.user_id, // ✅ get from register response
           user: res.data,
         };
         login(userInfo);
@@ -87,19 +88,29 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     if (!validateLogin()) return;
     setLoading(true);
     setErrorMsg('');
-
+  
     try {
       const res = await axios.post('https://db.store1920.com/wp-json/jwt-auth/v1/token', {
         username: formData.email,
         password: formData.password,
       });
-
+  
       if (res.data?.token) {
+        // ✅ Fetch user info using the token
+        const profileRes = await axios.get('https://db.store1920.com/wp-json/wp/v2/users/me', {
+          headers: {
+            Authorization: `Bearer ${res.data.token}`,
+          },
+        });
+  
         const userInfo = {
-          name: formData.email,
-          image: '',
+          name: profileRes.data.name || formData.email,
+          image: '', // or add profileRes.data.avatar_urls?.['96']
           token: res.data.token,
+          id: profileRes.data.id,
+          user: profileRes.data,
         };
+  
         login(userInfo);
         onLogin?.(userInfo);
         onClose();
@@ -112,6 +123,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
       setLoading(false);
     }
   };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -136,6 +148,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
           image: user.photoURL,
           token: res.data.token,
           user: { id: res.data.user_id, email: res.data.email },
+          id: res.data.user_id,
         };
         login(userInfo);
         onLogin?.(userInfo);

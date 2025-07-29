@@ -93,3 +93,74 @@
 .coin-info p {
   margin: 4px 0;
 }
+/* Base styles (your existing ones) */
+
+/* Responsive tweaks */
+
+@media (max-width: 1024px) {
+  .credit-balance-container {
+    max-width: 90%;
+    padding: 16px;
+  }
+
+  .balance-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .coin-btn {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 16px;
+  }
+
+  .total-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 600px) {
+  .credit-balance-container {
+    padding: 12px;
+  }
+
+  .balance-header {
+    gap: 8px;
+  }
+
+  .coin-btn {
+    font-size: 14px;
+    padding: 10px 0;
+  }
+
+  .total-section {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .history-title {
+    font-size: 14px;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .empty-history {
+    padding: 20px;
+    font-size: 13px;
+  }
+}

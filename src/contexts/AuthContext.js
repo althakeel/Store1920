@@ -11,12 +11,21 @@ export const AuthProvider = ({ children }) => {
   // Load initial user from sessionStorage
   useEffect(() => {
     const saved = sessionStorage.getItem('user');
+  
     if (saved) {
       setUser(JSON.parse(saved));
+    } else {
+      // fallback to localStorage
+      const id = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+      if (id && token) {
+        setUser({ id, token });
+      }
     }
+  
     setLoading(false);
   }, []);
-
+  
   // Persist user to sessionStorage
   useEffect(() => {
     if (user) {

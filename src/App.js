@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef,useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -40,6 +40,8 @@ import Intellectualproperty from './pages/intellectual-property-policy';
 import DeliveryGuarantee from './pages/delivery-guarantee';
 import PrivacyPolicy from './/pages/privacy-policy';
 import Terms0fuse from './pages/TermsOfuse'
+import OrderSuccess from './pages/OrderSuccess';
+import trackOrder from './pages/track-order';
 
 // Components
 import Topbar from './components/topbar';
@@ -50,6 +52,9 @@ import MiniCart from './components/MiniCart';
 import ProtectedRoute from './components/ProtectedRoute';
 import Preloader from './components/sub/Preloader';
 import CheckoutNavbar from './components/checkout/CheckoutNavbar';
+import MobileBottomNav from './components/MobileBottomNav';
+import ProductDetailsRedirect from './pages/ProductDetailsRedirect';
+import TrackOrder from './pages/track-order';
 
 const AppContent = () => {
   const { isCartOpen, setIsCartOpen } = useCart();
@@ -59,8 +64,15 @@ const AppContent = () => {
   const isHomePage = path === '/';
   const onCartPage = path.startsWith('/cart');
  const onCheckoutPage = path === '/checkout' || path.startsWith('/checkout/');
+  const cartIconRef = useRef(null);
 
+ const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth <= 768);
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
 
   const knownPaths = [
     '/',
@@ -83,19 +95,23 @@ const AppContent = () => {
     (route) => path === route || path.startsWith(`${route}/`)
   );
 
-  const [navbarColor, setNavbarColor] = useState('#0aa6ee');
+  const [navbarColor, setNavbarColor] = useState('#0a5e07ff');
 
 useEffect(() => {
-  setLoading(true);
-  const timer = setTimeout(() => {
+  if (path === '/') {
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 800);
+    return () => clearTimeout(timer);
+  } else {
     setLoading(false);
-  }, 800);
-  return () => clearTimeout(timer);
-}, [location.pathname]);
+  }
+}, [path]);
 
   useEffect(() => {
     if (isHomePage) {
-      setNavbarColor('#0aa6ee');
+      setNavbarColor('#38A9D8');
       sessionStorage.removeItem('navbarColor');
     } else {
       const storedColor = sessionStorage.getItem('navbarColor');
@@ -124,22 +140,29 @@ useEffect(() => {
   }, [onCheckoutPage, isCartOpen, setIsCartOpen]);
   return (
     // <SignOutModalProvider>
-    <AuthProvider>
+   <AuthProvider>
+  {loading ? (
+    <Preloader />
+  ) : (
+    <>
       <Topbar />
   {onCheckoutPage ? (
   <CheckoutNavbar />
 ) : (
   <NavbarWithMegaMenu
-    openCart={() => setIsCartOpen(true)}
+      openCart={() => {
+    if (!isMobile) setIsCartOpen(true);
+  }}
     backgroundColor={navbarColor}
     isCartOpen={isCartOpen}
+    cartIconRef={cartIconRef}
   />
 )}
       <div style={{ display: 'flex', position: 'relative' }}>
         <main
           style={{
             width:
-              !onCartPage && !onCheckoutPage && !is404Page && isCartOpen
+  !onCartPage && !onCheckoutPage && !is404Page && isCartOpen && !isMobile
                 ? 'calc(100% - 250px)'
                 : '100%',
             transition: 'width 0.3s ease',
@@ -152,7 +175,9 @@ useEffect(() => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<ProductList />} />
-            <Route path="/product/:slug" element={<ProductDetails />} />
+<Route path="/product/:slug" element={<ProductDetails />} />
+
+
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
 
@@ -186,16 +211,17 @@ useEffect(() => {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
              <Route path="/privacy-policy" element={<PrivacyPolicy />} />   
              <Route path="/terms-0f-use" element={<Terms0fuse />} />
+             <Route path="/order-success" element={<OrderSuccess />} />
+              <Route path="/track-order" element={<TrackOrder />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
 
         {/* MiniCart on public pages */}
-     {!onCartPage && !onCheckoutPage && !is404Page && (
+  {!onCartPage && !onCheckoutPage && !is404Page && !isMobile && isCartOpen && (
   <MiniCart
     isOpen={isCartOpen}
     onClose={() => setIsCartOpen(false)}
-
   />
 )}
 
@@ -204,6 +230,9 @@ useEffect(() => {
 
 
       <Footer />
+   {isMobile && !onCartPage && !onCheckoutPage && !is404Page && <MobileBottomNav />}
+  </>
+  )}
     </AuthProvider>
     // </SignOutModalProvider>
   );

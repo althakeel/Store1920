@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../../../../assets/styles/myaccount/ProfileSection.css';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_8adb881aaff96e651cf69b9a8128aa5c80eb46';
@@ -8,8 +9,8 @@ const CONSUMER_SECRET = 'cs_595f6cb2c159c14024d77a2a87fa0b6947041f9f';
 const units = ['IN', 'LBS', 'CM', 'KG'];
 
 const ProfileSection = () => {
+  const [userId, setUserId] = useState(null);
   const [user, setUser] = useState(null);
-  const [customerEmail, setCustomerEmail] = useState('');
   const [loading, setLoading] = useState(true);
 
   const [editingUsername, setEditingUsername] = useState(false);
@@ -26,60 +27,57 @@ const ProfileSection = () => {
   });
 
   const [savingMeasurements, setSavingMeasurements] = useState(false);
+
   const [stats, setStats] = useState({ totalReviews: 0, helpfuls: 0 });
 
-  // On mount, get logged-in user email from localStorage
+  // On mount, get user ID from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        if (parsedUser.email) setCustomerEmail(parsedUser.email);
+        if (parsedUser.id) {
+          setUserId(parsedUser.id);
+        } else {
+          setLoading(false);
+        }
       } catch {
-        // ignore parse errors
+        setLoading(false);
       }
     } else {
-      setLoading(false); // no user logged in
+      setLoading(false);
     }
   }, []);
 
-  // Fetch WooCommerce customer info using email
+  // Fetch user data by user ID
   useEffect(() => {
-    if (!customerEmail) {
-      setLoading(false);
-      return;
-    }
+    if (!userId) return;
 
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        const userRes = await axios.get(`${API_BASE}/customers`, {
+        const userRes = await axios.get(`${API_BASE}/customers/${userId}`, {
           params: {
             consumer_key: CONSUMER_KEY,
             consumer_secret: CONSUMER_SECRET,
-            email: customerEmail,
           },
         });
 
-        if (userRes.data.length > 0) {
-          const userData = userRes.data[0];
-          setUser(userData);
-          setUsernameInput(userData.username || '');
+        const userData = userRes.data;
+        setUser(userData);
+        setUsernameInput(userData.username || '');
 
-          // You should replace the following with actual API calls for measurements and stats
-          setMeasurements({
-            unit: 'IN',
-            bust: '',
-            waist: '',
-            hip: '',
-            height: '',
-            weight: '',
-          });
+        // Placeholder for measurements & stats fetching, replace with your logic
+        setMeasurements({
+          unit: 'IN',
+          bust: '',
+          waist: '',
+          hip: '',
+          height: '',
+          weight: '',
+        });
 
-          setStats({ totalReviews: 0, helpfuls: 0 }); // replace with actual fetched stats if available
-        } else {
-          setUser(null);
-        }
+        setStats({ totalReviews: 0, helpfuls: 0 });
       } catch (e) {
         console.error('Error fetching user data', e);
         setUser(null);
@@ -89,7 +87,7 @@ const ProfileSection = () => {
     };
 
     fetchUserData();
-  }, [customerEmail]);
+  }, [userId]);
 
   const handleUsernameEdit = () => {
     setEditingUsername(true);
@@ -98,10 +96,9 @@ const ProfileSection = () => {
 
   const handleUsernameSave = async () => {
     try {
-      // Update username API call here, example:
-      // await axios.put(`${API_BASE}/customers/${user.id}`, { username: usernameInput }, {...});
+      // TODO: Call your API to update username here
 
-      // For now, just update local state
+      // Optimistic UI update:
       setUser((prev) => ({ ...prev, username: usernameInput }));
       setEditingUsername(false);
       setShowMoreSettings(true);
@@ -117,7 +114,7 @@ const ProfileSection = () => {
   const handleSubmitMeasurements = async () => {
     setSavingMeasurements(true);
     try {
-      // Save measurements to backend here
+      // TODO: Save measurements to backend here
 
       alert('Measurements saved successfully!');
       setSavingMeasurements(false);
@@ -128,7 +125,7 @@ const ProfileSection = () => {
     }
   };
 
-  if (loading) return <p>Loading profile...</p>;
+  if (loading) return <p style={{ textAlign: 'center' }}>Loading profile...</p>;
 
   if (!user)
     return (
@@ -139,48 +136,34 @@ const ProfileSection = () => {
     );
 
   return (
-    <div
-      className="profile-section"
-      style={{
-        maxWidth: 480,
-        margin: 'auto',
-        fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
-      }}
-    >
+    <div className="profile-section">
       {/* Profile Header */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 16,
-          marginBottom: 20,
-        }}
-      >
+      <div className="profile-header">
         <img
           src={user.avatar_url || 'https://via.placeholder.com/80'}
           alt="Profile"
-          style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover' }}
+          className="profile-avatar"
         />
         <div>
           <h2 style={{ margin: 0 }}>
             {user.first_name} {user.last_name}
           </h2>
           {!editingUsername ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div className="profile-username-display">
               <p style={{ margin: 0, fontWeight: '600' }}>Username: {user.username}</p>
-              <button onClick={handleUsernameEdit} style={{ cursor: 'pointer' }}>
+              <button className="edit-button" onClick={handleUsernameEdit}>
                 Edit
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <div className="profile-username-edit">
               <input
                 type="text"
                 value={usernameInput}
                 onChange={(e) => setUsernameInput(e.target.value)}
                 style={{ padding: 6, fontSize: 16 }}
               />
-              <button onClick={handleUsernameSave} disabled={!usernameInput.trim()}>
+              <button className="save-button" onClick={handleUsernameSave} disabled={!usernameInput.trim()}>
                 Save
               </button>
             </div>
@@ -191,16 +174,10 @@ const ProfileSection = () => {
       {/* Show More Settings button after username edit */}
       {!editingUsername && (
         <button
+          className="more-settings-button"
           onClick={() => setShowMoreSettings((prev) => !prev)}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#d35400',
-            border: 'none',
-            color: '#fff',
-            borderRadius: 6,
-            cursor: 'pointer',
-            marginBottom: 20,
-          }}
+          aria-expanded={showMoreSettings}
+          aria-controls="measurements-form"
         >
           {showMoreSettings ? 'Hide Settings' : 'More Settings'}
         </button>
@@ -208,15 +185,7 @@ const ProfileSection = () => {
 
       {/* Measurements Form */}
       {showMoreSettings && (
-        <div
-          style={{
-            border: '1px solid #ddd',
-            padding: 20,
-            borderRadius: 8,
-            backgroundColor: '#fff3e0',
-            marginBottom: 20,
-          }}
-        >
+        <div className="measurements-form" id="measurements-form">
           <h3>Measurements</h3>
           <p style={{ fontSize: 14, color: '#555' }}>
             Measurements provided will be saved and used for recommending sizes suitable to these
@@ -224,7 +193,7 @@ const ProfileSection = () => {
           </p>
 
           {/* Unit Selector */}
-          <div style={{ marginBottom: 10 }}>
+          <div className="measurement-field" style={{ marginBottom: 10 }}>
             <label>
               Units:{' '}
               <select
@@ -242,11 +211,12 @@ const ProfileSection = () => {
 
           {/* Measurement fields */}
           {['bust', 'waist', 'hip', 'height', 'weight'].map((field) => (
-            <div key={field} style={{ marginBottom: 10 }}>
-              <label style={{ textTransform: 'capitalize', marginRight: 10 }}>
-                {field.replace(/^\w/, (c) => c.toUpperCase())} size:
+            <div key={field} className="measurement-field">
+              <label className="measurement-label" htmlFor={`measurement-${field}`}>
+                {field.charAt(0).toUpperCase() + field.slice(1)} size:
               </label>
               <select
+                id={`measurement-${field}`}
                 value={measurements[field]}
                 onChange={(e) => handleMeasurementChange(field, e.target.value)}
               >
@@ -261,17 +231,9 @@ const ProfileSection = () => {
           ))}
 
           <button
+            className="submit-measurements-button"
             onClick={handleSubmitMeasurements}
             disabled={savingMeasurements}
-            style={{
-              marginTop: 12,
-              padding: '10px 18px',
-              backgroundColor: '#d35400',
-              border: 'none',
-              color: '#fff',
-              borderRadius: 6,
-              cursor: 'pointer',
-            }}
           >
             {savingMeasurements ? 'Saving...' : 'Submit'}
           </button>
@@ -284,32 +246,24 @@ const ProfileSection = () => {
       )}
 
       {/* Stats */}
-      <div style={{ display: 'flex', gap: 20, marginBottom: 20 }}>
-        <div style={{ textAlign: 'center' }}>
+      <div className="stats-container">
+        <div className="stats-item">
           <p style={{ margin: 0, fontSize: 24, fontWeight: 'bold' }}>{stats.totalReviews}</p>
           <p style={{ margin: 0, color: '#777' }}>Total reviews</p>
         </div>
-        <div style={{ textAlign: 'center' }}>
+        <div className="stats-item">
           <p style={{ margin: 0, fontSize: 24, fontWeight: 'bold' }}>{stats.helpfuls}</p>
           <p style={{ margin: 0, color: '#777' }}>Helpfuls</p>
         </div>
       </div>
 
-      {/* Privacy & Reviews Empty */}
-      <div style={{ fontSize: 13, color: '#777', marginBottom: 12 }}>
+      {/* Privacy Note */}
+      <div className="privacy-note">
         Your information and privacy will be kept secure and uncompromised.
       </div>
 
-      <div
-        style={{
-          padding: 24,
-          border: '1px solid #ddd',
-          borderRadius: 10,
-          textAlign: 'center',
-          color: '#666',
-          backgroundColor: '#fafafa',
-        }}
-      >
+      {/* Review empty message */}
+      <div className="review-empty-box">
         <p style={{ fontWeight: '600', marginBottom: 6 }}>Review is empty</p>
         <p>You have no completed reviews or the reviews have been deleted.</p>
       </div>

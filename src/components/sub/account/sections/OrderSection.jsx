@@ -1,50 +1,55 @@
-// File: OrderSection.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../../../../contexts/AuthContext';
 import '../../../../assets/styles/myaccount/OrderSection.css';
 
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CONSUMER_KEY = 'ck_8adb881aaff96e651cf69b9a8128aa5d9c80eb46';
-const CONSUMER_SECRET = 'cs_595f6cb2c159c14024d77a2a87fa0b6947041f9f';
-
-const orderStatuses = [
-  { label: 'All orders', value: '' },
-  { label: 'Processing', value: 'processing' },
-  { label: 'Shipped', value: 'shipped' },
-  { label: 'Delivered', value: 'completed' },
-  { label: 'Returns', value: 'refunded' },
-];
-
 const OrderSection = () => {
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [activeStatus, setActiveStatus] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const orderStatuses = [
+    { label: 'All orders', value: '' },
+    { label: 'Processing', value: 'processing' },
+    { label: 'Shipped', value: 'shipped' },
+    { label: 'Delivered', value: 'completed' },
+    { label: 'Returns', value: 'refunded' },
+  ];
+
   useEffect(() => {
     const fetchOrders = async () => {
+      const wooCustomerId = user?.id || localStorage.getItem('userId');
+
+      if (!wooCustomerId) {
+        setError('User not logged in.');
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
 
-        const params = {
-          per_page: 20,
-          orderby: 'date',
-          order: 'desc',
-        };
-        if (activeStatus) params.status = activeStatus;
-
-        const response = await axios.get(`${API_BASE}/orders`, {
-          auth: {
-            username: CONSUMER_KEY,
-            password: CONSUMER_SECRET,
-          },
-          params,
+        // Call your backend proxy API, not WooCommerce directly
+        const queryParams = new URLSearchParams({
+          customer: wooCustomerId,
         });
+        if (activeStatus) {
+          queryParams.append('status', activeStatus);
+        }
 
-        setOrders(response.data);
+        const response = await fetch(`/api/orders?${queryParams.toString()}`);
+
+        if (!response.ok) {
+          throw new Error(`Error fetching orders: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        setOrders(data || []);
       } catch (err) {
         console.error(err);
         setError('Failed to load orders.');
@@ -54,28 +59,22 @@ const OrderSection = () => {
     };
 
     fetchOrders();
-  }, [activeStatus]);
+  }, [activeStatus, user]);
 
   const getExpectedDeliveryDate = (order) => {
-    const orderDate = new Date(order.date_created);
-    const expectedDate = new Date(orderDate);
-    expectedDate.setDate(orderDate.getDate() + 7);
-    return expectedDate.toLocaleDateString();
+    const date = new Date(order.date_created);
+    date.setDate(date.getDate() + 7);
+    return date.toLocaleDateString();
   };
 
-  const handleProductClick = (slug) => {
-    navigate(`/product/${slug}`);
-  };
+  const handleProductClick = (slug) => navigate(`/product/${slug}`);
 
-  const slugify = (text) => {
-    return text
-      .toString()
+  const slugify = (text) =>
+    text
       .toLowerCase()
       .replace(/\s+/g, '-')
       .replace(/[^a-z0-9-]/g, '')
-      .replace(/--+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  };
+      .replace(/--+/g, '-');
 
   const isCancelable = (status) => ['processing', 'on-hold'].includes(status);
 
@@ -104,7 +103,8 @@ const OrderSection = () => {
           {orders.map((order) => (
             <li key={order.id} className={`order-item status-${order.status}`}>
               <div className="order-date">
-                <strong>Order Date:</strong> {new Date(order.date_created).toLocaleDateString()}
+                <strong>Order Date:</strong>{' '}
+                {new Date(order.date_created).toLocaleDateString()}
               </div>
 
               <ul className="order-products-list">
@@ -113,7 +113,11 @@ const OrderSection = () => {
                     key={item.id}
                     className="order-product"
                     onClick={() => handleProductClick(slugify(item.name))}
-                    style={{ cursor: 'pointer' }}
+                    tabIndex={0}
+                    onKeyPress={(e) =>
+                      e.key === 'Enter' && handleProductClick(slugify(item.name))
+                    }
+                    role="button"
                   >
                     <img
                       src={item.image?.src || 'https://via.placeholder.com/60'}
@@ -123,7 +127,8 @@ const OrderSection = () => {
                     <div className="product-details">
                       <div className="product-title">{item.name}</div>
                       <div className="product-price">
-                        {order.currency || '$'}{item.price}
+                        {order.currency || '$'}
+                        {item.price}
                       </div>
                       <div className="expected-delivery">
                         Expected Delivery: {getExpectedDeliveryDate(order)}

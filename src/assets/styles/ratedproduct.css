@@ -23,14 +23,14 @@
   margin-top: 0px;
 }
 .pcus-badge-best_seller {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #04771f;
+  color: #fdfdfd;
 
 }
 
 .pcus-badge-recommended {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: #ff6600;
+  color: #ffffff;
 }
 
 .pcus-main-title1 {
@@ -362,7 +362,7 @@
   font-weight: 700;
   text-transform: uppercase;
   padding: 3px 8px;
-  border-radius: 14px;
+  /* border-radius: 14px; */
   white-space: nowrap;
   cursor: default;
   flex-shrink: 0;

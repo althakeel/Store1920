@@ -10,7 +10,7 @@ import SupportDropdownMenu from './sub/SupportDropdownMenu';
 import CoinWidget from './CoinWidget';
 import chroma from 'chroma-js';
 import MiniCart from './MiniCart';
-
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_2e4ba96dde422ed59388a09a139cfee591d98263';
@@ -24,7 +24,7 @@ const decodeHtml = (html) => {
   return txt.value;
 };
 
-const NavbarWithMegaMenu = ({ openCart, backgroundColor = '#fff' }) => {
+const NavbarWithMegaMenu = ({cartIconRef , openCart, backgroundColor = '#fff' }) => {
     const isDark = chroma(backgroundColor).luminance() < 0.5;
   const textColor = isDark ? '#fff' : '#000';
   const [sitelogo, setSitelogo] = useState(null);
@@ -36,13 +36,18 @@ const NavbarWithMegaMenu = ({ openCart, backgroundColor = '#fff' }) => {
   const [signInOpen, setSignInOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const { isCartOpen, setIsCartOpen } = useCart();
+ const { isCartOpen, setIsCartOpen, cartItems } = useCart();
   const [supportDropdownOpen, setSupportDropdownOpen] = useState(false);
   const timeoutRef = useRef(null);
   const supportTimeoutRef = useRef(null); // 👈 Add this line
   const loggedInUserId = user?.id || null;
-     
-  
+     const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+const totalQuantity = cartItems?.reduce(
+  (acc, item) => acc + (Number(item.quantity) || 0),
+  0
+) || 0;
+
 
   const userTimeoutRef = useRef(null); // ✅ Add this line
 
@@ -76,7 +81,11 @@ useEffect(() => {
   }
 }, [user]);
 
-
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth <= 768);
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
 
 useEffect(() => {
   console.log('Full user object:', user);
@@ -121,6 +130,8 @@ useEffect(() => {
 
   const handleLogin = (userData) => {
     setUser(userData);
+    // console.log("......................");
+    console.log(userData);
     localStorage.setItem('user', JSON.stringify(userData));
     setSignInOpen(false);
   };
@@ -141,31 +152,31 @@ useEffect(() => {
     <nav
   className="navbar"
   style={{
-    width: isCartOpen ? 'calc(100% - 250px)' : '100%',
+     width: isMobile ? '100%' : (isCartOpen ? 'calc(100% - 250px)' : '100%'),
     transition: 'width 0.3s ease',
-    backgroundColor: backgroundColor || '#0aa6ee',
+    backgroundColor: backgroundColor || '#FF6C01',
     color: textColor,
   }}
 >
         <div className="navbar-inner">
           <div className="nav-left">
-            {sitelogo ? (
-            <img
-  src='https://db.store1920.com/wp-content/uploads/2025/07/cropped-1.webp'
-  alt="Site Logo"
-  className="logo"
-  style={{ maxHeight: 55, cursor: 'pointer' }}
-  onClick={() => {
-    closeMobileMenu();
-    window.location.href = '/';
-  }}
-/>
+           { sitelogo ? (
+  <img
+    src='https://db.store1920.com/wp-content/uploads/2025/07/cropped-1.webp'
+    alt="Store1920"
+    className="logo"
+    style={{ maxHeight: 55, cursor: 'pointer' }}
+    onClick={() => {
+      closeMobileMenu();
+      window.location.href = '/';
+    }}
+  />
+) : (
+  <div className="logo" onClick={closeMobileMenu} style={{ color: textColor }}>
 
-            ) : (
-           <div className="logo" onClick={closeMobileMenu} style={{ color: textColor }}>
-  Store1920
-</div>
-            )}
+  </div>
+)}
+
           </div>
 
           <div
@@ -269,6 +280,7 @@ onMouseLeave={() => {
   </div>
 <div className="user-name">
   Hi, {capitalizeFirst(truncateName(user.name))}{' '}
+  {/* {user.id} */}
   <CoinWidget userId={Number(user.id)} />
 </div>
 
@@ -327,18 +339,21 @@ onMouseLeave={() => {
   
   </div>
 
-  <div
-    className="nav-icon-only"
-    title="Cart"
-    onClick={() => setIsCartOpen(true)}
-    style={{ cursor: 'pointer' }}
-  >
-    <img
-      src="https://db.store1920.com/wp-content/uploads/2025/07/1-3.png"
-      alt="Cart"
-      className="icon-cart"
-    />
-  </div>
+<div
+  className="nav-icon-only"
+  title="Cart"
+  onClick={() => navigate('/cart')}
+  style={{ cursor: 'pointer', position: 'relative' }}
+>
+  <img
+    src="https://db.store1920.com/wp-content/uploads/2025/07/1-3.png"
+    alt="Cart"
+    className="icon-cart"
+  />
+  {totalQuantity > 0 && (
+    <div className="cart-badge">{totalQuantity}</div>
+  )}
+</div>
 </div>
 
      

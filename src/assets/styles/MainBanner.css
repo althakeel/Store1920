@@ -1,49 +1,66 @@
+/* Wraps the whole banner region */
 .banner-wrap {
-  position: relative;
   width: 100%;
-  height: 260px; /* Increased height */
-  max-height: 650px; /* Optional: you can increase this further */
   overflow: hidden;
-  background: #eee;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   font-family: Arial, sans-serif;
   color: #666;
   font-size: 16px;
   user-select: none;
-  min-height: 200px;
-}
-.banner-wrap.loading,
-.banner-wrap.error {
-  padding: 20px;
-  text-align: center;
 }
 
-.banner-img {
-  position: absolute;
-  top: 0;
-  left: 0;
+
+.banner-wrap.loading {
+  height: 250px; /* or whatever your banner height should be */
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+  font-size: 16px;
+  user-select: none;
+}
+
+/* Each slide */
+.banner-container {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transform: scale(1.05);
-  transition: opacity 0.8s ease, transform 0.8s ease;
-  pointer-events: none;
+  /* padding: 30px 0; */
+  display: none;
+  transition: opacity 0.5s ease;
 }
 
-.banner-img.active {
-  opacity: 1;
-  transform: scale(1);
-  pointer-events: auto;
+.banner-container.active {
+  display: block;
+}
+
+/* Centers content inside the banner */
+.banner-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  /* padding: 0 15px; */
+}
+
+/* Image */
+.banner-inner img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  display: block;
+  transition: transform 0.6s ease, opacity 0.6s ease;
   cursor: pointer;
+}
+
+/* Optional hover zoom */
+.banner-inner img:hover {
+  transform: scale(1.01);
 }
 
 /* Dots navigation */
 .banner-dots {
   position: absolute;
-  bottom: 12px;
+  bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -64,4 +81,46 @@
 .dot.active,
 .dot:hover {
   background: #ff6a00;
+}
+
+/* Loading / Error */
+.banner-wrap.loading,
+.banner-wrap.error {
+  text-align: center;
+  padding: 40px 20px;
+}
+/* Skeleton Loader */
+.banner-skeleton {
+  width: 100%;
+  max-width: 1400px;
+  height: 250px; /* or adjust based on your banner height */
+  margin: 0 auto;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #eee 25%, #ddd 37%, #eee 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .banner-container {
+    padding: 0px 0;
+    border-radius: 5px;
+  }
+
+  .banner-inner {
+    /* padding: 0 10px; */
+  }
+    .banner-skeleton {
+    height: 150px; /* smaller height on mobile */
+  }
 }

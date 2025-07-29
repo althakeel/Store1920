@@ -27,7 +27,7 @@ export default function ProductDescription({ product, selectedVariation }) {
       {sku && (
         <dl className="product-sku">
           <dt>SKU:</dt>
-          <dd>{sku}</dd>
+          <dd> {product.sku}</dd>
         </dl>
       )}
         {tags.length > 0 && (

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
-import SignInModal from './sub/SignInModal'; // Import modal
+import SignInModal from './sub/SignInModal';
 import '../assets/styles/MiniCart.css';
 
 const FREE_SHIPPING_THRESHOLD = 100;
@@ -13,17 +13,17 @@ const banners = [
   'https://db.store1920.com/wp-content/uploads/2025/07/Layer-1-copy.png',
 ];
 
-const MiniCart = ({ isOpen, onClose, navbarColor }) => {
-  const { cartItems, updateQuantity, removeFromCart, setIsCartOpen } = useCart();
+const MiniCart = ({ navbarColor }) => {
+  const { cartItems, updateQuantity, removeFromCart, setIsCartOpen, isCartOpen } = useCart();
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [showStars, setShowStars] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // NEW: Local state to control sign-in modal
-  const [signInOpen, setSignInOpen] = useState(false);
-
-  // Rotate banners
+  // Banner rotation
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBannerIndex((i) => (i + 1) % banners.length);
@@ -31,28 +31,21 @@ const MiniCart = ({ isOpen, onClose, navbarColor }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Auto-close if cart is empty
+  // Auto-close cart when empty
   useEffect(() => {
-    if (cartItems.length === 0) setIsCartOpen(false);
+    if (cartItems.length === 0) {
+      setIsCartOpen(false);
+    }
   }, [cartItems, setIsCartOpen]);
 
+  // Show stars briefly if qualified for free shipping
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + parseFloat(item.price) * item.quantity,
     0
   );
-
-const onCheckoutClick = () => {
-  if (!user) {
-    setSignInOpen(true);
-    return;
-  }
-  setIsCartOpen(false);  // <-- close mini cart
-  navigate('/checkout'); // <-- then redirect
-};
   const qualifiesFreeShipping = totalPrice >= FREE_SHIPPING_THRESHOLD;
   const progressPercent = Math.min((totalPrice / FREE_SHIPPING_THRESHOLD) * 100, 100);
 
-  // Show stars when eligible
   useEffect(() => {
     if (qualifiesFreeShipping) {
       setShowStars(true);
@@ -61,7 +54,24 @@ const onCheckoutClick = () => {
     }
   }, [qualifiesFreeShipping]);
 
-  if (cartItems.length === 0) return null;
+  // Window resize listener to avoid showing MiniCart on mobile
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const onCheckoutClick = () => {
+    if (!user) {
+      setSignInOpen(true);
+      return;
+    }
+    setIsCartOpen(false);
+    navigate('/checkout');
+  };
+
+  // ✅ Only render if open, cart has items, and screen width is >= 768px
+  if (!isCartOpen || cartItems.length === 0 || windowWidth < 768) return null;
 
   return (
     <>
@@ -80,8 +90,7 @@ const onCheckoutClick = () => {
         }}
       >
         {/* Top Section */}
-        <div style={{ flexShrink: 0, padding: 12,   background: navbarColor, borderBottom: '1px solid #eee' }}>
-          {/* Banner with Title */}
+        <div style={{ flexShrink: 0, padding: 12, background: navbarColor, borderBottom: '1px solid #eee' }}>
           <div style={{ position: 'relative', marginBottom: 10 }}>
             <img
               src={banners[currentBannerIndex]}
@@ -106,12 +115,10 @@ const onCheckoutClick = () => {
             </h2>
           </div>
 
-          {/* Total Price */}
           <div style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 6 }}>
             Total: {totalPrice.toFixed(2)} AED
           </div>
 
-          {/* Badge */}
           <div
             style={{
               background: '#4caf50',
@@ -126,7 +133,6 @@ const onCheckoutClick = () => {
             Free shipping over 100 AED
           </div>
 
-          {/* Progress Bar */}
           <div
             style={{
               width: '100%',
@@ -146,7 +152,6 @@ const onCheckoutClick = () => {
             />
           </div>
 
-          {/* Message */}
           <div
             style={{
               fontSize: 12,
@@ -160,7 +165,6 @@ const onCheckoutClick = () => {
               : `Add ${(FREE_SHIPPING_THRESHOLD - totalPrice).toFixed(2)} AED more`}
           </div>
 
-          {/* Buttons */}
           <button
             onClick={onCheckoutClick}
             style={{
@@ -195,7 +199,6 @@ const onCheckoutClick = () => {
           </button>
         </div>
 
-        {/* Stars Celebration Overlay with GIF */}
         {showStars && (
           <div className="celebration-overlay">
             <img
@@ -211,7 +214,6 @@ const onCheckoutClick = () => {
           {cartItems.map((item) => (
             <div className="mini-cart-product" key={item.id}>
               <img src={item.images?.[0]?.src || item.image || ''} alt="" />
-
               <div className="mini-cart-product-details">
                 <div className="price">{item.price} AED</div>
                 <select
@@ -229,7 +231,6 @@ const onCheckoutClick = () => {
                   ))}
                 </select>
               </div>
-
               <button
                 onClick={() => removeFromCart(item.id)}
                 className="mini-cart-remove-btn"
@@ -242,11 +243,10 @@ const onCheckoutClick = () => {
         </div>
       </div>
 
-      {/* Sign In Modal rendered here */}
       <SignInModal
         isOpen={signInOpen}
         onClose={() => setSignInOpen(false)}
-        onLogin={() => setSignInOpen(false)} // Close modal after login
+        onLogin={() => setSignInOpen(false)}
       />
     </>
   );

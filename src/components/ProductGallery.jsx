@@ -56,17 +56,21 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
   };
 
   // Modal prev/next buttons with thumbnail scroll
-  const handleModalPrev = (e) => {
-    e.stopPropagation();
-    handlePrev();
-    scrollModalThumbnails(mainIndex === 0 ? images.length - 1 : mainIndex - 1);
-  };
+const handleModalPrev = (e) => {
+  e.stopPropagation();
+  const newIndex = mainIndex === 0 ? images.length - 1 : mainIndex - 1;
+  setMainIndex(newIndex);
+  setMainImageUrl(images[newIndex].src);
+  scrollModalThumbnails(newIndex);
+};
 
-  const handleModalNext = (e) => {
-    e.stopPropagation();
-    handleNext();
-    scrollModalThumbnails(mainIndex === images.length - 1 ? 0 : mainIndex + 1);
-  };
+const handleModalNext = (e) => {
+  e.stopPropagation();
+  const newIndex = mainIndex === images.length - 1 ? 0 : mainIndex + 1;
+  setMainIndex(newIndex);
+  setMainImageUrl(images[newIndex].src);
+  scrollModalThumbnails(newIndex);
+};
 
   // Modal thumbnail scroll buttons
   const scrollModalThumbsLeft = (e) => {

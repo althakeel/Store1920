@@ -72,3 +72,24 @@
   white-space: nowrap;
   user-select: none;
 }
+/* Responsive for mobile: narrow sidebar and hide labels */
+@media (max-width: 768px) {
+  .account-sidebar {
+    width: 20px !important; /* narrow fixed width */
+    padding: 12px 4px; /* reduce horizontal padding */
+  }
+
+  .sidebar-item {
+    padding: 12px 4px; /* less padding to fit narrow sidebar */
+    justify-content: center; /* center icon */
+  }
+
+  .sidebar-item .icon {
+    margin-right: 0; /* remove space since label hidden */
+    font-size: 20px; /* optionally slightly bigger icon */
+  }
+
+  .sidebar-item .label {
+    display: none; /* hide label on mobile */
+  }
+}

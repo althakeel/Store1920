@@ -19,7 +19,7 @@ const AUTH = {
 };
 
 export default function ProductDetails() {
-  const { slug } = useParams();
+ const { slug, id } = useParams();
 
   const [product, setProduct] = useState(null);
   const [variations, setVariations] = useState([]);
@@ -47,50 +47,58 @@ export default function ProductDetails() {
   const openModal = (type) => setActiveModal(type);
   const closeModal = () => setActiveModal(null);
 
-  useEffect(() => {
-    async function fetchProductData() {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${API_BASE}?slug=${slug}`, { auth: AUTH });
+ useEffect(() => {
+  async function fetchProductData() {
+    setLoading(true);
+    try {
+      let prod = null;
 
-        if (!response.data.length) {
-          setProduct(null);
-          setVariations([]);
-          setSelectedVariation(null);
-          setMainImageUrl(null);
-          setLoading(false);
-          return;
-        }
+      if (id) {
+        // Fetch by product ID
+        const res = await axios.get(`${API_BASE}/${id}`, { auth: AUTH });
+        prod = res.data;
+      } else if (slug) {
+        // Fetch by slug
+        const res = await axios.get(`${API_BASE}?slug=${slug}`, { auth: AUTH });
+        prod = res.data.length > 0 ? res.data[0] : null;
+      }
 
-        const prod = response.data[0];
-        setProduct(prod);
-        setSelectedVariation(null);
-        // Note: Do not setMainImageUrl here, handled by useEffect above
-
-        if (prod.variations?.length) {
-          const variationsData = await Promise.all(
-            prod.variations.map(async (id) => {
-              const varRes = await axios.get(`${API_BASE}/${id}`, { auth: AUTH });
-              return varRes.data;
-            })
-          );
-          setVariations(variationsData);
-        } else {
-          setVariations([]);
-        }
-      } catch (error) {
-        console.error('Failed to fetch product details:', error);
+      if (!prod) {
         setProduct(null);
         setVariations([]);
         setSelectedVariation(null);
         setMainImageUrl(null);
-      } finally {
         setLoading(false);
+        return;
       }
-    }
 
-    fetchProductData();
-  }, [slug]);
+      setProduct(prod);
+      setSelectedVariation(null);
+
+      if (prod.variations?.length) {
+        const variationsData = await Promise.all(
+          prod.variations.map(async (varId) => {
+            const varRes = await axios.get(`${API_BASE}/${varId}`, { auth: AUTH });
+            return varRes.data;
+          })
+        );
+        setVariations(variationsData);
+      } else {
+        setVariations([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch product details:', error);
+      setProduct(null);
+      setVariations([]);
+      setSelectedVariation(null);
+      setMainImageUrl(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchProductData();
+}, [slug, id]);
 
   const handleVariationChange = (variation) => {
     setSelectedVariation(variation);

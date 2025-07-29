@@ -1,7 +1,7 @@
 // src/components/sub/SignOutConfirmModal.jsx
 import React from 'react';
 import ReactDOM from 'react-dom';
-import '../../assets/styles/SignOutConfirmModal.css'; // optional CSS for modal styling
+import '../../assets/styles/SignOutConfirmModal.css';
 
 const SignOutConfirmModal = ({ isOpen, onConfirm, onCancel }) => {
   if (!isOpen) return null;
@@ -13,11 +13,15 @@ const SignOutConfirmModal = ({ isOpen, onConfirm, onCancel }) => {
   return ReactDOM.createPortal(
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">
-        <h3>Confirm Sign Out</h3>
-        <p>Are you sure you want to sign out?</p>
+        <h3 className="modal-title">Confirm Sign Out</h3>
+        <p className="modal-message">Are you sure you want to sign out?</p>
         <div className="modal-buttons">
-          <button onClick={onConfirm} type="button">Yes, Sign Out</button>
-          <button onClick={onCancel} type="button">Cancel</button>
+          <button className="btn btn-confirm" onClick={onConfirm} type="button">
+            Yes, Sign Out
+          </button>
+          <button className="btn btn-cancel" onClick={onCancel} type="button">
+            Cancel
+          </button>
         </div>
       </div>
     </div>,

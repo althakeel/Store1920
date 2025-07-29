@@ -49,12 +49,14 @@ const SearchBar = () => {
           auth: { username: CK, password: CS },
           params: { search: term, per_page: 8 }
         });
-        setSuggestions(
-          res.data.map((product) => ({
-            label: product.name,
-            id: product.id
-          }))
-        );
+     setSuggestions(
+  res.data.map((product) => ({
+    label: product.name,
+    id: product.id,
+    slug: product.slug,     // <-- Add slug here
+  }))
+);
+
       } catch (err) {
         console.error("API error:", err);
         setSuggestions([]);
@@ -73,13 +75,17 @@ const SearchBar = () => {
     clearTimeout(timeoutRef.current);
   };
 
-  const goToProduct = (productId) => {
-    if (productId) {
-      navigate(`/product/${productId}`);
-    } else {
-      navigate(`/search?q=${encodeURIComponent(term)}`);
-    }
-  };
+const goToProduct = (slug = null, customLabel = "") => {
+  const searchTerm = customLabel || term;
+  if (slug) {
+    navigate(`/product/slug/${slug}`);  // Use slug here instead of id
+  } else {
+    navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+  }
+};
+
+
+
 
   return (
     <div
@@ -99,7 +105,10 @@ const SearchBar = () => {
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           onFocus={() => setOpen(true)}
-          onKeyDown={(e) => e.key === "Enter" && goToProduct()}
+          onKeyDown={(e) => {
+  if (e.key === "Enter") goToProduct(null, term);
+}}
+
           autoComplete="off"
           spellCheck="false"
         />
@@ -130,10 +139,11 @@ const SearchBar = () => {
               <div
                 key={index}
                 className="scoped-search-item"
-                onMouseDown={() => {
-                  setTerm(item.label);
-                  goToProduct(item.id);
-                }}
+           onMouseDown={() => {
+  setTerm(item.label);
+  goToProduct(item.slug, item.label);  // Pass slug here
+}}
+
               >
                 {item.label}
               </div>

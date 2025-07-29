@@ -2,17 +2,12 @@ import React from 'react';
 import '../../assets/styles/QuantitySelector.css';
 
 export default function QuantitySelector({ quantity, setQuantity, maxQuantity }) {
-  // Determine maximum quantity allowed (default 100 if invalid)
-  const maxQty = typeof maxQuantity === 'number' && maxQuantity > 0 ? maxQuantity : 100;
-
-  // Generate quantity options array [1, 2, ..., maxQty]
-  const quantities = Array.from({ length: maxQty }, (_, i) => i + 1);
+  const validMax = Number.isInteger(maxQuantity) && maxQuantity > 0 ? maxQuantity : 99;
+  const quantities = Array.from({ length: validMax }, (_, i) => i + 1);
 
   return (
     <div className="quantity-selector-container">
-      <label htmlFor="quantity-select" className="quantity-label">
-        Quantity:
-      </label>
+      <label htmlFor="quantity-select" className="quantity-label">Quantity:</label>
       <select
         id="quantity-select"
         className="quantity-select"
@@ -25,6 +20,10 @@ export default function QuantitySelector({ quantity, setQuantity, maxQuantity })
           </option>
         ))}
       </select>
+
+      {validMax <= 10 && (
+        <p className="stock-info-text">Only {validMax} left in stock!</p>
+      )}
     </div>
   );
 }

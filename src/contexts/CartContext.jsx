@@ -40,7 +40,7 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems]);
 
-  const addToCart = (product) => {
+  const addToCart = (product, showCart = true) => {
     setCartItems((prev) => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
@@ -52,9 +52,13 @@ export const CartProvider = ({ children }) => {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
-
-    setIsCartOpen(true);
+  
+    if (showCart) {
+      setIsCartOpen(true); // ✅ only open MiniCart if showCart is true
+    }
   };
+  
+  
 
   const removeFromCart = (productId) => {
     setCartItems((prev) => prev.filter(item => item.id !== productId));

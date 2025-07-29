@@ -1,34 +1,32 @@
-// ./components/sub/Preloader.jsx
 import React from 'react';
+import preloaderGif from '../../assets/images/Preloader.gif'; // ✅ correct relative path
 
-export default function Preloader() {
+const Preloader = () => {
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: '#fff',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 9999,
-      }}
-    >
-      <div
-        style={{
-          border: '6px solid #eee',
-          borderTop: '6px solid #0aa6ee',
-          borderRadius: '50%',
-          width: '40px',
-          height: '40px',
-          animation: 'spin 1s linear infinite',
-        }}
-      />
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+    <div style={styles.overlay}>
+      <img src={preloaderGif} alt="Loading..." style={styles.image} />
     </div>
   );
-}
+};
+
+const styles = {
+  overlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: '#ffffff',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
+  },
+  image: {
+    width: '180px',
+    height: '180px',
+    objectFit: 'contain',
+  },
+};
+
+export default Preloader;

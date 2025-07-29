@@ -1,69 +1,94 @@
 .payment-methods-wrapper {
-  padding: 10px 0px;
-  background-color: #fff;
-  border-radius: 16px;
-  /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.payment-heading1 {
-  font-size: 15px;
+.payment-heading {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
   font-weight: 600;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 6px;
+  color: #222;
+  text-align: center;
 }
 
 .payment-error {
-  color: red;
-  margin-bottom: 12px;
+  color: #dc3545;
+  background-color: #f8d7da;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .payment-options {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-    padding: 0px 10px;
+  gap: 1rem;
 }
 
 .payment-option {
   display: flex;
   align-items: center;
-  /* padding: 16px 18px; */
-  /* border: 2px solid #e2e8f0; */
-  border-radius: 12px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 12px 16px;
   cursor: pointer;
-  transition: border-color 0.25s ease, background-color 0.25s ease;
-  /* background-color: #f9fafb; */
-}
-
-.payment-option.active {
-  border-color: #19c37d;
-  background-color: #e7fff2 !important;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  background-color: #fff;
+  user-select: none;
 }
 
 .payment-option:hover {
-  background-color: #f0fdf4;
+  border-color: #2563eb;
+  background-color: #f0f7ff;
 }
 
-.payment-radio input[type="radio"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #19c37d;
+.payment-option.active {
+  border-color: #2563eb;
+  background-color: #dbe9ff;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
 }
 
-.payment-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex: 1;
-  margin-left: 14px;
-}
-
-.payment-title {
-  font-size: 12px;
-  font-weight: 500;
+.payment-option input[type='radio'] {
+  margin-right: 12px;
+  cursor: pointer;
+  accent-color: #2563eb;
+  width: 20px;
+  height: 20px;
 }
 
 .payment-icon {
-  font-size: 20px;
+  font-size: 2rem;
+  margin-right: 16px;
+  user-select: none;
+}
+
+.payment-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #111;
+  margin-bottom: 4px;
+}
+
+.payment-description {
+  font-size: 0.875rem;
+  color: #555;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .payment-option {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .payment-icon {
+    margin-bottom: 8px;
+  }
 }

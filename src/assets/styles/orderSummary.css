@@ -7,6 +7,7 @@
     font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
     box-sizing: border-box;
+    min-height: 50vh;
   }
   
   .os-title {
