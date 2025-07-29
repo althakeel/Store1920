@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
@@ -6,11 +6,12 @@ import ProductGallery from '../components/ProductGallery';
 import ProductInfo from '../components/ProductInfo';
 import ProductDescription from '../components/products/ProductDescription';
 import SkeletonLoader from '../components/SkeletonLoader';
-import RelatedProducts from '../components/RelatedProducts';
 import Whislistreport from '../components/products/Whislist-report';
-import ProductReviewList from '../components/products/ProductReviewList';
 
 import '../assets/styles/product-details.css';
+
+const RelatedProducts = lazy(() => import('../components/RelatedProducts'));
+const ProductReviewList = lazy(() => import('../components/products/ProductReviewList'));
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3/products';
 const AUTH = {
@@ -19,119 +20,108 @@ const AUTH = {
 };
 
 export default function ProductDetails() {
- const { slug, id } = useParams();
+  const { slug, id } = useParams();
 
   const [product, setProduct] = useState(null);
   const [variations, setVariations] = useState([]);
   const [selectedVariation, setSelectedVariation] = useState(null);
-
-  // Initialize mainImageUrl with null to avoid undefined 'images' error
   const [mainImageUrl, setMainImageUrl] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingProduct, setLoadingProduct] = useState(true);
+  const [loadingVariations, setLoadingVariations] = useState(false);
+
   const [activeModal, setActiveModal] = useState(null);
-
-  // Derive images array safely from product (after product is loaded)
-  const images = product?.images || [];
-
-  // Set initial mainImageUrl when images are available
-  useEffect(() => {
-    if (images.length > 0 && !mainImageUrl) {
-      setMainImageUrl(images[0].src);
-    }
-  }, [images, mainImageUrl]);
-
-  // Login modal and user state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const openModal = (type) => setActiveModal(type);
-  const closeModal = () => setActiveModal(null);
+  const openModal = useCallback((type) => setActiveModal(type), []);
+  const closeModal = useCallback(() => setActiveModal(null), []);
 
- useEffect(() => {
-  async function fetchProductData() {
-    setLoading(true);
-    try {
-      let prod = null;
+  useEffect(() => {
+    setLoadingProduct(true);
+    setProduct(null);
+    setVariations([]);
+    setSelectedVariation(null);
+    setMainImageUrl(null);
 
-      if (id) {
-        // Fetch by product ID
-        const res = await axios.get(`${API_BASE}/${id}`, { auth: AUTH });
-        prod = res.data;
-      } else if (slug) {
-        // Fetch by slug
-        const res = await axios.get(`${API_BASE}?slug=${slug}`, { auth: AUTH });
-        prod = res.data.length > 0 ? res.data[0] : null;
-      }
+    const fetchProduct = async () => {
+      try {
+        let prod = null;
 
-      if (!prod) {
+        if (id) {
+          const res = await axios.get(`${API_BASE}/${id}`, { auth: AUTH });
+          prod = res.data;
+        } else if (slug) {
+          const res = await axios.get(`${API_BASE}?slug=${slug}`, { auth: AUTH });
+          prod = res.data.length > 0 ? res.data[0] : null;
+        }
+
+        if (!prod) {
+          setProduct(null);
+          return;
+        }
+
+        setProduct(prod);
+        setMainImageUrl(prod.images?.[0]?.src || null);
+
+        // Fetch all variations in ONE request, if available
+        if (prod.variations?.length) {
+          setLoadingVariations(true);
+          try {
+            // WooCommerce endpoint for variations of product
+            const varRes = await axios.get(
+              `${API_BASE}/${prod.id}/variations?per_page=100`,
+              { auth: AUTH }
+            );
+            setVariations(varRes.data || []);
+          } catch (err) {
+            console.error('Error fetching variations:', err);
+            setVariations([]);
+          } finally {
+            setLoadingVariations(false);
+          }
+        } else {
+          setVariations([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch product details:', error);
         setProduct(null);
         setVariations([]);
-        setSelectedVariation(null);
         setMainImageUrl(null);
-        setLoading(false);
-        return;
+      } finally {
+        setLoadingProduct(false);
       }
+    };
 
-      setProduct(prod);
-      setSelectedVariation(null);
+    fetchProduct();
+  }, [slug, id]);
 
-      if (prod.variations?.length) {
-        const variationsData = await Promise.all(
-          prod.variations.map(async (varId) => {
-            const varRes = await axios.get(`${API_BASE}/${varId}`, { auth: AUTH });
-            return varRes.data;
-          })
-        );
-        setVariations(variationsData);
-      } else {
-        setVariations([]);
-      }
-    } catch (error) {
-      console.error('Failed to fetch product details:', error);
-      setProduct(null);
-      setVariations([]);
-      setSelectedVariation(null);
-      setMainImageUrl(null);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const handleVariationChange = useCallback(
+    (variation) => {
+      setSelectedVariation(variation);
+      setMainImageUrl(variation.image?.src || product?.images?.[0]?.src || null);
+    },
+    [product]
+  );
 
-  fetchProductData();
-}, [slug, id]);
-
-  const handleVariationChange = (variation) => {
-    setSelectedVariation(variation);
-    setMainImageUrl(variation.image?.src || product.images?.[0]?.src || null);
-  };
-
-  // Wishlist handler
   const handleAddToWishlist = () => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
     }
-
     alert('Added to wishlist!');
-    // Your API call or state update for wishlist goes here
   };
 
   const handleReportProduct = () => {
     alert('Reported this product!');
-    // Your report logic or modal goes here
   };
 
-  const closeLoginModal = () => {
-    setShowLoginModal(false);
-  };
-
+  const closeLoginModal = () => setShowLoginModal(false);
   const mockLogin = () => {
     setIsLoggedIn(true);
     closeLoginModal();
   };
 
-  if (loading) return <SkeletonLoader />;
-
+  if (loadingProduct) return <SkeletonLoader />;
   if (!product) return <div>Product not found.</div>;
 
   return (
@@ -140,7 +130,7 @@ export default function ProductDetails() {
         <div className="left">
           <div className="gallery-and-description">
             <ProductGallery
-              images={images}
+              images={product.images || []}
               mainImageUrl={mainImageUrl}
               setMainImageUrl={setMainImageUrl}
               activeModal={activeModal}
@@ -154,12 +144,12 @@ export default function ProductDetails() {
               isLoggedIn={isLoggedIn}
               onOpenLoginPopup={() => setShowLoginModal(true)}
             />
-            <ProductReviewList />
 
-            <ProductDescription
-              product={product}
-              selectedVariation={selectedVariation}
-            />
+            <Suspense fallback={<div>Loading reviews...</div>}>
+              <ProductReviewList productId={product.id} />
+            </Suspense>
+
+            <ProductDescription product={product} selectedVariation={selectedVariation} />
           </div>
         </div>
 
@@ -169,12 +159,15 @@ export default function ProductDetails() {
             variations={variations}
             selectedVariation={selectedVariation}
             onVariationChange={handleVariationChange}
+            loadingVariations={loadingVariations}
           />
         </div>
       </div>
 
       <div className="related-products-section">
-        <RelatedProducts productId={product.id} />
+        <Suspense fallback={<div>Loading related products...</div>}>
+          <RelatedProducts productId={product.id} />
+        </Suspense>
       </div>
 
       {showLoginModal && (
@@ -182,7 +175,10 @@ export default function ProductDetails() {
           className="login-modal"
           style={{
             position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             background: 'rgba(0,0,0,0.5)',
             display: 'flex',
             justifyContent: 'center',
@@ -199,8 +195,9 @@ export default function ProductDetails() {
             }}
           >
             <h3>Login Required</h3>
-            {/* Replace below with your real login form */}
-            <button onClick={mockLogin} style={{ marginRight: 10 }}>Mock Login</button>
+            <button onClick={mockLogin} style={{ marginRight: 10 }}>
+              Mock Login
+            </button>
             <button onClick={closeLoginModal}>Cancel</button>
           </div>
         </div>

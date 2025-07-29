@@ -7,6 +7,7 @@
   font-family: 'Montserrat',  sans-serif;
   box-sizing: border-box;
   color: #222;
+  min-height: 50vh;
 }
 
 .pcus-category-img {
@@ -172,10 +173,11 @@
 
 .pcus-category-btn1:hover {
   background-color: #ffffff;
-  border-bottom: 1px solid rgb(255, 81, 0);
-  border-top: 1px solid rgb(255, 81, 0);
+  /* border-bottom: 1px solid rgb(255, 81, 0);
+  border-top: 1px solid rgb(255, 81, 0); */
   color: #000;
   /* transform: scale(1.01);  */
+  border: none;
 }
 
 .pcus-category-btn1.active {
@@ -185,8 +187,9 @@
   /* border: 1px solid grey; */
   /* border-right: 1px solid grey;
   border-left: 1px solid grey; */
-  border-bottom: 1px solid rgb(255, 81, 0);
-  border-top: 1px solid rgb(255, 81, 0);
+  /* border-bottom: 1px solid rgb(255, 81, 0);
+  border-top: 1px solid rgb(255, 81, 0); */
+  border: none;
 }
 
 
@@ -311,6 +314,23 @@
   scrollbar-width: none;
   user-select: none;
 }
+
+.pcus-no-products-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px; /* Adjust this height as needed */
+  width: 100%;
+}
+
+.pcus-no-products {
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+}
+
+
+
 
 .pcus-badges-overlay::-webkit-scrollbar {
   display: none;

@@ -4,6 +4,7 @@ import Whychoose from '../components/sub/home/whychoose';
 import CategorySlider from '../components/sub/home/categoryslider';
 import ProductCategory from '../components/sub/home/productcategory';
 import LightningBanner from '../components/sub/home/LightningBanner';
+import CourierBanner from '../components/sub/home/CourierBanner';
 
 const Home = () => {
   return (
@@ -12,6 +13,7 @@ const Home = () => {
       <Whychoose />
       <LightningBanner/>
       <CategorySlider />
+      <CourierBanner/>
       <ProductCategory />
     </div>
   );

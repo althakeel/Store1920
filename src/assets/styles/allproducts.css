@@ -171,9 +171,9 @@
 }
 
 .pcus-category-btn1:hover {
-  background-color: #ffffff;
+  /* background-color: #ffffff;
   border-bottom: 1px solid rgb(255, 81, 0);
-  border-top: 1px solid rgb(255, 81, 0);
+  border-top: 1px solid rgb(255, 81, 0); */
   color: #000;
   /* transform: scale(1.01);  */
 }
@@ -181,12 +181,12 @@
 .pcus-category-btn1.active {
   background-color: #ffffff;
   color: #000000;
-  transform: scale(1.05); 
+  transform: scale(1.08); 
   /* border: 1px solid grey; */
   /* border-right: 1px solid grey;
   border-left: 1px solid grey; */
-  border-bottom: 1px solid rgb(255, 81, 0);
-  border-top: 1px solid rgb(255, 81, 0);
+  /* border-bottom: 1px solid rgb(255, 81, 0);
+  border-top: 1px solid rgb(255, 81, 0); */
 }
 
 

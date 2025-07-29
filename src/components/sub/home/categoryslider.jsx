@@ -22,26 +22,49 @@ const CategorySlider = () => {
   const sliderRef = useRef(null);
 
   useEffect(() => {
+    let isMounted = true;
+
+    // Attempt to load cached categories first
+    const cachedCategories = localStorage.getItem('categories');
+    if (cachedCategories) {
+      setCategories(JSON.parse(cachedCategories));
+      return;
+    }
+
+    // Fetch categories from API
     axios
-      .get(`${API_BASE}/products/categories?consumer_key=${CK}&consumer_secret=${CS}`)
-      .then((res) => setCategories(res.data.filter((cat) => cat.image)))
-      .catch((err) => {
-        console.error('Error fetching categories:', err);
-        setCategories([]);
+      .get(`${API_BASE}/products/categories`, {
+        params: { consumer_key: CK, consumer_secret: CS },
+      })
+      .then((response) => {
+        if (!isMounted) return;
+        const filtered = response.data.filter((cat) => cat.image);
+        setCategories(filtered);
+        localStorage.setItem('categories', JSON.stringify(filtered));
+      })
+      .catch((error) => {
+        console.error('Failed to fetch categories:', error);
+        if (isMounted) setCategories([]);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  // Slider configuration
   const settings = {
     dots: false,
     infinite: true,
     speed: 600,
     slidesToShow: 7,
     slidesToScroll: 1,
-    autoplay: true,
+    autoplay: Boolean(categories && categories.length > 0),
     autoplaySpeed: 3500,
     cssEase: 'ease-in-out',
     swipeToSlide: true,
-    arrows: false, // Disable default arrows
+    arrows: false, // using custom arrows instead
+    lazyLoad: 'ondemand', // lazy load images on demand
     responsive: [
       { breakpoint: 2560, settings: { slidesToShow: 7.2 } },
       { breakpoint: 1536, settings: { slidesToShow: 6.5 } },
@@ -54,30 +77,36 @@ const CategorySlider = () => {
     ],
   };
 
-  const handlePrev = () => {
-    if (sliderRef.current) sliderRef.current.slickPrev();
-  };
-
-  const handleNext = () => {
-    if (sliderRef.current) sliderRef.current.slickNext();
-  };
+  const goPrev = () => sliderRef.current?.slickPrev();
+  const goNext = () => sliderRef.current?.slickNext();
 
   const renderSkeletons = (count = 8) =>
-    [...Array(count)].map((_, i) => (
+    Array.from({ length: count }).map((_, i) => (
       <div key={i} className="category-slide skeleton-slide" aria-hidden="true">
-        <img src={placeholderImg} alt="Loading placeholder" className="category-skeleton-img" />
+        <img
+          src={placeholderImg}
+          alt="Loading placeholder"
+          className="category-skeleton-img"
+          loading="lazy"
+          decoding="async"
+        />
         <div className="category-skeleton-text" />
       </div>
     ));
 
   return (
-    <div className="category-slider-container" role="region" aria-label="Category Slider" style={{ position: 'relative' }}>
-      {/* Custom Previous Arrow */}
+    <section
+      className="category-slider-container"
+      role="region"
+      aria-label="Category Slider"
+      style={{ position: 'relative' }}
+    >
+      {/* Previous Arrow */}
       <button
         type="button"
         className="custom-prev-arrow"
         aria-label="Previous Slide"
-        onClick={handlePrev}
+        onClick={goPrev}
       >
         <svg
           width="29"
@@ -88,18 +117,20 @@ const CategorySlider = () => {
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
+          aria-hidden="true"
+          focusable="false"
         >
           <line x1="16" y1="4" x2="8" y2="12" />
           <line x1="16" y1="20" x2="8" y2="12" />
         </svg>
       </button>
 
-      {/* Custom Next Arrow */}
+      {/* Next Arrow */}
       <button
         type="button"
         className="custom-next-arrow"
         aria-label="Next Slide"
-        onClick={handleNext}
+        onClick={goNext}
       >
         <svg
           width="29"
@@ -110,30 +141,45 @@ const CategorySlider = () => {
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
+          aria-hidden="true"
+          focusable="false"
         >
           <line x1="8" y1="4" x2="16" y2="12" />
           <line x1="8" y1="20" x2="16" y2="12" />
         </svg>
       </button>
 
-      {/* The Slider */}
-      <Slider {...settings} ref={sliderRef}>
-        {categories === null
-          ? renderSkeletons()
-          : categories.map((cat) => (
+      {/* Slider */}
+      {categories === null ? (
+        <div className="skeleton-wrapper">{renderSkeletons()}</div>
+      ) : (
+        <Slider {...settings} ref={sliderRef}>
+          {categories.map((cat) => {
+            const decodedName = decodeHTML(cat.name);
+            return (
               <Link
                 to={`/category/${cat.slug}`}
                 key={cat.id}
                 className="category-slide"
                 style={{ cursor: 'pointer' }}
-                aria-label={`View products in ${decodeHTML(cat.name)} category`}
+                aria-label={`View products in ${decodedName} category`}
               >
-                <img src={cat.image.src} alt={decodeHTML(cat.name)} className="category-image" />
-                <p className="category-title">{decodeHTML(cat.name)}</p>
+                <img
+                  src={cat.image.src}
+                  alt={decodedName}
+                  className="category-image"
+                  loading="lazy"
+                  decoding="async"
+                  width="100%"
+                  height="auto"
+                />
+                <p className="category-title">{decodedName}</p>
               </Link>
-            ))}
-      </Slider>
-    </div>
+            );
+          })}
+        </Slider>
+      )}
+    </section>
   );
 };
 

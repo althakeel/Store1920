@@ -31,6 +31,53 @@ const CheckoutLeft = ({
   const [error, setError] = useState(null);
   const [selectedShippingMethodId, setSelectedShippingMethodId] = useState(null);
 
+
+
+
+const handleDeleteAddress = () => {
+  // Clear shipping info (you can customize fields to clear)
+  const emptyAddress = {
+    fullName: '',
+    address1: '',
+    address2: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: '',
+    phone: '',
+  };
+
+  // Reset shipping method
+  setSelectedShippingMethodId(null);
+
+  // Call onChange multiple times or create a single "clearShipping" event
+  onChange(
+    {
+      target: {
+        name: 'shipping',
+        value: emptyAddress,
+        type: 'object', // you can define this as you handle in your onChange
+      },
+    },
+    'shipping'
+  );
+
+  // Also reset billing if same as shipping is false
+  if (!formData.billingSameAsShipping) {
+    onChange(
+      {
+        target: {
+          name: 'billing',
+          value: emptyAddress,
+          type: 'object',
+        },
+      },
+      'billing'
+    );
+  }
+};
+
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser);
@@ -180,15 +227,63 @@ const CheckoutLeft = ({
       <div className="shipping-container">
         <div className="section-block">
           <div className="section-header">
-            <h2 className="shippingadress"><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              
-             Shipping Address <button
-              onClick={handleAddAddressClick}
-              className={`btn-add-address1 ${showForm ? 'cancel-btn1' : ''}`}
-            >
-              {showForm ? 'Cancel' : 'Change Address'}
-            </button>
-             </div></h2>
+          <h2 className="shippingadress" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  <span>Shipping Address</span>
+  <div style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
+    <button
+      onClick={handleAddAddressClick}
+      className={`btn-add-address1 ${showForm ? 'cancel-btn1' : ''}`}
+    >
+      {showForm
+        ? 'Cancel'
+        : formData?.shipping?.address1
+        ? 'Change Address'
+        : 'Add New Address'}
+    </button>
+
+    {formData?.shipping?.address1 && !showForm && (
+      <button
+        onClick={handleDeleteAddress}
+        className="btn-delete-address"
+        style={{
+          backgroundColor: 'transparent',
+          color: '#000',
+          border: 'none',
+          padding: '8px 12px',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '12px',
+          textDecoration: 'underline',
+        }}
+        aria-label="Delete Address"
+        title="Delete Address"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <polyline points="3 6 5 6 21 6" />
+          <path d="M19 6l-2 14H7L5 6" />
+          <path d="M10 11v6" />
+          <path d="M14 11v6" />
+          <path d="M9 6V4h6v2" />
+        </svg>
+      </button>
+    )}
+  </div>
+</h2>
+
 
             {/* Saved address summary */}
             {formData?.shipping && formData.shipping.address1 && (

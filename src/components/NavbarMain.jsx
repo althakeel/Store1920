@@ -173,9 +173,24 @@ useEffect(() => {
   />
 ) : (
   <div className="logo" onClick={closeMobileMenu} style={{ color: textColor }}>
-
+ <img
+    src='https://db.store1920.com/wp-content/uploads/2025/07/cropped-1.webp'
+    alt="Store1920"
+    className="logo"
+    style={{ maxHeight: 35, cursor: 'pointer' }}
+    onClick={() => {
+      closeMobileMenu();
+      window.location.href = '/';
+    }}
+  />
   </div>
 )}
+
+          </div>
+          <div>
+                 <div className="nav-center-mobile">
+              <SearchBar />
+            </div>
 
           </div>
 

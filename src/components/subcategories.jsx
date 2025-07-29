@@ -106,21 +106,29 @@ const ProductCategory = () => {
     fetchCurrencySymbol();
   }, []);
 
-  const fetchCategories = useCallback(async (page = 1) => {
-    setLoadingCategories(true);
-    try {
-      const res = await fetch(
-        `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PAGE_SIZE}&page=${page}&hide_empty=true&orderby=name`
-      );
-      const data = await res.json();
-      if (data.length < PAGE_SIZE) setHasMoreCategories(false);
-      setCategories((prev) => [...prev, ...data]);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingCategories(false);
-    }
-  }, []);
+const fetchCategories = useCallback(async (page = 1) => {
+  setLoadingCategories(true);
+  try {
+    const res = await fetch(
+      `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PAGE_SIZE}&page=${page}&hide_empty=false&orderby=name&parent=0`
+    );
+    const data = await res.json();
+
+    if (data.length < PAGE_SIZE) setHasMoreCategories(false);
+
+    setCategories((prev) => {
+      const existingIds = new Set(prev.map((cat) => cat.id));
+      const newUnique = data.filter((cat) => !existingIds.has(cat.id));
+      return [...prev, ...newUnique];
+    });
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setLoadingCategories(false);
+  }
+}, []);
+
+
 
 const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategoryId) => {
   setLoadingProducts(true);
@@ -312,7 +320,14 @@ const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategory
             );
           })}
           {loadingProducts && Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={`skeleton-${i}`} />)}
-          {!loadingProducts && products.length === 0 && <div className="pcus-no-products">No products found.</div>}
+{!loadingProducts && products.length === 0 && (
+  <div className="pcus-no-products-wrapper">
+    <div className="pcus-no-products">
+      No products found in this category.
+    </div>
+  </div>
+)}
+
         </div>
 
         {hasMoreProducts && (

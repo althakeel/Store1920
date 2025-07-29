@@ -1,17 +1,20 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/styles/ProductCategory.css';
 import { useCart } from '../../../contexts/CartContext';
 import MiniCart from '../../MiniCart';
-import { useNavigate } from 'react-router-dom';
+import AddCarticon from '../../../assets/images/addtocart.png';
+import AddedToCartIcon from '../../../assets/images/added-cart.png';
+import Adsicon from '../../../assets/images/summer-saving-coloured.png';
+import { throttle } from 'lodash';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
 const CONSUMER_SECRET = 'cs_92458ba6ab5458347082acc6681560911a9e993d';
-const PAGE_SIZE = 10; // For categories pagination
-const PRODUCTS_PER_PAGE = 50; // Change here to 50 for products pagination
+
+const PAGE_SIZE = 10; // Categories pagination size
+const PRODUCTS_PER_PAGE = 20; // Reduced from 50 for faster loading
 const TITLE_LIMIT = 35;
-
-
 
 const badgeLabelMap = {
   best_seller: 'Best Seller',
@@ -26,18 +29,8 @@ const decodeHTML = (html) => {
   return txt.value;
 };
 
-const SkeletonCard = () => (
-  <div className="pcus-prd-card pcus-skeleton">
-    <div className="pcus-prd-image-skel" />
-    <div className="pcus-prd-info-skel">
-      <div className="pcus-prd-title-skel" />
-      <div className="pcus-prd-review-skel" />
-      <div className="pcus-prd-price-cart-skel" />
-    </div>
-  </div>
-);
-
-const ReviewPills = ({ productId }) => {
+// Memoized ReviewPills to avoid unnecessary re-renders
+const ReviewPills = memo(({ productId }) => {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
@@ -61,15 +54,27 @@ const ReviewPills = ({ productId }) => {
       </div>
     </div>
   );
-};
+});
+
+const SkeletonCard = () => (
+  <div className="pcus-prd-card pcus-skeleton">
+    <div className="pcus-prd-image-skel" />
+    <div className="pcus-prd-info-skel">
+      <div className="pcus-prd-title-skel" />
+      <div className="pcus-prd-review-skel" />
+      <div className="pcus-prd-price-cart-skel" />
+    </div>
+  </div>
+);
 
 const ProductCategory = () => {
   const navigate = useNavigate();
+  const { addToCart, cartItems } = useCart();
+
   const [categories, setCategories] = useState([]);
   const [categoriesPage, setCategoriesPage] = useState(1);
   const [hasMoreCategories, setHasMoreCategories] = useState(true);
 
-  // Products and pagination
   const [products, setProducts] = useState([]);
   const [productsPage, setProductsPage] = useState(1);
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
@@ -78,17 +83,15 @@ const ProductCategory = () => {
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [currencySymbol, setCurrencySymbol] = useState('$');
+
   const categoriesRef = useRef(null);
+  const cartIconRef = useRef(null);
+
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  const { addToCart, cartItems } = useCart(); 
   const [badgeColorIndex, setBadgeColorIndex] = useState(0);
-  
-  const [lastAddedProductId, setLastAddedProductId] = useState(null);
-   const cartIconRef = useRef(null);
-const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
 
-
+  // Rotate badge color every 10 minutes
   useEffect(() => {
     const interval = setInterval(() => {
       setBadgeColorIndex((idx) => (idx + 1) % badgeColors.length);
@@ -96,6 +99,7 @@ const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch currency symbol
   useEffect(() => {
     async function fetchCurrencySymbol() {
       try {
@@ -113,14 +117,13 @@ const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
     fetchCurrencySymbol();
   }, []);
 
-  // Fetch categories (same as before)
+  // Fetch categories with pagination
   const fetchCategories = useCallback(
     async (page = 1) => {
       setLoadingCategories(true);
       try {
         const res = await fetch(
-         `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PAGE_SIZE}&page=${page}&orderby=name`
-
+          `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PAGE_SIZE}&page=${page}&orderby=name`
         );
         const data = await res.json();
         if (data.length < PAGE_SIZE) setHasMoreCategories(false);
@@ -134,7 +137,7 @@ const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
     []
   );
 
-  // Fetch products with pagination, append results
+  // Fetch products with pagination and optional category filter
   const fetchProducts = useCallback(
     async (page = 1, categoryId = selectedCategoryId) => {
       setLoadingProducts(true);
@@ -151,11 +154,7 @@ const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
           setProducts((prev) => [...prev, ...data]);
         }
 
-        if (data.length < PRODUCTS_PER_PAGE) {
-          setHasMoreProducts(false);
-        } else {
-          setHasMoreProducts(true);
-        }
+        setHasMoreProducts(data.length >= PRODUCTS_PER_PAGE);
       } catch (e) {
         console.error(e);
         if (page === 1) setProducts([]);
@@ -167,14 +166,12 @@ const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
     [selectedCategoryId]
   );
 
-
-  
-  // Initial load categories
+  // Initial categories load
   useEffect(() => {
     fetchCategories(1);
   }, [fetchCategories]);
 
-  // Reset products and load first page on category change
+  // Load products on category change
   useEffect(() => {
     setProductsPage(1);
     setHasMoreProducts(true);
@@ -189,28 +186,34 @@ const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
     fetchProducts(nextPage, selectedCategoryId);
   };
 
-  const updateArrowVisibility = () => {
+  // Throttled arrow visibility update on scroll
+  const updateArrowVisibility = useCallback(() => {
     const el = categoriesRef.current;
     if (!el) return;
     setCanScrollLeft(el.scrollLeft > 0);
     setCanScrollRight(el.scrollWidth - el.scrollLeft > el.clientWidth + 10);
-  };
+  }, []);
 
   useEffect(() => {
     const el = categoriesRef.current;
     if (!el) return;
-    el.addEventListener('scroll', updateArrowVisibility);
+
+    const throttledUpdate = throttle(updateArrowVisibility, 100);
+    el.addEventListener('scroll', throttledUpdate);
     updateArrowVisibility();
-    return () => el.removeEventListener('scroll', updateArrowVisibility);
-  }, [categories]);
 
-  // Drag scroll (same)
+    return () => el.removeEventListener('scroll', throttledUpdate);
+  }, [categories, updateArrowVisibility]);
+
+  // Drag scroll support
   useEffect(() => {
     const el = categoriesRef.current;
     if (!el) return;
+
     let isDown = false,
       startX,
       scrollLeft;
+
     const start = (e) => {
       isDown = true;
       startX = e.pageX - el.offsetLeft;
@@ -226,10 +229,12 @@ const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
     const stop = () => {
       isDown = false;
     };
+
     el.addEventListener('mousedown', start);
     el.addEventListener('mousemove', move);
     el.addEventListener('mouseleave', stop);
     el.addEventListener('mouseup', stop);
+
     return () => {
       el.removeEventListener('mousedown', start);
       el.removeEventListener('mousemove', move);
@@ -282,18 +287,25 @@ const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
     setTimeout(() => clone.remove(), 800);
   };
 
-
   const scrollCats = (dir) => {
     const el = categoriesRef.current;
     if (el) el.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
   };
+
+  // Memoized product click handler
+  const onProductClick = useCallback((slug) => {
+    window.open(`/product/${slug}`, '_blank');
+  }, []);
 
   return (
     <div className="pcus-wrapper" style={{ display: 'flex' }}>
       <div className="pcus-categories-products" style={{ width: '100%', transition: 'width 0.3s ease' }}>
         {/* Title + Subtitle */}
         <div className="pcus-title-section">
-          <h2 className="pcus-main-title">🏷️ SUMMER SAVINGS 🏷️</h2>
+          <h2 className="pcus-main-title">
+            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" /> SUMMER SAVINGS{' '}
+            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" />
+          </h2>
           <p className="pcus-sub-title">BROWSE WHAT EXCITES YOU</p>
         </div>
 
@@ -308,14 +320,14 @@ const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
               className={`pcus-category-btn ${selectedCategoryId === 'all' ? 'active' : ''}`}
               onClick={() => setSelectedCategoryId('all')}
             >
-              Recomended
+              Recommended
             </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 className={`pcus-category-btn ${selectedCategoryId === cat.id ? 'active' : ''}`}
                 onClick={() => setSelectedCategoryId(cat.id)}
-                  title={decodeHTML(cat.name)} 
+                title={decodeHTML(cat.name)}
               >
                 {decodeHTML(cat.name)}
               </button>
@@ -351,23 +363,21 @@ const [showFastMovingOnly, setShowFastMovingOnly] = useState(false);
             <div className="pcus-prd-grid">
               {products.map((p) => {
                 const onSale = p.price !== p.regular_price;
-
                 const rawBadges = p.best_seller_recommended_badges || [];
                 const badges = Array.isArray(rawBadges) ? rawBadges : [];
-
                 const soldCount = p.meta_data?.find((m) => m.key === '_sold_count')?.value ?? 0;
 
                 return (
                   <div
                     key={p.id}
                     className="pcus-prd-card"
-onClick={(e) => {
-  e.stopPropagation();
-  window.open(`/product/${p.slug}`, '_blank');
-}}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onProductClick(p.slug);
+                    }}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && navigate(`/product/${p.slug}`)}
+                    onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug)}
                   >
                     <div className="pcus-image-wrapper">
                       <img
@@ -392,17 +402,11 @@ onClick={(e) => {
                         &nbsp;{truncate(decodeHTML(p.name))}
                       </h3>
 
-{showFastMovingOnly && (
-  <h3 style={{ margin: '10px 0', fontWeight: 'bold', fontSize: '1.2rem' }}>
-    <span style={{ color: 'green' }}>Fast Moving</span> in &quot;
-    {selectedCategoryId === 'all'
-      ? 'Recommended'
-      : categories.find((c) => c.id === selectedCategoryId)?.name || 'Selected Category'}
-    &quot;
-  </h3>
-)}
-                      {/* RATING + SOLD aligned with sold on right */}
-                      <div className="pcus-prd-review" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      {/* RATING + SOLD aligned */}
+                      <div
+                        className="pcus-prd-review"
+                        style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
+                      >
                         {renderStars(p.average_rating)}
                         <div className="pcus-sold-badge" style={{ position: 'static' }}>
                           Sold: {soldCount}
@@ -410,6 +414,7 @@ onClick={(e) => {
                       </div>
 
                       <ReviewPills productId={p.id} />
+
                       <div className="pcus-prd-price-cart">
                         <div className="pcus-prd-prices">
                           <span className={`pcus-prd-sale-price ${onSale ? 'on-sale' : ''}`}>
@@ -429,34 +434,30 @@ onClick={(e) => {
                             </span>
                           )}
                         </div>
-    <button
-  className={`pcus-prd-add-cart-btn ${cartItems.some(item => item.id === p.id) ? 'added-to-cart' : ''}`}
-  onClick={(e) => {
-    e.stopPropagation();
-    flyToCart(e, p.images?.[0]?.src); // 🛫 Animate image fly to cart
-    addToCart(p, true);
-  }}
-  aria-label={`Add ${decodeHTML(p.name)} to cart`}
->
-  <img
-    src="https://db.store1920.com/wp-content/uploads/2025/07/ADD-TO-CART-1.png"
-    alt="Add to cart"
-    className="pcus-prd-add-cart-icon-img"
-  />
-</button>
 
-<div
-  id="cart-icon"
-  ref={cartIconRef}
-  style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000, cursor: 'pointer' }}
->
-  {/* <img
-      src="https://db.store1920.com/wp-content/uploads/2025/07/ADD-TO-CART.png"
-    alt="Cart"
-    style={{ width: '32px', height: '32px' }}
-  /> */}
-</div>
+                        <button
+                          className={`pcus-prd-add-cart-btn ${
+                            cartItems.some((item) => item.id === p.id) ? 'added-to-cart' : ''
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            flyToCart(e, p.images?.[0]?.src); // Animate image fly to cart
+                            addToCart(p, true);
+                          }}
+                          aria-label={`Add ${decodeHTML(p.name)} to cart`}
+                        >
+                          <img
+                            src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCarticon}
+                            alt={cartItems.some((item) => item.id === p.id) ? 'Added to cart' : 'Add to cart'}
+                            className="pcus-prd-add-cart-icon-img"
+                          />
+                        </button>
 
+                        <div
+                          id="cart-icon"
+                          ref={cartIconRef}
+                          style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000, cursor: 'pointer' }}
+                        />
                       </div>
                     </div>
                   </div>

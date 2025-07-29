@@ -1,94 +1,140 @@
 .payment-methods-wrapper {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 1rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-sizing: border-box;
 }
 
 .payment-heading {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 20px;
   font-weight: 600;
+  margin-bottom: 20px;
+  text-align: left;
   color: #222;
-  text-align: center;
-}
-
-.payment-error {
-  color: #dc3545;
-  background-color: #f8d7da;
-  border-radius: 6px;
-  padding: 10px;
-  margin-bottom: 1rem;
-  text-align: center;
 }
 
 .payment-options {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 16px;
 }
 
-.payment-option {
+.payment-card {
+  border: 2px solid #eaeaea;
+  border-radius: 12px;
+  padding: 16px;
   display: flex;
-  align-items: center;
-  border: 2px solid #ddd;
-  border-radius: 10px;
-  padding: 12px 16px;
+  gap: 16px;
+  align-items: flex-start;
   cursor: pointer;
   transition: border-color 0.3s ease, background-color 0.3s ease;
-  background-color: #fff;
-  user-select: none;
+  background: #fff;
+  position: relative;
 }
 
-.payment-option:hover {
-  border-color: #2563eb;
-  background-color: #f0f7ff;
+.payment-card.selected {
+  border-color: #00b894;
+  background-color: #f9fdfa;
 }
 
-.payment-option.active {
-  border-color: #2563eb;
-  background-color: #dbe9ff;
-  box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
-}
-
-.payment-option input[type='radio'] {
-  margin-right: 12px;
+.payment-card input[type="radio"] {
+  margin-top: 5px;
+  accent-color: #00b894;
   cursor: pointer;
-  accent-color: #2563eb;
-  width: 20px;
-  height: 20px;
 }
 
-.payment-icon {
-  font-size: 2rem;
-  margin-right: 16px;
-  user-select: none;
-}
-
-.payment-details {
+.payment-card-header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-wrap: nowrap;
+}
+
+.payment-logo {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
 }
 
 .payment-title {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #111;
-  margin-bottom: 4px;
+  font-weight: 500;
+  font-size: 16px;
+  color: #222;
+  user-select: none;
 }
 
-.payment-description {
-  font-size: 0.875rem;
-  color: #555;
+.installment-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
 }
 
-/* Responsive tweaks */
-@media (max-width: 480px) {
-  .payment-option {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .payment-icon {
-    margin-bottom: 8px;
-  }
+.installment-box {
+  flex: 1;
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  color: #222;
+  box-sizing: border-box;
+}
+
+.card-details-form {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-details-form input,
+.card-details-form select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline-offset: 2px;
+  transition: border-color 0.2s ease;
+}
+
+.card-details-form input:focus,
+.card-details-form select:focus {
+  border-color: #00b894;
+  outline: none;
+}
+
+.card-row {
+  display: flex;
+  gap: 10px;
+}
+
+.payment-desc {
+  font-size: 13px;
+  color: #888;
+  margin-top: 8px;
+  text-align: left;
+}
+
+/* New styles for card logos inside Stripe payment method */
+.card-logos-row {
+  display: flex;
+  gap: 12px;           /* spacing between logos */
+  margin-bottom: 10px;
+  align-items: center; /* vertically center logos */
+  flex-wrap: nowrap;   /* keep all logos in one line, no wrapping */
+}
+
+.card-logo {
+  height: 28px;        /* slightly bigger if you want */
+  width: auto;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+  filter: grayscale(0);
+  transition: filter 0.3s ease;
 }

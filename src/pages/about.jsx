@@ -165,7 +165,7 @@ const Store1920Info = () => {
         </div>
 
         <div style={featureCard}>
-          {icons.shipping}
+          <img src='https://db.store1920.com/wp-content/uploads/2025/07/delivery.png' style={{maxWidth:'50PX'}}/>
           <h3 style={featureTitle}>Fast & Reliable Shipping</h3>
           <p style={featureDesc}>
             Our streamlined logistics ensure your orders arrive quickly and safely, every time.

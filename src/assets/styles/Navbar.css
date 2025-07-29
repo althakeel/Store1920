@@ -242,6 +242,10 @@
   position: relative;
   user-select: none;
 }
+.nav-center-mobile {
+  display: none;
+}
+
 
 .mega-menu {
   position: absolute;
@@ -445,7 +449,10 @@
     display: none;
   }
   .nav-center {
-    display: none;
+    display: flex !important;
+    width: 100%;
+    margin: 10px 0 0;
+    order: 3;
   }
   .nav-right {
     display: none;
@@ -475,12 +482,21 @@
     padding: 8px 12px;
   }
 
-  .nav-center {
-    order: 3;
+  /* Show mobile search bar container */
+  .nav-center-mobile {
+    display: flex !important;
+    justify-content: center;
     width: 100%;
-    margin: 10px 0 0;
+    margin: 10px 0;
+    order: 2; /* optional order */
   }
 
+  /* Hide desktop search bar on mobile */
+  .nav-center {
+    display: none !important;  /* Hide this completely on small screens */
+  }
+
+  /* Your other styles remain */
   .nav-right {
     order: 2;
     width: 100%;

@@ -11,7 +11,7 @@
 
 
 .pcus-prd-add-cart-btn.added-to-cart {
-  background-color: rgb(255, 129, 2) !important;
+  background-color: rgb(255, 255, 255) !important;
   transition: background-color 0.3s ease;
 }
 

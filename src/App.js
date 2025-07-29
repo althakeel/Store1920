@@ -145,7 +145,7 @@ useEffect(() => {
     <Preloader />
   ) : (
     <>
-      <Topbar />
+    {!isMobile && <Topbar />}
   {onCheckoutPage ? (
   <CheckoutNavbar />
 ) : (
