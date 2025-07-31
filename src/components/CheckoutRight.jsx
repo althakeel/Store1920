@@ -275,7 +275,7 @@ const res = await axios.post(
         <span>-AED {discount.toFixed(2)}</span>
       </div>
 
-      <CoinBalance onCoinRedeem={handleCoinRedemption} />
+      {/* <CoinBalance onCoinRedeem={handleCoinRedemption} /> */}
 
       {coinDiscount > 0 && (
         <div

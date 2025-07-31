@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
 
 import ProductGallery from '../components/ProductGallery';
 import ProductInfo from '../components/ProductInfo';
 import ProductDescription from '../components/products/ProductDescription';
 import SkeletonLoader from '../components/SkeletonLoader';
 import Whislistreport from '../components/products/Whislist-report';
+
+import { useQuery } from '@tanstack/react-query';
 
 import '../assets/styles/product-details.css';
 
@@ -15,93 +18,104 @@ const ProductReviewList = lazy(() => import('../components/products/ProductRevie
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3/products';
 const AUTH = {
-  username: 'ck_8adb881aaff96e651cf69b9a8128aa5d9c80eb46',
-  password: 'cs_595f6cb2c159c14024d77a2a87fa0b6947041f9f',
+  username: 'ck_5441db4d77e2a329dc7d96d2db6a8e2d8b63c29f',
+  password: 'cs_81384d5f9e75e0ab81d0ea6b0d2029cba2d52b63',
 };
+
+// Axios instance with auth for convenience
+const axiosInstance = axios.create({
+  auth: AUTH,
+});
 
 export default function ProductDetails() {
   const { slug, id } = useParams();
+  const { user, login } = useAuth();
 
-  const [product, setProduct] = useState(null);
-  const [variations, setVariations] = useState([]);
   const [selectedVariation, setSelectedVariation] = useState(null);
   const [mainImageUrl, setMainImageUrl] = useState(null);
-  const [loadingProduct, setLoadingProduct] = useState(true);
-  const [loadingVariations, setLoadingVariations] = useState(false);
-
   const [activeModal, setActiveModal] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [variations, setVariations] = useState([]);
 
-  const openModal = useCallback((type) => setActiveModal(type), []);
-  const closeModal = useCallback(() => setActiveModal(null), []);
+  const isLoggedIn = !!user;
 
+  // Fetch main product - only needed fields, lightweight response
+const { data: product, isLoading: loadingProduct, error } = useQuery({
+  queryKey: ['product', id || slug],
+  
+  queryFn: async () => {
+    console.log('Params:', { id, slug });
+    const endpoint = id
+      ? `${API_BASE}/${id}?_fields=id,name,images,variations,description`
+      : `${API_BASE}?slug=${slug}&_fields=id,name,images,variations,description`;
+    const res = await axiosInstance.get(endpoint);
+    return id ? res.data : res.data[0] || null;
+    
+  },
+  staleTime: 1000 * 60 * 5,
+  retry: 1,
+});
+
+
+
+
+  // Fetch variations separately, only if product has variations
   useEffect(() => {
-    setLoadingProduct(true);
-    setProduct(null);
-    setVariations([]);
-    setSelectedVariation(null);
-    setMainImageUrl(null);
-
-    const fetchProduct = async () => {
-      try {
-        let prod = null;
-
-        if (id) {
-          const res = await axios.get(`${API_BASE}/${id}`, { auth: AUTH });
-          prod = res.data;
-        } else if (slug) {
-          const res = await axios.get(`${API_BASE}?slug=${slug}`, { auth: AUTH });
-          prod = res.data.length > 0 ? res.data[0] : null;
-        }
-
-        if (!prod) {
-          setProduct(null);
-          return;
-        }
-
-        setProduct(prod);
-        setMainImageUrl(prod.images?.[0]?.src || null);
-
-        // Fetch all variations in ONE request, if available
-        if (prod.variations?.length) {
-          setLoadingVariations(true);
-          try {
-            // WooCommerce endpoint for variations of product
-            const varRes = await axios.get(
-              `${API_BASE}/${prod.id}/variations?per_page=100`,
-              { auth: AUTH }
-            );
-            setVariations(varRes.data || []);
-          } catch (err) {
-            console.error('Error fetching variations:', err);
-            setVariations([]);
-          } finally {
-            setLoadingVariations(false);
-          }
-        } else {
+    async function fetchVariations() {
+      if (product?.variations?.length) {
+        try {
+          const res = await axiosInstance.get(
+            `${API_BASE}/${product.id}/variations?per_page=100&_fields=id,attributes,price,image`
+          );
+          setVariations(res.data || []);
+        } catch {
           setVariations([]);
         }
-      } catch (error) {
-        console.error('Failed to fetch product details:', error);
-        setProduct(null);
+      } else {
         setVariations([]);
-        setMainImageUrl(null);
-      } finally {
-        setLoadingProduct(false);
       }
-    };
+    }
+    fetchVariations();
+  }, [product]);
 
-    fetchProduct();
-  }, [slug, id]);
+
+
+  useEffect(() => {
+  if (variations.length > 0 && !selectedVariation) {
+    setSelectedVariation(variations[0]);
+  }
+}, [variations, selectedVariation]);
+  // Set main image from product or selected variation
+  useEffect(() => {
+    if (selectedVariation?.image?.src) {
+      setMainImageUrl(selectedVariation.image.src);
+    } else if (product?.images?.[0]?.src) {
+      setMainImageUrl(product.images[0].src);
+    } else {
+      setMainImageUrl(null);
+    }
+  }, [product, selectedVariation]);
+
+  const combinedImages = React.useMemo(() => {
+    if (!product) return [];
+    const variantImages = variations
+      .map((v) => v.image)
+      .filter((img) => img && img.src)
+      .filter((img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx);
+
+    const allImages = [...product.images, ...variantImages];
+    return allImages.filter((img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx);
+  }, [product, variations]);
 
   const handleVariationChange = useCallback(
     (variation) => {
       setSelectedVariation(variation);
-      setMainImageUrl(variation.image?.src || product?.images?.[0]?.src || null);
     },
-    [product]
+    []
   );
+
+  const openModal = useCallback((type) => setActiveModal(type), []);
+  const closeModal = useCallback(() => setActiveModal(null), []);
 
   const handleAddToWishlist = () => {
     if (!isLoggedIn) {
@@ -116,12 +130,14 @@ export default function ProductDetails() {
   };
 
   const closeLoginModal = () => setShowLoginModal(false);
+
   const mockLogin = () => {
-    setIsLoggedIn(true);
+    login({ id: '123', name: 'Test User', token: 'mock-token' });
     closeLoginModal();
   };
 
   if (loadingProduct) return <SkeletonLoader />;
+  if (error) return <div>Error loading product.</div>;
   if (!product) return <div>Product not found.</div>;
 
   return (
@@ -130,7 +146,7 @@ export default function ProductDetails() {
         <div className="left">
           <div className="gallery-and-description">
             <ProductGallery
-              images={product.images || []}
+              images={combinedImages}
               mainImageUrl={mainImageUrl}
               setMainImageUrl={setMainImageUrl}
               activeModal={activeModal}
@@ -146,7 +162,7 @@ export default function ProductDetails() {
             />
 
             <Suspense fallback={<div>Loading reviews...</div>}>
-              <ProductReviewList productId={product.id} />
+              <ProductReviewList productId={product.id} user={user} onLogin={login} />
             </Suspense>
 
             <ProductDescription product={product} selectedVariation={selectedVariation} />
@@ -159,7 +175,7 @@ export default function ProductDetails() {
             variations={variations}
             selectedVariation={selectedVariation}
             onVariationChange={handleVariationChange}
-            loadingVariations={loadingVariations}
+            loadingVariations={variations.length === 0 && !!product?.variations?.length}
           />
         </div>
       </div>

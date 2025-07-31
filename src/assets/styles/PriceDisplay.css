@@ -19,7 +19,7 @@
   color: #6b6b6b; /* text color */
   position: relative;
   font-weight: 400;
-  font-size: .7rem;
+  font-size: .9rem;
 }
 
 /* Custom colored line-through */
@@ -43,4 +43,22 @@
   color: #e60023;
   background-color: transparent;
   user-select: none;
+}
+.price-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.currency-icon {
+  width: 22px;
+  height: 22x;
+  /* remove position/top from here when using flex */
+  margin-right: 0; /* spacing handled by gap in price-wrapper */
+}
+.currency-icon1 {
+  width: 13px;
+  height: 14x;
+  /* remove position/top from here when using flex */
+  margin-right: 0; /* spacing handled by gap in price-wrapper */
 }

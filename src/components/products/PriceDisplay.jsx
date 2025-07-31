@@ -1,47 +1,56 @@
 import React from 'react';
 import '../../assets/styles/PriceDisplay.css';
+import DirhamIcon from '../../assets/images/Dirham 2.png';
 
-// Helper to decode HTML entities (e.g. &#x62f; etc.)
-function decodeHtml(html) {
-  const txt = document.createElement('textarea');
-  txt.innerHTML = html;
-  return txt.value;
+function safeParsePrice(value) {
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? 0 : parsed;
 }
 
 export default function PriceDisplay({ product, selectedVariation }) {
-  // Price data - use variation price if selected
-  const price = selectedVariation?.price || product.price;
-  const regularPrice = selectedVariation?.regular_price || product.regular_price;
-  const salePrice = selectedVariation?.sale_price || product.sale_price;
+  // Get default variation (first one)
+  const defaultVariation = product.variations?.[0] || {};
 
-  // Decode currency symbol (fallback to $)
-  const currency = decodeHtml(product.currency_symbol || '$');
+  // Fallback order: selectedVariation -> defaultVariation -> product
+  const price = selectedVariation?.price ?? defaultVariation.price ?? product.price ?? 0;
+  const regularPrice = selectedVariation?.regular_price ?? defaultVariation.regular_price ?? product.regular_price ?? 0;
+  const salePrice = selectedVariation?.sale_price ?? defaultVariation.sale_price ?? product.sale_price ?? 0;
 
-  // Calculate discount percentage
+  const priceNum = safeParsePrice(price);
+  const regularPriceNum = safeParsePrice(regularPrice);
+  const salePriceNum = safeParsePrice(salePrice);
+
   let discountPercent = 0;
-  if (regularPrice && salePrice && regularPrice !== salePrice) {
-    discountPercent = Math.round(
-      ((parseFloat(regularPrice) - parseFloat(salePrice)) / parseFloat(regularPrice)) * 100
-    );
+  if (regularPriceNum > 0 && salePriceNum > 0 && regularPriceNum !== salePriceNum) {
+    discountPercent = Math.round(((regularPriceNum - salePriceNum) / regularPriceNum) * 100);
   }
 
   return (
     <div className="pd-price-container">
-      {salePrice && salePrice !== regularPrice ? (
+      {salePriceNum > 0 && salePriceNum !== regularPriceNum ? (
         <>
           <span className="pd-sale-price">
-            {currency}{parseFloat(salePrice).toFixed(2)}
+            <span className="price-wrapper">
+              <img src={DirhamIcon} alt="Dirham" className="currency-icon" />
+              {salePriceNum.toFixed(2)}
+            </span>
           </span>
+
           <span className="pd-regular-price">
-            {currency}{parseFloat(regularPrice).toFixed(2)}
+            <span className="price-wrapper">
+              <img src={DirhamIcon} alt="Dirham" className="currency-icon1" />
+              {regularPriceNum.toFixed(2)}
+            </span>
           </span>
-          {discountPercent > 0 && (
-            <span className="pd-discount-badge">{discountPercent}% OFF</span>
-          )}
+
+          {discountPercent > 0 && <span className="pd-discount-badge">{discountPercent}% OFF</span>}
         </>
       ) : (
         <span className="pd-sale-price">
-          {currency}{parseFloat(price).toFixed(2)}
+          <span className="price-wrapper">
+            <img src={DirhamIcon} alt="Dirham" className="currency-icon" />
+            {priceNum.toFixed(2)}
+          </span>
         </span>
       )}
     </div>

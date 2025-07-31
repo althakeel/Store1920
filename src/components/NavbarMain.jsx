@@ -63,7 +63,7 @@ const totalQuantity = cartItems?.reduce(
 };
 
 
-console.log('Navbar user.id:', user?.id);
+// console.log('Navbar user.id:', user?.id);
 
 const truncateName = (name, maxLength = 10) => {
   if (!name) return '';
@@ -76,8 +76,8 @@ const capitalizeFirst = (str) => {
 };
 useEffect(() => {
   if (user) {
-    console.log('Current user:', user);
-    console.log('User ID passed to CoinWidget:', user.id);
+    // console.log('Current user:', user);
+    // console.log('User ID passed to CoinWidget:', user.id);
   }
 }, [user]);
 

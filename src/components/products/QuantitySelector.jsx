@@ -21,9 +21,11 @@ export default function QuantitySelector({ quantity, setQuantity, maxQuantity })
         ))}
       </select>
 
-      {validMax <= 10 && (
-        <p className="stock-info-text">Only {validMax} left in stock!</p>
-      )}
+     {validMax <= 10 && (
+  <p className="stock-info-text" aria-live="polite">
+    Only {validMax} left in stock!
+  </p>
+)}
     </div>
   );
 }

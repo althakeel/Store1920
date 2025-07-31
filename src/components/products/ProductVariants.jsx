@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import '../../assets/styles/ProductVariants.css';
 
 export default function ProductVariants({ variations, selectedVariation, onVariationChange }) {
-  // Always call hooks at top
-  const attributeNames = React.useMemo(() => {
+  // Get unique attribute names from all variations
+  const attributeNames = useMemo(() => {
     if (!variations || variations.length === 0) return [];
-    // Get unique attribute names from all variations
     const namesSet = new Set();
     variations.forEach(v => {
       v.attributes?.forEach(attr => {
@@ -15,8 +14,8 @@ export default function ProductVariants({ variations, selectedVariation, onVaria
     return Array.from(namesSet);
   }, [variations]);
 
-  // Build a map: attributeName -> array of unique options
-  const attributeOptions = React.useMemo(() => {
+  // Build a map from attribute name to unique options
+  const attributeOptions = useMemo(() => {
     const map = {};
     attributeNames.forEach(name => {
       const optionsSet = new Set();
@@ -30,18 +29,27 @@ export default function ProductVariants({ variations, selectedVariation, onVaria
     return map;
   }, [variations, attributeNames]);
 
-  // Selected options state: { Color: 'Red', Size: 'M', ... }
+  // State for selected options (e.g. { Color: 'Red', Size: 'M' })
   const [selectedOptions, setSelectedOptions] = useState(() => {
     const init = {};
     attributeNames.forEach(name => {
-      // If selectedVariation provided, use its option
       const selectedAttr = selectedVariation?.attributes?.find(a => a.name === name);
       init[name] = selectedAttr?.option || attributeOptions[name]?.[0] || '';
     });
     return init;
   });
 
-  // When selectedOptions change, find matching variation and call onVariationChange
+  // Sync selectedOptions state if selectedVariation changes externally
+  useEffect(() => {
+    const init = {};
+    attributeNames.forEach(name => {
+      const selectedAttr = selectedVariation?.attributes?.find(a => a.name === name);
+      init[name] = selectedAttr?.option || attributeOptions[name]?.[0] || '';
+    });
+    setSelectedOptions(init);
+  }, [selectedVariation, attributeNames, attributeOptions]);
+
+  // Find matching variation whenever selectedOptions change and notify parent
   useEffect(() => {
     if (!variations || variations.length === 0) return;
 
@@ -66,15 +74,11 @@ export default function ProductVariants({ variations, selectedVariation, onVaria
           <div className="variant-title">{name} :</div>
           <div className="variants-list">
             {attributeOptions[name].map(option => {
-              // Find variation(s) that have this option for current attribute
               const optionVariations = variations.filter(v =>
                 v.attributes?.some(attr => attr.name === name && attr.option === option)
               );
 
-              // Determine if all matching variations are out of stock (disable button)
               const isOutOfStock = optionVariations.every(v => v.is_in_stock === false);
-
-              // Is this option currently selected?
               const isSelected = selectedOptions[name] === option;
 
               return (
@@ -90,7 +94,6 @@ export default function ProductVariants({ variations, selectedVariation, onVaria
                     }
                   }}
                 >
-                  {/* Optionally show image if available (from first variation with this option) */}
                   {optionVariations[0]?.image?.src && (
                     <img
                       src={optionVariations[0].image.src}

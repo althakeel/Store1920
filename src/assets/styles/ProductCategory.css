@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
-.pcus-wrapper {
+.pcus-wrapper1 {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px 10px;
@@ -178,10 +178,9 @@ img.flying-clone {
 /* Products grid */
 .pcus-prd-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr)); /* allow columns to shrink */
   gap: 15px;
 }
-
 /* Product card */
 .pcus-prd-card {
   border: .5px solid #eeeeee50;
@@ -196,7 +195,7 @@ img.flying-clone {
   overflow: hidden;
   position: relative;
 }
-
+ 
 .pcus-prd-card:hover,
 .pcus-prd-card:focus {
   box-shadow: 0 8px 16px rgb(0 0 0 / 0.12);
@@ -289,7 +288,7 @@ img.flying-clone {
 }
 
 /* Product info container */
-.pcus-prd-info {
+.pcus-prd-info1 {
   padding: 5px 14px 14px;
   display: flex;
   flex-direction: column;
@@ -298,7 +297,7 @@ img.flying-clone {
 }
 
 /* Product title */
-.pcus-prd-title {
+.pcus-prd-title1 {
   font-size: 12px;
   font-weight: 500;
   color: #111;
@@ -340,7 +339,7 @@ img.flying-clone {
 }
 
 /* Price and cart container */
-.pcus-prd-price-cart {
+.pcus-prd-price-cart1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -348,7 +347,7 @@ img.flying-clone {
 }
 
 /* Prices container */
-.pcus-prd-prices {
+.pcus-prd-prices1 {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -366,7 +365,7 @@ img.flying-clone {
 
 /* Sale price */
 .pcus-prd-sale-price {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   color: #222;
   display: flex;
@@ -434,21 +433,21 @@ img.flying-clone {
   border-top-right-radius: 12px;
 }
 
-.pcus-prd-info-skel {
+.pcus-prd-info1-skel {
   padding: 14px 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.pcus-prd-title-skel,
+.pcus-prd-title1-skel,
 .pcus-prd-review-skel,
-.pcus-prd-price-cart-skel {
+.pcus-prd-price-cart1-skel {
   background-color: #ccc;
   border-radius: 8px;
 }
 
-.pcus-prd-title-skel {
+.pcus-prd-title1-skel {
   width: 90%;
   height: 18px;
 }
@@ -458,7 +457,7 @@ img.flying-clone {
   height: 14px;
 }
 
-.pcus-prd-price-cart-skel {
+.pcus-prd-price-cart1-skel {
   width: 80%;
   height: 24px;
   margin-top: 12px;
@@ -479,7 +478,7 @@ img.flying-clone {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 18px;
   }
-  .pcus-wrapper {
+  .pcus-wrapper1 {
 
   padding: 20px 20px;
 

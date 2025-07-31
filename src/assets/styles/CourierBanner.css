@@ -1,0 +1,155 @@
+.courier-banner-section {
+  max-width: 1400px;
+  margin: 20px auto;
+  background-color: #3b73ee;
+  padding: 0 0px; /* small side padding for smaller screens */
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+
+.banner-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 1400px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.banner-image {
+  height: 50px;
+  max-height: 50px;
+  width: auto;
+  object-fit: cover;
+  object-position: left center;
+  flex-shrink: 0;
+  margin: 0;
+  left: 0;
+  z-index: 3;
+}
+
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 50px;
+  width: 100%;
+  background-color: rgba(255, 0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  box-sizing: border-box;
+  z-index: 2;
+}
+
+.banner-text {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #ffffff;
+  text-align: center;
+  flex-grow: 1;
+}
+
+
+.banner-arrow {
+  font-size: 24px;
+  color: #ffffff;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  margin-right: 20px; /* 👈 Add this line to shift it left */
+}
+/* Responsive tweaks */
+
+/* Tablets and below */
+@media (max-width: 768px) {
+  .courier-banner-section {
+    max-width: 100%;
+    padding: 0 15px;
+  }
+
+  .banner-image {
+    height: 40px;
+    max-height: 40px;
+  }
+
+  .banner-overlay {
+    height: 40px;
+    gap: 10px;
+  }
+
+  .banner-text {
+    font-size: 16px;
+  }
+
+  .banner-arrow {
+    font-size: 20px;
+  }
+}
+
+
+
+/* Popup */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+}
+
+.popup-box {
+  background: white;
+  padding: 20px 30px;
+  max-width: 400px;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.popup-message {
+  margin: 15px 0;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.popup-logo {
+  max-width: 120px;
+  margin-bottom: 10px;
+}
+
+.popup-close-btn {
+  background-color: #ff5100;
+  color: white;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+@media (max-width: 768px) {
+  .courier-banner-text {
+    font-size: 16px;
+  }
+
+  .courier-banner-arrow {
+    font-size: 20px;
+  }
+
+  .courier-banner-wrapper {
+    height: 40px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 480px) {
+  .courier-banner-section {
+    display: none; /* Hide this desktop banner on mobile */
+  }
+
+  /* You can create another component/banner for mobile and show it here */
+}

@@ -37,10 +37,19 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData) => {
     setUser(userData);
+
+     if (userData?.id) {
+    localStorage.setItem('userId', userData.id);
+  }
+  if (userData?.token) {
+    localStorage.setItem('token', userData.token);
+  }
   };
 
   const logout = () => {
     setUser(null);
+      localStorage.removeItem('userId');
+  localStorage.removeItem('token');
   };
 
   return (

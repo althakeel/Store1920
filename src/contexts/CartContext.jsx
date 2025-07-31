@@ -40,24 +40,31 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems]);
 
-  const addToCart = (product, showCart = true) => {
-    setCartItems((prev) => {
-      const existing = prev.find(item => item.id === product.id);
-      if (existing) {
-        return prev.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1 }];
-    });
-  
-    if (showCart) {
-      setIsCartOpen(true); // ✅ only open MiniCart if showCart is true
+const addToCart = (product, showCart = true) => {
+  setCartItems((prev) => {
+    const existing = prev.find(item => 
+      item.id === product.id &&
+      JSON.stringify(item.variation || []) === JSON.stringify(product.variation || [])
+    );
+
+    if (existing) {
+      // Add the quantity from product.quantity instead of always +1
+      return prev.map(item =>
+        item.id === product.id &&
+        JSON.stringify(item.variation || []) === JSON.stringify(product.variation || [])
+          ? { ...item, quantity: item.quantity + (product.quantity || 1) }
+          : item
+      );
     }
-  };
-  
+    // Add new product with its specified quantity or default 1
+    return [...prev, { ...product, quantity: product.quantity || 1 }];
+  });
+
+  if (showCart) {
+    setIsCartOpen(true);
+  }
+};
+
   
 
   const removeFromCart = (productId) => {

@@ -4,13 +4,19 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import SignInModal from './sub/SignInModal';
 import '../assets/styles/MiniCart.css';
+import Banner1 from '../assets/images/banner-blue.webp';
+import Banner2 from '../assets/images/banner-green.webp';
+import Banner3 from '../assets/images/banner-orange.webp';
+import Banner4 from '../assets/images/banner-red.webp';
+import CartIcon from '../assets/images/cart.png';
 
 const FREE_SHIPPING_THRESHOLD = 100;
 
 const banners = [
-  'https://db.store1920.com/wp-content/uploads/2025/07/Layer-1-copy-2.png',
-  'https://db.store1920.com/wp-content/uploads/2025/07/Layer-1.png',
-  'https://db.store1920.com/wp-content/uploads/2025/07/Layer-1-copy.png',
+  Banner1,
+  Banner2,
+  Banner3,
+  Banner4,
 ];
 
 const MiniCart = ({ navbarColor }) => {
@@ -61,6 +67,10 @@ const MiniCart = ({ navbarColor }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+  console.log('Cart items:', cartItems);
+}, [cartItems]);
+
   const onCheckoutClick = () => {
     if (!user) {
       setSignInOpen(true);
@@ -69,7 +79,9 @@ const MiniCart = ({ navbarColor }) => {
     setIsCartOpen(false);
     navigate('/checkout');
   };
-
+useEffect(() => {
+  console.log('Cart items:', cartItems);
+}, [cartItems]);
   // ✅ Only render if open, cart has items, and screen width is >= 768px
   if (!isCartOpen || cartItems.length === 0 || windowWidth < 768) return null;
 
@@ -90,29 +102,80 @@ const MiniCart = ({ navbarColor }) => {
         }}
       >
         {/* Top Section */}
-        <div style={{ flexShrink: 0, padding: 12, background: navbarColor, borderBottom: '1px solid #eee' }}>
+        <div
+          style={{
+            flexShrink: 0,
+            padding: 12,
+            background: navbarColor,
+            borderBottom: '1px solid #eee',
+            position: 'relative',
+          }}
+        >
           <div style={{ position: 'relative', marginBottom: 10 }}>
             <img
               src={banners[currentBannerIndex]}
               alt="Banner"
               style={{ width: '100%', borderRadius: 6 }}
             />
-            <h2
+            <div
               style={{
                 position: 'absolute',
-                inset: 0,
+                top: 10,
+                left: '50%',
+                transform: 'translateX(-50%)',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                margin: 0,
-                fontSize: 18,
-                color: '#fff',
-                textShadow: '0 0 5px rgba(0,0,0,.6)',
+                gap: 8,
                 pointerEvents: 'none',
+                zIndex: 3,
               }}
             >
-              Cart
-            </h2>
+              <div style={{ position: 'relative' }}>
+                <img
+                  src={CartIcon}
+                  alt="Cart Icon"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    // filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.5))',
+                  }}
+                />
+                {cartItems.length > 0 && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: -0,
+                      right: 5,
+                      backgroundColor: 'transparent',
+                      color: 'white',
+                      borderRadius: '50%',
+                      width: 10,
+                      height: 10,
+                      fontSize: 12,
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      pointerEvents: 'none',
+                      userSelect: 'none',
+                    }}
+                  >
+                    {cartItems.length}
+                  </div>
+                )}
+              </div>
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: 18,
+                  color: '#fff',
+                  // textShadow: '0 0 5px rgba(0,0,0,.6)',
+                  fontWeight: 'bold',
+                }}
+              >
+                Cart
+              </h2>
+            </div>
           </div>
 
           <div style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 6 }}>

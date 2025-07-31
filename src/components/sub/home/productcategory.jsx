@@ -6,6 +6,7 @@ import MiniCart from '../../MiniCart';
 import AddCarticon from '../../../assets/images/addtocart.png';
 import AddedToCartIcon from '../../../assets/images/added-cart.png';
 import Adsicon from '../../../assets/images/summer-saving-coloured.png';
+import IconAED from '../../../assets/images/Dirham 2.png'
 import { throttle } from 'lodash';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
@@ -137,6 +138,7 @@ const ProductCategory = () => {
     []
   );
 
+
   // Fetch products with pagination and optional category filter
   const fetchProducts = useCallback(
     async (page = 1, categoryId = selectedCategoryId) => {
@@ -147,6 +149,7 @@ const ProductCategory = () => {
           (categoryId !== 'all' ? `&category=${categoryId}` : '');
         const res = await fetch(url);
         const data = await res.json();
+console.log('Product data:', data);
 
         if (page === 1) {
           setProducts(data);
@@ -294,12 +297,20 @@ const ProductCategory = () => {
 
   // Memoized product click handler
   const onProductClick = useCallback((slug) => {
-    window.open(`/product/${slug}`, '_blank');
-  }, []);
+  navigate(`/product/${slug}`);
+}, [navigate]);
+
+
+
+const stripHTML = (html) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
+};
 
   return (
-    <div className="pcus-wrapper" style={{ display: 'flex' }}>
-      <div className="pcus-categories-products" style={{ width: '100%', transition: 'width 0.3s ease' }}>
+    <div className="pcus-wrapper1" style={{ display: 'flex' }}>
+      <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
         {/* Title + Subtitle */}
         <div className="pcus-title-section">
           <h2 className="pcus-main-title">
@@ -362,6 +373,7 @@ const ProductCategory = () => {
           <>
             <div className="pcus-prd-grid">
               {products.map((p) => {
+                console.log('Product price:', p.price, 'Regular price:', p.regular_price);
                 const onSale = p.price !== p.regular_price;
                 const rawBadges = p.best_seller_recommended_badges || [];
                 const badges = Array.isArray(rawBadges) ? rawBadges : [];
@@ -388,8 +400,8 @@ const ProductCategory = () => {
                         decoding="async"
                       />
                     </div>
-                    <div className="pcus-prd-info">
-                      <h3 className="pcus-prd-title">
+                    <div className="pcus-prd-info1">
+                      <h3 className="pcus-prd-title1">
                         {badges.length > 0 && (
                           <div className={`pcus-badges-inline pcus-badges-color-${badgeColors[badgeColorIndex]}`}>
                             {badges.map((badge, i) => (
@@ -415,25 +427,35 @@ const ProductCategory = () => {
 
                       <ReviewPills productId={p.id} />
 
-                      <div className="pcus-prd-price-cart">
-                        <div className="pcus-prd-prices">
-                          <span className={`pcus-prd-sale-price ${onSale ? 'on-sale' : ''}`}>
-                            {currencySymbol}
-                            {p.price}
-                          </span>
-                          {onSale && (
-                            <span className="pcus-prd-regular-price">
-                              {currencySymbol}
-                              {p.regular_price}
-                            </span>
-                          )}
-                          {onSale && p.regular_price && p.price && (
-                            <span className="pcus-prd-discount-box">
-                              -
-                              {Math.round(((p.regular_price - p.price) / p.regular_price) * 100)}% OFF
-                            </span>
-                          )}
-                        </div>
+                      <div className="pcus-prd-price-cart1">
+                   <div className="pcus-prd-prices1">
+  <img
+    src={IconAED}
+    alt="AED currency icon"
+    style={{ width: 'auto', height: '10px', marginRight: '0px', verticalAlign: 'middle' }}
+  />
+  {p.sale_price && p.sale_price !== p.regular_price ? (
+    <>
+      <span className="pcus-prd-regular-price" >
+        {parseFloat(p.regular_price || 0).toFixed(2)}
+      </span>
+      <span className="pcus-prd-sale-price " >
+        {parseFloat(p.sale_price || 0).toFixed(2)}
+      </span>
+      {p.regular_price && p.sale_price && (
+        <span className="pcus-prd-discount-box">
+          -{Math.round(((parseFloat(p.regular_price) - parseFloat(p.sale_price)) / parseFloat(p.regular_price)) * 100)}% OFF
+        </span>
+      )}
+    </>
+  ) : (
+    <span className="price1">
+      {parseFloat(p.price || p.regular_price || 0).toFixed(2)}
+    </span>
+  )}
+</div>
+
+
 
                         <button
                           className={`pcus-prd-add-cart-btn ${

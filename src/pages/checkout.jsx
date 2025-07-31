@@ -7,8 +7,8 @@ import SignInModal from '../components/sub/SignInModal';
 import '../assets/styles/checkout.css';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
-const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
+const CK = 'ck_e09e8cedfae42e5d0a37728ad6c3a6ce636695dd';
+const CS = 'cs_2d41bc796c7d410174729ffbc2c230f27d6a1eda';
 
 const buildUrl = (endpoint) =>
   `${API_BASE}/${endpoint}?consumer_key=${CK}&consumer_secret=${CS}`;
@@ -60,32 +60,37 @@ export default function CheckoutPage() {
   }, [contextCartItems]);
 
   // Fetch countries and payment methods
-  useEffect(() => {
-    const fetchCheckoutData = async () => {
-      try {
-        setLoading(true);
-        const [countriesRes, paymentRes] = await Promise.all([
-          fetch(buildUrl('data/countries')),
-          fetch(buildUrl('payment_gateways')),
-        ]);
+useEffect(() => {
+  const fetchCheckoutData = async () => {
+    try {
+      setLoading(true);
+      console.log('Fetching countries and payment methods...');
+      const [countriesRes, paymentRes] = await Promise.all([
+        fetch(buildUrl('data/countries')),
+        fetch(buildUrl('payment_gateways')),
+      ]);
 
-        const countriesData = await countriesRes.json();
-        const paymentData = await paymentRes.json();
+      const countriesData = await countriesRes.json();
+      const paymentData = await paymentRes.json();
 
-        setCountries(countriesData);
-        setPaymentMethods(paymentData);
-      } catch (err) {
-        setError(err.message || 'Failed to load checkout data.');
-      } finally {
-        setLoading(false);
-      }
+      console.log('Fetched countries:', countriesData);
+      console.log('Fetched payment methods:', paymentData);
 
-      const token = localStorage.getItem('userToken');
-      setIsLoggedIn(!!token);
-    };
+      setCountries(countriesData);
+      setPaymentMethods(paymentData);
+    } catch (err) {
+      console.error('Checkout data fetch error:', err);
+      setError(err.message || 'Failed to load checkout data.');
+    } finally {
+      setLoading(false);
+    }
 
-    fetchCheckoutData();
-  }, []);
+    const token = localStorage.getItem('userToken');
+    setIsLoggedIn(!!token);
+  };
+
+  fetchCheckoutData();
+}, []);
 
   // Update formData when selected payment method changes
   useEffect(() => {
