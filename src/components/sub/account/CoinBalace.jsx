@@ -2,59 +2,57 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../contexts/AuthContext';
 
-// API endpoints
 const COIN_API_URL = 'https://db.store1920.com/wp-json/custom/v1/coins';
 const REDEEM_API_URL = 'https://db.store1920.com/wp-json/custom/v1/redeem-coins';
-
-// Conversion rate: every 10 coins = AED 1
 const AED_PER_10_COINS = 1;
 
-// TODO: Replace with your actual WP username and app password if Basic Auth is needed
-const WP_USERNAME = 'your_wp_username';
-const WP_APP_PASSWORD = 'your_app_password';
+// Optional: Uncomment if you want Basic Auth
+// const WP_USERNAME = 'ck_...';
+// const WP_APP_PASSWORD = 'cs_...';
 
 const CoinBalance = ({ onCoinRedeem }) => {
   const { user } = useAuth();
-
   const [coins, setCoins] = useState(0);
   const [redeemCoins, setRedeemCoins] = useState('');
   const [loading, setLoading] = useState(true);
   const [redeeming, setRedeeming] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch user's current coin balance
+  const userId = user?.id || localStorage.getItem('user_id');
+
   useEffect(() => {
-    if (!user?.id) {
+  if (!userId) {
+    setLoading(false);
+    console.warn('User ID not found');
+    return;
+  }
+
+  const fetchCoins = async () => {
+    try {
+      console.log('Fetching coins for user:', 10);
+      const response = await axios.get(`${COIN_API_URL}/10`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+      console.log('API response:', response.data);
+      setCoins(response.data.coins ?? 0);
+    } catch (err) {
+      console.error('Error fetching coin balance:', err);
+      setError('Failed to load coin balance.');
+    } finally {
       setLoading(false);
-      console.warn('User not found');
-      return;
     }
+  };
 
-    const fetchCoins = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get(`${COIN_API_URL}/${user.id}`, {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true, // Send cookies if needed
-        });
-        setCoins(response.data.coins ?? 0);
-      } catch (err) {
-        console.error('Error fetching coin balance:', err);
-        setError('Failed to load coin balance.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  fetchCoins();
+}, [userId]);
 
-    fetchCoins();
-  }, [user]);
 
-  // Handle redeeming coins
   const handleRedeem = async () => {
     const coinsToRedeem = parseInt(redeemCoins, 10);
 
-    // Validation
     if (!coinsToRedeem || coinsToRedeem <= 0 || coinsToRedeem > coins) {
       alert('Please enter a valid number of coins to redeem.');
       return;
@@ -68,15 +66,16 @@ const CoinBalance = ({ onCoinRedeem }) => {
     try {
       const response = await axios.post(
         REDEEM_API_URL,
-        { coins: coinsToRedeem },
+        { coins: coinsToRedeem, user_id: userId },
         {
-          // If your API requires Basic Auth, uncomment below:
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
           // auth: {
           //   username: WP_USERNAME,
           //   password: WP_APP_PASSWORD,
           // },
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true,
         }
       );
 
@@ -96,7 +95,6 @@ const CoinBalance = ({ onCoinRedeem }) => {
     }
   };
 
-  // Calculate discount preview shown below input
   const discountPreview =
     Math.floor(parseInt(redeemCoins || '0', 10) / 10) * AED_PER_10_COINS;
 

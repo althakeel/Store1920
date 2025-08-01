@@ -44,6 +44,7 @@ import PrivacyPolicy from './/pages/privacy-policy';
 import Terms0fuse from './pages/TermsOfuse'
 import OrderSuccess from './pages/OrderSuccess';
 import trackOrder from './pages/track-order';
+import Festsale from './pages/Festsale';
 
 // Components
 import Topbar from './components/topbar';
@@ -57,6 +58,7 @@ import CheckoutNavbar from './components/checkout/CheckoutNavbar';
 import MobileBottomNav from './components/MobileBottomNav';
 import ProductDetailsRedirect from './pages/ProductDetailsRedirect';
 import TrackOrder from './pages/track-order';
+import MobileNavbar from './components/Mobile/MobileNavbar';
 
 const AppContent = () => {
   const { isCartOpen, setIsCartOpen } = useCart();
@@ -151,11 +153,17 @@ useEffect(() => {
     {!isMobile && <Topbar />}
   {onCheckoutPage ? (
   <CheckoutNavbar />
+): isMobile ? (
+  <MobileNavbar
+    openCart={() => setIsCartOpen(true)}
+    isCartOpen={isCartOpen}
+    cartIconRef={cartIconRef}
+  />
 ) : (
   <NavbarWithMegaMenu
-      openCart={() => {
-    if (!isMobile) setIsCartOpen(true);
-  }}
+    openCart={() => {
+      if (!isMobile) setIsCartOpen(true);
+    }}
     backgroundColor={navbarColor}
     isCartOpen={isCartOpen}
     cartIconRef={cartIconRef}
@@ -216,6 +224,7 @@ useEffect(() => {
              <Route path="/terms-0f-use" element={<Terms0fuse />} />
              <Route path="/order-success" element={<OrderSuccess />} />
               <Route path="/track-order" element={<TrackOrder />} />
+                        <Route path="/fest-sale" element={<Festsale />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
@@ -232,7 +241,7 @@ useEffect(() => {
 {/* <div className="spinner" /> */}
 
 
-      <Footer />
+      {/* <Footer /> */}
    {isMobile && !onCartPage && !onCheckoutPage && !is404Page && <MobileBottomNav />}
   </>
   )}

@@ -149,7 +149,7 @@ const ProductCategory = () => {
           (categoryId !== 'all' ? `&category=${categoryId}` : '');
         const res = await fetch(url);
         const data = await res.json();
-console.log('Product data:', data);
+// console.log('Product data:', data);
 
         if (page === 1) {
           setProducts(data);
@@ -373,7 +373,7 @@ const stripHTML = (html) => {
           <>
             <div className="pcus-prd-grid">
               {products.map((p) => {
-                console.log('Product price:', p.price, 'Regular price:', p.regular_price);
+                // console.log('Product price:', p.price, 'Regular price:', p.regular_price);
                 const onSale = p.price !== p.regular_price;
                 const rawBadges = p.best_seller_recommended_badges || [];
                 const badges = Array.isArray(rawBadges) ? rawBadges : [];

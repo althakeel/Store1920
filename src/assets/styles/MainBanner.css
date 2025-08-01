@@ -46,7 +46,7 @@
 .banner-inner img {
   width: 100%;
   height: auto;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   display: block;
   transition: transform 0.6s ease, opacity 0.6s ease;
   cursor: pointer;
@@ -76,6 +76,7 @@
   background: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: background 0.2s ease;
+  display: none;
 }
 
 .dot.active,
@@ -114,7 +115,7 @@
 @media (max-width: 768px) {
   .banner-container {
     padding: 0px 0;
-    border-radius: 5px;
+    /* border-radius: 5px; */
   }
 
   .banner-inner {

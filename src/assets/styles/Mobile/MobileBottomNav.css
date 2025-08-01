@@ -3,14 +3,16 @@
 .mobile-bottom-nav {
   position: fixed;
   bottom: 0;
-  width: 100%;
+  left: 0;  /* Add this */
+  right: 0; /* Add this */
+  width: 100vw; /* or just 100% */
   background: #f13c05;
   display: flex;
   justify-content: space-around;
   align-items: center;
   padding: 8px 0 4px;
   z-index: 9999;
-  /* border-top: 1px solid #333; */
+  box-sizing: border-box; /* ensure padding included in width */
 }
 
 .nav-item {

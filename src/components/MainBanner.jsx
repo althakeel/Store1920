@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import axios from 'axios';
 import '../assets/styles/MainBanner.css';
+import { useNavigate } from 'react-router-dom';
+
 
 const API_BANNERS = 'https://db.store1920.com/wp-json/custom/v1/banners';
 
@@ -9,6 +11,8 @@ const MainBanner = () => {
   const [index, setIndex] = useState(0);
   const intervalRef = useRef(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const navigate = useNavigate();
+
 
   // Update isMobile on window resize
   useEffect(() => {
@@ -76,11 +80,10 @@ const MainBanner = () => {
     return () => clearInterval(intervalRef.current);
   }, [bannerList]);
 
-  const handleClick = (slug) => {
-    if (slug) {
-      window.location.href = `/category/${slug}`;
-    }
-  };
+
+const handleClick = () => {
+  navigate('/fest-sale');
+};
 
   if (banners === null) {
     return (
@@ -103,12 +106,12 @@ const MainBanner = () => {
           style={{
             background: `linear-gradient(to right, ${banner.leftBg} 0%, ${banner.leftBg} 50%, ${banner.rightBg} 50%, ${banner.rightBg} 100%)`,
           }}
+           onClick={() => handleClick(banner.category)}
         >
           <div className="banner-inner">
             <img
               src={banner.url}
               alt={`Banner ${i + 1}`}
-              onClick={() => handleClick(banner.category)}
               style={{ cursor: banner.category ? 'pointer' : 'default' }}
               loading="lazy"
             />

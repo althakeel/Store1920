@@ -14,7 +14,7 @@ export default function MobileBottomNav() {
 
   const menuItems = [
     { path: '/', label: 'Home', icon: <FaHome /> },
-    { path: '/myaccount', label: 'Account', icon: <FaUser /> },
+    // { path: '/myaccount', label: 'Account', icon: <FaUser /> },
     { path: '/allproducts', label: 'Shop', icon: <FaStore /> },
   { path: '/categories', label: 'Categories', icon: <FaTh /> },
     { path: '/cart', label: 'Cart', icon: <FaShoppingBag /> },
