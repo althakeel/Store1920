@@ -241,7 +241,7 @@ useEffect(() => {
 {/* <div className="spinner" /> */}
 
 
-      {/* <Footer /> */}
+      <Footer />
    {isMobile && !onCartPage && !onCheckoutPage && !is404Page && <MobileBottomNav />}
   </>
   )}
