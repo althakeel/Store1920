@@ -5,10 +5,11 @@ import WhychooseMobile from '../components/sub/home/whychoosemobile'; // Make su
 import CategorySlider from '../components/sub/home/categoryslider';
 import ProductCategory from '../components/sub/home/productcategory';
 import LightningBanner from '../components/sub/home/LightningBanner';
-import LightningBannerMobile from '../components/sub/home/LightningBanner'; // Assume a different mobile version
+import LightningBannerMobile from '..//components/Mobile/mobileLightningdeals'; // Assume a different mobile version
 import CourierBanner from '../components/sub/home/CourierBanner';
 import Shippingmobile from '../components/Mobile/shipping'
 import MobileCategoriesSlider from '../components/Mobile/MobileCategorySlider';
+import MobileCourierBanner from '../components/Mobile/MobileCourierBanner'
 
 const Home = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -26,7 +27,9 @@ const Home = () => {
       {isMobile ? <LightningBannerMobile /> : <LightningBanner />}
        {isMobile ? <MobileCategoriesSlider /> : <CategorySlider />}
       {/* <CategorySlider /> */}
-      <CourierBanner />
+
+          {isMobile ? <MobileCourierBanner /> : <CourierBanner />}
+      {/* <CourierBanner /> */}
       <ProductCategory />
     </div>
   );

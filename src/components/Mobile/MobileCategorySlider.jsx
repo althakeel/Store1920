@@ -104,7 +104,7 @@ const CategorySlider = () => {
     <div
       style={{
         position: 'relative',
-        padding: '20px 0',
+        padding: '10px 0',
         userSelect: isDragging.current ? 'none' : 'auto',
         cursor: isDragging.current ? 'grabbing' : 'grab',
       }}
@@ -121,7 +121,7 @@ const CategorySlider = () => {
           display: 'flex',
           flexWrap: 'nowrap',
           gap: 10,
-          padding: '0 20px',
+          padding: '0 10px',
           scrollSnapType: 'x mandatory',
           scrollBehavior: 'smooth',
           cursor: isDragging.current ? 'grabbing' : 'grab',

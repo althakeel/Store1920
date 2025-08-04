@@ -182,12 +182,13 @@ const ProductCategory = () => {
   }, [selectedCategoryId, fetchProducts]);
 
   // Load more products handler
-  const loadMoreProducts = () => {
-    if (loadingProducts || !hasMoreProducts) return;
-    const nextPage = productsPage + 1;
-    setProductsPage(nextPage);
-    fetchProducts(nextPage, selectedCategoryId);
-  };
+const loadMoreProducts = () => {
+  if (loadingProducts || !hasMoreProducts) return;
+  const nextPage = productsPage + 1;
+  setProductsPage(nextPage);
+  fetchProducts(nextPage, selectedCategoryId);
+};
+
 
   // Throttled arrow visibility update on scroll
   const updateArrowVisibility = useCallback(() => {
@@ -300,6 +301,19 @@ const ProductCategory = () => {
   navigate(`/product/${slug}`);
 }, [navigate]);
 
+useEffect(() => {
+  const handleScroll = () => {
+    if (loadingProducts || !hasMoreProducts) return;
+
+    // Trigger auto load when near bottom (200px before end)
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+      loadMoreProducts();
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, [loadingProducts, hasMoreProducts, productsPage]);
 
 
 const stripHTML = (html) => {
@@ -488,13 +502,14 @@ const stripHTML = (html) => {
             </div>
 
             {/* Load More Button */}
-            {hasMoreProducts && (
-              <div style={{ textAlign: 'center', margin: '20px 0' }}>
-                <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>
-                  {loadingProducts ? 'Loading…' : 'Load More'}
-                </button>
-              </div>
-            )}
+          {hasMoreProducts && (
+  <div style={{ textAlign: 'center', margin: '20px 0' }}>
+    <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>
+      {loadingProducts ? 'Loading…' : 'Load More'}
+    </button>
+  </div>
+)}
+
           </>
         )}
       </div>

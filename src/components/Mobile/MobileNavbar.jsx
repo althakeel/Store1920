@@ -151,50 +151,45 @@ const MobileNavbar = () => {
         </button>
 
         {/* Search Input & Dropdown */}
-        <div
-          ref={containerRef}
-          style={{
-            flex: 1,
-            minWidth: 100,
-            margin: '0 8px',
-            display: 'flex',
-            alignItems: 'center',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              background: '#f5f5f5',
-              borderRadius: 20,
-              display: 'flex',
-              alignItems: 'center',
-              flex: 1,
-              padding: '4px 8px',
-            }}
-          >
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Search products, brands..."
-              aria-label="Search products"
-              autoComplete="off"
-              value={searchTerm}
-              onChange={e => {
-                setSearchTerm(e.target.value);
-                setDropdownVisible(true);
-              }}
-              onFocus={() => setDropdownVisible(true)}
-              style={{
-                border: 'none',
-                outline: 'none',
-                background: 'transparent',
-                flex: 1,
-                fontSize: 13,
-              }}
-              spellCheck={false}
-            />
-            <FaSearch style={{ color: '#064789', marginLeft: 6 }} aria-hidden="true" />
-          </div>
+    <div
+  style={{
+    background: '#f5f5f5',
+    borderRadius: 20,
+    display: 'flex',
+    alignItems: 'center',
+    flex: 1,
+    padding: '4px 8px',
+    minWidth: 0,           // <-- Allows shrinking inside flex container
+    overflow: 'hidden',    // <-- Prevents content from spilling
+  }}
+>
+  <input
+    ref={inputRef}
+    type="text"
+    placeholder="Search products, brands..."
+    aria-label="Search products"
+    autoComplete="off"
+    value={searchTerm}
+    onChange={e => {
+      setSearchTerm(e.target.value);
+      setDropdownVisible(true);
+    }}
+    onFocus={() => setDropdownVisible(true)}
+    style={{
+      border: 'none',
+      outline: 'none',
+      background: 'transparent',
+      flex: 1,
+      fontSize: 13,
+      minWidth: 0,         // <-- Crucial to allow shrinking in small screens
+    }}
+    spellCheck={false}
+  />
+  <div style={{ width: 18, marginLeft: 6, flexShrink: 0 }}>
+    <FaSearch style={{ color: '#064789', width: '100%' }} aria-hidden="true" />
+  </div>
+
+
 
           {dropdownVisible && suggestions.length > 0 && (
             <div
