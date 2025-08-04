@@ -31,10 +31,13 @@ const CategorySlider = () => {
       return;
     }
 
-    // Fetch categories from API
+    // Fetch categories from API with Basic Auth header
     axios
       .get(`${API_BASE}/products/categories`, {
-        params: { consumer_key: CK, consumer_secret: CS },
+        auth: {
+          username: CK,
+          password: CS,
+        },
       })
       .then((response) => {
         if (!isMounted) return;
