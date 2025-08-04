@@ -6,15 +6,15 @@ import MiniCart from '../../MiniCart';
 import AddCarticon from '../../../assets/images/addtocart.png';
 import AddedToCartIcon from '../../../assets/images/added-cart.png';
 import Adsicon from '../../../assets/images/summer-saving-coloured.png';
-import IconAED from '../../../assets/images/Dirham 2.png'
+import IconAED from '../../../assets/images/Dirham 2.png';
 import { throttle } from 'lodash';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
 const CONSUMER_SECRET = 'cs_92458ba6ab5458347082acc6681560911a9e993d';
 
-const PAGE_SIZE = 10; // Categories pagination size
-const PRODUCTS_PER_PAGE = 20; // Reduced from 50 for faster loading
+const PAGE_SIZE = 10;
+const PRODUCTS_PER_PAGE = 20;
 const TITLE_LIMIT = 35;
 
 const badgeLabelMap = {
@@ -30,7 +30,6 @@ const decodeHTML = (html) => {
   return txt.value;
 };
 
-// Memoized ReviewPills to avoid unnecessary re-renders
 const ReviewPills = memo(({ productId }) => {
   const [reviews, setReviews] = useState([]);
 
@@ -79,6 +78,7 @@ const ProductCategory = () => {
   const [products, setProducts] = useState([]);
   const [productsPage, setProductsPage] = useState(1);
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
+  const [variationPrices, setVariationPrices] = useState({});
 
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
   const [loadingProducts, setLoadingProducts] = useState(false);
@@ -118,7 +118,28 @@ const ProductCategory = () => {
     fetchCurrencySymbol();
   }, []);
 
-  // Fetch categories with pagination
+  const fetchFirstVariation = async (productId) => {
+    try {
+      const res = await fetch(
+        `${API_BASE}/products/${productId}/variations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=1`
+      );
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const variation = data[0];
+        setVariationPrices((prev) => ({
+          ...prev,
+          [productId]: {
+            price: variation.price,
+            regular_price: variation.regular_price,
+            sale_price: variation.sale_price,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error(`Error fetching variation for product ${productId}:`, error);
+    }
+  };
+
   const fetchCategories = useCallback(
     async (page = 1) => {
       setLoadingCategories(true);
@@ -138,8 +159,6 @@ const ProductCategory = () => {
     []
   );
 
-
-  // Fetch products with pagination and optional category filter
   const fetchProducts = useCallback(
     async (page = 1, categoryId = selectedCategoryId) => {
       setLoadingProducts(true);
@@ -149,7 +168,6 @@ const ProductCategory = () => {
           (categoryId !== 'all' ? `&category=${categoryId}` : '');
         const res = await fetch(url);
         const data = await res.json();
-// console.log('Product data:', data);
 
         if (page === 1) {
           setProducts(data);
@@ -169,28 +187,31 @@ const ProductCategory = () => {
     [selectedCategoryId]
   );
 
-  // Initial categories load
   useEffect(() => {
     fetchCategories(1);
   }, [fetchCategories]);
 
-  // Load products on category change
   useEffect(() => {
     setProductsPage(1);
     setHasMoreProducts(true);
     fetchProducts(1, selectedCategoryId);
   }, [selectedCategoryId, fetchProducts]);
 
-  // Load more products handler
-const loadMoreProducts = () => {
-  if (loadingProducts || !hasMoreProducts) return;
-  const nextPage = productsPage + 1;
-  setProductsPage(nextPage);
-  fetchProducts(nextPage, selectedCategoryId);
-};
+  const loadMoreProducts = () => {
+    if (loadingProducts || !hasMoreProducts) return;
+    const nextPage = productsPage + 1;
+    setProductsPage(nextPage);
+    fetchProducts(nextPage, selectedCategoryId);
+  };
 
+  useEffect(() => {
+    products.forEach((p) => {
+      if (p.type === 'variable') {
+        fetchFirstVariation(p.id);
+      }
+    });
+  }, [products]);
 
-  // Throttled arrow visibility update on scroll
   const updateArrowVisibility = useCallback(() => {
     const el = categoriesRef.current;
     if (!el) return;
@@ -209,7 +230,6 @@ const loadMoreProducts = () => {
     return () => el.removeEventListener('scroll', throttledUpdate);
   }, [categories, updateArrowVisibility]);
 
-  // Drag scroll support
   useEffect(() => {
     const el = categoriesRef.current;
     if (!el) return;
@@ -296,36 +316,29 @@ const loadMoreProducts = () => {
     if (el) el.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
   };
 
-  // Memoized product click handler
-  const onProductClick = useCallback((slug) => {
-  navigate(`/product/${slug}`);
-}, [navigate]);
+  const onProductClick = useCallback(
+    (slug) => {
+      navigate(`/product/${slug}`);
+    },
+    [navigate]
+  );
 
-useEffect(() => {
-  const handleScroll = () => {
-    if (loadingProducts || !hasMoreProducts) return;
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loadingProducts || !hasMoreProducts) return;
 
-    // Trigger auto load when near bottom (200px before end)
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-      loadMoreProducts();
-    }
-  };
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+        loadMoreProducts();
+      }
+    };
 
-  window.addEventListener('scroll', handleScroll);
-  return () => window.removeEventListener('scroll', handleScroll);
-}, [loadingProducts, hasMoreProducts, productsPage]);
-
-
-const stripHTML = (html) => {
-  const div = document.createElement("div");
-  div.innerHTML = html;
-  return div.textContent || div.innerText || "";
-};
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadingProducts, hasMoreProducts, productsPage]);
 
   return (
     <div className="pcus-wrapper1" style={{ display: 'flex' }}>
       <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
-        {/* Title + Subtitle */}
         <div className="pcus-title-section">
           <h2 className="pcus-main-title">
             <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" /> SUMMER SAVINGS{' '}
@@ -387,11 +400,26 @@ const stripHTML = (html) => {
           <>
             <div className="pcus-prd-grid">
               {products.map((p) => {
-                // console.log('Product price:', p.price, 'Regular price:', p.regular_price);
-                const onSale = p.price !== p.regular_price;
-                const rawBadges = p.best_seller_recommended_badges || [];
-                const badges = Array.isArray(rawBadges) ? rawBadges : [];
-                const soldCount = p.meta_data?.find((m) => m.key === '_sold_count')?.value ?? 0;
+                const isVariable = p.type === 'variable';
+                const variationPriceInfo = variationPrices[p.id] || { price: null, regular_price: null, sale_price: null };
+                const variantsCount = p.variations ? p.variations.length : 0;
+
+                const displayRegularPrice = isVariable
+                  ? variationPriceInfo.regular_price
+                  : p.regular_price || p.price;
+
+                const displaySalePrice = isVariable
+                  ? variationPriceInfo.sale_price
+                  : p.sale_price || null;
+
+                const displayPrice = isVariable
+                  ? variationPriceInfo.price
+                  : p.price || p.regular_price || 0;
+
+                const onSale = displaySalePrice && displaySalePrice !== displayRegularPrice;
+
+                const badges = []; // Placeholder, add your badge logic here if any
+                const soldCount = 0; // Placeholder, add your sold count logic here if any
 
                 return (
                   <div
@@ -404,8 +432,9 @@ const stripHTML = (html) => {
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug)}
+                    style={{ position: 'relative' }}
                   >
-                    <div className="pcus-image-wrapper">
+                    <div className="pcus-image-wrapper" style={{ position: 'relative' }}>
                       <img
                         src={p.images?.[0]?.src || ''}
                         alt={decodeHTML(p.name)}
@@ -413,6 +442,9 @@ const stripHTML = (html) => {
                         loading="lazy"
                         decoding="async"
                       />
+                      {isVariable && variantsCount > 1 && (
+                        <div className="pcus-variant-count-label">+ {variantsCount} variants</div>
+                      )}
                     </div>
                     <div className="pcus-prd-info1">
                       <h3 className="pcus-prd-title1">
@@ -428,11 +460,7 @@ const stripHTML = (html) => {
                         &nbsp;{truncate(decodeHTML(p.name))}
                       </h3>
 
-                      {/* RATING + SOLD aligned */}
-                      <div
-                        className="pcus-prd-review"
-                        style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
-                      >
+                      <div className="pcus-prd-review" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         {renderStars(p.average_rating)}
                         <div className="pcus-sold-badge" style={{ position: 'static' }}>
                           Sold: {soldCount}
@@ -442,34 +470,35 @@ const stripHTML = (html) => {
                       <ReviewPills productId={p.id} />
 
                       <div className="pcus-prd-price-cart1">
-                   <div className="pcus-prd-prices1">
-  <img
-    src={IconAED}
-    alt="AED currency icon"
-    style={{ width: 'auto', height: '10px', marginRight: '0px', verticalAlign: 'middle' }}
-  />
-  {p.sale_price && p.sale_price !== p.regular_price ? (
-    <>
-      <span className="pcus-prd-regular-price" >
-        {parseFloat(p.regular_price || 0).toFixed(2)}
-      </span>
-      <span className="pcus-prd-sale-price " >
-        {parseFloat(p.sale_price || 0).toFixed(2)}
-      </span>
-      {p.regular_price && p.sale_price && (
-        <span className="pcus-prd-discount-box">
-          -{Math.round(((parseFloat(p.regular_price) - parseFloat(p.sale_price)) / parseFloat(p.regular_price)) * 100)}% OFF
-        </span>
-      )}
-    </>
-  ) : (
-    <span className="price1">
-      {parseFloat(p.price || p.regular_price || 0).toFixed(2)}
-    </span>
-  )}
-</div>
-
-
+                        <div className="pcus-prd-prices1">
+                          <img
+                            src={IconAED}
+                            alt="AED currency icon"
+                            style={{ width: 'auto', height: '10px', marginRight: '0px', verticalAlign: 'middle' }}
+                          />
+                          {onSale ? (
+                            <>
+                              <span className="pcus-prd-regular-price">
+                                {parseFloat(displayRegularPrice || 0).toFixed(2)}
+                              </span>
+                              <span className="pcus-prd-sale-price">
+                                {parseFloat(displaySalePrice || 0).toFixed(2)}
+                              </span>
+                              {displayRegularPrice && displaySalePrice && (
+                                <span className="pcus-prd-discount-box">
+                                  -{Math.round(
+                                    ((parseFloat(displayRegularPrice) - parseFloat(displaySalePrice)) /
+                                      parseFloat(displayRegularPrice)) *
+                                      100
+                                  )}
+                                  % OFF
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span className="price1">{parseFloat(displayPrice || 0).toFixed(2)}</span>
+                          )}
+                        </div>
 
                         <button
                           className={`pcus-prd-add-cart-btn ${
@@ -477,7 +506,7 @@ const stripHTML = (html) => {
                           }`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            flyToCart(e, p.images?.[0]?.src); // Animate image fly to cart
+                            flyToCart(e, p.images?.[0]?.src);
                             addToCart(p, true);
                           }}
                           aria-label={`Add ${decodeHTML(p.name)} to cart`}
@@ -501,15 +530,13 @@ const stripHTML = (html) => {
               })}
             </div>
 
-            {/* Load More Button */}
-          {hasMoreProducts && (
-  <div style={{ textAlign: 'center', margin: '20px 0' }}>
-    <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>
-      {loadingProducts ? 'Loading…' : 'Load More'}
-    </button>
-  </div>
-)}
-
+            {hasMoreProducts && (
+              <div style={{ textAlign: 'center', margin: '20px 0' }}>
+                <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>
+                  {loadingProducts ? 'Loading…' : 'Load More'}
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
