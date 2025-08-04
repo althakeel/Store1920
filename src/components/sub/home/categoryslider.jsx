@@ -24,38 +24,39 @@ const CategorySlider = () => {
   useEffect(() => {
     let isMounted = true;
 
-    // Attempt to load cached categories first
-    const cachedCategories = localStorage.getItem('categories');
-    if (cachedCategories) {
-      setCategories(JSON.parse(cachedCategories));
-      return;
-    }
+    const loadCategories = async () => {
+      const cached = localStorage.getItem('categories');
+      if (cached) {
+        setCategories(JSON.parse(cached));
+        return;
+      }
 
-    // Fetch categories from API with Basic Auth header
-    axios
-      .get(`${API_BASE}/products/categories`, {
-        auth: {
-          username: CK,
-          password: CS,
-        },
-      })
-      .then((response) => {
+      try {
+        const res = await axios.get(`${API_BASE}/products/categories`, {
+          auth: {
+            username: CK,
+            password: CS,
+          },
+        });
+
         if (!isMounted) return;
-        const filtered = response.data.filter((cat) => cat.image);
+
+        const filtered = res.data.filter((cat) => cat.image);
         setCategories(filtered);
         localStorage.setItem('categories', JSON.stringify(filtered));
-      })
-      .catch((error) => {
-        console.error('Failed to fetch categories:', error);
+      } catch (err) {
+        console.error('Failed to fetch categories:', err);
         if (isMounted) setCategories([]);
-      });
+      }
+    };
+
+    loadCategories();
 
     return () => {
       isMounted = false;
     };
   }, []);
 
-  // Slider configuration
   const settings = {
     dots: false,
     infinite: true,
@@ -66,8 +67,8 @@ const CategorySlider = () => {
     autoplaySpeed: 3500,
     cssEase: 'ease-in-out',
     swipeToSlide: true,
-    arrows: false, // using custom arrows instead
-    lazyLoad: 'ondemand', // lazy load images on demand
+    arrows: false,
+    lazyLoad: 'ondemand',
     responsive: [
       { breakpoint: 2560, settings: { slidesToShow: 7.2 } },
       { breakpoint: 1536, settings: { slidesToShow: 6.5 } },
@@ -104,7 +105,6 @@ const CategorySlider = () => {
       aria-label="Category Slider"
       style={{ position: 'relative' }}
     >
-      {/* Previous Arrow */}
       <button
         type="button"
         className="custom-prev-arrow"
@@ -128,7 +128,6 @@ const CategorySlider = () => {
         </svg>
       </button>
 
-      {/* Next Arrow */}
       <button
         type="button"
         className="custom-next-arrow"
@@ -152,7 +151,6 @@ const CategorySlider = () => {
         </svg>
       </button>
 
-      {/* Slider */}
       {categories === null ? (
         <div className="skeleton-wrapper">{renderSkeletons()}</div>
       ) : (
