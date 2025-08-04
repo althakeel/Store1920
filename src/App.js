@@ -64,19 +64,20 @@ const AppContent = () => {
   const { isCartOpen, setIsCartOpen } = useCart();
   const location = useLocation();
   const path = location.pathname;
- const [loading, setLoading] = useState(true);
+  // Removed loading state and related useEffect
+
   const isHomePage = path === '/';
   const onCartPage = path.startsWith('/cart');
- const onCheckoutPage = path === '/checkout' || path.startsWith('/checkout/');
+  const onCheckoutPage = path === '/checkout' || path.startsWith('/checkout/');
   const cartIconRef = useRef(null);
 
- const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-useEffect(() => {
-  const handleResize = () => setIsMobile(window.innerWidth <= 768);
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const knownPaths = [
     '/',
@@ -102,18 +103,6 @@ useEffect(() => {
   const [navbarColor, setNavbarColor] = useState('#0a5e07ff');
   const queryClient = new QueryClient();
 
-useEffect(() => {
-  if (path === '/') {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  } else {
-    setLoading(false);
-  }
-}, [path]);
-
   useEffect(() => {
     if (isHomePage) {
       setNavbarColor('#38A9D8');
@@ -137,117 +126,103 @@ useEffect(() => {
     }
   }, [onCartPage, onCheckoutPage, is404Page, isCartOpen, setIsCartOpen]);
 
-
-    useEffect(() => {
+  useEffect(() => {
     if (onCheckoutPage && isCartOpen) {
       setIsCartOpen(false);
     }
   }, [onCheckoutPage, isCartOpen, setIsCartOpen]);
+
   return (
     <QueryClientProvider client={queryClient}>
-   <AuthProvider>
-  {loading ? (
-    <Preloader />
-  ) : (
-    <>
-    {!isMobile && <Topbar />}
-  {onCheckoutPage ? (
-  <CheckoutNavbar />
-): isMobile ? (
-  <MobileNavbar
-    openCart={() => setIsCartOpen(true)}
-    isCartOpen={isCartOpen}
-    cartIconRef={cartIconRef}
-  />
-) : (
-  <NavbarWithMegaMenu
-    openCart={() => {
-      if (!isMobile) setIsCartOpen(true);
-    }}
-    backgroundColor={navbarColor}
-    isCartOpen={isCartOpen}
-    cartIconRef={cartIconRef}
-  />
-)}
-      <div style={{ display: 'flex', position: 'relative' }}>
-        <main
-          style={{
-            width:
-  !onCartPage && !onCheckoutPage && !is404Page && isCartOpen && !isMobile
-                ? 'calc(100% - 250px)'
-                : '100%',
-            transition: 'width 0.3s ease',
-            overflowX: 'hidden',
-            background: '#fff',
-          }}
-        >
-          {!isHomePage && <Breadcrumbs />}
-
-          <Routes>
-            <Route path="/" element={<Home />} />
-            {/* <Route path="/products" element={<ProductList />} /> */}
-            <Route path="/product/:slug" element={<ProductDetails />} />
-
-
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-
-            {/* ✅ Protected Routes */}
-            <Route
-              path="/myaccount/*"
-              element={
-                <ProtectedRoute>
-                  <Myaccount />
-                </ProtectedRoute>
-              }
+      <AuthProvider>
+        <>
+          {!isMobile && <Topbar />}
+          {onCheckoutPage ? (
+            <CheckoutNavbar />
+          ) : isMobile ? (
+            <MobileNavbar
+              openCart={() => setIsCartOpen(true)}
+              isCartOpen={isCartOpen}
+              cartIconRef={cartIconRef}
             />
+          ) : (
+            <NavbarWithMegaMenu
+              openCart={() => {
+                if (!isMobile) setIsCartOpen(true);
+              }}
+              backgroundColor={navbarColor}
+              isCartOpen={isCartOpen}
+              cartIconRef={cartIconRef}
+            />
+          )}
+          <div style={{ display: 'flex', position: 'relative' }}>
+            <main
+              style={{
+                width:
+                  !onCartPage && !onCheckoutPage && !is404Page && isCartOpen && !isMobile
+                    ? 'calc(100% - 250px)'
+                    : '100%',
+                transition: 'width 0.3s ease',
+                overflowX: 'hidden',
+                background: '#fff',
+              }}
+            >
+              {!isHomePage && <Breadcrumbs />}
 
-            {/* Public Routes */}
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/lightningdeal" element={<Lightningdeal />} />
-            <Route path="/compare" element={<ComparePage />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/category/:slug" element={<CategoryProducts />} />
-            <Route path="/allproducts" element={<AllProducts />} />
-            <Route path="/bestrated" element={<Bestrated />} />
-            <Route path="/rated" element={<Rated />} />
-            <Route path="/support" element={<SupportPage />} />
-            <Route path="/safetycenter" element={<SafetyCenter />} />
-            <Route path="/purchaseprotection" element={<PurchaseProtection />} />
-            <Route path="/partnerwithus" element={<PartnerWithUs />} />
-            <Route path="/returnandrefundpolicy" element={<Returnandrefundpolicy />} />
-            <Route path="/Intellectual-property-policy" element={<Intellectualproperty />} />
-            <Route path="/shippinginfo" element={<Shippinginfo />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-             <Route path="/privacy-policy" element={<PrivacyPolicy />} />   
-             <Route path="/terms-0f-use" element={<Terms0fuse />} />
-             <Route path="/order-success" element={<OrderSuccess />} />
-              <Route path="/track-order" element={<TrackOrder />} />
-                        <Route path="/fest-sale" element={<Festsale />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                {/* <Route path="/products" element={<ProductList />} /> */}
+                <Route path="/product/:slug" element={<ProductDetails />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
 
-        {/* MiniCart on public pages */}
-  {!onCartPage && !onCheckoutPage && !is404Page && !isMobile && isCartOpen && (
-  <MiniCart
-    isOpen={isCartOpen}
-    onClose={() => setIsCartOpen(false)}
-  />
-)}
+                {/* ✅ Protected Routes */}
+                <Route
+                  path="/myaccount/*"
+                  element={
+                    <ProtectedRoute>
+                      <Myaccount />
+                    </ProtectedRoute>
+                  }
+                />
 
-      </div>
-{/* <div className="spinner" /> */}
+                {/* Public Routes */}
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/lightningdeal" element={<Lightningdeal />} />
+                <Route path="/compare" element={<ComparePage />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/category/:slug" element={<CategoryProducts />} />
+                <Route path="/allproducts" element={<AllProducts />} />
+                <Route path="/bestrated" element={<Bestrated />} />
+                <Route path="/rated" element={<Rated />} />
+                <Route path="/support" element={<SupportPage />} />
+                <Route path="/safetycenter" element={<SafetyCenter />} />
+                <Route path="/purchaseprotection" element={<PurchaseProtection />} />
+                <Route path="/partnerwithus" element={<PartnerWithUs />} />
+                <Route path="/returnandrefundpolicy" element={<Returnandrefundpolicy />} />
+                <Route path="/Intellectual-property-policy" element={<Intellectualproperty />} />
+                <Route path="/shippinginfo" element={<Shippinginfo />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-0f-use" element={<Terms0fuse />} />
+                <Route path="/order-success" element={<OrderSuccess />} />
+                <Route path="/track-order" element={<TrackOrder />} />
+                <Route path="/fest-sale" element={<Festsale />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
 
+            {/* MiniCart on public pages */}
+            {!onCartPage && !onCheckoutPage && !is404Page && !isMobile && isCartOpen && (
+              <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+            )}
+          </div>
 
-      <Footer />
-   {isMobile && !onCartPage && !onCheckoutPage && !is404Page && <MobileBottomNav />}
-  </>
-  )}
-    </AuthProvider>
-      </QueryClientProvider>
-
+          <Footer />
+          {isMobile && !onCartPage && !onCheckoutPage && !is404Page && <MobileBottomNav />}
+        </>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 };
 

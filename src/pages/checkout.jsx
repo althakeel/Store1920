@@ -10,8 +10,26 @@ const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_e09e8cedfae42e5d0a37728ad6c3a6ce636695dd';
 const CS = 'cs_2d41bc796c7d410174729ffbc2c230f27d6a1eda';
 
-const buildUrl = (endpoint) =>
-  `${API_BASE}/${endpoint}?consumer_key=${CK}&consumer_secret=${CS}`;
+// Helper for authenticated fetch with Basic Auth
+const fetchWithAuth = async (endpoint, options = {}) => {
+  const authHeader = 'Basic ' + btoa(`${CK}:${CS}`);
+  const url = `${API_BASE}/${endpoint}`;
+  const fetchOptions = {
+    ...options,
+    headers: {
+      'Authorization': authHeader,
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+  };
+  const res = await fetch(url, fetchOptions);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    const errorMsg = errorData.message || `Request failed with status ${res.status}`;
+    throw new Error(errorMsg);
+  }
+  return res.json();
+};
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -60,37 +78,35 @@ export default function CheckoutPage() {
   }, [contextCartItems]);
 
   // Fetch countries and payment methods
-useEffect(() => {
-  const fetchCheckoutData = async () => {
-    try {
-      setLoading(true);
-      console.log('Fetching countries and payment methods...');
-      const [countriesRes, paymentRes] = await Promise.all([
-        fetch(buildUrl('data/countries')),
-        fetch(buildUrl('payment_gateways')),
-      ]);
+  useEffect(() => {
+    const fetchCheckoutData = async () => {
+      try {
+        setLoading(true);
+        console.log('Fetching countries and payment methods...');
 
-      const countriesData = await countriesRes.json();
-      const paymentData = await paymentRes.json();
+        const [countriesData, paymentData] = await Promise.all([
+          fetchWithAuth('data/countries'),
+          fetchWithAuth('payment_gateways'),
+        ]);
 
-      console.log('Fetched countries:', countriesData);
-      console.log('Fetched payment methods:', paymentData);
+        console.log('Fetched countries:', countriesData);
+        console.log('Fetched payment methods:', paymentData);
 
-      setCountries(countriesData);
-      setPaymentMethods(paymentData);
-    } catch (err) {
-      console.error('Checkout data fetch error:', err);
-      setError(err.message || 'Failed to load checkout data.');
-    } finally {
-      setLoading(false);
-    }
+        setCountries(countriesData);
+        setPaymentMethods(paymentData);
+      } catch (err) {
+        console.error('Checkout data fetch error:', err);
+        setError(err.message || 'Failed to load checkout data.');
+      } finally {
+        setLoading(false);
+      }
 
-    const token = localStorage.getItem('userToken');
-    setIsLoggedIn(!!token);
-  };
+      const token = localStorage.getItem('userToken');
+      setIsLoggedIn(!!token);
+    };
 
-  fetchCheckoutData();
-}, []);
+    fetchCheckoutData();
+  }, []);
 
   // Update formData when selected payment method changes
   useEffect(() => {
@@ -188,20 +204,13 @@ useEffect(() => {
         line_items: lineItems,
       };
 
-      const res = await fetch(buildUrl('orders'), {
+      const orderData = await fetchWithAuth('orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderPayload),
       });
 
-      const orderData = await res.json();
-
-      if (res.ok && orderData.id) {
-        clearCart();
-        navigate(`/order-success?order_id=${orderData.id}`);
-      } else {
-        throw new Error(orderData.message || 'Failed to place order');
-      }
+      clearCart();
+      navigate(`/order-success?order_id=${orderData.id}`);
     } catch (err) {
       setError(err.message || 'Error placing order.');
     } finally {
