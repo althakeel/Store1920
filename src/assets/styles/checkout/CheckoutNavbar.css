@@ -4,14 +4,18 @@
   border-bottom: 1px solid #eee;
   padding: 10px 20px;
   z-index: 999;
+  box-sizing: border-box;
 }
+
 
 .checkout-navbar-inner {
   display: flex;
   align-items: center;
   gap: 10px;
+  max-width: 1400px;
+  margin: 0 auto; /* centers the inner content */
+  width: 100%; /* ensure it fills horizontally up to max-width */
 }
-
 .checkout-logo img {
   height: 40px;
   border-radius: 10px;

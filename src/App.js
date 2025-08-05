@@ -11,6 +11,7 @@ import { CompareProvider } from './contexts/CompareContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { CookieConsentProvider } from './contexts/CookieConsentContext';
 
 // import { SignOutModalProvider } from './contexts/SignOutModalProvider';
 
@@ -45,6 +46,8 @@ import Terms0fuse from './pages/TermsOfuse'
 import OrderSuccess from './pages/OrderSuccess';
 import trackOrder from './pages/track-order';
 import Festsale from './pages/Festsale';
+import CookiesSettings from './pages/CookiesSettingsPage';
+import LostPassword from './pages/lost-password';
 
 // Components
 import Topbar from './components/topbar';
@@ -208,6 +211,10 @@ const AppContent = () => {
                 <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/track-order" element={<TrackOrder />} />
                 <Route path="/fest-sale" element={<Festsale />} />
+                <Route path="/cookies-settings" element={<CookiesSettings />} />
+                 <Route path="/lost-password" element={<LostPassword />} />
+
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
@@ -230,9 +237,11 @@ export default function App() {
   return (
     <CartProvider>
       <CompareProvider>
+         <CookieConsentProvider> 
         <Router>
           <AppContent />
         </Router>
+           </CookieConsentProvider> 
       </CompareProvider>
     </CartProvider>
   );

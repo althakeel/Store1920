@@ -92,6 +92,8 @@ const ProductCategory = () => {
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [badgeColorIndex, setBadgeColorIndex] = useState(0);
 
+  const [productVariations, setProductVariations] = useState({});
+
   // Rotate badge color every 10 minutes
   useEffect(() => {
     const interval = setInterval(() => {
@@ -118,25 +120,28 @@ const ProductCategory = () => {
     fetchCurrencySymbol();
   }, []);
 
-  const fetchFirstVariation = async (productId) => {
+  useEffect(() => {
+    products.forEach((p) => {
+      if (p.type === 'variable' && !productVariations[p.id]) {
+        fetchAllVariations(p.id);
+      }
+    });
+  }, [products]);
+
+  const fetchAllVariations = async (productId) => {
     try {
       const res = await fetch(
-        `${API_BASE}/products/${productId}/variations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=1`
+        `${API_BASE}/products/${productId}/variations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100`
       );
       const data = await res.json();
       if (data && data.length > 0) {
-        const variation = data[0];
-        setVariationPrices((prev) => ({
+        setProductVariations((prev) => ({
           ...prev,
-          [productId]: {
-            price: variation.price,
-            regular_price: variation.regular_price,
-            sale_price: variation.sale_price,
-          },
+          [productId]: data,
         }));
       }
     } catch (error) {
-      console.error(`Error fetching variation for product ${productId}:`, error);
+      console.error(`Error fetching variations for product ${productId}`, error);
     }
   };
 
@@ -211,6 +216,29 @@ const ProductCategory = () => {
       }
     });
   }, [products]);
+
+  const fetchFirstVariation = async (productId) => {
+  try {
+    const res = await fetch(
+      `${API_BASE}/products/${productId}/variations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=1`
+    );
+    const data = await res.json();
+    if (data && data.length > 0) {
+      const variation = data[0];
+      setVariationPrices((prev) => ({
+        ...prev,
+        [productId]: {
+          price: variation.price,
+          regular_price: variation.regular_price,
+          sale_price: variation.sale_price,
+        },
+      }));
+    }
+  } catch (error) {
+    console.error(`Error fetching first variation for product ${productId}`, error);
+  }
+};
+
 
   const updateArrowVisibility = useCallback(() => {
     const el = categoriesRef.current;
@@ -316,11 +344,13 @@ const ProductCategory = () => {
     if (el) el.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
   };
 
+  // Changed: Open product in new tab instead of navigate within same tab
   const onProductClick = useCallback(
     (slug) => {
-      navigate(`/product/${slug}`);
+      const url = `/product/${slug}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
     },
-    [navigate]
+    []
   );
 
   useEffect(() => {
@@ -337,7 +367,7 @@ const ProductCategory = () => {
   }, [loadingProducts, hasMoreProducts, productsPage]);
 
   return (
-    <div className="pcus-wrapper1" style={{ display: 'flex' }}>
+    <div className="pcus-wrapper3" style={{ display: 'flex' }}>
       <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
         <div className="pcus-title-section">
           <h2 className="pcus-main-title">
@@ -347,7 +377,7 @@ const ProductCategory = () => {
           <p className="pcus-sub-title">BROWSE WHAT EXCITES YOU</p>
         </div>
 
-        <div className="pcus-categories-wrapper">
+        <div className="pcus-categories-wrapper1 pcus-categories-wrapper3">
           {canScrollLeft && (
             <button className="pcus-arrow-btn" onClick={() => scrollCats('left')} aria-label="Prev">
               ‹
@@ -392,12 +422,18 @@ const ProductCategory = () => {
           )}
         </div>
 
-        {loadingProducts && products.length === 0 ? (
-          <div className="pcus-prd-grid">{Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}</div>
-        ) : products.length === 0 ? (
-          <div className="pcus-no-products">No products found.</div>
-        ) : (
-          <>
+       {loadingProducts && products.length === 0 ? (
+  <div className="pcus-prd-grid">
+    {Array.from({ length: 8 }).map((_, i) => (
+      <SkeletonCard key={i} />
+    ))}
+  </div>
+) : products.length === 0 ? (
+  <div className="pcus-no-products" style={{ minHeight: '300px', textAlign: 'center', paddingTop: '40px', fontSize: '18px', color: '#666' }}>
+    No products found.
+  </div>
+) : (
+  <>
             <div className="pcus-prd-grid">
               {products.map((p) => {
                 const isVariable = p.type === 'variable';
@@ -434,18 +470,25 @@ const ProductCategory = () => {
                     onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug)}
                     style={{ position: 'relative' }}
                   >
-                    <div className="pcus-image-wrapper" style={{ position: 'relative' }}>
-                      <img
-                        src={p.images?.[0]?.src || ''}
-                        alt={decodeHTML(p.name)}
-                        className="pcus-prd-image"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      {isVariable && variantsCount > 1 && (
-                        <div className="pcus-variant-count-label">+ {variantsCount} variants</div>
-                      )}
-                    </div>
+                   <div className="pcus-image-wrapper1">
+  <img
+    src={p.images?.[0]?.src || ''}
+    alt={decodeHTML(p.name)}
+    className="pcus-prd-image1 primary-img"
+    loading="lazy"
+    decoding="async"
+  />
+  {p.images?.[1] && (
+    <img
+      src={p.images[1].src}
+      alt={`${decodeHTML(p.name)} - second`}
+      className="pcus-prd-image1 secondary-img"
+      loading="lazy"
+      decoding="async"
+    />
+  )}
+</div>
+
                     <div className="pcus-prd-info1">
                       <h3 className="pcus-prd-title1">
                         {badges.length > 0 && (
@@ -465,7 +508,14 @@ const ProductCategory = () => {
                         <div className="pcus-sold-badge" style={{ position: 'static' }}>
                           Sold: {soldCount}
                         </div>
+                       
+                       {isVariable && variantsCount > 1 && (
+  <div className="pcus-variant-count-label" style={{ marginTop: '6px' }}>
+    + {variantsCount} variants
+  </div>
+)}
                       </div>
+                     
 
                       <ReviewPills productId={p.id} />
 
@@ -474,30 +524,33 @@ const ProductCategory = () => {
                           <img
                             src={IconAED}
                             alt="AED currency icon"
-                            style={{ width: 'auto', height: '10px', marginRight: '0px', verticalAlign: 'middle' }}
+                            style={{ width: 'auto', height: '13px', marginRight: '0px', verticalAlign: 'middle' }}
                           />
-                          {onSale ? (
-                            <>
-                              <span className="pcus-prd-regular-price">
-                                {parseFloat(displayRegularPrice || 0).toFixed(2)}
-                              </span>
-                              <span className="pcus-prd-sale-price">
-                                {parseFloat(displaySalePrice || 0).toFixed(2)}
-                              </span>
-                              {displayRegularPrice && displaySalePrice && (
-                                <span className="pcus-prd-discount-box">
-                                  -{Math.round(
-                                    ((parseFloat(displayRegularPrice) - parseFloat(displaySalePrice)) /
-                                      parseFloat(displayRegularPrice)) *
-                                      100
-                                  )}
-                                  % OFF
-                                </span>
-                              )}
-                            </>
-                          ) : (
-                            <span className="price1">{parseFloat(displayPrice || 0).toFixed(2)}</span>
-                          )}
+                 {onSale ? (
+  <>
+    <span className="pcus-prd-sale-price1">
+      {parseFloat(displaySalePrice || 0).toFixed(2)}
+    </span>
+    <span className="pcus-prd-regular-price1">
+      {parseFloat(displayRegularPrice || 0).toFixed(2)}
+    </span>
+    {displayRegularPrice && displaySalePrice && (
+      <span className="pcus-prd-discount-box1">
+        -{Math.round(
+          ((parseFloat(displayRegularPrice) - parseFloat(displaySalePrice)) /
+            parseFloat(displayRegularPrice)) *
+            100
+        )}
+        % OFF
+      </span>
+    )}
+  </>
+) : (
+  <span className="price1">{parseFloat(displayPrice || 0).toFixed(2)}</span>
+)}
+
+
+                          
                         </div>
 
                         <button
@@ -524,10 +577,17 @@ const ProductCategory = () => {
                           style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000, cursor: 'pointer' }}
                         />
                       </div>
+                        {/* <div style={{fontSize:"10px"}}>
+                              + {variantsCount} variants
+                          </div> */}
                     </div>
+                    
                   </div>
+                  
                 );
+                
               })}
+              
             </div>
 
             {hasMoreProducts && (

@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
-.pcus-wrapper1 {
+.pcus-wrapper3 {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px 10px;
@@ -15,7 +15,12 @@
   transition: background-color 0.3s ease;
 }
 
-
+.pcus-variant-info {
+  color: green;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 600;
+}
 
 .pcus-variant-count-label {
   position: absolute;
@@ -87,7 +92,7 @@
 
 
 /* Categories container */
-.pcus-categories-wrapper {
+.pcus-categories-wrapper1 {
   position: relative;
   display: flex;
   align-items: center;
@@ -106,14 +111,14 @@
   display: none;
 }
 
-.pcus-prd-discount-box {
+.pcus-prd-discount-box1 {
   background: #d32f2f;
   color: #fff;
   font-size: 9px;
   font-weight: 500;
   padding: 2px 5px;
   border-radius: 4px;
-  margin: 0 6px;
+  margin: 0 1px;
   white-space: nowrap;
 }
 
@@ -231,24 +236,54 @@ img.flying-clone {
   flex-shrink: 0;
 }
 /* Image wrapper to position badges overlay */
-.pcus-image-wrapper {
-  position: relative;
+.pcus-image-wrapper1 {
   width: 100%;
   aspect-ratio: 1 / 1;
+  position: relative;
   overflow: hidden;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  padding: 0;
+  border-radius: 5px 5px 0 0;
+  /* Add: */
+  image-rendering: auto;
+  transform: translateZ(0); /* triggers GPU acceleration */
 }
-
-/* Product image */
-.pcus-prd-image {
+.pcus-image-wrapper1 img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: opacity 0.4s ease-in-out;
+}
+.pcus-image-wrapper1 .primary-img {
+  opacity: 1;
+  z-index: 1;
+}
+
+.pcus-image-wrapper1 .secondary-img {
+  opacity: 0;
+  z-index: 2;
+}
+
+.pcus-image-wrapper1:hover .primary-img {
+  opacity: 0;
+}
+
+.pcus-image-wrapper1:hover .secondary-img {
+  opacity: 1;
+}
+
+/* Product image */
+.pcus-prd-image1 {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* fills container, cropping if needed */
   display: block;
   user-select: none;
+  -webkit-user-select: none;
+
 }
+
 
 /* Badges overlay at bottom of image */
 .pcus-badges-overlay {
@@ -361,6 +396,8 @@ img.flying-clone {
   gap: 5px;
 }
 
+
+
 /* Prices container */
 .pcus-prd-prices1 {
   display: flex;
@@ -369,20 +406,20 @@ img.flying-clone {
 }
 
 /* Regular price when on sale */
-.pcus-prd-regular-price {
+.pcus-prd-regular-price1 {
   font-size: 12px;
-  color: #888;
+  color: #727272;
   text-decoration: line-through;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 2px;
 }
 
 /* Sale price */
-.pcus-prd-sale-price {
-  font-size: 14px;
+.pcus-prd-sale-price1 {
+  font-size: 18px;
   font-weight: 700;
-  color: #222;
+  color: #d3632f; 
   display: flex;
   align-items: center;
   gap: 5px;
@@ -390,12 +427,12 @@ img.flying-clone {
 }
 
 /* Sale price highlight if on sale */
-.pcus-prd-sale-price.on-sale {
+.pcus-prd-sale-price1.on-sale {
   color: #d33;
 }
 
 /* Sale price turns red if almost sold */
-.pcus-prd-sale-price.almost-sold {
+.pcus-prd-sale-price1.almost-sold {
   color: #a81b1b !important;
 }
 
@@ -478,6 +515,18 @@ img.flying-clone {
   margin-top: 12px;
 }
 
+.pcus-no-products {
+  min-height: 400px;
+  text-align: center;
+  padding-top: 40px;
+  font-size: 18px;
+  color: #666666;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
@@ -487,47 +536,172 @@ img.flying-clone {
   }
 }
 
+
+
+
+
 /* Responsive tweaks */
+/* Responsive styles for screens below 768px */
+/* Responsive styles for screens below 768px */
+/* Responsive styles for screens below 768px */
 @media (max-width: 768px) {
+
+  /* Product grid: flexible columns */
   .pcus-prd-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px; /* reduced gap for better fit */
   }
-  .pcus-wrapper1 {
 
-  padding: 20px 20px;
-
-}
-
-
-  .pcus-image-wrapper {
+  /* Image wrapper: fixed height for better consistency */
+  .pcus-image-wrapper1 {
     height: 150px;
-  }
-}
-
-@media (max-width: 480px) {
-  .pcus-categories-wrapper {
-    margin-bottom: 20px;
+    aspect-ratio: unset;
   }
 
-  .pcus-arrow-btn {
+  /* Hide category slider on mobile */
+  .pcus-categories-wrapper3 {
+    display: none !important;
+  }
+
+  .pcus-prd-info1 {
+    padding: 5px 2px 5px;
+  }
+
+  /* Category button adjustments */
+  .pcus-category-btn {
+    min-width: 100px;
+    max-width: 120px;
+    height: 40px;
+    font-size: 13px;
+    padding: 8px 10px;
+    text-align: center;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  /* Price + Cart container: stack vertically */
+  .pcus-prd-price-cart1 {
+    display: flex !important;
+    flex-direction: column !important;  /* stack vertically */
+    justify-content: flex-start; /* align items at top */
+    align-items: flex-start; /* left align */
+    gap: 8px;
+  }
+
+  /* Prices container */
+  .pcus-prd-prices1 {
+    display: flex !important;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  /* Price font sizes */
+  .pcus-prd-regular-price1 {
+    font-size: 12px;
+    color: #666666;
+    text-decoration: line-through;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .pcus-prd-sale-price1 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #d33;
+  }
+
+  /* Discount badge */
+  .pcus-prd-discount-box1 {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* Cart button size */
+  .pcus-prd-add-cart-btn {
     width: 32px;
     height: 32px;
-    font-size: 20px;
-    margin: 0 4px;
+    margin: 0;
+    flex-shrink: 0;
   }
+}
 
-  .pcus-category-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
+/* Responsive styles for screens below 480px */
+@media (max-width: 480px) {
 
+  /* Product grid: smaller columns */
   .pcus-prd-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
   }
 
-  .pcus-image-wrapper {
-    height: 130px;
+  /* Image wrapper: keep square ratio */
+  .pcus-image-wrapper1 {
+    aspect-ratio: 1 / 1;
+    height: auto;
+  }
+
+  /* Category buttons */
+  .pcus-category-btn {
+    min-width: 80px;
+    max-width: 100px;
+    height: 35px;
+    font-size: 12px;
+    padding: 6px 10px;
+    text-align: center;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  /* Price + Cart container in one row */
+  .pcus-prd-price-cart1 {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  /* Prices inline */
+  .pcus-prd-prices1 {
+    display: flex !important;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 2px;
+    flex-grow: 1;
+  }
+
+  /* Price font sizes */
+  .pcus-prd-regular-price1 {
+    font-size: 10px;
+    color: #888;
+    text-decoration: line-through;
+  }
+
+  .pcus-prd-sale-price1 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #d33;
+  }
+
+  /* Discount badge smaller */
+  .pcus-prd-discount-box1 {
+    font-size: 9px;
+    padding: 1.5px 5px;
+  }
+
+  /* Cart button smaller */
+  .pcus-prd-add-cart-btn {
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    flex-shrink: 0;
   }
 }

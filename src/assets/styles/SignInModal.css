@@ -159,6 +159,23 @@
   max-width: 380px;
 }
 
+.signin-forgot-password-text {
+  margin-top: 4px;
+  font-size: 0.775rem;
+  color: #e66800;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  text-align: right;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.signin-forgot-password-text:focus {
+  outline: 2px solid #0073e6;
+  outline-offset: 2px;
+}
+
 /* Social login buttons */
 .signin-social-btn {
   display: flex;
@@ -223,7 +240,71 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
-  
+
+/* Error alert box */
+/* Alternative Error Alert Box */
+/* Alternative Error Alert Box with smaller font */
+.signin-error-alert {
+  position: relative;
+  background-color: #fff4e5;       /* Soft warm background */
+  border: 1px solid #ffb347;       /* Light orange border */
+  padding: 12px 18px;               /* Slightly smaller padding */
+  margin-bottom: 5px;
+  border-radius: 8px;
+  color: #b35400;                  /* Dark orange text */
+  font-weight: 600;
+  font-size: 13px;                 /* Smaller font size */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 6px rgb(255 179 71 / 0.3);
+}
+
+/* Info icon - smaller circle */
+.signin-error-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  background-color: #ffb347;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  line-height: 20px;
+  user-select: none;
+}
+
+/* Error message content */
+.signin-error-content a.signin-lost-password-link {
+  color: #b35400;
+  text-decoration: underline;
+  font-size: 13px;
+}
+
+.signin-error-content a.signin-lost-password-link:hover {
+  color: #7a2e00;
+}
+
+/* Close button - smaller and subtle */
+.signin-error-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #b35400;
+  cursor: pointer;
+  padding: 0 6px;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+.signin-error-close:hover {
+  color: #7a2e00;
+}
+
+
 /* Responsive */
 @media (max-width: 480px) {
   .signin-modal-container {

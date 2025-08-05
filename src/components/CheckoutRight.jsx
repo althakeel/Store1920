@@ -5,6 +5,7 @@ import '../assets/styles/checkout/CheckoutRight.css';
 import TrustSection from './checkout/TrustSection';
 import CouponDiscount from './sub/account/CouponDiscount';
 import CoinBalance from './sub/account/CoinBalace';
+// import Deleteicon from '../assets/images/'
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_680365deac11404c39d7d9b523ac5dc2e1795863';
@@ -70,7 +71,7 @@ export default function CheckoutRight({ cartItems, formData }) {
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [coinDiscount, setCoinDiscount] = useState(0);
-
+  const [coinMessage, setCoinMessage] = useState('');
   const itemsTotal = cartItems.reduce(
     (acc, item) => acc + parseFloat(item.price) * item.quantity,
     0
@@ -138,32 +139,31 @@ export default function CheckoutRight({ cartItems, formData }) {
     try {
       const meta_data = [];
 
-if (coinDiscount > 0) {
-  meta_data.push({
-    key: 'coin_discount',
-    value: coinDiscount.toFixed(2),
-  });
-}
+      if (coinDiscount > 0) {
+        meta_data.push({
+          key: 'coin_discount',
+          value: coinDiscount.toFixed(2),
+        });
+      }
 
-const res = await axios.post(
-  `${API_BASE}/orders`,
-  {
-    billing,
-    shipping,
-    line_items,
-    payment_method: formData.paymentMethod,
-    payment_method_title: formData.paymentMethodTitle,
-    set_paid: formData.paymentMethod !== 'cod',
-    meta_data,
-  },
-  {
-    auth: {
-      username: CK,
-      password: CS,
-    },
-  }
-);
-
+      const res = await axios.post(
+        `${API_BASE}/orders`,
+        {
+          billing,
+          shipping,
+          line_items,
+          payment_method: formData.paymentMethod,
+          payment_method_title: formData.paymentMethodTitle,
+          set_paid: formData.paymentMethod !== 'cod',
+          meta_data,
+        },
+        {
+          auth: {
+            username: CK,
+            password: CS,
+          },
+        }
+      );
 
       showAlert(`Order placed successfully! Order ID: ${res.data.id}`, 'success');
 
@@ -198,12 +198,22 @@ const res = await axios.post(
     }
   };
 
-
   const handleCoinRedemption = ({ coinsUsed, discountAED }) => {
     setCoinDiscount(discountAED);
     showAlert(`You redeemed ${coinsUsed} coins for AED ${discountAED}`, 'success');
   };
-  
+
+  const handleRemoveCoinDiscount = async () => {
+    try {
+      setCoinDiscount(0);
+      showAlert('Coin discount removed.', 'info');
+      // Optional: If you need to add coins back to user balance in the backend:
+      // await axios.post(`${COIN_API_URL}/refund`, { user_id: userId, coins: lastRedeemedCoins });
+    } catch (error) {
+      console.error('Error removing coin discount:', error);
+      showAlert('Failed to remove coin discount. Please try again.', 'error');
+    }
+  };
 
   const getButtonStyle = () => {
     switch (formData.paymentMethod) {
@@ -280,10 +290,26 @@ const res = await axios.post(
       {coinDiscount > 0 && (
         <div
           className="summaryRow"
-          style={{ color: 'green', fontWeight: '600' }}
+          style={{ color: 'green', fontWeight: '600', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          <span>Coin discount:</span>
-          <span>-AED {coinDiscount.toFixed(2)}</span>
+          <div>
+            <span>Coin discount:</span>
+            <span style={{ marginLeft: 8 }}>-AED {coinDiscount.toFixed(2)}</span>
+          </div>
+          <button
+            onClick={handleRemoveCoinDiscount}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#dc3545',
+              fontSize: '9px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+            }}
+            aria-label="Remove coin discount"
+          >
+            ×
+          </button>
         </div>
       )}
 
@@ -326,7 +352,6 @@ const res = await axios.post(
           : `Place Order${formData.paymentMethodTitle ? ` with ${formData.paymentMethodTitle}` : ''}`}
       </button>
 
-   
       <TrustSection />
     </aside>
   );

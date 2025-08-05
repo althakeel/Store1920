@@ -65,7 +65,7 @@ const CoinWidget = ({ user, userId: propUserId, useMyCoins = false }) => {
 
   useEffect(() => {
   console.log('CoinWidget fetching for userId:', userId);
-  // ...
+  console.log('CoinWidget userId:', userId);
 }, [userId]);
 
   return (

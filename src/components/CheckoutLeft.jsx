@@ -7,6 +7,8 @@ import PaymentMethods from '../components/checkoutleft/PaymentMethods';
 import AddressForm from '../components/checkoutleft/AddressForm';
 import ItemList from './checkoutleft/ItemList';
 import ShippingMethods from './checkout/ShippingMethods';
+import emptyAddressImg from '../assets/images/adress-not-found.png';
+import DeleteIcon from '../assets/images/Delete-icon.png';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
@@ -31,52 +33,54 @@ const CheckoutLeft = ({
   const [error, setError] = useState(null);
   const [selectedShippingMethodId, setSelectedShippingMethodId] = useState(null);
 
+  // Filter cart items to only those that have valid price and are in stock
+  const filteredCartItems = cartItems.filter((item) => {
+    const rawPrice = item.prices?.price ?? item.price ?? '';
+    const priceFloat = parseFloat(rawPrice);
+    const priceValid = !isNaN(priceFloat) && priceFloat > 0;
 
+    // Check if stock info exists
+    const hasStockInfo =
+      item.hasOwnProperty('stock_quantity') ||
+      item.hasOwnProperty('in_stock') ||
+      item.hasOwnProperty('is_in_stock') ||
+      item.hasOwnProperty('stock_status');
 
+    // Determine if product is in stock by quantity
+    const stockInQuantity =
+      typeof item.stock_quantity === 'number' ? item.stock_quantity > 0 : true; // assume in stock if no quantity info
 
-const handleDeleteAddress = () => {
-  // Clear shipping info (you can customize fields to clear)
-  const emptyAddress = {
-    fullName: '',
-    address1: '',
-    address2: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: '',
-    phone: '',
+    // Determine if product is in stock by flags
+    const stockInFlag =
+      (typeof item.in_stock === 'boolean' ? item.in_stock : true) &&
+      (typeof item.is_in_stock === 'boolean' ? item.is_in_stock : true) &&
+      (typeof item.stock_status === 'string' ? item.stock_status.toLowerCase() === 'instock' : true);
+
+    const inStock = priceValid && (!hasStockInfo || (stockInQuantity && stockInFlag));
+
+    return inStock;
+  });
+
+  const handleDeleteAddress = () => {
+    const emptyAddress = {
+      fullName: '',
+      address1: '',
+      address2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: '',
+      phone: '',
+    };
+
+    setSelectedShippingMethodId(null);
+
+    onChange({ target: { name: 'shipping', value: emptyAddress, type: 'object' } }, 'shipping');
+
+    if (!formData.billingSameAsShipping) {
+      onChange({ target: { name: 'billing', value: emptyAddress, type: 'object' } }, 'billing');
+    }
   };
-
-  // Reset shipping method
-  setSelectedShippingMethodId(null);
-
-  // Call onChange multiple times or create a single "clearShipping" event
-  onChange(
-    {
-      target: {
-        name: 'shipping',
-        value: emptyAddress,
-        type: 'object', // you can define this as you handle in your onChange
-      },
-    },
-    'shipping'
-  );
-
-  // Also reset billing if same as shipping is false
-  if (!formData.billingSameAsShipping) {
-    onChange(
-      {
-        target: {
-          name: 'billing',
-          value: emptyAddress,
-          type: 'object',
-        },
-      },
-      'billing'
-    );
-  }
-};
-
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
@@ -94,9 +98,7 @@ const handleDeleteAddress = () => {
     const country = formData.shipping.country;
     if (!country) return setShippingStates([]);
 
-    fetch(
-      `${API_BASE}/data/states/${country}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
-    )
+    fetch(`${API_BASE}/data/states/${country}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setShippingStates)
       .catch(() => setShippingStates([]));
@@ -107,45 +109,47 @@ const handleDeleteAddress = () => {
     const country = formData.billing.country;
     if (!country) return setBillingStates([]);
 
-    fetch(
-      `${API_BASE}/data/states/${country}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
-    )
+    fetch(`${API_BASE}/data/states/${country}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setBillingStates)
       .catch(() => setBillingStates([]));
   }, [formData.billing.country, formData.billingSameAsShipping]);
 
-
   useEffect(() => {
-  setSelectedShippingMethodId(formData.shippingMethodId || null);
-}, [formData.shippingMethodId]);
-
-
+    setSelectedShippingMethodId(formData.shippingMethodId || null);
+  }, [formData.shippingMethodId]);
 
   useEffect(() => {
     const fetchShippingMethods = async () => {
       try {
-        const zonesRes = await fetch(
-          `https://db.store1920.com/wp-json/custom/v1/shipping-zones`
-        );
+        const zonesRes = await fetch(`${API_BASE}/shipping/zones?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
         const zones = await zonesRes.json();
 
-        const countryCode = formData.shipping.country?.toUpperCase() || '';
-        const match = zones.find((zone) =>
-          zone.locations.some(
-            (loc) => loc.code.toUpperCase() === countryCode
-          )
-        );
-
-        if (!match) {
+        const countryCode = formData.shipping.country?.toUpperCase();
+        if (!countryCode) {
           setShippingMethods([]);
           return;
         }
 
-        const methodsRes = await fetch(
-          `https://db.store1920.com/wp-json/custom/v1/shipping-zones/${match.id}/methods`
-        );
+        let matchedZone = null;
 
+        for (const zone of zones) {
+          const locationsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/locations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+          const locations = await locationsRes.json();
+
+          const matched = locations.some((loc) => loc.code.toUpperCase() === countryCode);
+          if (matched) {
+            matchedZone = zone;
+            break;
+          }
+        }
+
+        if (!matchedZone) {
+          setShippingMethods([]);
+          return;
+        }
+
+        const methodsRes = await fetch(`${API_BASE}/shipping/zones/${matchedZone.id}/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
         const methods = await methodsRes.json();
 
         setShippingMethods(methods);
@@ -162,18 +166,8 @@ const handleDeleteAddress = () => {
     }
   }, [formData.shipping.country]);
 
-  // NEW handler: mocks event object to conform with onChange
   const handleShippingMethodChange = (id) => {
-    onChange(
-      {
-        target: {
-          name: 'shippingMethodId',
-          value: id,
-          type: 'radio',
-        },
-      },
-      'shipping'
-    );
+    onChange({ target: { name: 'shippingMethodId', value: id, type: 'radio' } }, 'shipping');
   };
 
   const handleAddAddressClick = () => {
@@ -190,9 +184,7 @@ const handleDeleteAddress = () => {
 
     const payload = {
       shipping: formData.shipping,
-      billing: formData.billingSameAsShipping
-        ? formData.shipping
-        : formData.billing,
+      billing: formData.billingSameAsShipping ? formData.shipping : formData.billing,
       billingSameAsShipping: formData.billingSameAsShipping,
       shippingMethodId: formData.shippingMethodId || null,
     };
@@ -200,15 +192,12 @@ const handleDeleteAddress = () => {
     if (user) payload.userId = user.uid;
 
     try {
-      const res = await fetch(
-        'https://db.store1920.com/wp-json/custom/v1/save-address',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch('https://db.store1920.com/wp-json/custom/v1/save-address', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
 
       if (!res.ok) throw new Error('Failed to save');
       await res.json();
@@ -227,135 +216,103 @@ const handleDeleteAddress = () => {
       <div className="shipping-container">
         <div className="section-block">
           <div className="section-header">
-          <h2 className="shippingadress" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-  <span>Shipping Address</span>
-  <div style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
-    <button
-      onClick={handleAddAddressClick}
-      className={`btn-add-address1 ${showForm ? 'cancel-btn1' : ''}`}
-    >
-      {showForm
-        ? 'Cancel'
-        : formData?.shipping?.address1
-        ? 'Change Address'
-        : 'Add New Address'}
-    </button>
+            <h2 className="shippingadress" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Shipping Address</span>
+              <div style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
+                <button
+                  onClick={handleAddAddressClick}
+                  className={`btn-add-address1 ${showForm ? 'cancel-btn1' : ''}`}
+                >
+                  {showForm
+                    ? 'Cancel'
+                    : formData?.shipping?.address1
+                    ? 'Change Address'
+                    : 'Add New Address'}
+                </button>
 
-    {formData?.shipping?.address1 && !showForm && (
-      <button
-        onClick={handleDeleteAddress}
-        className="btn-delete-address"
-        style={{
-          backgroundColor: 'transparent',
-          color: '#000',
-          border: 'none',
-          padding: '8px 12px',
-          borderRadius: '5px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          fontSize: '12px',
-          textDecoration: 'underline',
-        }}
-        aria-label="Delete Address"
-        title="Delete Address"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <polyline points="3 6 5 6 21 6" />
-          <path d="M19 6l-2 14H7L5 6" />
-          <path d="M10 11v6" />
-          <path d="M14 11v6" />
-          <path d="M9 6V4h6v2" />
-        </svg>
-      </button>
-    )}
-  </div>
-</h2>
+                {formData?.shipping?.address1 && !showForm && (
+                  <button
+                    onClick={handleDeleteAddress}
+                    className="btn-delete-address"
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: '#000',
+                      border: 'none',
+                      padding: '8px 12px',
+                      borderRadius: '5px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      fontSize: '12px',
+                      textDecoration: 'underline',
+                    }}
+                    aria-label="Delete Address"
+                    title="Delete Address"
+                  >
+                    <img src={DeleteIcon} style={{ width: '20px', height: '20px' }} />
+                  </button>
+                )}
+              </div>
+            </h2>
 
-
-            {/* Saved address summary */}
-            {formData?.shipping && formData.shipping.address1 && (
+            {formData?.shipping?.address1 ? (
               <div className="saved-address-box">
                 <div className="saved-address-grid">
                   <div className="saved-address-label">Name</div>
                   <div className="saved-address-colon">:</div>
-                  <div className="saved-address-value">
-                    {formData.shipping.fullName}
-                  </div>
+                  <div className="saved-address-value">{formData.shipping.fullName}</div>
 
                   <div className="saved-address-label">Address</div>
                   <div className="saved-address-colon">:</div>
-                  <div className="saved-address-value">
-                    {formData.shipping.address1}
-                  </div>
-
-                  {/* Uncomment if you want Address 2 */}
-                  {/* {formData.shipping.address2 && (
-                    <>
-                      <div className="saved-address-label">Address 2</div>
-                      <div className="saved-address-colon">:</div>
-                      <div className="saved-address-value">
-                        {formData.shipping.address2}
-                      </div>
-                    </>
-                  )} */}
+                  <div className="saved-address-value">{formData.shipping.address1}</div>
 
                   <div className="saved-address-label">City</div>
                   <div className="saved-address-colon">:</div>
-                  <div className="saved-address-value">
-                    {formData.shipping.city}
-                  </div>
+                  <div className="saved-address-value">{formData.shipping.city}</div>
 
                   <div className="saved-address-label">State</div>
                   <div className="saved-address-colon">:</div>
-                  <div className="saved-address-value">
-                    {formData.shipping.state}
-                  </div>
+                  <div className="saved-address-value">{formData.shipping.state}</div>
 
                   <div className="saved-address-label">Postal Code</div>
                   <div className="saved-address-colon">:</div>
-                  <div className="saved-address-value">
-                    {formData.shipping.postalCode}
-                  </div>
+                  <div className="saved-address-value">{formData.shipping.postalCode}</div>
 
                   <div className="saved-address-label">Country</div>
                   <div className="saved-address-colon">:</div>
                   <div className="saved-address-value">
-                    {countries[formData.shipping.country]?.name ||
-                      formData.shipping.country}
+                    {countries[formData.shipping.country]?.name || formData.shipping.country}
                   </div>
                 </div>
               </div>
+            ) : (
+              !showForm && (
+                <div style={{ textAlign: 'center', padding: '10px' }}>
+                  <img
+                    src={emptyAddressImg}
+                    alt="No address found"
+                    style={{ maxWidth: '50px', opacity: 0.6 }}
+                  />
+                  <p style={{ color: '#777', marginTop: '10px' }}>No address added yet.</p>
+                </div>
+              )
             )}
-
-            
           </div>
         </div>
       </div>
 
-     <ShippingMethods
-  countryCode={formData.shipping.country?.toUpperCase() || 'AE'}
-  selectedMethodId={selectedShippingMethodId}
-  onSelect={(id) => {
-    setSelectedShippingMethodId(id);
-    handleShippingMethodChange(id);
-  }}
-/>
+      <ShippingMethods
+        countryCode={formData.shipping.country?.toUpperCase() || 'AE'}
+        selectedMethodId={selectedShippingMethodId}
+        onSelect={(id) => {
+          setSelectedShippingMethodId(id);
+          handleShippingMethodChange(id);
+        }}
+      />
 
       <div className="section-block">
-        <ItemList items={cartItems} onRemove={handleRemoveItem} />
+        <ItemList items={filteredCartItems} onRemove={handleRemoveItem} />
       </div>
 
       <div className="section-block">

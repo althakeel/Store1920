@@ -14,6 +14,29 @@
   user-select: none;
 }
 
+
+.cart-grid-item.out-of-stock {
+  filter: grayscale(70%);
+  opacity: 0.6;
+  pointer-events: none; /* disable clicks */
+  position: relative;
+}
+
+.out-of-stock-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: #cc3333;
+  color: white;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  user-select: none;
+  z-index: 10;
+}
+
 .cart-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));

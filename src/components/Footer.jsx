@@ -3,10 +3,19 @@ import "../assets/styles/Footer.css";
 import { FaInstagram, FaFacebookF, FaXTwitter, FaTiktok, FaYoutube, FaPinterest } from "react-icons/fa6";
 import { FaApple, FaGooglePlay } from "react-icons/fa";
 import { IoIosArrowUp } from "react-icons/io";
+import { useCart } from "../contexts/CartContext";
 
 const Footer = () => {
+   const { isCartOpen } = useCart();
+
+   
   return (
-    <footer className="main-footer">
+    <footer className="main-footer"
+    
+     style={{
+        width: window.innerWidth >= 768 && isCartOpen ? 'calc(100% - 250px)' : '100%',
+        transition: 'width 0.3s ease',
+      }}>
       <div className="footer-container">
 
         <div className="footer-top">
@@ -108,17 +117,22 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="footer-bottom">
+        <div className="footer-bottom"
+        
+     style={{
+        width: window.innerWidth >= 768 && isCartOpen ? 'calc(100% - 250px)' : '100%',
+        transition: 'width 0.3s ease',
+      }}>
           <p>&copy; 2022 – 2025 Al Thakeel Group. All rights reserved.</p>
           <ul className="legal-links">
-            <li><a href="/terms">Terms of Use</a></li>
-            <li><a href="/privacy">Privacy Policy</a></li>
-            <li><a href="/cookies">Cookie Settings</a></li>
+            <li><a href="/Terms0fuse">Terms of Use</a></li>
+            <li><a href="/privacy-policy">Privacy Policy</a></li>
+            <li><a href="/cookies-settings">Cookie Settings</a></li>
             <li><a href="/ads">Ad Choices</a></li>
           </ul>
-          <button className="scroll-top-btn" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          {/* <button className="scroll-top-btn" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <IoIosArrowUp /> Top
-          </button>
+          </button> */}
         </div>
 
       </div>
