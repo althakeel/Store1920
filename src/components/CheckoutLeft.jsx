@@ -27,38 +27,33 @@ const CheckoutLeft = ({
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [shippingStates, setShippingStates] = useState([]);
   const [billingStates, setBillingStates] = useState([]);
-  const [shippingMethods, setShippingMethods] = useState([]);
+  const [methodsByZone, setMethodsByZone] = useState({});
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [selectedShippingMethodId, setSelectedShippingMethodId] = useState(null);
 
-  // Filter cart items to only those that have valid price and are in stock
+  // Filter cart items to only those valid & in stock (your logic unchanged)
   const filteredCartItems = cartItems.filter((item) => {
     const rawPrice = item.prices?.price ?? item.price ?? '';
     const priceFloat = parseFloat(rawPrice);
     const priceValid = !isNaN(priceFloat) && priceFloat > 0;
 
-    // Check if stock info exists
     const hasStockInfo =
       item.hasOwnProperty('stock_quantity') ||
       item.hasOwnProperty('in_stock') ||
       item.hasOwnProperty('is_in_stock') ||
       item.hasOwnProperty('stock_status');
 
-    // Determine if product is in stock by quantity
     const stockInQuantity =
-      typeof item.stock_quantity === 'number' ? item.stock_quantity > 0 : true; // assume in stock if no quantity info
+      typeof item.stock_quantity === 'number' ? item.stock_quantity > 0 : true;
 
-    // Determine if product is in stock by flags
     const stockInFlag =
       (typeof item.in_stock === 'boolean' ? item.in_stock : true) &&
       (typeof item.is_in_stock === 'boolean' ? item.is_in_stock : true) &&
       (typeof item.stock_status === 'string' ? item.stock_status.toLowerCase() === 'instock' : true);
 
-    const inStock = priceValid && (!hasStockInfo || (stockInQuantity && stockInFlag));
-
-    return inStock;
+    return priceValid && (!hasStockInfo || (stockInQuantity && stockInFlag));
   });
 
   const handleDeleteAddress = () => {
@@ -94,6 +89,7 @@ const CheckoutLeft = ({
     if (onRemoveItem) onRemoveItem(itemId);
   };
 
+  // Fetch states for shipping country
   useEffect(() => {
     const country = formData.shipping.country;
     if (!country) return setShippingStates([]);
@@ -104,6 +100,7 @@ const CheckoutLeft = ({
       .catch(() => setShippingStates([]));
   }, [formData.shipping.country]);
 
+  // Fetch states for billing country (if different)
   useEffect(() => {
     if (formData.billingSameAsShipping) return setBillingStates([]);
     const country = formData.billing.country;
@@ -115,55 +112,71 @@ const CheckoutLeft = ({
       .catch(() => setBillingStates([]));
   }, [formData.billing.country, formData.billingSameAsShipping]);
 
+  // Set selected shipping method when formData changes
   useEffect(() => {
     setSelectedShippingMethodId(formData.shippingMethodId || null);
   }, [formData.shippingMethodId]);
 
+  // Fetch shipping methods grouped by zone when shipping country changes
   useEffect(() => {
-    const fetchShippingMethods = async () => {
+    const fetchShippingMethodsByCountry = async () => {
+      if (!formData.shipping.country) {
+        setMethodsByZone({});
+        return;
+      }
+
       try {
-        const zonesRes = await fetch(`${API_BASE}/shipping/zones?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+        const zonesRes = await fetch(
+          `${API_BASE}/shipping/zones?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+        );
         const zones = await zonesRes.json();
 
-        const countryCode = formData.shipping.country?.toUpperCase();
-        if (!countryCode) {
-          setShippingMethods([]);
-          return;
-        }
+        const countryCode = formData.shipping.country.toUpperCase();
 
-        let matchedZone = null;
+        // Filter zones matching country
+        const matchedZones = [];
 
         for (const zone of zones) {
-          const locationsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/locations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+          const locationsRes = await fetch(
+            `${API_BASE}/shipping/zones/${zone.id}/locations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+          );
           const locations = await locationsRes.json();
 
-          const matched = locations.some((loc) => loc.code.toUpperCase() === countryCode);
-          if (matched) {
-            matchedZone = zone;
-            break;
+          const matchesCountry = locations.some((loc) => loc.code.toUpperCase() === countryCode);
+
+          if (matchesCountry) {
+            matchedZones.push(zone);
           }
         }
 
-        if (!matchedZone) {
-          setShippingMethods([]);
+        // Also consider default zone (id 0) if needed, or if no matched zone found
+        if (matchedZones.length === 0) {
+          const defaultZoneRes = await fetch(
+            `${API_BASE}/shipping/zones/0/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+          );
+          const defaultMethods = await defaultZoneRes.json();
+          setMethodsByZone({ Default: defaultMethods || [] });
           return;
         }
 
-        const methodsRes = await fetch(`${API_BASE}/shipping/zones/${matchedZone.id}/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-        const methods = await methodsRes.json();
+        // Fetch methods for each matched zone and group them
+        const groupedMethods = {};
+        for (const zone of matchedZones) {
+          const methodsRes = await fetch(
+            `${API_BASE}/shipping/zones/${zone.id}/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+          );
+          const methods = await methodsRes.json();
+          groupedMethods[zone.name] = methods;
+        }
 
-        setShippingMethods(methods);
-      } catch (err) {
-        console.error('Error fetching shipping methods:', err);
-        setShippingMethods([]);
+        setMethodsByZone(groupedMethods);
+      } catch (error) {
+        console.error('Error fetching shipping methods by country:', error);
+        setMethodsByZone({});
       }
     };
 
-    if (formData.shipping.country) {
-      fetchShippingMethods();
-    } else {
-      setShippingMethods([]);
-    }
+    fetchShippingMethodsByCountry();
   }, [formData.shipping.country]);
 
   const handleShippingMethodChange = (id) => {
@@ -216,7 +229,10 @@ const CheckoutLeft = ({
       <div className="shipping-container">
         <div className="section-block">
           <div className="section-header">
-            <h2 className="shippingadress" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2
+              className="shippingadress"
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
               <span>Shipping Address</span>
               <div style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
                 <button
@@ -275,6 +291,10 @@ const CheckoutLeft = ({
                   <div className="saved-address-colon">:</div>
                   <div className="saved-address-value">{formData.shipping.state}</div>
 
+                  <div className="saved-address-label">Phone</div>
+                  <div className="saved-address-colon">:</div>
+                  <div className="saved-address-value">+{formData.shipping.phone}</div>
+
                   <div className="saved-address-label">Postal Code</div>
                   <div className="saved-address-colon">:</div>
                   <div className="saved-address-value">{formData.shipping.postalCode}</div>
@@ -303,12 +323,12 @@ const CheckoutLeft = ({
       </div>
 
       <ShippingMethods
-        countryCode={formData.shipping.country?.toUpperCase() || 'AE'}
         selectedMethodId={selectedShippingMethodId}
         onSelect={(id) => {
           setSelectedShippingMethodId(id);
           handleShippingMethodChange(id);
         }}
+        methodsByZone={methodsByZone}
       />
 
       <div className="section-block">

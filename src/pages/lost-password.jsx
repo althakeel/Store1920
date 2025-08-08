@@ -1,192 +1,244 @@
 import React, { useState, useEffect } from 'react';
 
-const ResetPassword = () => {
-  // Extract reset key and login from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const key = urlParams.get('key');      // reset token
-  const login = urlParams.get('login');  // username or login
-
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+const ForgotPassword = () => {
+  const [identifier, setIdentifier] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  // Determine if form can be submitted
-  const canSubmit = password && confirmPassword && password === confirmPassword;
-
-  // Clear messages on input change
+  // Update isMobile on resize
   useEffect(() => {
-    setError('');
-    setMessage('');
-  }, [password, confirmPassword]);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const handleSubmit = async (e) => {
+  const handleReset = async (e) => {
     e.preventDefault();
-    setError('');
     setMessage('');
+    setError('');
 
-    if (!password) {
-      setError('Password is required.');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-    if (!key || !login) {
-      setError('Invalid or missing password reset link.');
+    if (!identifier) {
+      setError('Please enter your email or mobile number.');
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch('https://db.store1920.com/wp-json/custom/v1/reset-password', {
+      const res = await fetch('https://db.store1920.com/wp-json/custom/v1/request-password-reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, login, password }),
+        body: JSON.stringify({ identifier }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || 'Failed to reset password.');
+        setError(data.message || 'Reset failed.');
       } else {
-        setMessage('✅ Password has been reset successfully! You can now log in.');
-        setPassword('');
-        setConfirmPassword('');
+        setMessage('✅ If a matching account was found, a reset link has been sent.');
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Inline styles for the form container and elements
-  const containerStyle = {
-    maxWidth: 420,
-    margin: '60px auto',
-    padding: 30,
+  // Styles with responsiveness based on isMobile
+ const containerStyle = {
+  maxWidth: 1400,
+  margin: '20px auto 40px',
+  minHeight: '40vh',
+  padding: isMobile ? 15 : 20,
+  fontFamily: "'Montserrat', sans-serif",
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+//   boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
+  borderRadius: 12,
+  backgroundColor: '#fff',
+};
+  const cardStyle = {
+    display: 'flex',
+    flexDirection: isMobile ? 'column' : 'row',
+    gap: isMobile ? 25 : 40,
+    background: '#fff',
     borderRadius: 12,
-    boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    backgroundColor: '#fff',
-    color: '#333',
-    textAlign: 'center',
+    // boxShadow: '0 6px 20px rgba(0,0,0,0.07)',
+    padding: isMobile ? 25 : 40,
+  };
+
+  const leftStyle = {
+    flex: '1',
+    minWidth: 320,
+  };
+
+  const rightStyle = {
+    flex: '1',
+    minWidth: 320,
+    color: '#444',
+    fontSize: isMobile ? 14 : 15,
+    lineHeight: 1.7,
+    marginTop: isMobile ? 30 : 0,
   };
 
   const headingStyle = {
-    marginBottom: 24,
-    fontWeight: '700',
-    fontSize: 24,
+    fontSize: isMobile ? 22 : 26,
+    marginBottom: 10,
+    color: '#333',
   };
 
-  const labelStyle = {
-    display: 'block',
-    textAlign: 'left',
-    fontWeight: '600',
-    fontSize: 15,
-    marginBottom: 8,
-    color: '#444',
+  const subHeadingStyle = {
+    fontSize: isMobile ? 18 : 20,
+    marginBottom: 15,
+    color: '#222',
+  };
+
+  const paragraphStyle = {
+    color: '#666',
+    marginBottom: 25,
+    fontSize: isMobile ? 14 : 16,
+  };
+
+  const formStyle = {
+    display: 'flex',
+    flexDirection: 'column',
   };
 
   const inputStyle = {
-    width: '100%',
     padding: 12,
-    fontSize: 16,
+    border: '1px solid #ccc',
     borderRadius: 8,
-    border: '1.5px solid #ccc',
+    fontSize: isMobile ? 14 : 16,
     marginBottom: 20,
-    boxSizing: 'border-box',
-    outlineOffset: 2,
-    outlineColor: '#0073aa',
-    transition: 'border-color 0.3s',
+    outline: 'none',
+    transition: 'border-color 0.2s',
   };
 
   const buttonStyle = {
-    width: '100%',
-    padding: 14,
-    fontSize: 16,
-    fontWeight: '700',
-    borderRadius: 10,
-    border: 'none',
-    cursor: canSubmit && !loading ? 'pointer' : 'not-allowed',
-    backgroundColor: canSubmit && !loading ? '#0073aa' : '#9fc1e7',
+    padding: 12,
+    backgroundColor: loading ? '#555' : '#aa4d00ff',
     color: '#fff',
-    boxShadow: canSubmit && !loading ? '0 4px 14px rgba(0,115,170,0.5)' : 'none',
-    userSelect: 'none',
+    border: 'none',
+    borderRadius: 8,
+    fontWeight: 'bold',
+    fontSize: isMobile ? 14 : 16,
+    cursor: loading ? 'not-allowed' : 'pointer',
     transition: 'background-color 0.3s ease',
   };
 
-  const messageStyle = {
-    marginTop: 20,
-    fontWeight: '600',
-    fontSize: 14,
-    color: message ? '#2e7d32' : '#d32f2f',
-    wordBreak: 'break-word',
+  const messageSuccessStyle = {
+    marginTop: 15,
+    fontSize: isMobile ? 14 : 15,
+    color: 'green',
+  };
+
+  const messageErrorStyle = {
+    marginTop: 15,
+    fontSize: isMobile ? 14 : 15,
+    color: 'red',
+  };
+
+  const listStyle = {
+    paddingLeft: 20,
+    marginBottom: 30,
+  };
+
+  const listItemStyle = {
+    marginBottom: 10,
+    position: 'relative',
+    paddingLeft: 20,
+    listStyle: 'none',
+  };
+
+  const bulletStyle = {
+    position: 'absolute',
+    left: 0,
+    color: '#0073aa',
+    fontWeight: 'bold',
+  };
+
+  const noteStyle = {
+    borderLeft: '4px solid #0073aa',
+    background: '#f5f8fa',
+    padding: 15,
+    borderRadius: 6,
+  };
+
+  const noteHeadingStyle = {
+    marginBottom: 8,
+    color: '#0073aa',
+    fontSize: isMobile ? 16 : 18,
   };
 
   return (
     <div style={containerStyle}>
-      <h2 style={headingStyle}>Reset Password</h2>
+      <div style={cardStyle}>
+        {/* Left side - form */}
+        <div style={leftStyle}>
+          <h2 style={headingStyle}>Forgot Password 🔐</h2>
+          <p style={paragraphStyle}>
+            Enter your registered email or phone number. We'll send you a reset link.
+          </p>
 
-      {/* Show error if link params are missing */}
-      {(!key || !login) ? (
-        <p style={{ color: '#d32f2f', fontWeight: '600' }}>
-          Invalid or missing password reset link.
-        </p>
-      ) : (
-        <form onSubmit={handleSubmit} style={{ textAlign: 'left' }} noValidate>
-          <label htmlFor="password" style={labelStyle}>
-            New Password:
-          </label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter new password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={inputStyle}
-            autoComplete="new-password"
-            required
-            minLength={6}
-          />
+          <form onSubmit={handleReset} style={formStyle}>
+            <input
+              type="text"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="Email or mobile number"
+              style={inputStyle}
+              onFocus={(e) => (e.target.style.borderColor = '#0073aa')}
+              onBlur={(e) => (e.target.style.borderColor = '#ccc')}
+              disabled={loading}
+            />
+            <button type="submit" disabled={loading} style={buttonStyle}>
+              {loading ? 'Sending...' : 'Send Reset Link'}
+            </button>
+          </form>
 
-          <label htmlFor="confirmPassword" style={labelStyle}>
-            Confirm Password:
-          </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            placeholder="Confirm new password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            style={inputStyle}
-            autoComplete="new-password"
-            required
-            minLength={6}
-          />
+          {message && <p style={messageSuccessStyle}>{message}</p>}
+          {error && <p style={messageErrorStyle}>{error}</p>}
+        </div>
 
-          <button
-            type="submit"
-            disabled={!canSubmit || loading}
-            style={buttonStyle}
-          >
-            {loading ? 'Resetting...' : 'Reset Password'}
-          </button>
-        </form>
-      )}
+        {/* Right side - content */}
+        <div style={rightStyle}>
+          <h3 style={subHeadingStyle}>📋 Rules & Instructions</h3>
+          <ul style={listStyle}>
+            <li style={listItemStyle}>
+              <span style={bulletStyle}>•</span>
+              Make sure your email or mobile number is registered.
+            </li>
+            <li style={listItemStyle}>
+              <span style={bulletStyle}>•</span>
+              Reset links are valid for 1 hour.
+            </li>
+            <li style={listItemStyle}>
+              <span style={bulletStyle}>•</span>
+              Check spam/junk if you don’t receive the email.
+            </li>
+            <li style={listItemStyle}>
+              <span style={bulletStyle}>•</span>
+              For help, contact{' '}
+              <a href="mailto:support@store1920.com" style={{ color: '#0073aa' }}>
+                support@store1920.com
+              </a>
+            </li>
+          </ul>
 
-      {/* Show success or error messages */}
-      {(message || error) && (
-        <p role="alert" style={messageStyle}>
-          {message || `❌ ${error}`}
-        </p>
-      )}
+          <div style={noteStyle}>
+            <h4 style={noteHeadingStyle}>Need further assistance?</h4>
+            <p>
+              You can always reach out to our support team for manual assistance with account recovery.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default ResetPassword;
+export default ForgotPassword;

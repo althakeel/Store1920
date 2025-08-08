@@ -56,6 +56,21 @@ const ReviewPills = memo(({ productId }) => {
   );
 });
 
+
+const handleProductClick = (productId) => {
+  let recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
+
+  // Remove if it already exists
+  recent = recent.filter(id => id !== productId);
+
+  // Add to front
+  recent.unshift(productId);
+
+  // Save only latest 5
+  localStorage.setItem('recentProducts', JSON.stringify(recent.slice(0, 5)));
+};
+
+
 const SkeletonCard = () => (
   <div className="pcus-prd-card pcus-skeleton">
     <div className="pcus-prd-image-skel" />
@@ -93,6 +108,8 @@ const ProductCategory = () => {
   const [badgeColorIndex, setBadgeColorIndex] = useState(0);
 
   const [productVariations, setProductVariations] = useState({});
+  const [sortedProducts, setSortedProducts] = useState([]);
+
 
   // Rotate badge color every 10 minutes
   useEffect(() => {
@@ -119,6 +136,26 @@ const ProductCategory = () => {
     }
     fetchCurrencySymbol();
   }, []);
+
+useEffect(() => {
+  const recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
+
+  if (recent.length === 0) {
+    setSortedProducts(products);
+    return;
+  }
+
+  const recentSet = new Set(recent);
+
+  const recentProducts = recent
+    .map(id => products.find(p => p.id === id))
+    .filter(Boolean);
+
+  const remainingProducts = products.filter(p => !recentSet.has(p.id));
+
+  setSortedProducts([...recentProducts, ...remainingProducts]);
+}, [products]);
+
 
   useEffect(() => {
     products.forEach((p) => {
@@ -345,13 +382,19 @@ const ProductCategory = () => {
   };
 
   // Changed: Open product in new tab instead of navigate within same tab
-  const onProductClick = useCallback(
-    (slug) => {
-      const url = `/product/${slug}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-    },
-    []
-  );
+const onProductClick = useCallback((slug, id) => {
+  // Save in localStorage as most recently viewed
+  let recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
+
+  recent = recent.filter(rid => rid !== id); // remove if exists
+  recent.unshift(id); // add to top
+  localStorage.setItem('recentProducts', JSON.stringify(recent.slice(0, 5))); // keep top 5
+
+  const url = `/product/${slug}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}, []);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -435,7 +478,7 @@ const ProductCategory = () => {
 ) : (
   <>
             <div className="pcus-prd-grid">
-              {products.map((p) => {
+              {sortedProducts.map((p) => {
                 const isVariable = p.type === 'variable';
                 const variationPriceInfo = variationPrices[p.id] || { price: null, regular_price: null, sale_price: null };
                 const variantsCount = p.variations ? p.variations.length : 0;
@@ -461,10 +504,10 @@ const ProductCategory = () => {
                   <div
                     key={p.id}
                     className="pcus-prd-card"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onProductClick(p.slug);
-                    }}
+                   onClick={(e) => {
+  e.stopPropagation();
+  onProductClick(p.slug, p.id); // Pass product ID
+}}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug)}

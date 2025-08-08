@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import '../../../../assets/styles/myaccount/SecuritySection.css'; // Create CSS to match Temu style
+import '../../../../assets/styles/myaccount/SecuritySection.css';
 import axios from 'axios';
-
-
-
 
 const API_URL = 'https://db.store1920.com/wp-json/custom/v1/account/security';
 
 const fallbackData = {
-  email: 'rohithsagar14325@gmail.com',
-  phone: null,
-  hasPassword: false,
-  twoFactorEnabled: false,
   googleLinked: false,
   facebookLinked: false,
   appleLinked: false,
@@ -24,24 +17,18 @@ const SecuritySection = () => {
 
   useEffect(() => {
     axios
-      .get(API_URL, {
-        withCredentials: true, // Needed if using cookie auth (WooCommerce login)
-        // headers: {
-        //   Authorization: 'Bearer YOUR_TOKEN', // Uncomment if using JWT
-        // }
-      })
+      .get(API_URL, { withCredentials: true })
       .then((res) => {
         if (res.data && typeof res.data === 'object') {
           setData(res.data);
         } else {
-          setData(fallbackData); // if API returned bad format
+          setData(fallbackData);
         }
         setLoading(false);
       })
-      .catch((err) => {
-        console.error('Security fetch error:', err);
+      .catch(() => {
         setError(true);
-        setData(fallbackData); // fallback to mock data
+        setData(fallbackData);
         setLoading(false);
       });
   }, []);
@@ -51,38 +38,13 @@ const SecuritySection = () => {
   return (
     <div className="security-section">
       <div className="security-header">
-        <h3>Your account is protected</h3>
-        <p>Your Store1920 account is protected by advanced security. Keeping this information up-to-date safeguards your account even more.</p>
+        <h3>Third-party accounts</h3>
+        <p>Link your third-party accounts for faster and safer login.</p>
       </div>
 
-      {error && <div className="security-error">⚠️ Showing fallback data (API error)</div>}
+      {error && <div className="security-error">⚠️ Unable to load linked accounts</div>}
 
       <div className="security-list">
-        <div className="security-item">
-          <span>Mobile phone number</span>
-          <button>{data.phone ? 'Edit' : 'Add'}</button>
-        </div>
-
-        <div className="security-item">
-          <span>Email</span>
-          <div className="security-inline">
-            <span>{data.email || 'Not set'}</span>
-            <button>Edit</button>
-          </div>
-        </div>
-
-        <div className="security-item">
-          <span>Password</span>
-          <button>{data.hasPassword ? 'Change' : 'Add'}</button>
-        </div>
-
-        <div className="security-item">
-          <span>Two-factor authentication: {data.twoFactorEnabled ? 'On' : 'Off'}</span>
-          <button>{data.twoFactorEnabled ? 'Manage' : 'Turn on'}</button>
-        </div>
-
-        <div className="security-subtitle">Third-party accounts</div>
-
         <div className="security-item">
           <span>Google</span>
           <button disabled={data.googleLinked}>

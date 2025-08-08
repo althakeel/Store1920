@@ -22,7 +22,6 @@ const AUTH = {
   password: 'cs_81384d5f9e75e0ab81d0ea6b0d2029cba2d52b63',
 };
 
-// Axios instance with auth for convenience
 const axiosInstance = axios.create({
   auth: AUTH,
 });
@@ -39,27 +38,21 @@ export default function ProductDetails() {
 
   const isLoggedIn = !!user;
 
-  // Fetch main product - only needed fields, lightweight response
-const { data: product, isLoading: loadingProduct, error } = useQuery({
-  queryKey: ['product', id || slug],
-  
-  queryFn: async () => {
-    console.log('Params:', { id, slug });
-    const endpoint = id
-      ? `${API_BASE}/${id}?_fields=id,name,images,variations,description`
-      : `${API_BASE}?slug=${slug}&_fields=id,name,images,variations,description`;
-    const res = await axiosInstance.get(endpoint);
-    return id ? res.data : res.data[0] || null;
-    
-  },
-  staleTime: 1000 * 60 * 5,
-  retry: 1,
-});
+  // Fetch main product with minimal fields
+  const { data: product, isLoading: loadingProduct, error } = useQuery({
+    queryKey: ['product', id || slug],
+    queryFn: async () => {
+      const endpoint = id
+        ? `${API_BASE}/${id}?_fields=id,name,images,variations,description`
+        : `${API_BASE}?slug=${slug}&_fields=id,name,images,variations,description`;
+      const res = await axiosInstance.get(endpoint);
+      return id ? res.data : res.data[0] || null;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
 
-
-
-
-  // Fetch variations separately, only if product has variations
+  // Fetch product variations if any
   useEffect(() => {
     async function fetchVariations() {
       if (product?.variations?.length) {
@@ -78,14 +71,14 @@ const { data: product, isLoading: loadingProduct, error } = useQuery({
     fetchVariations();
   }, [product]);
 
-
-
+  // Auto select first variation if none selected
   useEffect(() => {
-  if (variations.length > 0 && !selectedVariation) {
-    setSelectedVariation(variations[0]);
-  }
-}, [variations, selectedVariation]);
-  // Set main image from product or selected variation
+    if (variations.length > 0 && !selectedVariation) {
+      setSelectedVariation(variations[0]);
+    }
+  }, [variations, selectedVariation]);
+
+  // Update main image to selected variation image or fallback to product image
   useEffect(() => {
     if (selectedVariation?.image?.src) {
       setMainImageUrl(selectedVariation.image.src);
@@ -96,6 +89,7 @@ const { data: product, isLoading: loadingProduct, error } = useQuery({
     }
   }, [product, selectedVariation]);
 
+  // Combine product images + unique variation images for gallery
   const combinedImages = React.useMemo(() => {
     if (!product) return [];
     const variantImages = variations

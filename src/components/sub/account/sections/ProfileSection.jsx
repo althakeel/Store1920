@@ -3,271 +3,424 @@ import axios from 'axios';
 import '../../../../assets/styles/myaccount/ProfileSection.css';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CONSUMER_KEY = 'ck_8adb881aaff96e651cf69b9a8128aa5c80eb46';
-const CONSUMER_SECRET = 'cs_595f6cb2c159c14024d77a2a87fa0b6947041f9f';
+const CONSUMER_KEY = 'ck_2e4ba96dde422ed59388a09a139cfee591d98263';
+const CONSUMER_SECRET = 'cs_43b449072b8d7d63345af1b027f2c8026fd15428';
 
-const units = ['IN', 'LBS', 'CM', 'KG'];
+function getInitials(user) {
+  if (user.first_name && user.last_name) {
+    return (
+      user.first_name.charAt(0).toUpperCase() +
+      user.last_name.charAt(0).toUpperCase()
+    );
+  }
+  if (user.email) return user.email.charAt(0).toUpperCase();
+  return '?';
+}
 
-const ProfileSection = () => {
-  const [userId, setUserId] = useState(null);
+function getColorForInitials(initials) {
+  const colors = [
+    '#386641',
+    '#6a994e',
+    '#a7c957',
+    '#f2e8cf',
+    '#bc4749',
+    '#c84b31',
+    '#6b4226',
+  ];
+  const charCode = initials.charCodeAt(0) || 0;
+  return colors[charCode % colors.length];
+}
+
+const ProfileSection = ({ userId }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [ordersCount, setOrdersCount] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  const [editingUsername, setEditingUsername] = useState(false);
-  const [usernameInput, setUsernameInput] = useState('');
-  const [showMoreSettings, setShowMoreSettings] = useState(false);
-
-  const [measurements, setMeasurements] = useState({
-    unit: 'IN',
-    bust: '',
-    waist: '',
-    hip: '',
-    height: '',
-    weight: '',
-  });
-
-  const [savingMeasurements, setSavingMeasurements] = useState(false);
-
-  const [stats, setStats] = useState({ totalReviews: 0, helpfuls: 0 });
-
-  // On mount, get user ID from localStorage
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser.id) {
-          setUserId(parsedUser.id);
-        } else {
-          setLoading(false);
-        }
-      } catch {
-        setLoading(false);
-      }
-    } else {
+    if (!userId) {
+      setUser(null);
+      setOrdersCount(null);
       setLoading(false);
+      return;
     }
-  }, []);
 
-  // Fetch user data by user ID
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchUserData = async () => {
+    const fetchUserAndOrders = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
         const userRes = await axios.get(`${API_BASE}/customers/${userId}`, {
-          params: {
-            consumer_key: CONSUMER_KEY,
-            consumer_secret: CONSUMER_SECRET,
-          },
+          auth: { username: CONSUMER_KEY, password: CONSUMER_SECRET },
+          timeout: 8000,
+        });
+        setUser(userRes.data);
+
+        // Initialize formData with fullName
+        setFormData({
+          fullName: `${userRes.data.first_name || ''} ${userRes.data.last_name || ''}`.trim(),
+          email: userRes.data.email || '',
+          phone: userRes.data.billing?.phone || '',
+          billing: { ...userRes.data.billing },
+          shipping: { ...userRes.data.shipping },
         });
 
-        const userData = userRes.data;
-        setUser(userData);
-        setUsernameInput(userData.username || '');
-
-        // Placeholder for measurements & stats fetching, replace with your logic
-        setMeasurements({
-          unit: 'IN',
-          bust: '',
-          waist: '',
-          hip: '',
-          height: '',
-          weight: '',
+        const ordersRes = await axios.get(`${API_BASE}/orders`, {
+          auth: { username: CONSUMER_KEY, password: CONSUMER_SECRET },
+          timeout: 8000,
+          params: { customer: userId, per_page: 1 },
         });
-
-        setStats({ totalReviews: 0, helpfuls: 0 });
+        const totalOrders = parseInt(ordersRes.headers['x-wp-total'], 10) || 0;
+        setOrdersCount(totalOrders);
       } catch (e) {
-        console.error('Error fetching user data', e);
+        setError('Failed to load profile data.');
         setUser(null);
+        setOrdersCount(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserData();
+    fetchUserAndOrders();
   }, [userId]);
 
-  const handleUsernameEdit = () => {
-    setEditingUsername(true);
-    setShowMoreSettings(false);
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => {
+      if (field === 'fullName') {
+        return { ...prev, fullName: value };
+      }
+      if (field.startsWith('billing.')) {
+        const key = field.split('.')[1];
+        return {
+          ...prev,
+          billing: { ...prev.billing, [key]: value },
+        };
+      } else if (field.startsWith('shipping.')) {
+        const key = field.split('.')[1];
+        return {
+          ...prev,
+          shipping: { ...prev.shipping, [key]: value },
+        };
+      }
+      return { ...prev, [field]: value };
+    });
   };
 
-  const handleUsernameSave = async () => {
-    try {
-      // TODO: Call your API to update username here
+  const cancelEdit = () => {
+    if (user) {
+      setFormData({
+        fullName: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+        email: user.email || '',
+        phone: user.billing?.phone || '',
+        billing: { ...user.billing },
+        shipping: { ...user.shipping },
+      });
+    }
+    setEditMode(false);
+  };
 
-      // Optimistic UI update:
-      setUser((prev) => ({ ...prev, username: usernameInput }));
-      setEditingUsername(false);
-      setShowMoreSettings(true);
+  const saveProfile = async () => {
+    setSaving(true);
+    try {
+      // Split fullName into first and last name
+      const names = formData.fullName.trim().split(' ');
+      const first_name = names.shift() || '';
+      const last_name = names.join(' ') || '';
+
+      const payload = {
+        first_name,
+        last_name,
+        email: formData.email,
+        billing: formData.billing,
+        shipping: formData.shipping,
+      };
+
+      await axios.put(`${API_BASE}/customers/${userId}`, payload, {
+        auth: { username: CONSUMER_KEY, password: CONSUMER_SECRET },
+      });
+
+      setUser((prev) => ({ ...prev, ...payload }));
+      setEditMode(false);
+      alert('Profile updated successfully!');
     } catch (e) {
-      console.error('Failed to update username', e);
+      alert('Failed to update profile.');
+      console.error(e);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleMeasurementChange = (field, value) => {
-    setMeasurements((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmitMeasurements = async () => {
-    setSavingMeasurements(true);
-    try {
-      // TODO: Save measurements to backend here
-
-      alert('Measurements saved successfully!');
-      setSavingMeasurements(false);
-      setShowMoreSettings(false);
-    } catch (e) {
-      console.error('Failed to save measurements', e);
-      setSavingMeasurements(false);
+  const deleteAccount = () => {
+    if (
+      window.confirm(
+        'Are you sure you want to delete your account? This action cannot be undone.'
+      )
+    ) {
+      alert('Delete account API call not implemented yet.');
     }
   };
 
-  if (loading) return <p style={{ textAlign: 'center' }}>Loading profile...</p>;
-
+  if (loading)
+    return <p className="ps-loading">Loading profile...</p>;
+  if (error)
+    return <p className="ps-error">{error}</p>;
   if (!user)
     return (
-      <div style={{ textAlign: 'center', padding: 30 }}>
-        <h3>No user profile found</h3>
-        <p>Please sign in first to view your profile.</p>
-      </div>
+      <p className="ps-no-user">
+        No user profile found. Please sign in to view your profile.
+      </p>
     );
 
+  const initials = getInitials(user);
+  const bgColor = getColorForInitials(initials);
+
   return (
-    <div className="profile-section">
-      {/* Profile Header */}
-      <div className="profile-header">
-        <img
-          src={user.avatar_url || 'https://via.placeholder.com/80'}
-          alt="Profile"
-          className="profile-avatar"
-        />
-        <div>
-          <h2 style={{ margin: 0 }}>
-            {user.first_name} {user.last_name}
-          </h2>
-          {!editingUsername ? (
-            <div className="profile-username-display">
-              <p style={{ margin: 0, fontWeight: '600' }}>Username: {user.username}</p>
-              <button className="edit-button" onClick={handleUsernameEdit}>
-                Edit
-              </button>
-            </div>
+    <section className="ps-section">
+      <header className="ps-header">
+        <h1 className="ps-title">Customer Profile</h1>
+        {!editMode && (
+          <button
+            className="ps-btn ps-btn-edit"
+            onClick={() => setEditMode(true)}
+            aria-label="Edit profile"
+          >
+            Edit
+          </button>
+        )}
+      </header>
+
+      <div className="ps-main">
+        {user.avatar_url ? (
+          <img
+            src={user.avatar_url}
+            alt="Avatar"
+            className="ps-avatar"
+            loading="lazy"
+          />
+        ) : (
+          <div
+            className="ps-avatar ps-avatar-initials"
+            style={{ backgroundColor: bgColor }}
+            aria-label="Profile initials"
+          >
+            {initials}
+          </div>
+        )}
+
+        <div className="ps-info">
+          {editMode ? (
+            <input
+              type="text"
+              value={formData.fullName}
+              placeholder="Full Name"
+              onChange={(e) => handleInputChange('fullName', e.target.value)}
+              required
+              className="ps-input ps-single-input"
+            />
           ) : (
-            <div className="profile-username-edit">
+            <h2 className="ps-name">{`${user.first_name} ${user.last_name}`}</h2>
+          )}
+
+          {editMode ? (
+            <input
+              type="email"
+              value={formData.email}
+              placeholder="Email"
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              className="ps-input ps-single-input"
+              required
+            />
+          ) : (
+            <p className="ps-email">{user.email}</p>
+          )}
+
+          {editMode ? (
+            <input
+              type="tel"
+              value={formData.billing?.phone || ''}
+              placeholder="Phone"
+              onChange={(e) => handleInputChange('billing.phone', e.target.value)}
+              className="ps-input ps-single-input"
+            />
+          ) : (
+            <p className="ps-phone">
+              <strong>Phone:</strong> {user.billing?.phone || 'N/A'}
+            </p>
+          )}
+
+          <p className="ps-orders">
+            <strong>Total Orders:</strong>{' '}
+            {ordersCount !== null ? ordersCount : 'Loading...'}
+          </p>
+
+          <p className="ps-date">
+            <strong>Account Created:</strong>{' '}
+            {new Date(user.date_created).toLocaleDateString()}
+          </p>
+        </div>
+      </div>
+
+      <div className="ps-addresses">
+        <div className="ps-address-block">
+          <h3 className="ps-address-title">Billing Address</h3>
+          {editMode ? (
+            <>
               <input
                 type="text"
-                value={usernameInput}
-                onChange={(e) => setUsernameInput(e.target.value)}
-                style={{ padding: 6, fontSize: 16 }}
+                placeholder="Address 1"
+                value={formData.billing.address_1 || ''}
+                onChange={(e) => handleInputChange('billing.address_1', e.target.value)}
+                className="ps-input"
               />
-              <button className="save-button" onClick={handleUsernameSave} disabled={!usernameInput.trim()}>
-                Save
-              </button>
-            </div>
+              <input
+                type="text"
+                placeholder="Address 2"
+                value={formData.billing.address_2 || ''}
+                onChange={(e) => handleInputChange('billing.address_2', e.target.value)}
+                className="ps-input"
+              />
+              <input
+                type="text"
+                placeholder="City"
+                value={formData.billing.city || ''}
+                onChange={(e) => handleInputChange('billing.city', e.target.value)}
+                className="ps-input"
+              />
+              <input
+                type="text"
+                placeholder="State"
+                value={formData.billing.state || ''}
+                onChange={(e) => handleInputChange('billing.state', e.target.value)}
+                className="ps-input"
+              />
+              <input
+                type="text"
+                placeholder="Postcode"
+                value={formData.billing.postcode || ''}
+                onChange={(e) => handleInputChange('billing.postcode', e.target.value)}
+                className="ps-input"
+              />
+              <input
+                type="text"
+                placeholder="Country"
+                value={formData.billing.country || ''}
+                onChange={(e) => handleInputChange('billing.country', e.target.value)}
+                className="ps-input"
+              />
+            </>
+          ) : user.billing && user.billing.address_1 ? (
+            <>
+              <p className="ps-address-line">{user.billing.address_1}</p>
+              {user.billing.address_2 && (
+                <p className="ps-address-line">{user.billing.address_2}</p>
+              )}
+              <p className="ps-address-line">
+                {user.billing.city}, {user.billing.state} {user.billing.postcode}
+              </p>
+              <p className="ps-address-line">{user.billing.country}</p>
+            </>
+          ) : (
+            <p className="ps-no-address">No billing address set.</p>
+          )}
+        </div>
+
+        <div className="ps-address-block">
+          <h3 className="ps-address-title">Shipping Address</h3>
+          {editMode ? (
+            <>
+              <input
+                type="text"
+                placeholder="Address 1"
+                value={formData.shipping.address_1 || ''}
+                onChange={(e) => handleInputChange('shipping.address_1', e.target.value)}
+                className="ps-input"
+              />
+              <input
+                type="text"
+                placeholder="Address 2"
+                value={formData.shipping.address_2 || ''}
+                onChange={(e) => handleInputChange('shipping.address_2', e.target.value)}
+                className="ps-input"
+              />
+              <input
+                type="text"
+                placeholder="City"
+                value={formData.shipping.city || ''}
+                onChange={(e) => handleInputChange('shipping.city', e.target.value)}
+                className="ps-input"
+              />
+              <input
+                type="text"
+                placeholder="State"
+                value={formData.shipping.state || ''}
+                onChange={(e) => handleInputChange('shipping.state', e.target.value)}
+                className="ps-input"
+              />
+              <input
+                type="text"
+                placeholder="Postcode"
+                value={formData.shipping.postcode || ''}
+                onChange={(e) => handleInputChange('shipping.postcode', e.target.value)}
+                className="ps-input"
+              />
+              <input
+                type="text"
+                placeholder="Country"
+                value={formData.shipping.country || ''}
+                onChange={(e) => handleInputChange('shipping.country', e.target.value)}
+                className="ps-input"
+              />
+            </>
+          ) : user.shipping && user.shipping.address_1 ? (
+            <>
+              <p className="ps-address-line">{user.shipping.address_1}</p>
+              {user.shipping.address_2 && (
+                <p className="ps-address-line">{user.shipping.address_2}</p>
+              )}
+              <p className="ps-address-line">
+                {user.shipping.city}, {user.shipping.state} {user.shipping.postcode}
+              </p>
+              <p className="ps-address-line">{user.shipping.country}</p>
+            </>
+          ) : (
+            <p className="ps-no-address">No shipping address set.</p>
           )}
         </div>
       </div>
 
-      {/* Show More Settings button after username edit */}
-      {!editingUsername && (
-        <button
-          className="more-settings-button"
-          onClick={() => setShowMoreSettings((prev) => !prev)}
-          aria-expanded={showMoreSettings}
-          aria-controls="measurements-form"
-        >
-          {showMoreSettings ? 'Hide Settings' : 'More Settings'}
-        </button>
-      )}
-
-      {/* Measurements Form */}
-      {showMoreSettings && (
-        <div className="measurements-form" id="measurements-form">
-          <h3>Measurements</h3>
-          <p style={{ fontSize: 14, color: '#555' }}>
-            Measurements provided will be saved and used for recommending sizes suitable to these
-            measurements in future purchases.
-          </p>
-
-          {/* Unit Selector */}
-          <div className="measurement-field" style={{ marginBottom: 10 }}>
-            <label>
-              Units:{' '}
-              <select
-                value={measurements.unit}
-                onChange={(e) => handleMeasurementChange('unit', e.target.value)}
-              >
-                {units.map((unit) => (
-                  <option key={unit} value={unit}>
-                    {unit}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          {/* Measurement fields */}
-          {['bust', 'waist', 'hip', 'height', 'weight'].map((field) => (
-            <div key={field} className="measurement-field">
-              <label className="measurement-label" htmlFor={`measurement-${field}`}>
-                {field.charAt(0).toUpperCase() + field.slice(1)} size:
-              </label>
-              <select
-                id={`measurement-${field}`}
-                value={measurements[field]}
-                onChange={(e) => handleMeasurementChange(field, e.target.value)}
-              >
-                <option value="">Please select</option>
-                {Array.from({ length: 50 }, (_, i) => i + 30).map((val) => (
-                  <option key={val} value={val}>
-                    {val}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
-
+      <div className="ps-buttons">
+        {editMode ? (
+          <>
+            <button
+              className="ps-btn ps-btn-save"
+              onClick={saveProfile}
+              disabled={saving}
+              aria-label="Save profile changes"
+            >
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              className="ps-btn ps-btn-cancel"
+              onClick={cancelEdit}
+              disabled={saving}
+              aria-label="Cancel editing profile"
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
           <button
-            className="submit-measurements-button"
-            onClick={handleSubmitMeasurements}
-            disabled={savingMeasurements}
+            className="ps-btn ps-btn-delete"
+            onClick={deleteAccount}
+            aria-label="Delete account"
           >
-            {savingMeasurements ? 'Saving...' : 'Submit'}
+            Delete Account
           </button>
-
-          <p style={{ fontSize: 12, marginTop: 10, color: '#555' }}>
-            By clicking the "Submit" button below, you provide measurements for size
-            recommendations. Learn more
-          </p>
-        </div>
-      )}
-
-      {/* Stats */}
-      <div className="stats-container">
-        <div className="stats-item">
-          <p style={{ margin: 0, fontSize: 24, fontWeight: 'bold' }}>{stats.totalReviews}</p>
-          <p style={{ margin: 0, color: '#777' }}>Total reviews</p>
-        </div>
-        <div className="stats-item">
-          <p style={{ margin: 0, fontSize: 24, fontWeight: 'bold' }}>{stats.helpfuls}</p>
-          <p style={{ margin: 0, color: '#777' }}>Helpfuls</p>
-        </div>
+        )}
       </div>
-
-      {/* Privacy Note */}
-      <div className="privacy-note">
-        Your information and privacy will be kept secure and uncompromised.
-      </div>
-
-      {/* Review empty message */}
-      <div className="review-empty-box">
-        <p style={{ fontWeight: '600', marginBottom: 6 }}>Review is empty</p>
-        <p>You have no completed reviews or the reviews have been deleted.</p>
-      </div>
-    </div>
+    </section>
   );
 };
 

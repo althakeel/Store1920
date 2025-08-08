@@ -1,140 +1,263 @@
-.profile-section {
-  max-width: 480px;
-  margin: auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding: 20px;
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
+.ps-section {
+  max-width: 860px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 24px 28px;
+  background-color: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  border-radius: 8px;
+  color: #222831;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
   box-sizing: border-box;
 }
 
-.profile-header {
+/* Header */
+.ps-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
+  border-bottom: 1px solid #d3d3d3;
+  padding-bottom: 12px;
 }
 
-.profile-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
+.ps-title {
+  font-weight: 600;
+  font-size: 1.55rem;
+  margin: 0;
+  color: #222831;
+  position: relative;
 }
 
-.profile-username-display,
-.profile-username-edit {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* Add subtle underline accent with orange */
+.ps-title::after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 3px;
+  background-color: #f97316; /* orange accent */
+  border-radius: 2px;
+  margin-top: 6px;
 }
 
-.edit-button,
-.save-button,
-.more-settings-button,
-.submit-measurements-button {
-  cursor: pointer;
-  padding: 8px 16px;
-  background-color: #d35400;
+/* Buttons */
+.ps-btn {
+  font-weight: 600;
+  font-size: 0.95rem;
   border: none;
-  color: white;
   border-radius: 6px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  user-select: none;
 }
 
-.measurements-form {
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 8px;
-  background-color: #fff3e0;
-  margin-bottom: 20px;
+.ps-btn-edit {
+  background-color: #30475e;
+  color: #f5f5f5;
 }
 
-.measurement-field {
-  margin-bottom: 10px;
+.ps-btn-edit:hover {
+  background-color: #f97316; /* orange hover */
+  color: #ffffff;
 }
 
-.measurement-label {
-  text-transform: capitalize;
-  margin-right: 10px;
-  min-width: 80px;
-  display: inline-block;
+.ps-btn-save {
+  background-color: #f97316; /* orange */
+  color: white;
+  min-width: 90px;
 }
 
-.stats-container {
+.ps-btn-save:hover {
+  background-color: #d65a0b; /* darker orange */
+}
+
+.ps-btn-cancel {
+  background-color: #9e9e9e;
+  color: white;
+  min-width: 90px;
+}
+
+.ps-btn-cancel:hover {
+  background-color: #757575;
+}
+
+.ps-btn-delete {
+  background-color: #d32f2f;
+  color: white;
+  min-width: 120px;
+}
+
+.ps-btn-delete:hover {
+  background-color: #9a0007;
+}
+
+/* Main section */
+.ps-main {
   display: flex;
   gap: 20px;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
-.stats-item {
+.ps-avatar {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  border: 2px solid #ccd1d1;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.ps-avatar-initials {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.9rem;
+  color: white;
+  user-select: none;
+}
+
+.ps-info {
+  flex: 1 1 auto;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.ps-name {
+  font-weight: 700;
+  font-size: 1.38rem;
+  margin: 0;
+  color: #222831;
+}
+
+/* Accent the email and phone with orange */
+.ps-email,
+.ps-phone {
+  font-size: 1rem;
+  color: #f97316;
+  margin: 0;
+  font-weight: 600;
+}
+
+.ps-orders,
+.ps-date {
+  font-size: 1rem;
+  color: #444c56;
+  margin: 0;
+}
+
+.ps-input-group.ps-name-inputs {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ps-input {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 1.5px solid #c1c1c1;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  color: #222831;
+  transition: border-color 0.3s ease;
+  flex: 1 1 0;
+  box-sizing: border-box;
+}
+
+/* Orange focus border on inputs */
+.ps-input:focus {
+  outline: none;
+  border-color: #f97316;
+  box-shadow: none;
+}
+
+.ps-single-input {
+  max-width: 380px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.ps-addresses {
+  display: flex;
+  gap: 36px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.ps-address-block {
+  flex: 1 1 350px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 20px 18px;
+  box-sizing: border-box;
+  min-width: 280px;
+}
+
+.ps-address-title {
+  margin: 0 0 12px 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #f97316; /* orange accent */
+}
+
+.ps-address-line {
+  margin: 5px 0;
+  font-size: 0.95rem;
+  color: #444c56;
+}
+
+.ps-no-address {
+  font-size: 0.95rem;
+  color: #888c8c;
+}
+
+.ps-buttons {
+  display: flex;
+  gap: 18px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Loading, error, no-user messages */
+.ps-loading,
+.ps-error,
+.ps-no-user {
+  max-width: 860px;
+  width: 100%;
+  margin: 3rem auto;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.15rem;
   text-align: center;
-}
-
-.privacy-note {
-  font-size: 13px;
-  color: #777;
-  margin-bottom: 12px;
-}
-
-.review-empty-box {
-  padding: 24px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  text-align: center;
-  color: #666;
-  background-color: #fafafa;
+  color: #777a7a;
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-  .profile-section {
-    max-width: 100%;
-    padding: 16px;
-  }
-
-  .profile-header {
-    gap: 12px;
-  }
-
-  .profile-avatar {
-    width: 60px;
-    height: 60px;
-  }
-
-  .edit-button,
-  .save-button,
-  .more-settings-button,
-  .submit-measurements-button {
-    padding: 6px 12px;
-    font-size: 14px;
-  }
-
-  .measurement-label {
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  .profile-header {
+@media (max-width: 700px) {
+  .ps-main {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
   }
-
-  .profile-avatar {
-    width: 50px;
-    height: 50px;
-  }
-
-  .profile-username-display,
-  .profile-username-edit {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .edit-button,
-  .save-button,
-  .more-settings-button,
-  .submit-measurements-button {
+  .ps-info {
+    min-width: auto;
     width: 100%;
-    padding: 10px;
+    text-align: center;
+  }
+  .ps-addresses {
+    flex-direction: column;
+  }
+  .ps-address-block {
+    width: 100%;
+  }
+  .ps-input-group.ps-name-inputs {
+    flex-direction: column;
   }
 }

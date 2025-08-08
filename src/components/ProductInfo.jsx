@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';  // You need this for navigation
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // For navigation
 import { useCart } from '../contexts/CartContext'; // Adjust path if needed
 
 import '../assets/styles/ProductInfo.css';
@@ -21,18 +21,23 @@ export default function ProductInfo({ product, variations, selectedVariation, on
   const [hasItemDetails, setHasItemDetails] = useState(false);
   const isOutOfStock = selectedVariation?.stock_status === 'outofstock';
 
-  // Extract brand from attributes (e.g., "Brand" or "pa_brand")
-const brandAttribute = product.attributes?.find(attr => {
-  if (!attr.name) return false;
-  const name = attr.name.toLowerCase();
-  const slug = (attr.slug || '').toLowerCase();
-  return name.includes('brand') || slug.includes('brand');
-});
-const brandOptions = brandAttribute?.options || [];
-const brand = brandOptions.length ? brandOptions[0] : null;
+  // Reset quantity when selectedVariation changes
+  useEffect(() => {
+    console.log('selectedVariation changed:', selectedVariation);
+    setQuantity(1);
+  }, [selectedVariation]);
 
+  // Extract brand attribute from product attributes
+  const brandAttribute = product.attributes?.find(attr => {
+    if (!attr.name) return false;
+    const name = attr.name.toLowerCase();
+    const slug = (attr.slug || '').toLowerCase();
+    return name.includes('brand') || slug.includes('brand');
+  });
+  const brandOptions = brandAttribute?.options || [];
+  const brand = brandOptions.length ? brandOptions[0] : null;
 
-  // Parse stock quantities as numbers (handle strings from API)
+  // Parse stock quantity from selectedVariation or product
   const rawQty = Number(selectedVariation?.stock_quantity);
   const productQty = Number(product?.stock_quantity);
   const manageStock = selectedVariation?.manage_stock;
@@ -52,7 +57,7 @@ const brand = brandOptions.length ? brandOptions[0] : null;
   const showClearance = product.show_clearance_sale === true;
   const clearanceEndTime = product.clearance_end_time;
 
-  // Define handleAddToCart here, so it has access to latest quantity and variation
+  // Handle Add To Cart button click
   const handleAddToCart = () => {
     const variation = selectedVariation || product;
 
@@ -82,14 +87,10 @@ const brand = brandOptions.length ? brandOptions[0] : null;
           <ProductBadges badges={product.custom_seller_badges || []} />
           <h1>{product.name}</h1>
           <ProductBadgesseller />
-          
-          {product.sku && (
-            <p className="product-sku">SKU: {product.sku}</p>
-          )}
-          
-          {brand && (
-            <p className="product-brand">Brand: {brand}</p>
-          )}
+
+          {product.sku && <p className="product-sku">SKU: {product.sku}</p>}
+
+          {brand && <p className="product-brand">Brand: {brand}</p>}
         </div>
         <ShareDropdown url={window.location.href} />
       </div>
@@ -104,11 +105,7 @@ const brand = brandOptions.length ? brandOptions[0] : null;
             selectedVariation={selectedVariation}
             onVariationChange={onVariationChange}
           />
-          <QuantitySelector
-            quantity={quantity}
-            setQuantity={setQuantity}
-            maxQuantity={maxQuantity}
-          />
+          <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
         </ClearanceSaleBox>
       ) : (
         <>
@@ -118,11 +115,7 @@ const brand = brandOptions.length ? brandOptions[0] : null;
             onVariationChange={onVariationChange}
             maxQuantity={maxQuantity}
           />
-          <QuantitySelector
-            quantity={quantity}
-            setQuantity={setQuantity}
-            maxQuantity={maxQuantity}
-          />
+          <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
         </>
       )}
 
@@ -131,7 +124,7 @@ const brand = brandOptions.length ? brandOptions[0] : null;
         selectedVariation={selectedVariation}
         quantity={quantity}
         isClearance={showClearance}
-        handleAddToCart={handleAddToCart} // <-- Pass handleAddToCart here
+        handleAddToCart={handleAddToCart}
       />
 
       {hasItemDetails && (

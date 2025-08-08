@@ -48,6 +48,7 @@ import trackOrder from './pages/track-order';
 import Festsale from './pages/Festsale';
 import CookiesSettings from './pages/CookiesSettingsPage';
 import LostPassword from './pages/lost-password';
+import MyCoins from './pages/my-coins';
 
 // Components
 import Topbar from './components/topbar';
@@ -62,6 +63,7 @@ import MobileBottomNav from './components/MobileBottomNav';
 import ProductDetailsRedirect from './pages/ProductDetailsRedirect';
 import TrackOrder from './pages/track-order';
 import MobileNavbar from './components/Mobile/MobileNavbar';
+import ChatBot from './components/sub/Chatbot';
 
 const AppContent = () => {
   const { isCartOpen, setIsCartOpen } = useCart();
@@ -213,6 +215,7 @@ const AppContent = () => {
                 <Route path="/fest-sale" element={<Festsale />} />
                 <Route path="/cookies-settings" element={<CookiesSettings />} />
                  <Route path="/lost-password" element={<LostPassword />} />
+                   <Route path="/my-coins" element={<MyCoins />} />
 
 
                 <Route path="*" element={<NotFound />} />
@@ -224,7 +227,7 @@ const AppContent = () => {
               <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
             )}
           </div>
-
+<ChatBot/>
           <Footer />
           {isMobile && !onCartPage && !onCheckoutPage && !is404Page && <MobileBottomNav />}
         </>

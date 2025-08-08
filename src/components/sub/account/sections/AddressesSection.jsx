@@ -6,10 +6,13 @@ const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_2e4ba96dde422ed59388a09a139cfee591d98263';
 const CS = 'cs_43b449072b8d7d63345af1b027f2c8026fd15428';
 
-const AddressesSection = ({ customerEmail }) => {
+const AddressesSection = () => {
+  const userId = localStorage.getItem('userId'); // WooCommerce customer ID stored in localStorage
+
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     country: '',
     city: '',
@@ -23,6 +26,7 @@ const AddressesSection = ({ customerEmail }) => {
   const [citiesOptions, setCitiesOptions] = useState([]);
   const [countries, setCountries] = useState([]);
 
+  // Fetch countries for dropdown
   useEffect(() => {
     axios
       .get(`${API_BASE}/data/countries`, {
@@ -32,21 +36,20 @@ const AddressesSection = ({ customerEmail }) => {
       .catch(() => setCountries([]));
   }, []);
 
+  // Fetch customer billing address by userId
   useEffect(() => {
-    if (!customerEmail) {
+    if (!userId) {
       setLoading(false);
       return;
     }
+
+    setLoading(true);
     axios
-      .get(`${API_BASE}/customers`, {
-        params: {
-          consumer_key: CK,
-          consumer_secret: CS,
-          email: customerEmail,
-        },
+      .get(`${API_BASE}/customers/${userId}`, {
+        params: { consumer_key: CK, consumer_secret: CS },
       })
       .then((res) => {
-        const customer = res.data[0];
+        const customer = res.data;
         if (customer && customer.billing) {
           setAddresses([customer.billing]);
         } else {
@@ -55,8 +58,9 @@ const AddressesSection = ({ customerEmail }) => {
       })
       .catch(() => setAddresses([]))
       .finally(() => setLoading(false));
-  }, [customerEmail]);
+  }, [userId]);
 
+  // Update cities list if country is AE
   useEffect(() => {
     if (formData.country === 'AE') {
       setCitiesOptions([
@@ -79,9 +83,56 @@ const AddressesSection = ({ customerEmail }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    alert('Saving not implemented yet');
-    setShowForm(false);
+  // Save new billing address to WooCommerce
+  const handleSave = async () => {
+    if (!userId) {
+      alert('User not logged in.');
+      return;
+    }
+
+    setSaving(true);
+
+    const billingData = {
+      billing: {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        address_1: formData.street,
+        address_2: formData.additional,
+        city: formData.city,
+        state: '', // Optional, add if you have this data
+        country: formData.country,
+        phone: formData.phone,
+      },
+    };
+
+    try {
+      await axios.put(`${API_BASE}/customers/${userId}`, billingData, {
+        params: { consumer_key: CK, consumer_secret: CS },
+      });
+
+      alert('Address saved successfully.');
+
+      // Update local addresses list
+      setAddresses((prev) => [...prev, billingData.billing]);
+
+      // Reset form and hide
+      setFormData({
+        country: '',
+        city: '',
+        firstName: '',
+        lastName: '',
+        phone: '',
+        isWhatsappSame: 'yes',
+        street: '',
+        additional: '',
+      });
+      setShowForm(false);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to save address. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -127,7 +178,13 @@ const AddressesSection = ({ customerEmail }) => {
       )}
 
       {showForm && (
-        <form className="address-form" onSubmit={(e) => e.preventDefault()}>
+        <form
+          className="address-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!saving) handleSave();
+          }}
+        >
           <h3 className="form-title">Add New Address</h3>
 
           <label className="input-label">
@@ -246,11 +303,11 @@ const AddressesSection = ({ customerEmail }) => {
           </label>
 
           <div className="form-buttons">
-            <button type="button" className="btn-secondary" onClick={handleCancel}>
+            <button type="button" className="btn-secondary" onClick={handleCancel} disabled={saving}>
               Cancel
             </button>
-            <button type="submit" className="btn-primary" onClick={handleSave}>
-              Save Address
+            <button type="submit" className="btn-primary" disabled={saving}>
+              {saving ? 'Saving...' : 'Save Address'}
             </button>
           </div>
         </form>

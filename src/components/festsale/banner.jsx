@@ -9,28 +9,31 @@ export default function SaleBanner() {
   useEffect(() => {
     fetch(SALE_BANNER_API)
       .then(async (res) => {
-        console.log('Status:', res.status);
         const text = await res.text();
-        console.log('Raw response text:', text);
         if (!text) throw new Error('Empty response from banner API');
         return JSON.parse(text);
       })
-      .then(data => {
-        console.log('Parsed data:', data);
-        setBannerData(data);
-      })
+      .then(data => setBannerData(data))
       .catch(err => setError(err.message));
   }, []);
 
-  if (error) return <div>Error loading banner: {error}</div>;
-  if (!bannerData) return <div>Loading banner...</div>;
+  if (error) return (
+    <div style={{ textAlign: 'center', padding: 20, fontFamily: 'Arial, sans-serif', color: '#333' }}>
+      Error loading banner: {error}
+    </div>
+  );
+  if (!bannerData) return (
+    <div style={{ textAlign: 'center', padding: 20, fontFamily: 'Arial, sans-serif', color: '#333' }}>
+      Loading banner...
+    </div>
+  );
 
   return (
     <div
       style={{
         width: '100%',
         background: `linear-gradient(to right, ${bannerData.bg_left}, ${bannerData.bg_right})`,
-        padding: '20px 0',
+
         boxSizing: 'border-box',
       }}
     >
@@ -38,19 +41,21 @@ export default function SaleBanner() {
         style={{
           maxWidth: 1400,
           margin: '0 auto',
-          backgroundColor: '#000',  // black background behind the image container
           padding: '0 15px',
           boxSizing: 'border-box',
+          // No backgroundColor here, keep transparent so gradient shows outside container edges
+          backgroundColor: 'transparent',
         }}
       >
         <img
           src={bannerData.desktop}
           alt="Sale Banner"
           style={{
-            maxWidth: '100%',
-            maxHeight: 350,
-            height: 'auto',
             display: 'block',
+            width: '100%',       // fill container width fully (max 1400px)
+            maxHeight: 300,
+            height: 'auto',
+            objectFit: 'contain',
             margin: '0 auto',
           }}
         />

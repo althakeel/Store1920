@@ -1,22 +1,65 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../../../assets/styles/myaccount/creditBalanceSection.css';
 import { useNavigate } from 'react-router-dom';
 import Coin from '../../../../assets/images/coin.png'; // Adjust path if needed
+import axios from 'axios';
 
-const CreditBalanceSection = ({
-  customerEmail,
-  coinBalance,
-  coinHistory,
-  loadingCoins,
-  coinError,
-}) => {
+const API_BASE = 'https://db.store1920.com/api'; // <-- Adjust to your actual coin API base
+
+const CreditBalanceSection = () => {
   const navigate = useNavigate();
 
+  // States for coin data
+  const [coinBalance, setCoinBalance] = useState(0);
+  const [coinHistory, setCoinHistory] = useState([]);
+  const [loadingCoins, setLoadingCoins] = useState(true);
+  const [coinError, setCoinError] = useState(null);
+  const [customerEmail, setCustomerEmail] = useState(null);
+
+  // Convert coins to AED
   const convertToAED = (coins) => (coins / 10).toFixed(2);
 
+  // Navigate to coins page
   const handleCoinClick = () => {
     navigate('/my-coins');
   };
+
+  // On mount, get user info from localStorage and fetch coin data
+  useEffect(() => {
+    // For example, localStorage key for user email or ID
+    const storedEmail = localStorage.getItem('userEmail') || localStorage.getItem('customerEmail');
+    if (!storedEmail) {
+      setCustomerEmail(null);
+      setLoadingCoins(false);
+      return;
+    }
+    setCustomerEmail(storedEmail);
+    setLoadingCoins(true);
+
+    // Fetch coin balance and history from your API
+    // Adjust URLs and params according to your API
+
+    const fetchCoinData = async () => {
+      try {
+        // Example endpoints (adjust as needed)
+        const [balanceRes, historyRes] = await Promise.all([
+          axios.get(`${API_BASE}/coins/balance`, { params: { email: storedEmail } }),
+          axios.get(`${API_BASE}/coins/history`, { params: { email: storedEmail } }),
+        ]);
+        setCoinBalance(balanceRes.data.balance || 0);
+        setCoinHistory(historyRes.data.history || []);
+        setCoinError(null);
+      } catch (err) {
+        setCoinError('Unable to load coin data.');
+        setCoinBalance(0);
+        setCoinHistory([]);
+      } finally {
+        setLoadingCoins(false);
+      }
+    };
+
+    fetchCoinData();
+  }, []);
 
   if (!customerEmail) {
     return (

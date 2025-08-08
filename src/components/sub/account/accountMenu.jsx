@@ -24,7 +24,7 @@ const accountMenu = [
   { label: 'Your reviews', slug: 'reviews', icon: <AiOutlineProfile /> },
   { label: 'Your profile', slug: 'profile', icon: <AiOutlineUser /> },
   { label: 'Coupons & offers', slug: 'coupons', icon: <AiOutlineGift /> },
-  { label: 'Credit balance', slug: 'credit-balance', icon: <AiOutlineCreditCard /> },
+  // { label: 'Credit balance', slug: 'credit-balance', icon: <AiOutlineCreditCard /> },
   // { label: 'Followed stores', slug: 'followed-stores', icon: <AiOutlineHeart /> },
   // { label: 'Browsing history', slug: 'browsing-history', icon: <AiOutlineHistory /> },
   { label: 'Addresses', slug: 'addresses', icon: <AiOutlineHome /> },

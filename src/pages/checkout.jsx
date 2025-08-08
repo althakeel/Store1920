@@ -111,26 +111,27 @@ export default function CheckoutPage() {
   }, [contextCartItems]);
 
   // Fetch countries and payment methods on mount
-  useEffect(() => {
-    const fetchCheckoutData = async () => {
-      try {
-        setLoading(true);
-        const [countriesData, paymentData] = await Promise.all([
-          fetchWithAuth('data/countries'),
-          fetchWithAuth('payment_gateways'),
-        ]);
-        setCountries(countriesData);
-        setPaymentMethods(paymentData);
-      } catch (err) {
-        setError(err.message || 'Failed to load checkout data.');
-      } finally {
-        setLoading(false);
-      }
-      const token = localStorage.getItem('userToken');
-      setIsLoggedIn(!!token);
-    };
-    fetchCheckoutData();
-  }, []);
+useEffect(() => {
+  const fetchCheckoutData = async () => {
+    try {
+      setLoading(true);
+      const [countriesData, paymentData] = await Promise.all([
+        fetchWithAuth('data/countries'),
+        fetchWithAuth('payment_gateways'),
+      ]);
+      setCountries(countriesData);
+      setPaymentMethods(paymentData);
+    } catch (err) {
+      setError(err.message || 'Failed to load checkout data.');
+    } finally {
+      setLoading(false);
+    }
+    // Check login here after fetch
+    const token = localStorage.getItem('userToken');
+    setIsLoggedIn(!!token);
+  };
+  fetchCheckoutData();
+}, []);
 
   // Update formData when payment method changes
   useEffect(() => {

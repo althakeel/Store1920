@@ -1,4 +1,6 @@
 import React from 'react';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const AddressForm = ({
   formData,
@@ -13,25 +15,29 @@ const AddressForm = ({
 }) => {
   const popupWrapperStyle = {
     position: 'fixed',
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // translucent dark overlay
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
+    padding: '10px',
   };
 
- const popupBoxStyle = {
-  position: 'relative', // <-- Add this
-  backgroundColor: '#fff',
-  padding: '20px 30px',
-  borderRadius: '8px',
-  width: '90%',
-  maxWidth: '600px',
-  maxHeight: '90vh',
-  overflowY: 'auto',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-};
+  const popupBoxStyle = {
+    position: 'relative',
+    backgroundColor: '#fff',
+    padding: '20px 15px',
+    borderRadius: '8px',
+    width: '100%',
+    maxWidth: '600px',
+    maxHeight: '90vh',
+    overflowY: 'auto',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+  };
 
   const closeBtnStyle = {
     background: 'transparent',
@@ -75,6 +81,8 @@ const AddressForm = ({
     fontSize: '1rem',
     borderRadius: '4px',
     border: '1px solid #ccc',
+    width: '100%',
+    boxSizing: 'border-box',
   };
 
   const selectStyle = {
@@ -107,20 +115,28 @@ const AddressForm = ({
     alignSelf: 'flex-start',
   };
 
-  // Render address fields for shipping or billing
+  const handlePhoneChange = (phone, section) => {
+    onChange({ target: { name: 'phone', value: phone } }, section);
+  };
+
   const renderAddressSection = (section, states) => {
     const title = section.charAt(0).toUpperCase() + section.slice(1);
     return (
       <>
         <h3 style={headingStyle}>{title} Address</h3>
-        <div style={gridStyle}>
+        <div
+          style={{
+            ...gridStyle,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          }}
+        >
           <label style={labelStyle}>
             Full Name
             <input
               type="text"
               name="fullName"
               value={formData[section].fullName}
-              onChange={e => onChange(e, section)}
+              onChange={(e) => onChange(e, section)}
               required
               style={inputStyle}
             />
@@ -131,7 +147,7 @@ const AddressForm = ({
               type="text"
               name="address1"
               value={formData[section].address1}
-              onChange={e => onChange(e, section)}
+              onChange={(e) => onChange(e, section)}
               required
               style={inputStyle}
             />
@@ -142,7 +158,7 @@ const AddressForm = ({
               type="text"
               name="address2"
               value={formData[section].address2}
-              onChange={e => onChange(e, section)}
+              onChange={(e) => onChange(e, section)}
               style={inputStyle}
             />
           </label>
@@ -152,7 +168,7 @@ const AddressForm = ({
               type="text"
               name="city"
               value={formData[section].city}
-              onChange={e => onChange(e, section)}
+              onChange={(e) => onChange(e, section)}
               required
               style={inputStyle}
             />
@@ -163,21 +179,48 @@ const AddressForm = ({
               type="text"
               name="postalCode"
               value={formData[section].postalCode}
-              onChange={e => onChange(e, section)}
+              onChange={(e) => onChange(e, section)}
               required
               style={inputStyle}
             />
           </label>
           <label style={labelStyle}>
             Phone
-            <input
-              type="tel"
-              name="phone"
-              value={formData[section].phone}
-              onChange={e => onChange(e, section)}
-              required
-              style={inputStyle}
-            />
+           <PhoneInput
+  country={'ae'}
+  value={formData[section].phone}
+  onChange={(phone) => handlePhoneChange(phone, section)}
+  containerStyle={{
+    marginTop: '6px',
+    width: '100%',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 8px', // adds space around flag and input
+    boxSizing: 'border-box',
+  }}
+  inputStyle={{
+    border: 'none',
+    width: '100%',
+    fontSize: '1rem',
+    height: '40px',
+    boxShadow: 'none',
+    marginLeft:"25px",
+  }}
+  buttonStyle={{
+    border: 'none',
+    backgroundColor: '#fff',
+  }}
+  dropdownStyle={{
+    width: '280px',
+    maxHeight: '200px',
+    overflowY: 'auto',
+  }}
+  enableSearch={true}
+  countryCodeEditable={true}
+/>
+
           </label>
           <label style={labelStyle}>
             State / Province
@@ -185,11 +228,11 @@ const AddressForm = ({
               <select
                 name="state"
                 value={formData[section].state}
-                onChange={e => onChange(e, section)}
+                onChange={(e) => onChange(e, section)}
                 style={selectStyle}
               >
                 <option value="">Select state</option>
-                {states.map(state => (
+                {states.map((state) => (
                   <option key={state.code} value={state.code}>
                     {state.name}
                   </option>
@@ -200,7 +243,7 @@ const AddressForm = ({
                 type="text"
                 name="state"
                 value={formData[section].state}
-                onChange={e => onChange(e, section)}
+                onChange={(e) => onChange(e, section)}
                 style={inputStyle}
               />
             )}
@@ -210,7 +253,7 @@ const AddressForm = ({
             <select
               name="country"
               value={formData[section].country}
-              onChange={e => onChange(e, section)}
+              onChange={(e) => onChange(e, section)}
               style={selectStyle}
             >
               <option value="">Select country</option>
@@ -229,22 +272,22 @@ const AddressForm = ({
   return (
     <div style={popupWrapperStyle}>
       <div style={popupBoxStyle}>
-    <button type="button" style={closeBtnStyle} onClick={onClose} aria-label="Close">
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-</button>
+        <button type="button" style={closeBtnStyle} onClick={onClose} aria-label="Close">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
 
         <form onSubmit={onSubmit} noValidate style={formStyle}>
           {renderAddressSection('shipping', shippingStates)}
@@ -254,7 +297,7 @@ const AddressForm = ({
               type="checkbox"
               name="billingSameAsShipping"
               checked={formData.billingSameAsShipping}
-              onChange={e => onChange(e, 'checkbox')}
+              onChange={(e) => onChange(e, 'checkbox')}
               style={{ cursor: 'pointer' }}
             />
             Same address for billing
