@@ -41,13 +41,6 @@
   color: #fff;
 }
 
-/* Responsive for tablets and up */
-@media (min-width: 769px) {
-  .button-section button {
-    flex: 1 1 calc(50% - 5px);
-  }
-}
-
 /* Responsive fix for small screens (below 480px) */
 @media (max-width: 480px) {
   .button-section {
@@ -59,5 +52,24 @@
     font-size: 14px;
     padding: 10px 14px;
     border-radius: 5px;
+  }
+}
+
+/* Tablets (481px to 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .button-section {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .button-section button {
+    flex: 1 1 calc(50% - 5px);
+  }
+}
+
+/* Desktop and up */
+@media (min-width: 769px) {
+  .button-section button {
+    flex: 1 1 calc(50% - 5px);
   }
 }

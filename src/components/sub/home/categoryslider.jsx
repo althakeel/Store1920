@@ -86,18 +86,12 @@ const CategorySlider = () => {
 
   const renderSkeletons = (count = 8) =>
     Array.from({ length: count }).map((_, i) => (
-      <div key={i} className="category-slide skeleton-slide" aria-hidden="true">
-        <img
-          src={placeholderImg}
-          alt="Loading placeholder"
-          className="category-skeleton-img"
-          loading="lazy"
-          decoding="async"
-        />
+      <div key={i} className="category-slide skeleton-slide">
+        <div className="category-skeleton-img" />
         <div className="category-skeleton-text" />
       </div>
     ));
-
+  
   return (
     <section
       className="category-slider-container"
@@ -155,30 +149,30 @@ const CategorySlider = () => {
         <div className="skeleton-wrapper">{renderSkeletons()}</div>
       ) : (
         <Slider {...settings} ref={sliderRef}>
-          {categories.map((cat) => {
-            const decodedName = decodeHTML(cat.name);
-            return (
-              <Link
-                to={`/category/${cat.slug}`}
-                key={cat.id}
-                className="category-slide"
-                style={{ cursor: 'pointer' }}
-                aria-label={`View products in ${decodedName} category`}
-              >
-                <img
-                  src={cat.image.src}
-                  alt={decodedName}
-                  className="category-image"
-                  loading="lazy"
-                  decoding="async"
-                  width="100%"
-                  height="auto"
-                />
-                <p className="category-title">{decodedName}</p>
-              </Link>
-            );
-          })}
-        </Slider>
+  {categories === null
+    ? renderSkeletons()
+    : categories.map((cat) => {
+        const decodedName = decodeHTML(cat.name);
+        return (
+          <Link
+            to={`/category/${cat.slug}`}
+            key={cat.id}
+            className="category-slide"
+            aria-label={`View products in ${decodedName} category`}
+          >
+            <img
+              src={cat.image.src}
+              alt={decodedName}
+              className="category-image"
+              loading="lazy"
+              decoding="async"
+            />
+            <p className="category-title">{decodedName}</p>
+          </Link>
+        );
+      })}
+</Slider>
+
       )}
     </section>
   );

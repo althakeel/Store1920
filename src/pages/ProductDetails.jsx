@@ -2,14 +2,13 @@ import React, { useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
 
 import ProductGallery from '../components/ProductGallery';
 import ProductInfo from '../components/ProductInfo';
 import ProductDescription from '../components/products/ProductDescription';
 import SkeletonLoader from '../components/SkeletonLoader';
 import Whislistreport from '../components/products/Whislist-report';
-
-import { useQuery } from '@tanstack/react-query';
 
 import '../assets/styles/product-details.css';
 
@@ -22,9 +21,7 @@ const AUTH = {
   password: 'cs_81384d5f9e75e0ab81d0ea6b0d2029cba2d52b63',
 };
 
-const axiosInstance = axios.create({
-  auth: AUTH,
-});
+const axiosInstance = axios.create({ auth: AUTH });
 
 export default function ProductDetails() {
   const { slug, id } = useParams();
@@ -35,10 +32,19 @@ export default function ProductDetails() {
   const [activeModal, setActiveModal] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [variations, setVariations] = useState([]);
+  const [toast, setToast] = useState(null);
 
   const isLoggedIn = !!user;
 
-  // Fetch main product with minimal fields
+  // Restore user on mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser && !user) {
+      login(JSON.parse(storedUser));
+    }
+  }, [user, login]);
+
+  // Fetch product data
   const { data: product, isLoading: loadingProduct, error } = useQuery({
     queryKey: ['product', id || slug],
     queryFn: async () => {
@@ -52,7 +58,7 @@ export default function ProductDetails() {
     retry: 1,
   });
 
-  // Fetch product variations if any
+  // Fetch product variations
   useEffect(() => {
     async function fetchVariations() {
       if (product?.variations?.length) {
@@ -71,14 +77,14 @@ export default function ProductDetails() {
     fetchVariations();
   }, [product]);
 
-  // Auto select first variation if none selected
+  // Auto-select first variation if none selected
   useEffect(() => {
     if (variations.length > 0 && !selectedVariation) {
       setSelectedVariation(variations[0]);
     }
   }, [variations, selectedVariation]);
 
-  // Update main image to selected variation image or fallback to product image
+  // Update main image based on selected variation or product images
   useEffect(() => {
     if (selectedVariation?.image?.src) {
       setMainImageUrl(selectedVariation.image.src);
@@ -89,7 +95,7 @@ export default function ProductDetails() {
     }
   }, [product, selectedVariation]);
 
-  // Combine product images + unique variation images for gallery
+  // Combine images from product and variations without duplicates
   const combinedImages = React.useMemo(() => {
     if (!product) return [];
     const variantImages = variations
@@ -101,41 +107,77 @@ export default function ProductDetails() {
     return allImages.filter((img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx);
   }, [product, variations]);
 
-  const handleVariationChange = useCallback(
-    (variation) => {
-      setSelectedVariation(variation);
-    },
-    []
-  );
+  // Handlers
+  const handleVariationChange = useCallback((variation) => {
+    setSelectedVariation(variation);
+  }, []);
 
   const openModal = useCallback((type) => setActiveModal(type), []);
   const closeModal = useCallback(() => setActiveModal(null), []);
+
+  const showToast = (message) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const handleAddToWishlist = () => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
     }
-    alert('Added to wishlist!');
+    showToast('✅ Product added to wishlist!');
   };
 
   const handleReportProduct = () => {
-    alert('Reported this product!');
+    showToast('⚠️ Product reported!');
+  };
+
+  const handleAddReview = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+    } else {
+      setActiveModal('review');
+    }
   };
 
   const closeLoginModal = () => setShowLoginModal(false);
 
   const mockLogin = () => {
-    login({ id: '123', name: 'Test User', token: 'mock-token' });
+    const mockUser = { id: '123', name: 'Test User', token: 'mock-token' };
+    localStorage.setItem('user', JSON.stringify(mockUser));
+    login(mockUser);
     closeLoginModal();
+    showToast('✅ Logged in successfully!');
   };
 
+  // Loading and error states
   if (loadingProduct) return <SkeletonLoader />;
   if (error) return <div>Error loading product.</div>;
   if (!product) return <div>Product not found.</div>;
 
   return (
     <>
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 10,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#4CAF50',
+            color: '#fff',
+            padding: '10px 20px',
+            borderRadius: 5,
+            zIndex: 9999,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            fontWeight: 'bold',
+          }}
+        >
+          {toast}
+        </div>
+      )}
+
       <div className="product-details-container">
         <div className="left">
           <div className="gallery-and-description">
@@ -148,19 +190,32 @@ export default function ProductDetails() {
               closeModal={closeModal}
             />
 
+         
+        <div className="product-review desktop-only">
+
             <Whislistreport
               onAddToWishlist={handleAddToWishlist}
               onReportProduct={handleReportProduct}
               isLoggedIn={isLoggedIn}
               onOpenLoginPopup={() => setShowLoginModal(true)}
             />
+        
+</div>
+
+
 
             <Suspense fallback={<div>Loading reviews...</div>}>
-              <ProductReviewList productId={product.id} user={user} onLogin={login} />
+              <ProductReviewList
+                productId={product.id}
+                user={user}
+                onLogin={login}
+                onAddReview={handleAddReview}
+              />
             </Suspense>
-
-            <ProductDescription product={product} selectedVariation={selectedVariation} />
           </div>
+             <div className="product-description desktop-only">
+  <ProductDescription product={product} selectedVariation={selectedVariation} />
+</div>
         </div>
 
         <div className="right sticky-sidebar">
@@ -173,6 +228,25 @@ export default function ProductDetails() {
           />
         </div>
       </div>
+
+      {/* Product description moved outside .left to prevent extra space */}
+
+      <div className="product-review mobile-only">
+
+            <Whislistreport
+              onAddToWishlist={handleAddToWishlist}
+              onReportProduct={handleReportProduct}
+              isLoggedIn={isLoggedIn}
+              onOpenLoginPopup={() => setShowLoginModal(true)}
+            />
+        
+</div>
+     <div className="product-description mobile-only">
+  <ProductDescription product={product} selectedVariation={selectedVariation} />
+</div>
+
+
+
 
       <div className="related-products-section">
         <Suspense fallback={<div>Loading related products...</div>}>

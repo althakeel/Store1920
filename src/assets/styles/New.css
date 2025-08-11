@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
-.pcus-wrapper3 {
+.pcus-wrapper12 {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px 10px;
@@ -10,7 +10,7 @@
 }
 
 
-.pcus-stock-overlay {
+.pcus-stock-overlay12 {
   position: absolute;
   bottom: 5px;
   left: 5px;
@@ -20,16 +20,16 @@
   color: #fff;
 }
 
-.pcus-stock-overlay.low-stock {
+.pcus-stock-overlay12.low-stock {
   background: rgba(255, 165, 0, 0.85); /* orange */
 }
 
-.pcus-stock-overlay.out-of-stock {
+.pcus-stock-overlay12.out-of-stock {
   background: rgba(255, 0, 0, 0.85); /* red */
 }
 
 
-.pcus-prd-add-cart-btn.added-to-cart {
+.pcus-prd-add-cart-btn10.added-to-cart {
   background-color: rgb(255, 255, 255) !important;
   transition: background-color 0.3s ease;
 }
@@ -40,6 +40,172 @@
   margin-top: 4px;
   font-weight: 600;
 }
+
+/*filter option */
+
+
+.pcus2-filter-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 20px;
+}
+
+.pcus2-price-input {
+  width: 80px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.pcus2-sort-options {
+  display: flex;
+  gap: 10px;
+}
+
+.pcus2-filter-btn.active {
+  background-color: #ff5a00;
+  color: white;
+}
+
+/* Container bar */
+.pcus2-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 12px 20px;
+  font-family: 'Montserrat', sans-serif;
+  background: #fff;
+  border-radius: 8px;
+  /* box-shadow: 0 1px 6px rgba(0,0,0,0.1); */
+  position: relative;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+/* Dropdown wrapper */
+.pcus2-dropdown {
+  position: relative;
+  min-width: 150px;
+}
+
+/* Button */
+.pcus2-dropdown-btn {
+  background-color: #ff5a00;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  user-select: none;
+  box-shadow: 0 2px 6px rgba(255, 90, 0, 0.5);
+}
+
+.pcus2-dropdown-btn:hover {
+  background-color: #e04e00;
+}
+
+/* Arrow */
+.pcus2-dropdown-arrow {
+  margin-left: 10px;
+  transition: transform 0.3s ease;
+}
+
+.pcus2-dropdown.open .pcus2-dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+/* Dropdown list */
+.pcus2-dropdown-list {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  padding: 0;
+  list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 250px; /* or appropriate width */
+   scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #bbb transparent; /* Firefox */
+}
+
+
+.pcus2-dropdown-list::-webkit-scrollbar {
+  width: 6px; /* Make scrollbar thinner */
+}
+
+.pcus2-dropdown-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pcus2-dropdown-list::-webkit-scrollbar-thumb {
+  background-color: #bbb;
+  border-radius: 3px;
+  border: none;
+}
+
+
+
+/* Show dropdown list */
+.pcus2-dropdown.open .pcus2-dropdown-list {
+  display: block;
+}
+
+/* Dropdown items */
+.pcus2-dropdown-item {
+  padding: 10px 20px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.pcus2-dropdown-item:hover,
+.pcus2-dropdown-item.active {
+  background-color: #ff5a00;
+  color: white;
+  outline: none;
+}
+
+/* Filter buttons */
+.pcus2-filter-buttons {
+  display: flex;
+  gap: 14px;
+  flex-wrap: nowrap;
+  flex-grow: 1;
+  justify-content: flex-end;
+}
+
+.pcus2-filter-btn {
+  background-color: white;
+  border: 2px solid #ff5a00;
+  color: #ff5a00;
+  padding: 10px 18px;
+  font-weight: 700;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  user-select: none;
+}
+
+.pcus2-filter-btn:hover {
+  background-color: #ff5a00;
+  color: white;
+}
+
+/* end */
 
 .pcus-variant-count-label {
   position: absolute;
@@ -100,25 +266,25 @@
   color: #555;
 }
 
-.pcus-categories-scroll::-webkit-scrollbar {
+.pcus-categories-scroll12::-webkit-scrollbar {
   height: 6px;
 }
 
-.pcus-categories-scroll::-webkit-scrollbar-thumb {
+.pcus-categories-scroll12::-webkit-scrollbar-thumb {
   background: #ccc;
   border-radius: 3px;
 }
 
 
 /* Categories container */
-.pcus-categories-wrapper1 {
+.pcus-categories-wrapper12 {
   position: relative;
   display: flex;
   align-items: center;
   margin-bottom: 35px;
   user-select: none;
 }
-.pcus-categories-scroll {
+.pcus-categories-scroll12 {
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
@@ -126,7 +292,7 @@
   padding: 10px 0;
   scrollbar-width: none; /* hide scrollbar in Firefox */
 }
-.pcus-categories-scroll::-webkit-scrollbar {
+.pcus-categories-scroll12::-webkit-scrollbar {
   display: none;
 }
 
@@ -143,7 +309,7 @@
 
 
 /* Category buttons */
-.pcus-category-btn {
+.pcus-category-btn12 {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -172,19 +338,19 @@ img.flying-clone {
   will-change: transform, top, left, opacity;
 }
 
-.pcus-category-btn:hover {
+.pcus-category-btn12:hover {
   background-color: #ffffff;
   border-color: #cf4c24;
    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   color: #000;
 }
 
-.pcus-category-btn.active {
+.pcus-category-btn12.active {
   background-color: #cf4c24;
   color: #fff;
 }
 
-.pcus-category-btn.load-more {
+.pcus-category-btn12.load-more {
   font-weight: 700;
   background: #f5f5f5;
   border-color: #ccc;
@@ -192,7 +358,7 @@ img.flying-clone {
 }
 
 /* Arrow buttons */
-.pcus-arrow-btn {
+.pcus-arrow-btn12 {
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 50%;
@@ -209,13 +375,13 @@ img.flying-clone {
   margin: 0 6px;
 }
 
-.pcus-arrow-btn:hover {
+.pcus-arrow-btn12:hover {
   background-color: #000;
   color: #fff;
 }
 
 /* Products grid */
-.pcus-prd-grid {
+.pcus-prd-grid12 {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr)); /* allow columns to shrink */
   gap: 15px;
@@ -462,7 +628,7 @@ img.flying-clone {
 }
 
 /* Add to cart button */
-.pcus-prd-add-cart-btn {
+.pcus-prd-add-cart-btn10 {
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 30px;
@@ -476,7 +642,7 @@ img.flying-clone {
   flex-shrink: 0;
 }
 
-.pcus-prd-add-cart-btn:hover {
+.pcus-prd-add-cart-btn10:hover {
   background-color: #eee;
 }
 
@@ -555,18 +721,11 @@ img.flying-clone {
   }
 }
 
-
-
-
-
-/* Responsive tweaks */
-/* Responsive styles for screens below 768px */
-/* Responsive styles for screens below 768px */
 /* Responsive styles for screens below 768px */
 @media (max-width: 768px) {
 
   /* Product grid: flexible columns */
-  .pcus-prd-grid {
+  .pcus-prd-grid12 {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px; /* reduced gap for better fit */
@@ -588,7 +747,7 @@ img.flying-clone {
   }
 
   /* Category button adjustments */
-  .pcus-category-btn {
+  .pcus-category-btn12 {
     min-width: 100px;
     max-width: 120px;
     height: 40px;
@@ -642,7 +801,7 @@ img.flying-clone {
   }
 
   /* Cart button size */
-  .pcus-prd-add-cart-btn {
+  .pcus-prd-add-cart-btn10 {
     width: 32px;
     height: 32px;
     margin: 0;
@@ -654,7 +813,7 @@ img.flying-clone {
 @media (max-width: 480px) {
 
   /* Product grid: smaller columns */
-  .pcus-prd-grid {
+  .pcus-prd-grid12 {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 10px;
   }
@@ -666,7 +825,7 @@ img.flying-clone {
   }
 
   /* Category buttons */
-  .pcus-category-btn {
+  .pcus-category-btn12 {
     min-width: 80px;
     max-width: 100px;
     height: 35px;
@@ -717,7 +876,7 @@ img.flying-clone {
   }
 
   /* Cart button smaller */
-  .pcus-prd-add-cart-btn {
+  .pcus-prd-add-cart-btn10 {
     width: 28px;
     height: 28px;
     margin: 0;

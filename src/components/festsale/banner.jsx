@@ -41,7 +41,7 @@ export default function SaleBanner() {
         style={{
           maxWidth: 1400,
           margin: '0 auto',
-          padding: '0 15px',
+          // padding: '0 15px',
           boxSizing: 'border-box',
           // No backgroundColor here, keep transparent so gradient shows outside container edges
           backgroundColor: 'transparent',

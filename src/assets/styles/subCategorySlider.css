@@ -317,19 +317,17 @@
 
 .pcus-no-products-wrapper {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 300px; /* Adjust this height as needed */
+  justify-content: center;  /* horizontal center */
+  align-items: center;      /* vertical center */
+  height: 300px;            /* adjust as needed for vertical centering space */
   width: 100%;
 }
 
 .pcus-no-products {
-  text-align: center;
   font-size: 18px;
-  color: #666;
+  color: #555;
+  font-weight: 600;
 }
-
-
 
 
 .pcus-badges-overlay::-webkit-scrollbar {

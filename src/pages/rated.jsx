@@ -3,7 +3,7 @@ import RatedProducts from '../components/ratedproducts'
 
 const rated = () => {
   return (
-    <div>
+    <div style={{minHeight:'50vh'}}>
 
         <RatedProducts/>
     </div>

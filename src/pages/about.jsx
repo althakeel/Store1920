@@ -1,58 +1,10 @@
 import React from 'react';
+import Abouticon from '../assets/images/about.png'
+import Fastdelivery from '../assets/images/delivery.png'
+import Commitment from '../assets/images/commetment-black.png'
+import Selectionicon from '../assets/images/selection-black.png'
 
-const icons = {
-  selection: (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="40"
-      height="40"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#464849ff"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4 4h16v16H4z" />
-      <path d="M4 9h16" />
-      <path d="M9 4v16" />
-    </svg>
-  ),
-  shipping: (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="40"
-      height="40"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#515253ff"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="1" y="3" width="15" height="13" />
-      <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-      <circle cx="5.5" cy="18.5" r="2.5" />
-      <circle cx="18.5" cy="18.5" r="2.5" />
-    </svg>
-  ),
-  commitment: (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="40"
-      height="40"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#575758ff"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4.5 8-10a8 8 0 0 0-16 0c0 5.5 8 10 8 10z" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
-  ),
-};
+
 
 const Store1920Info = () => {
   const container = {
@@ -148,7 +100,7 @@ const Store1920Info = () => {
         </div>
         <div style={rightSide}>
           <img
-            src="https://aimg.kwcdn.com/upload_aimg/personal/25472687-6a51-42f1-82ac-259b561c7ac5.png.slim.png?imageView2/2/w/1300/q/80/format/webp"
+            src= {Abouticon}
             alt="Store 1920 marketplace"
             style={imageStyle}
           />
@@ -157,7 +109,7 @@ const Store1920Info = () => {
 
       <section style={features}>
         <div style={featureCard}>
-          {icons.selection}
+         <img src={Selectionicon} style={{maxWidth:"50px"}}/>
           <h3 style={featureTitle}>Vast Selection</h3>
           <p style={featureDesc}>
             Explore an ever-growing catalog of premium products tailored to your tastes and needs.
@@ -165,7 +117,7 @@ const Store1920Info = () => {
         </div>
 
         <div style={featureCard}>
-          <img src='https://db.store1920.com/wp-content/uploads/2025/07/delivery.png' style={{maxWidth:'50PX'}}/>
+          <img src={Fastdelivery} style={{maxWidth:'50PX'}}/>
           <h3 style={featureTitle}>Fast & Reliable Shipping</h3>
           <p style={featureDesc}>
             Our streamlined logistics ensure your orders arrive quickly and safely, every time.
@@ -173,7 +125,7 @@ const Store1920Info = () => {
         </div>
 
         <div style={featureCard}>
-          {icons.commitment}
+          <img src={Commitment} style={{maxWidth:'50PX'}}/>
           <h3 style={featureTitle}>Commitment to You</h3>
           <p style={featureDesc}>
             We put customers first, striving for excellence and integrity in all we do.

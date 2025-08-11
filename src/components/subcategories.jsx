@@ -133,21 +133,16 @@ const fetchCategories = useCallback(async (page = 1) => {
 const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategoryId) => {
   setLoadingProducts(true);
   try {
-    const url =
-      `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc` +
-      (categoryId !== 'all' ? `&category=${categoryId}` : '');
+    // Append tag=lightingdeals to filter products by tag
+    const tagFilter = 'lightingdeals';
     
+    const url =
+      `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}` +
+      `&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc&tag=${tagFilter}` +
+      (categoryId !== 'all' ? `&category=${categoryId}` : '');
+
     const res = await fetch(url);
     let data = await res.json();
-
-    // 🔥 Filter only products with badges when "Recommended" button is selected
-    if (categoryId === 'all') {
-      data = data.filter(
-        (product) =>
-          Array.isArray(product.best_seller_recommended_badges) &&
-          product.best_seller_recommended_badges.length > 0
-      );
-    }
 
     if (page === 1) {
       setProducts(data);

@@ -9,6 +9,14 @@
   box-sizing: border-box;
 }
 
+
+.skeleton-wrapper,
+.slick-slide {
+  display: flex !important;
+  justify-content: center;
+}
+
+
 /* Category slide styling */
 .category-slide {
   outline: none !important;

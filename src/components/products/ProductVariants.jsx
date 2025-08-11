@@ -83,17 +83,18 @@ export default function ProductVariants({ variations, selectedVariation, onVaria
 
               return (
                 <button
-                  key={option}
-                  className={`variant-btn ${isSelected ? 'selected' : ''} ${isOutOfStock ? 'out-of-stock' : ''}`}
-                  type="button"
-                  disabled={isOutOfStock}
-                  aria-pressed={isSelected}
-                  onClick={() => {
-                    if (!isOutOfStock) {
-                      setSelectedOptions(prev => ({ ...prev, [name]: option }));
-                    }
-                  }}
-                >
+                key={option}
+                className={`variant-btn ${isSelected ? 'selected' : ''} ${isOutOfStock ? 'out-of-stock' : ''}`}
+                type="button"
+                disabled={isOutOfStock}
+                aria-pressed={isSelected}
+                onClick={() => {
+                  if (!isOutOfStock) {
+                    setSelectedOptions(prev => ({ ...prev, [name]: option }));
+                  }
+                }}
+              >
+                <div className="variant-image-wrapper">
                   {optionVariations[0]?.image?.src && (
                     <img
                       src={optionVariations[0].image.src}
@@ -102,8 +103,11 @@ export default function ProductVariants({ variations, selectedVariation, onVaria
                       loading="lazy"
                     />
                   )}
-                  <span className="variant-label">{option}</span>
-                </button>
+                  {isOutOfStock && <div className="variant-overlay">Out of Stock</div>}
+                </div>
+                <span className="variant-label">{option}</span>
+              </button>
+              
               );
             })}
           </div>

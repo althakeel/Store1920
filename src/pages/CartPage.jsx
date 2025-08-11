@@ -6,6 +6,7 @@ import OrderSummary from '../components/OrderSummary';
 import CouponInput from '../components/CouponInput';
 import '../assets/styles/cart.css';
 import CartMessages from '../components/sub/CartMessages';
+import ProductsUnder20AED from '../components/ProductsUnder20AED';
 
 export default function CartPage() {
   const { cartItems } = useCart();
@@ -18,6 +19,7 @@ export default function CartPage() {
   const total = Math.max(subtotal - discount, 0);
 
   return (
+    <>
     <div className="cartGrid">
       <section className="cartLeft">
         <CartMessages/>
@@ -28,6 +30,8 @@ export default function CartPage() {
         ) : (
           cartItems.map((item) => <CartItem key={item.id} item={item} />)
         )}
+
+        
       </section>
 
       <aside className="cartRight">
@@ -38,6 +42,11 @@ export default function CartPage() {
           onCheckout={() => (window.location.href = '/checkout')}
         />
       </aside>
+
+
     </div>
+    <ProductsUnder20AED/>
+
+    </>
   );
 }

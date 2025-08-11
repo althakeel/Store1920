@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../../assets/styles/ProductCategory.css';
-import { useCart } from '../../../contexts/CartContext';
-import MiniCart from '../../MiniCart';
-import AddCarticon from '../../../assets/images/addtocart.png';
-import AddedToCartIcon from '../../../assets/images/added-cart.png';
-import Adsicon from '../../../assets/images/summer-saving-coloured.png';
-import IconAED from '../../../assets/images/Dirham 2.png';
+import '../assets/styles/New.css';
+import { useCart } from '../contexts/CartContext';
+import MiniCart from '../components/MiniCart';
+import AddCarticon from '../assets/images/addtocart.png';
+import AddedToCartIcon from '../assets/images/added-cart.png';
+import Adsicon from '../assets/images/summer-saving-coloured.png';
+import IconAED from '../assets/images/Dirham 2.png';
 import { throttle } from 'lodash';
 
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v2';
 const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
 const CONSUMER_SECRET = 'cs_92458ba6ab5458347082acc6681560911a9e993d';
 
@@ -115,6 +115,13 @@ const ProductCategory = () => {
   const observerRef = React.useRef(null);
 
 
+const [newTagId, setnewTagId] = useState(null);
+
+
+  const BEST_RATED_TAG_SLUG = 'new';
+
+
+
   // Rotate badge color every 10 minutes
   useEffect(() => {
     const interval = setInterval(() => {
@@ -205,33 +212,45 @@ useEffect(() => {
     []
   );
 
-  const fetchProducts = useCallback(
-    async (page = 1, categoryId = selectedCategoryId) => {
-      setLoadingProducts(true);
-      try {
-        const url =
-          `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc` +
-          (categoryId !== 'all' ? `&category=${categoryId}` : '');
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (page === 1) {
-          setProducts(data);
-        } else {
-          setProducts((prev) => [...prev, ...data]);
-        }
-
-        setHasMoreProducts(data.length >= PRODUCTS_PER_PAGE);
-      } catch (e) {
-        console.error(e);
-        if (page === 1) setProducts([]);
-        setHasMoreProducts(false);
-      } finally {
-        setLoadingProducts(false);
-      }
-    },
-    [selectedCategoryId]
+  const getTagIdFromSlug = async (slug) => {
+  const res = await fetch(
+    `${API_BASE}/products/tags?slug=${slug}&consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
   );
+  const tags = await res.json();
+  return tags[0]?.id || null;
+};
+
+
+useEffect(() => {
+  getTagIdFromSlug(BEST_RATED_TAG_SLUG).then((id) => setnewTagId(id));
+}, []);
+
+const fetchProducts = useCallback(
+  async (page = 1, categoryId = selectedCategoryId) => {
+    if (!newTagId) return; // wait until tagId is loaded
+    setLoadingProducts(true);
+    try {
+      let url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc&tag=${newTagId}`;
+      if (categoryId !== 'all') url += `&category=${categoryId}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (page === 1) {
+        setProducts(data);
+      } else {
+        setProducts((prev) => [...prev, ...data]);
+      }
+
+      setHasMoreProducts(data.length >= PRODUCTS_PER_PAGE);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingProducts(false);
+    }
+  },
+  [selectedCategoryId, newTagId]
+);
 
   useEffect(() => {
     fetchCategories(1);
@@ -414,14 +433,14 @@ const onProductClick = useCallback((slug, id) => {
   }, [loadingProducts, hasMoreProducts, productsPage]);
 
   return (
-    <div className="pcus-wrapper3" style={{ display: 'flex' }}>
+    <div className="pcus-wrapper10" style={{ display: 'flex' }}>
       <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
         <div className="pcus-title-section">
           <h2 className="pcus-main-title">
-            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" /> SUMMER SAVINGS{' '}
+            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" /> BEST RATED{' '}
             <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" />
           </h2>
-          <p className="pcus-sub-title">BROWSE WHAT EXCITES YOU</p>
+          <p className="pcus-sub-title">DISCOVER TOP-LOVED PICKS</p>
         </div>
 
         <div className="pcus-categories-wrapper1 pcus-categories-wrapper3">
@@ -537,9 +556,9 @@ const onProductClick = useCallback((slug, id) => {
  {p.stock_status && (
   <>
     {p.stock_status === 'outofstock' ? (
-      <div className="pcus-stock-overlay out-of-stock">Out of Stock</div>
+      <div className="pcus-stock-overlay10 out-of-stock">Out of Stock</div>
     ) : typeof p.stock_quantity === 'number' && p.stock_quantity < 50 ? (
-      <div className="pcus-stock-overlay low-stock">
+      <div className="pcus-stock-overlay10 low-stock">
         Only {p.stock_quantity} left in stock
       </div>
     ) : null}
@@ -614,7 +633,7 @@ const onProductClick = useCallback((slug, id) => {
                         </div>
 
                         <button
-                          className={`pcus-prd-add-cart-btn ${
+                          className={`pcus-prd-add-cart-btn10 ${
                             cartItems.some((item) => item.id === p.id) ? 'added-to-cart' : ''
                           }`}
                           onClick={(e) => {

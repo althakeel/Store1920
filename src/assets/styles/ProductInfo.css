@@ -1,22 +1,29 @@
-/* Container */
-.product-info {
-  padding: 5px;
+/* === Container === */
+.pi-product-info {
+  padding: 5px 16px;
   font-family: 'Montserrat', sans-serif;
+  box-sizing: border-box;
+  max-width: 100vw;        /* use viewport width to prevent overflow */
+  overflow-x: hidden;      /* Prevent horizontal scroll */
+  margin: 0 auto;          /* center container */
 }
 
 /* === TITLE ROW === */
-.product-title-row {
+.pi-product-title-row {
   display: flex;
   align-items: center;            /* vertical center */
   justify-content: space-between; /* title left, share right */
   gap: 12px;
   margin: 16px 0;
+  flex-wrap: wrap;                /* allow wrapping on smaller screens */
+  min-width: 0;                   /* allow flex children to shrink */
+  width: 100%;                   /* ensure full width */
+  box-sizing: border-box;
 }
 
-/* Title with badges */
-.product-title-row h1 {
+.pi-product-title-row h1 {
   margin: 0;
-  font-size: .9rem;
+  font-size: 0.9rem;
   font-weight: 400;
   display: flex;           /* flex for badges + text */
   align-items: center;     /* vertical center badges and text */
@@ -24,31 +31,39 @@
   flex-grow: 1;            /* take available space */
   line-height: 1.2;
   color: #222;
+  min-width: 0;            /* fix flex shrink bug */
+  word-break: break-word;  /* break long words */
+  max-width: 100%;         /* prevent overflow */
 }
 
-/* Ensure badge spans inside h1 are aligned well */
-.product-title-row h1 span {
+.pi-product-title-row h1 span {
   display: inline-flex;
   align-items: center;
   line-height: 1;
   margin: 0;
 }
-.product-sku {
+
+.pi-product-sku {
   font-size: 14px;
   color: #666;
   margin-top: 4px;
+  word-break: break-word;
 }
-.product-brand {
+
+.pi-product-brand {
   font-size: 14px;
   color: #333;
   margin-top: 2px;
+  word-break: break-word;
 }
 
-/* ShareDropdown container */
-.product-title-row > *:last-child {
+.pi-product-title-row > *:last-child {
   display: flex;
   align-items: center;
   margin: 0;
+  flex-shrink: 0;          /* prevent share dropdown shrinking too much */
+  margin-left: auto;       /* keep aligned right on wrap */
+  max-width: 100%;
 }
 
 /* === VARIATIONS LIST === */
@@ -58,6 +73,8 @@
   flex-wrap: wrap;
   margin-top: 8px;
   width: 100%;
+  justify-content: flex-start;
+  box-sizing: border-box;
 }
 
 .variant-btn {
@@ -67,6 +84,13 @@
   cursor: pointer;
   border-radius: 6px;
   transition: border-color 0.3s, background-color 0.3s;
+  min-width: 80px;
+  text-align: center;
+  flex-shrink: 1;
+  flex-grow: 0;
+  user-select: none;
+  box-sizing: border-box;
+  white-space: nowrap; /* prevent button text wrapping */
 }
 
 .variant-btn.selected,
@@ -76,109 +100,104 @@
 }
 
 /* === OFFER BOX === */
-.product-info > .offer-box {
+.pi-product-info > .offer-box {
   margin-bottom: 12px;
 }
 
-
-/* product price  */
-
-
-/* product price end */
-
 /* === Responsive Styles === */
 
+/* Tablet and smaller */
 @media (max-width: 1024px) {
-  /* For tablets and smaller */
-  .product-title-row {
+  .pi-product-title-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
 
-  .product-title-row h1 {
+  .pi-product-title-row h1 {
     font-size: 0.85rem;
   }
 
   .variant-btn {
     padding: 7px 14px;
+    min-width: 70px;
   }
 }
 
+/* Large mobile and portrait tablets */
 @media (max-width: 768px) {
-  /* For large mobile and portrait tablets */
-  .product-info {
-    padding: 10px;
+  .pi-product-info {
+    padding: 10px 16px;
   }
 
-  .product-title-row h1 {
+  .pi-product-title-row h1 {
     font-size: 0.8rem;
+  }
+
+  .pi-product-title-row > * {
+    margin-bottom: 8px;
+  }
+
+  .pi-product-title-row > *:last-child {
+    margin-bottom: 0;
+    align-self: flex-end;
   }
 
   .variant-btn {
     font-size: 0.85rem;
     padding: 6px 12px;
+    min-width: 65px;
   }
 
-  .product-title-row {
+  .pi-product-title-row {
     flex-direction: column;
     align-items: flex-start;
   }
-
-  .product-title-row > *:last-child {
-    align-self: flex-end;
-  }
 }
 
+/* Small mobile devices */
 @media (max-width: 480px) {
-  /* For small mobile devices */
-  .product-title-row h1 {
+  .pi-product-info {
+    padding-left: 16px;
+    padding-right: 16px;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pi-product-title-row h1 {
     font-size: 0.75rem;
     line-height: 1.1;
+    font-weight: 600;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
   }
 
   .variant-btn {
     font-size: 0.8rem;
-    padding: 6px 10px;
-    flex: 1 1 48%;
+    padding: 6px 10px;        /* reduced padding to avoid overflow */
+    flex: 1 1 45%;
+    min-height: 40px;
+    text-align: center;
+    min-width: auto;
+    white-space: normal;      /* allow wrapping on very small widths */
   }
 
   .variants-list {
     gap: 8px;
+    justify-content: space-between;
   }
 
-  .product-title-row {
+  .pi-product-title-row {
     gap: 6px;
   }
-}
 
-
-/* === Responsive Fixes for Small Screens === */
-
-.product-info {
-  padding-left: 16px;
-  padding-right: 16px;
-  box-sizing: border-box;  /* include padding in width */
-  max-width: 100%;
-  overflow-x: hidden;      /* prevent horizontal scroll */
-}
-
-.product-title-row {
-  flex-wrap: wrap;         /* allow wrapping on small widths */
-  min-width: 0;            /* allow flex children to shrink */
-}
-
-.product-title-row h1 {
-  min-width: 0;            /* fix flex shrink bug on Firefox/Chrome */
-  word-break: break-word;  /* break long words if needed */
-}
-
-.product-title-row > *:last-child {
-  flex-shrink: 0;          /* prevent share dropdown shrinking too much */
-  margin-left: auto;       /* keep it aligned right on wrap */
-}
-
-.variant-btn {
-  min-width: 0;            /* allow buttons to shrink */
-  flex-shrink: 1;
+  .pi-product-title-row > *:last-child {
+    margin-top: 8px;
+    align-self: flex-start;
+  }
 }

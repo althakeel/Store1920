@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
-.pcus-wrapper3 {
+.pcus-wrapper10 {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px 10px;
@@ -10,7 +10,7 @@
 }
 
 
-.pcus-stock-overlay {
+.pcus-stock-overlay10 {
   position: absolute;
   bottom: 5px;
   left: 5px;
@@ -20,16 +20,16 @@
   color: #fff;
 }
 
-.pcus-stock-overlay.low-stock {
+.pcus-stock-overlay10.low-stock {
   background: rgba(255, 165, 0, 0.85); /* orange */
 }
 
-.pcus-stock-overlay.out-of-stock {
+.pcus-stock-overlay10.out-of-stock {
   background: rgba(255, 0, 0, 0.85); /* red */
 }
 
 
-.pcus-prd-add-cart-btn.added-to-cart {
+.pcus-prd-add-cart-btn10.added-to-cart {
   background-color: rgb(255, 255, 255) !important;
   transition: background-color 0.3s ease;
 }
@@ -462,7 +462,7 @@ img.flying-clone {
 }
 
 /* Add to cart button */
-.pcus-prd-add-cart-btn {
+.pcus-prd-add-cart-btn10 {
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 30px;
@@ -476,7 +476,7 @@ img.flying-clone {
   flex-shrink: 0;
 }
 
-.pcus-prd-add-cart-btn:hover {
+.pcus-prd-add-cart-btn10:hover {
   background-color: #eee;
 }
 
@@ -555,13 +555,6 @@ img.flying-clone {
   }
 }
 
-
-
-
-
-/* Responsive tweaks */
-/* Responsive styles for screens below 768px */
-/* Responsive styles for screens below 768px */
 /* Responsive styles for screens below 768px */
 @media (max-width: 768px) {
 
@@ -642,7 +635,7 @@ img.flying-clone {
   }
 
   /* Cart button size */
-  .pcus-prd-add-cart-btn {
+  .pcus-prd-add-cart-btn10 {
     width: 32px;
     height: 32px;
     margin: 0;
@@ -717,7 +710,7 @@ img.flying-clone {
   }
 
   /* Cart button smaller */
-  .pcus-prd-add-cart-btn {
+  .pcus-prd-add-cart-btn10 {
     width: 28px;
     height: 28px;
     margin: 0;

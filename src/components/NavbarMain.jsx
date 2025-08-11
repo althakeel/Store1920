@@ -204,19 +204,19 @@ useEffect(() => {
 
           <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
             <div className="nav-left-links">
-              <div className="nav-icon-with-text"  onClick={() => window.location.href = '/bestrated'}>
+              <div className="nav-icon-with-text"  onClick={() => window.location.href = '/new'}>
                 <img
                   src="https://db.store1920.com/wp-content/uploads/2025/07/7.png"
-                  alt="Best Rated"
+                  alt="New"
                   className="icon-small"
                 />
-                <span>Best Rated</span>
+                <span>New</span>
               </div>
 
               <div className="nav-icon-with-text star-rating" onClick={() => window.location.href = '/rated'}>
                 <img
                   src="https://db.store1920.com/wp-content/uploads/2025/07/6.png"
-                  alt="5 Star"
+                  alt="5 Star rated"
                   className="icon-star"
                 />
                 <span>5-Star Rated</span>

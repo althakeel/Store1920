@@ -79,63 +79,64 @@ export default function ProductInfo({ product, variations, selectedVariation, on
   };
 
   return (
-    <section className="product-info">
-      <OfferBox />
+    <section className="pi-product-info">
+  <OfferBox />
 
-      <div className="product-title-row">
-        <div className="badges-and-title">
-          <ProductBadges badges={product.custom_seller_badges || []} />
-          <h1>{product.name}</h1>
-          <ProductBadgesseller />
+  <div className="pi-product-title-row">
+    <div className="pi-badges-and-title">
+      <ProductBadges badges={product.custom_seller_badges || []} />
+      <h1>{product.name}</h1>
+      <ProductBadgesseller />
 
-          {product.sku && <p className="product-sku">SKU: {product.sku}</p>}
+      {product.sku && <p className="pi-product-sku">SKU: {product.sku}</p>}
 
-          {brand && <p className="product-brand">Brand: {brand}</p>}
-        </div>
-        <ShareDropdown url={window.location.href} />
-      </div>
+      {brand && <p className="pi-product-brand">Brand: {brand}</p>}
+    </div>
+    <ShareDropdown url={window.location.href} />
+  </div>
 
-      <PriceDisplay product={product} selectedVariation={selectedVariation} />
-      <ProductShortDescription shortDescription={product.short_description} />
+  <PriceDisplay product={product} selectedVariation={selectedVariation} />
+  <ProductShortDescription shortDescription={product.short_description} />
 
-      {showClearance && clearanceEndTime ? (
-        <ClearanceSaleBox endTime={clearanceEndTime}>
-          <ProductVariants
-            variations={variations}
-            selectedVariation={selectedVariation}
-            onVariationChange={onVariationChange}
-          />
-          <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
-        </ClearanceSaleBox>
-      ) : (
-        <>
-          <ProductVariants
-            variations={variations}
-            selectedVariation={selectedVariation}
-            onVariationChange={onVariationChange}
-            maxQuantity={maxQuantity}
-          />
-          <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
-        </>
-      )}
-
-      <ButtonSection
-        product={product}
+  {showClearance && clearanceEndTime ? (
+    <ClearanceSaleBox endTime={clearanceEndTime}>
+      <ProductVariants
+        variations={variations}
         selectedVariation={selectedVariation}
-        quantity={quantity}
-        isClearance={showClearance}
-        handleAddToCart={handleAddToCart}
+        onVariationChange={onVariationChange}
       />
+      <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
+    </ClearanceSaleBox>
+  ) : (
+    <>
+      <ProductVariants
+        variations={variations}
+        selectedVariation={selectedVariation}
+        onVariationChange={onVariationChange}
+        maxQuantity={maxQuantity}
+      />
+      <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
+    </>
+  )}
 
-      {hasItemDetails && (
-        <ItemDetailsTable
-          postId={product.id}
-          postType="posts"
-          onHasData={(exists) => setHasItemDetails(exists)}
-        />
-      )}
+  <ButtonSection
+    product={product}
+    selectedVariation={selectedVariation}
+    quantity={quantity}
+    isClearance={showClearance}
+    handleAddToCart={handleAddToCart}
+  />
 
-      <OrderPerks />
-    </section>
+  {hasItemDetails && (
+    <ItemDetailsTable
+      postId={product.id}
+      postType="posts"
+      onHasData={(exists) => setHasItemDetails(exists)}
+    />
+  )}
+
+  <OrderPerks />
+</section>
+
   );
 }

@@ -29,7 +29,7 @@ import ComparePage from './pages/compare';
 import Categories from './pages/Categories';
 import CategoryProducts from './pages/CategoryProducts';
 import AllProducts from './pages/allproducts';
-import Bestrated from './pages/bestrated';
+import New from './pages/New';
 import Rated from './pages/rated';
 import TestRegister from './pages/Testregister';
 import SupportPage from './pages/Support';
@@ -72,6 +72,7 @@ const AppContent = () => {
   // Removed loading state and related useEffect
 
   const isHomePage = path === '/';
+  const isFestSalePage = path === '/fest-sale';
   const onCartPage = path.startsWith('/cart');
   const onCheckoutPage = path === '/checkout' || path.startsWith('/checkout/');
   const cartIconRef = useRef(null);
@@ -172,7 +173,7 @@ const AppContent = () => {
                 background: '#fff',
               }}
             >
-              {!isHomePage && <Breadcrumbs />}
+            {!isHomePage && !isFestSalePage && <Breadcrumbs />}
 
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -198,7 +199,7 @@ const AppContent = () => {
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/category/:slug" element={<CategoryProducts />} />
                 <Route path="/allproducts" element={<AllProducts />} />
-                <Route path="/bestrated" element={<Bestrated />} />
+                <Route path="/new" element={<New />} />
                 <Route path="/rated" element={<Rated />} />
                 <Route path="/support" element={<SupportPage />} />
                 <Route path="/safetycenter" element={<SafetyCenter />} />
