@@ -44,7 +44,7 @@ const ProductsUnder20AED = () => {
 
         setHasMore(data.length === PRODUCTS_PER_PAGE);
       } catch (e) {
-        console.error('Failed to fetch products under 20 AED', e);
+        console.error('Failed to fetch products ', e);
       } finally {
         setLoading(false);
       }
@@ -90,7 +90,7 @@ const ProductsUnder20AED = () => {
   return (
     <div className="pcus-wrapper12" style={{ display: 'flex' }}>
       <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
-        <h2 style={{ padding: '10px 20px' }}>More Deals You’ll Love Under 20 AED</h2>
+        <h3 style={{ padding: '10px 20px' }}>More Deals You’ll Love </h3>
 
         {loading && products.length === 0 ? (
           <div className="pcus-prd-grid12">
@@ -100,7 +100,7 @@ const ProductsUnder20AED = () => {
           </div>
         ) : products.length === 0 ? (
           <div style={{ minHeight: '300px', textAlign: 'center', paddingTop: '40px', fontSize: '18px', color: '#666' }}>
-            No products under 20 AED found.
+            No products  found.
           </div>
         ) : (
           <div className="pcus-prd-grid12">

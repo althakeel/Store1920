@@ -5,7 +5,6 @@ import '../assets/styles/checkout/CheckoutRight.css';
 import TrustSection from './checkout/TrustSection';
 import CouponDiscount from './sub/account/CouponDiscount';
 import CoinBalance from './sub/account/CoinBalace';
-// import Deleteicon from '../assets/images/'
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_680365deac11404c39d7d9b523ac5dc2e1795863';
@@ -72,6 +71,7 @@ export default function CheckoutRight({ cartItems, formData }) {
   const [discount, setDiscount] = useState(0);
   const [coinDiscount, setCoinDiscount] = useState(0);
   const [coinMessage, setCoinMessage] = useState('');
+
   const itemsTotal = cartItems.reduce(
     (acc, item) => acc + parseFloat(item.price) * item.quantity,
     0
@@ -146,17 +146,23 @@ export default function CheckoutRight({ cartItems, formData }) {
         });
       }
 
+      // Get WooCommerce customer ID from localStorage (string)
+      const userId = localStorage.getItem('userId');
+
+      const orderPayload = {
+        billing,
+        shipping,
+        line_items,
+        payment_method: formData.paymentMethod,
+        payment_method_title: formData.paymentMethodTitle,
+        set_paid: formData.paymentMethod !== 'cod',
+        meta_data,
+        ...(userId ? { customer_id: parseInt(userId, 10) } : {}), // Added customer_id here
+      };
+
       const res = await axios.post(
         `${API_BASE}/orders`,
-        {
-          billing,
-          shipping,
-          line_items,
-          payment_method: formData.paymentMethod,
-          payment_method_title: formData.paymentMethodTitle,
-          set_paid: formData.paymentMethod !== 'cod',
-          meta_data,
-        },
+        orderPayload,
         {
           auth: {
             username: CK,
@@ -207,8 +213,6 @@ export default function CheckoutRight({ cartItems, formData }) {
     try {
       setCoinDiscount(0);
       showAlert('Coin discount removed.', 'info');
-      // Optional: If you need to add coins back to user balance in the backend:
-      // await axios.post(`${COIN_API_URL}/refund`, { user_id: userId, coins: lastRedeemedCoins });
     } catch (error) {
       console.error('Error removing coin discount:', error);
       showAlert('Failed to remove coin discount. Please try again.', 'error');
@@ -290,7 +294,13 @@ export default function CheckoutRight({ cartItems, formData }) {
       {coinDiscount > 0 && (
         <div
           className="summaryRow"
-          style={{ color: 'green', fontWeight: '600', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          style={{
+            color: 'green',
+            fontWeight: '600',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
         >
           <div>
             <span>Coin discount:</span>

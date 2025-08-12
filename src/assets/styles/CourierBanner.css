@@ -1,5 +1,5 @@
 .courier-banner-section {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 20px auto;
   background-color: #3b73ee;
   padding: 0 0px; /* small side padding for smaller screens */
@@ -12,7 +12,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  max-width: 1400px;
+  max-width: 1200px;
   width: 100%;
   box-sizing: border-box;
 }

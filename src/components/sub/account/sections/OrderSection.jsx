@@ -33,34 +33,46 @@ const OrderSection = ({ userId }) => {
 
   // fetchOrders defined here to reuse
   const fetchOrders = async () => {
-    if (!userId) {
-      setError('User not logged in.');
-      setOrders([]);
-      setLoading(false);
-      return;
+  if (!userId) {
+    setError('User not logged in.');
+    setOrders([]);
+    setLoading(false);
+    return;
+  }
+
+  setLoading(true);
+  setError(null);
+
+  try {
+    const params = { customer: userId };
+
+    // Do not send `status=shipped` to API because it is invalid
+    if (activeStatus && activeStatus !== 'shipped') {
+      params.status = activeStatus;
     }
 
-    setLoading(true);
-    setError(null);
+    const response = await axios.get(API_BASE_URL, {
+      auth: API_AUTH,
+      params,
+    });
 
-    try {
-      const params = { customer: userId };
-      if (activeStatus) params.status = activeStatus;
+    let fetchedOrders = response.data || [];
 
-      const response = await axios.get(API_BASE_URL, {
-        auth: API_AUTH,
-        params,
-      });
-
-      setOrders(response.data || []);
-    } catch (err) {
-      const message = err.response?.data?.message || err.message || 'Unknown error';
-      setError(`Failed to load orders: ${message}`);
-      setOrders([]);
-    } finally {
-      setLoading(false);
+    // If filtering shipped, filter client-side
+    if (activeStatus === 'shipped') {
+      fetchedOrders = fetchedOrders.filter(order => order.status === 'shipped');
     }
-  };
+
+    setOrders(fetchedOrders);
+  } catch (err) {
+    const message = err.response?.data?.message || err.message || 'Unknown error';
+    setError(`Failed to load orders: ${message}`);
+    setOrders([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // fetch orders on mount and on activeStatus or userId change
   useEffect(() => {

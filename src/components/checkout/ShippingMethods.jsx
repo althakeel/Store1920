@@ -10,63 +10,62 @@ const ShippingMethods = ({ countryCode, selectedMethodId, onSelect }) => {
   const CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
   const CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
 
-  useEffect(() => {
-    if (!countryCode) {
-      setMethods([]);
-      setLoading(false);
-      return;
-    }
+useEffect(() => {
+  if (!countryCode) {
+    setMethods([]);
+    setLoading(false);
+    console.log('No countryCode provided');
+    return;
+  }
 
-    const fetchShippingMethods = async () => {
-      setLoading(true);
-      setError(null);
+  const fetchShippingMethods = async () => {
+    setLoading(true);
+    setError(null);
+    console.log('Fetching zones for countryCode:', countryCode);
 
-      try {
-        // 1. Fetch all zones
-        const zonesRes = await fetch(`${API_BASE}/shipping/zones?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-        if (!zonesRes.ok) throw new Error(`Error fetching zones (${zonesRes.status})`);
-        const zones = await zonesRes.json();
+    try {
+      const zonesRes = await fetch(`${API_BASE}/shipping/zones?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+      const zones = await zonesRes.json();
+      console.log('Zones:', zones);
 
-        // 2. Find zone matching the country code
-        let matchedZone = null;
+      let matchedZone = null;
 
-        for (const zone of zones) {
-          const locationsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/locations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-          if (!locationsRes.ok) throw new Error(`Error fetching locations for zone ${zone.id} (${locationsRes.status})`);
-          const locations = await locationsRes.json();
+      for (const zone of zones) {
+        const locationsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/locations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+        const locations = await locationsRes.json();
+        console.log(`Zone ${zone.id} locations:`, locations);
 
-          // Match if any location.code equals countryCode (case-insensitive)
-          const found = locations.some(loc => loc.code.toUpperCase() === countryCode.toUpperCase());
-
-          if (found) {
-            matchedZone = zone;
-            break;
-          }
+        const found = locations.some(loc => loc.code.toUpperCase() === countryCode.toUpperCase());
+        if (found) {
+          matchedZone = zone;
+          break;
         }
-
-        // 3. If no matched zone found, try default zone (id=0)
-        if (!matchedZone) {
-          const defaultZoneRes = await fetch(`${API_BASE}/shipping/zones/0?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-          if (!defaultZoneRes.ok) throw new Error(`Error fetching default zone (0) (${defaultZoneRes.status})`);
-          matchedZone = await defaultZoneRes.json();
-        }
-
-        // 4. Fetch shipping methods for matched zone
-        const methodsRes = await fetch(`${API_BASE}/shipping/zones/${matchedZone.id}/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-        if (!methodsRes.ok) throw new Error(`Error fetching methods for zone ${matchedZone.id} (${methodsRes.status})`);
-        const methodsData = await methodsRes.json();
-
-        setMethods(methodsData);
-      } catch (err) {
-        setError(err.message || 'Failed to fetch shipping methods');
-        setMethods([]);
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchShippingMethods();
-  }, [countryCode]);
+      console.log('Matched zone:', matchedZone);
+
+      if (!matchedZone) {
+        const defaultZoneRes = await fetch(`${API_BASE}/shipping/zones/0?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+        matchedZone = await defaultZoneRes.json();
+        console.log('Default zone:', matchedZone);
+      }
+
+      const methodsRes = await fetch(`${API_BASE}/shipping/zones/${matchedZone.id}/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+      const methodsData = await methodsRes.json();
+      console.log('Shipping methods:', methodsData);
+
+      setMethods(methodsData);
+    } catch (err) {
+      setError(err.message || 'Failed to fetch shipping methods');
+      setMethods([]);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchShippingMethods();
+}, [countryCode]);
 
   if (loading) return <p>Loading shipping methods...</p>;
   if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;

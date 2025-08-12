@@ -22,7 +22,7 @@ const TemuCertifications = () => {
     },
     {
       question: 'Does Store1920 follow environmental certifications?',
-      answer: 'We comply with environmental standards such as ISO 14001 and promote sustainable practices.',
+      answer: 'We comply with environmental standards such as ISO 12001 and promote sustainable practices.',
     },
     {
       question: 'Are there certifications specific to food products?',

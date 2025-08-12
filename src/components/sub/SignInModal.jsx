@@ -116,6 +116,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     setErrorMsg(null);
 
     try {
+      console.log('Registering user with:', formData);
       const res = await axios.post(
         'https://db.store1920.com/wp-json/custom/v1/register',
         {
@@ -125,6 +126,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
           phone: formData.phone,
         }
       );
+      console.log('Registration response:', res.data);
 
       const loginRes = await axios.post(
         'https://db.store1920.com/wp-json/jwt-auth/v1/token',
@@ -133,6 +135,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
           password: formData.password,
         }
       );
+      console.log('Login after registration response:', loginRes.data);
 
       if (loginRes.data?.token) {
         const userInfo = {
@@ -149,6 +152,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         setErrorMsg('Login failed after registration');
       }
     } catch (err) {
+      console.error('Registration error:', err.response?.data || err.message);
       const rawMsg = err.response?.data?.message || 'Registration failed';
       setErrorMsg(parseErrorMsg(rawMsg));
     } finally {
@@ -162,6 +166,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     setErrorMsg(null);
 
     try {
+      console.log('Logging in user with:', { username: formData.email, password: '******' });
       const res = await axios.post(
         'https://db.store1920.com/wp-json/jwt-auth/v1/token',
         {
@@ -169,6 +174,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
           password: formData.password,
         }
       );
+      console.log('Login response:', res.data);
 
       if (res.data?.token) {
         const profileRes = await axios.get(
@@ -179,6 +185,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
             },
           }
         );
+        console.log('Profile response:', profileRes.data);
 
         const userInfo = {
           name: profileRes.data.name || formData.email,
@@ -195,6 +202,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         setErrorMsg('Invalid login credentials');
       }
     } catch (err) {
+      console.error('Login error:', err.response?.data || err.message);
       const rawMsg = err.response?.data?.message || 'Login failed';
       setErrorMsg(parseErrorMsg(rawMsg));
     } finally {
@@ -323,8 +331,6 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
             </button>
           </div>
 
-      
-
           {isRegister && (
             <div className="signin-input-wrapper">
               <input
@@ -354,19 +360,21 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
             {loading ? 'Please wait...' : isRegister ? 'Register' : 'Sign In'}
           </button>
         </form>
- {!isRegister && (
-  <div
-    className="signin-forgot-password-text"
-    onClick={handleForgotPassword}
-    role="link"
-    tabIndex={0}
-    onKeyPress={(e) => {
-      if (e.key === 'Enter') handleForgotPassword();
-    }}
-  >
-    Forgot password?
-  </div>
-)}
+
+        {!isRegister && (
+          <div
+            className="signin-forgot-password-text"
+            onClick={handleForgotPassword}
+            role="link"
+            tabIndex={0}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') handleForgotPassword();
+            }}
+          >
+            Forgot password?
+          </div>
+        )}
+
         <div className="signin-toggle-text">
           {isRegister ? (
             <>
@@ -392,8 +400,6 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
             </>
           )}
         </div>
-
-        
 
         <div className="signin-social-login">
           <button

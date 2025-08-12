@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../contexts/AuthContext';
-// import DeleteIcon from '../assets/images/Delete-icon.png'
-
 
 const COIN_API_URL = 'https://db.store1920.com/wp-json/custom/v1/coins';
 const REDEEM_API_URL = 'https://db.store1920.com/wp-json/custom/v1/redeem-coins';
@@ -57,51 +55,50 @@ const CoinBalance = ({ onCoinRedeem }) => {
   }, [toast.message]);
 
   const handleRedeem = async () => {
-  if (hasRedeemed) {
-    setToast({ message: 'Only one redemption allowed.', type: 'error' });
-    return;
-  }
+    if (hasRedeemed) {
+      setToast({ message: 'Only one redemption allowed.', type: 'error' });
+      return;
+    }
 
-  const coinsToRedeem = parseInt(redeemCoins, 10);
+    const coinsToRedeem = parseInt(redeemCoins, 10);
 
-  if (!coinsToRedeem || coinsToRedeem <= 0 || coinsToRedeem > coins) {
-    setToast({ message: 'Please enter a valid number of coins to redeem.', type: 'error' });
-    return;
-  }
+    if (!coinsToRedeem || coinsToRedeem <= 0 || coinsToRedeem > coins) {
+      setToast({ message: 'Please enter a valid number of coins to redeem.', type: 'error' });
+      return;
+    }
 
-  // Calculate discount as decimal
-  const discount = (coinsToRedeem / 10) * AED_PER_10_COINS;
+    // Calculate discount as decimal
+    const discount = (coinsToRedeem / 10) * AED_PER_10_COINS;
 
-  setRedeeming(true);
-  setError(null);
+    setRedeeming(true);
+    setError(null);
 
-  try {
-    const response = await axios.post(
-      REDEEM_API_URL,
-      { coins: coinsToRedeem, user_id: userId },
-      {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-      }
-    );
+    try {
+      const response = await axios.post(
+        REDEEM_API_URL,
+        { coins: coinsToRedeem, user_id: userId },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        }
+      );
 
-    const newBalance = response.data.new_balance;
-    setCoins(newBalance);
-    setRedeemCoins('');
-    setHasRedeemed(true);
-    onCoinRedeem?.({ coinsUsed: coinsToRedeem, discountAED: discount });
-    setToast({ message: 'Redeem successful!', type: 'success' });
-  } catch (err) {
-    const message = err.response?.data?.message || 'Failed to redeem coins. Please try again.';
-    setToast({ message, type: 'error' });
-    setError(message);
-  } finally {
-    setRedeeming(false);
-  }
-};
+      const newBalance = response.data.new_balance;
+      setCoins(newBalance);
+      setRedeemCoins('');
+      setHasRedeemed(true);
+      onCoinRedeem?.({ coinsUsed: coinsToRedeem, discountAED: discount });
+      setToast({ message: 'Redeem successful!', type: 'success' });
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to redeem coins. Please try again.';
+      setToast({ message, type: 'error' });
+      setError(message);
+    } finally {
+      setRedeeming(false);
+    }
+  };
 
-const discountPreview = (parseFloat(redeemCoins || '0') / 10) * AED_PER_10_COINS;
-
+  const discountPreview = (parseFloat(redeemCoins || '0') / 10) * AED_PER_10_COINS;
 
   // Inline Toast component centered at top
   const Toast = ({ message, type }) => {
@@ -211,12 +208,11 @@ const discountPreview = (parseFloat(redeemCoins || '0') / 10) * AED_PER_10_COINS
               Every 10 coins = AED {AED_PER_10_COINS}
             </p>
 
-         {redeemCoins && discountPreview > 0 && !hasRedeemed && (
-  <p style={{ fontSize: 13, color: '#000', marginTop: 6 }}>
-    You will get <strong>AED {discountPreview.toFixed(1)}</strong> off
-  </p>
-)}
-
+            {redeemCoins && discountPreview > 0 && !hasRedeemed && (
+              <p style={{ fontSize: 13, color: '#000', marginTop: 6 }}>
+                You will get <strong>AED {discountPreview.toFixed(1)}</strong> off
+              </p>
+            )}
 
             {error && (
               <p style={{ color: 'red', marginTop: 8, fontSize: 14 }}>{error}</p>

@@ -28,6 +28,15 @@ const OrderDetails = ({ order }) => {
         return 'https://img.icons8.com/ios-filled/50/12b76a/bank-card-back-side.png';
     }
   };
+  const statusColors = {
+  pending: '#ff3300ff',     // orange
+  processing: '#28a745',  // green (Confirmed)
+  confirmed: '#28a745',   // green
+  completed: '#007bff',   // blue
+  cancelled: '#6c757d',   // gray
+  refunded: '#17a2b8',    // teal
+  failed: '#dc3545',      // red
+};
 
   const closeModal = () => setShowReceipt(false);
 
@@ -37,8 +46,9 @@ const OrderDetails = ({ order }) => {
 
         {/* Status & Order info */}
         <div style={styles.statusSection}>
-          <p style={styles.statusText}>🟢 Picking in progress</p>
-          <p style={styles.orderInfo}>
+<strong style={{ color: statusColors[order.status] || '#000' }}>
+  {order.status === 'processing' ? 'Confirmed' : order.status} Order
+</strong>          <p style={styles.orderInfo}>
             Order time: {new Date(order.date_created).toLocaleString()} | Order ID: {order.id}
           </p>
         </div>

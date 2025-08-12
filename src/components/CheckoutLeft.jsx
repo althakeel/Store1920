@@ -6,13 +6,15 @@ import { auth } from '../utils/firebase';
 import PaymentMethods from '../components/checkoutleft/PaymentMethods';
 import AddressForm from '../components/checkoutleft/AddressForm';
 import ItemList from './checkoutleft/ItemList';
-import ShippingMethods from './checkout/ShippingMethods';
+import ShippingMethods from '../components/checkout/ShippingMethods';
 import emptyAddressImg from '../assets/images/adress-not-found.png';
 import DeleteIcon from '../assets/images/Delete-icon.png';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
 const CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
+
+const getLocalStorageKey = (userId) => `checkoutAddressData_${userId || 'guest'}`;
 
 const CheckoutLeft = ({
   formData,
@@ -33,6 +35,51 @@ const CheckoutLeft = ({
   const [error, setError] = useState(null);
   const [selectedShippingMethodId, setSelectedShippingMethodId] = useState(null);
 
+  // Load saved formData from localStorage per user on user change
+  useEffect(() => {
+    if (!user) return;
+    try {
+      const saved = localStorage.getItem(getLocalStorageKey(user.uid));
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.shipping) {
+          onChange({ target: { name: 'shipping', value: parsed.shipping, type: 'object' } }, 'shipping');
+        }
+        if (parsed.billing) {
+          onChange({ target: { name: 'billing', value: parsed.billing, type: 'object' } }, 'billing');
+        }
+        if (typeof parsed.billingSameAsShipping === 'boolean') {
+          onChange(
+            {
+              target: {
+                name: 'billingSameAsShipping',
+                value: parsed.billingSameAsShipping,
+                type: 'checkbox',
+                checked: parsed.billingSameAsShipping,
+              },
+            },
+            'checkbox'
+          );
+        }
+        if (parsed.shippingMethodId) {
+          onChange({ target: { name: 'shippingMethodId', value: parsed.shippingMethodId, type: 'radio' } }, 'shipping');
+        }
+      }
+    } catch {
+      // Ignore JSON parse errors
+    }
+  }, [user]);
+
+  // Save formData to localStorage per user whenever it changes
+  useEffect(() => {
+    if (!user) return;
+    try {
+      localStorage.setItem(getLocalStorageKey(user.uid), JSON.stringify(formData));
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [formData, user]);
+
   // Filter cart items to only those valid & in stock (your logic unchanged)
   const filteredCartItems = cartItems.filter((item) => {
     const rawPrice = item.prices?.price ?? item.price ?? '';
@@ -45,8 +92,7 @@ const CheckoutLeft = ({
       item.hasOwnProperty('is_in_stock') ||
       item.hasOwnProperty('stock_status');
 
-    const stockInQuantity =
-      typeof item.stock_quantity === 'number' ? item.stock_quantity > 0 : true;
+    const stockInQuantity = typeof item.stock_quantity === 'number' ? item.stock_quantity > 0 : true;
 
     const stockInFlag =
       (typeof item.in_stock === 'boolean' ? item.in_stock : true) &&
@@ -69,6 +115,10 @@ const CheckoutLeft = ({
     };
 
     setSelectedShippingMethodId(null);
+
+    if (user) {
+      localStorage.removeItem(getLocalStorageKey(user.uid));
+    }
 
     onChange({ target: { name: 'shipping', value: emptyAddress, type: 'object' } }, 'shipping');
 
@@ -133,7 +183,6 @@ const CheckoutLeft = ({
 
         const countryCode = formData.shipping.country.toUpperCase();
 
-        // Filter zones matching country
         const matchedZones = [];
 
         for (const zone of zones) {
@@ -149,7 +198,6 @@ const CheckoutLeft = ({
           }
         }
 
-        // Also consider default zone (id 0) if needed, or if no matched zone found
         if (matchedZones.length === 0) {
           const defaultZoneRes = await fetch(
             `${API_BASE}/shipping/zones/0/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
@@ -159,7 +207,6 @@ const CheckoutLeft = ({
           return;
         }
 
-        // Fetch methods for each matched zone and group them
         const groupedMethods = {};
         for (const zone of matchedZones) {
           const methodsRes = await fetch(
@@ -184,6 +231,10 @@ const CheckoutLeft = ({
   };
 
   const handleAddAddressClick = () => {
+    if (!user) {
+      setShowSignInModal(true);
+      return;
+    }
     setShowForm((prev) => !prev);
     setSaveSuccess(false);
     setError(null);
@@ -216,6 +267,7 @@ const CheckoutLeft = ({
       await res.json();
       setSaveSuccess(true);
       setShowForm(false);
+      if (user) localStorage.removeItem(getLocalStorageKey(user.uid)); // Clear user localStorage on successful save
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch {
       setError('Failed to save address. Please try again.');

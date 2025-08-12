@@ -71,14 +71,17 @@ const MiniCart = ({ navbarColor }) => {
   console.log('Cart items:', cartItems);
 }, [cartItems]);
 
-  const onCheckoutClick = () => {
-    if (!user) {
-      setSignInOpen(true);
-      return;
-    }
-    setIsCartOpen(false);
-    navigate('/checkout');
-  };
+const onCheckoutClick = () => {
+  const storedUserId = localStorage.getItem('userId');
+
+  if (!storedUserId) {
+    setSignInOpen(true);
+    return;
+  }
+  setIsCartOpen(false);
+  navigate('/checkout');
+};
+
 useEffect(() => {
   console.log('Cart items:', cartItems);
 }, [cartItems]);

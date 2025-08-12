@@ -12,7 +12,7 @@ import chroma from 'chroma-js';
 import MiniCart from './MiniCart';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v1';
 const CK = 'ck_2e4ba96dde422ed59388a09a139cfee591d98263';
 const CS = 'cs_43b449072b8d7d63345af1b027f2c8026fd15428';
 const WP_LOGO_API = 'https://db.store1920.com/wp-json/custom/v1/logo';

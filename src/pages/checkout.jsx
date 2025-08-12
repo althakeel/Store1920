@@ -6,6 +6,7 @@ import { useCart } from '../contexts/CartContext';
 import CheckoutLeft from '../components/CheckoutLeft';
 import CheckoutRight from '../components/CheckoutRight';
 import SignInModal from '../components/sub/SignInModal';
+import AuthContent from '../contexts/AuthContext'
 import '../assets/styles/checkout.css';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
@@ -190,64 +191,70 @@ useEffect(() => {
   const hasOutOfStock = cartItems.some((item) => !item.inStock);
 
   const handlePlaceOrder = async () => {
-    if (hasOutOfStock) {
-      setError('Please remove out-of-stock items from your cart before placing the order.');
-      return;
-    }
+  if (hasOutOfStock) {
+    setError('Please remove out-of-stock items from your cart before placing the order.');
+    return;
+  }
 
-    setError('');
-    setSubmitting(true);
+  setError('');
+  setSubmitting(true);
 
-    const lineItems = cartItems.map((item) => ({
-      product_id: item.id,
-      quantity: item.quantity,
-    }));
+  const lineItems = cartItems.map((item) => ({
+    product_id: item.id,
+    quantity: item.quantity,
+  }));
 
-    const shipping = formData.shipping;
-    const billing = formData.billingSameAsShipping ? shipping : formData.billing;
+  const shipping = formData.shipping;
+  const billing = formData.billingSameAsShipping ? shipping : formData.billing;
 
-    const orderPayload = {
-      payment_method: formData.paymentMethod,
-      payment_method_title: formData.paymentMethodTitle,
-      set_paid: false,
-      billing: {
-        first_name: billing.fullName,
-        address_1: billing.address1,
-        address_2: billing.address2,
-        city: billing.city,
-        state: billing.state,
-        postcode: billing.postalCode,
-        country: billing.country,
-        phone: billing.phone,
-        email: billing.email,
-      },
-      shipping: {
-        first_name: shipping.fullName,
-        address_1: shipping.address1,
-        address_2: shipping.address2,
-        city: shipping.city,
-        state: shipping.state,
-        postcode: shipping.postalCode,
-        country: shipping.country,
-        phone: shipping.phone,
-      },
-      line_items: lineItems,
-    };
+  // Get logged-in user ID from localStorage (make sure this is WooCommerce user ID)
+  const userId = localStorage.getItem('userId');
 
-    try {
-      const orderData = await fetchWithAuth('orders', {
-        method: 'POST',
-        body: JSON.stringify(orderPayload),
-      });
-
-      clearCart();
-      navigate(`/order-success?order_id=${orderData.id}`);
-    } catch (err) {
-      setError(err.message || 'Error placing order.');
-    } finally {
-      setSubmitting(false);
-    }
+  const orderPayload = {
+    payment_method: formData.paymentMethod,
+    payment_method_title: formData.paymentMethodTitle,
+    set_paid: false,
+    // Add customer_id if available
+    ...(userId ? { customer_id: parseInt(userId, 10) } : {}),
+    billing: {
+      first_name: billing.fullName,
+      address_1: billing.address1,
+      address_2: billing.address2,
+      city: billing.city,
+      state: billing.state,
+      postcode: billing.postalCode,
+      country: billing.country,
+      phone: billing.phone,
+      email: billing.email,
+    },
+    shipping: {
+      first_name: shipping.fullName,
+      address_1: shipping.address1,
+      address_2: shipping.address2,
+      city: shipping.city,
+      state: shipping.state,
+      postcode: shipping.postalCode,
+      country: shipping.country,
+      phone: shipping.phone,
+    },
+    line_items: lineItems,
   };
+
+  try {
+    const orderData = await fetchWithAuth('orders', {
+      method: 'POST',
+      body: JSON.stringify(orderPayload),
+    });
+
+    clearCart();
+    navigate(`/order-success?order_id=${orderData.id}`);
+  } catch (err) {
+    setError(err.message || 'Error placing order.');
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   if (loading) return <div className="loading">Loading checkout...</div>;
   if (error) return <div className="error">{error}</div>;

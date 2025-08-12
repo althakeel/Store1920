@@ -243,22 +243,28 @@ useEffect(() => {
     fetchProducts(1, selectedCategoryId);
   }, [selectedCategoryId, fetchProducts]);
 
-  const loadMoreProducts = () => {
+ const loadMoreProducts = useCallback(
+  throttle(() => {
     if (loadingProducts || !hasMoreProducts) return;
     const nextPage = productsPage + 1;
     setProductsPage(nextPage);
     fetchProducts(nextPage, selectedCategoryId);
-  };
+  }, 1000),
+  [loadingProducts, hasMoreProducts, productsPage, selectedCategoryId]
+);
 
-  useEffect(() => {
-    products.forEach((p) => {
-      if (p.type === 'variable') {
-        fetchFirstVariation(p.id);
-      }
-    });
-  }, [products]);
 
-  const fetchFirstVariation = async (productId) => {
+useEffect(() => {
+  products.forEach((p) => {
+    if (p.type === 'variable') {
+      fetchFirstVariation(p.id); // also fetch first variation for every variable product
+    }
+  });
+}, [products]);
+
+const fetchFirstVariation = async (productId) => {
+  if (variationPrices[productId]) return; // already fetched
+
   try {
     const res = await fetch(
       `${API_BASE}/products/${productId}/variations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=1`
@@ -279,6 +285,8 @@ useEffect(() => {
     console.error(`Error fetching first variation for product ${productId}`, error);
   }
 };
+
+// For example, call this function when user clicks a product card or hovers over it
 
 
   const updateArrowVisibility = useCallback(() => {
@@ -481,182 +489,130 @@ const onProductClick = useCallback((slug, id) => {
   </div>
 ) : (
   <>
-            <div className="pcus-prd-grid">
-              {sortedProducts.map((p) => {
-                const isVariable = p.type === 'variable';
-                const variationPriceInfo = variationPrices[p.id] || { price: null, regular_price: null, sale_price: null };
-                const variantsCount = p.variations ? p.variations.length : 0;
+           <div className="pcus-prd-grid">
+  {sortedProducts.map((p) => {
+    const isVariable = p.type === 'variable';
+    const variationPriceInfo = variationPrices[p.id] || { price: null, regular_price: null, sale_price: null };
+    const variantsCount = p.variations ? p.variations.length : 0;
 
-                const displayRegularPrice = isVariable
-                  ? variationPriceInfo.regular_price
-                  : p.regular_price || p.price;
+    const displayRegularPrice = isVariable
+      ? variationPriceInfo.regular_price
+      : p.regular_price || p.price;
 
-                const displaySalePrice = isVariable
-                  ? variationPriceInfo.sale_price
-                  : p.sale_price || null;
+    const displaySalePrice = isVariable
+      ? variationPriceInfo.sale_price
+      : p.sale_price || null;
 
-                const displayPrice = isVariable
-                  ? variationPriceInfo.price
-                  : p.price || p.regular_price || 0;
+    const displayPrice = isVariable
+      ? variationPriceInfo.price
+      : p.price || p.regular_price || 0;
 
-                const onSale = displaySalePrice && displaySalePrice !== displayRegularPrice;
+    const onSale = displaySalePrice && displaySalePrice !== displayRegularPrice;
 
-                const badges = []; // Placeholder, add your badge logic here if any
-                const soldCount = 0; // Placeholder, add your sold count logic here if any
+    const badges = []; // Placeholder, add your badge logic here if any
+    const soldCount = 0; // Placeholder, add your sold count logic here if any
 
-                return (
-                  <div
-                    key={p.id}
-                    className="pcus-prd-card"
-                   onClick={(e) => {
-  e.stopPropagation();
-  onProductClick(p.slug, p.id); // Pass product ID
-}}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug)}
-                    style={{ position: 'relative' }}
-                  >
-                   <div className="pcus-image-wrapper1">
-  <img
-    src={p.images?.[0]?.src || ''}
-    alt={decodeHTML(p.name)}
-    className="pcus-prd-image1 primary-img"
-    loading="lazy"
-    decoding="async"
-  />
-  {p.images?.[1] && (
+    // Determine if variation price data is loaded for variable products
+    const priceLoaded = !isVariable || (isVariable && variationPriceInfo.price !== null);
+
+    return (
+  <div
+  key={p.id}
+  className="pcus-prd-card"
+  onClick={(e) => {
+    e.stopPropagation();
+    onProductClick(p.slug, p.id);
+  }}
+  role="button"
+  tabIndex={0}
+  onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug)}
+  style={{ position: 'relative' }}
+>
+  <div className="pcus-image-wrapper1">
     <img
-      src={p.images[1].src}
-      alt={`${decodeHTML(p.name)} - second`}
-      className="pcus-prd-image1 secondary-img"
+      src={p.images?.[0]?.src || ''}
+      alt={decodeHTML(p.name)}
+      className="pcus-prd-image1 primary-img"
       loading="lazy"
       decoding="async"
     />
-  )}
- {p.stock_status && (
-  <>
-    {p.stock_status === 'outofstock' ? (
-      <div className="pcus-stock-overlay out-of-stock">Out of Stock</div>
-    ) : typeof p.stock_quantity === 'number' && p.stock_quantity < 50 ? (
-      <div className="pcus-stock-overlay low-stock">
-        Only {p.stock_quantity} left in stock
+    {/* Secondary image removed for initial load */}
+  </div>
+
+  <div className="pcus-prd-info1">
+    <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>
+
+    {/* Removed reviews, badges, sold count, variant count */}
+
+    <div className="pcus-prd-price-cart1">
+      <div className="pcus-prd-prices1">
+        <img
+          src={IconAED}
+          alt="AED currency icon"
+          style={{ width: 'auto', height: '13px', marginRight: '0px', verticalAlign: 'middle' }}
+        />
+        {onSale ? (
+          <>
+            <span className="pcus-prd-sale-price1">
+              {parseFloat(displaySalePrice || 0).toFixed(2)}
+            </span>
+            <span className="pcus-prd-regular-price1">
+              {parseFloat(displayRegularPrice || 0).toFixed(2)}
+            </span>
+            {displayRegularPrice && displaySalePrice && (
+              <span className="pcus-prd-discount-box1">
+                -{Math.round(
+                  ((parseFloat(displayRegularPrice) - parseFloat(displaySalePrice)) /
+                    parseFloat(displayRegularPrice)) *
+                    100
+                )}
+                % OFF
+              </span>
+            )}
+          </>
+        ) : (
+          <span className="price1">{parseFloat(displayPrice || 0).toFixed(2)}</span>
+        )}
       </div>
-    ) : null}
-  </>
-)}
 
+      <button
+        className={`pcus-prd-add-cart-btn ${
+          cartItems.some((item) => item.id === p.id) ? 'added-to-cart' : ''
+        }`}
+        onClick={(e) => {
+          e.stopPropagation();
+          flyToCart(e, p.images?.[0]?.src);
+          addToCart(p, true);
+        }}
+        aria-label={`Add ${decodeHTML(p.name)} to cart`}
+      >
+        <img
+          src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCarticon}
+          alt={cartItems.some((item) => item.id === p.id) ? 'Added to cart' : 'Add to cart'}
+          className="pcus-prd-add-cart-icon-img"
+        />
+      </button>
 
+      <div
+        id="cart-icon"
+        ref={cartIconRef}
+        style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000, cursor: 'pointer' }}
+      />
+    </div>
+  </div>
 </div>
 
-                    <div className="pcus-prd-info1">
-                      <h3 className="pcus-prd-title1">
-                        {badges.length > 0 && (
-                          <div className={`pcus-badges-inline pcus-badges-color-${badgeColors[badgeColorIndex]}`}>
-                            {badges.map((badge, i) => (
-                              <span key={i} className={`pcus-badge pcus-badge-${badge}`}>
-                                {badgeLabelMap[badge]}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        &nbsp;{truncate(decodeHTML(p.name))}
-                      </h3>
+    );
+  })}
+</div>
 
-                      <div className="pcus-prd-review" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        {renderStars(p.average_rating)}
-                        <div className="pcus-sold-badge" style={{ position: 'static' }}>
-                          Sold: {soldCount}
-                        </div>
-                       
-                       {isVariable && variantsCount > 1 && (
-  <div className="pcus-variant-count-label" style={{ marginTop: '6px' }}>
-    + {variantsCount} variants
+         {hasMoreProducts && (
+  <div style={{ textAlign: 'center', margin: '20px 0' }}>
+    <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>
+      {loadingProducts ? 'Loading…' : 'Load More'}
+    </button>
   </div>
 )}
-                      </div>
-                     
-
-                      <ReviewPills productId={p.id} />
-
-                      <div className="pcus-prd-price-cart1">
-                        <div className="pcus-prd-prices1">
-                          <img
-                            src={IconAED}
-                            alt="AED currency icon"
-                            style={{ width: 'auto', height: '13px', marginRight: '0px', verticalAlign: 'middle' }}
-                          />
-                 {onSale ? (
-  <>
-    <span className="pcus-prd-sale-price1">
-      {parseFloat(displaySalePrice || 0).toFixed(2)}
-    </span>
-    <span className="pcus-prd-regular-price1">
-      {parseFloat(displayRegularPrice || 0).toFixed(2)}
-    </span>
-    {displayRegularPrice && displaySalePrice && (
-      <span className="pcus-prd-discount-box1">
-        -{Math.round(
-          ((parseFloat(displayRegularPrice) - parseFloat(displaySalePrice)) /
-            parseFloat(displayRegularPrice)) *
-            100
-        )}
-        % OFF
-      </span>
-    )}
-  </>
-) : (
-  <span className="price1">{parseFloat(displayPrice || 0).toFixed(2)}</span>
-)}
-
-
-                          
-                        </div>
-
-                        <button
-                          className={`pcus-prd-add-cart-btn ${
-                            cartItems.some((item) => item.id === p.id) ? 'added-to-cart' : ''
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            flyToCart(e, p.images?.[0]?.src);
-                            addToCart(p, true);
-                          }}
-                          aria-label={`Add ${decodeHTML(p.name)} to cart`}
-                        >
-                          <img
-                            src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCarticon}
-                            alt={cartItems.some((item) => item.id === p.id) ? 'Added to cart' : 'Add to cart'}
-                            className="pcus-prd-add-cart-icon-img"
-                          />
-                        </button>
-
-                        <div
-                          id="cart-icon"
-                          ref={cartIconRef}
-                          style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000, cursor: 'pointer' }}
-                        />
-                      </div>
-                        {/* <div style={{fontSize:"10px"}}>
-                              + {variantsCount} variants
-                          </div> */}
-                    </div>
-                    
-                  </div>
-                  
-                );
-                
-              })}
-              
-            </div>
-
-            {hasMoreProducts && (
-              <div style={{ textAlign: 'center', margin: '20px 0' }}>
-                <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>
-                  {loadingProducts ? 'Loading…' : 'Load More'}
-                </button>
-              </div>
-            )}
           </>
         )}
       </div>

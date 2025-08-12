@@ -16,6 +16,7 @@ import PaymentMethodsSection from '../components/sub/account/sections/PaymentMet
 import SecuritySection from '../components/sub/account/sections/SecuritySection';
 import PermissionsSection from '../components/sub/account/sections/PermissionsSection';
 import NotificationsSection from '../components/sub/account/sections/NotificationsSection';
+import ProductsUnder20AED from '../components/ProductsUnder20AED';
 
 import '../assets/styles/myaccount.css';
 
@@ -124,7 +125,9 @@ const MyAccount = () => {
             <Route path="" element={<Navigate to="orders" replace />} />
           </Routes>
         </main>
+        
       </div>
+      <ProductsUnder20AED/>
     </div>
   );
 };

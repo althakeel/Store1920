@@ -112,7 +112,7 @@ const NotificationsSection = ({ userId, token }) => {
   return (
     <div
       style={{
-        maxWidth: 1400,
+        maxWidth: 1200,
         margin: "20px auto",
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
         padding: "0 1rem",

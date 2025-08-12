@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+
+const LOCAL_STORAGE_KEY = 'checkoutAddressData';
 
 const AddressForm = ({
   formData,
@@ -13,6 +15,15 @@ const AddressForm = ({
   saving,
   error,
 }) => {
+  // Save formData to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
+    } catch {
+      // ignore localStorage errors
+    }
+  }, [formData]);
+
   const popupWrapperStyle = {
     position: 'fixed',
     top: 0,
@@ -186,41 +197,40 @@ const AddressForm = ({
           </label>
           <label style={labelStyle}>
             Phone
-           <PhoneInput
-  country={'ae'}
-  value={formData[section].phone}
-  onChange={(phone) => handlePhoneChange(phone, section)}
-  containerStyle={{
-    marginTop: '6px',
-    width: '100%',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    display: 'flex',
-    alignItems: 'center',
-    padding: '0 8px', // adds space around flag and input
-    boxSizing: 'border-box',
-  }}
-  inputStyle={{
-    border: 'none',
-    width: '100%',
-    fontSize: '1rem',
-    height: '40px',
-    boxShadow: 'none',
-    marginLeft:"25px",
-  }}
-  buttonStyle={{
-    border: 'none',
-    backgroundColor: '#fff',
-  }}
-  dropdownStyle={{
-    width: '280px',
-    maxHeight: '200px',
-    overflowY: 'auto',
-  }}
-  enableSearch={true}
-  countryCodeEditable={true}
-/>
-
+            <PhoneInput
+              country={'ae'}
+              value={formData[section].phone}
+              onChange={(phone) => handlePhoneChange(phone, section)}
+              containerStyle={{
+                marginTop: '6px',
+                width: '100%',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '0 8px',
+                boxSizing: 'border-box',
+              }}
+              inputStyle={{
+                border: 'none',
+                width: '100%',
+                fontSize: '1rem',
+                height: '40px',
+                boxShadow: 'none',
+                marginLeft: '25px',
+              }}
+              buttonStyle={{
+                border: 'none',
+                backgroundColor: '#fff',
+              }}
+              dropdownStyle={{
+                width: '280px',
+                maxHeight: '200px',
+                overflowY: 'auto',
+              }}
+              enableSearch={true}
+              countryCodeEditable={true}
+            />
           </label>
           <label style={labelStyle}>
             State / Province

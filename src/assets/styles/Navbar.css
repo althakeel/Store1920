@@ -8,15 +8,16 @@
   top: 0;
   z-index: 1000;
   user-select: none;
+
 }
 
 .navbar-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1400px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 0 10px;
+  padding: 5px 10px;
   gap: 30px;
   flex-wrap: nowrap;
   min-height: 56px;
@@ -61,9 +62,9 @@
 .logo {
   color: #ff6a00;
   font-weight: 700;
- max-width: 45px;
+ max-width: 52px;
   border-radius: 6px;
-  font-size: 32px; /* increased from 25px */
+  font-size: 12px; /* increased from 25px */
   user-select: none;
   cursor: pointer;
   flex-shrink: 0;
@@ -71,18 +72,16 @@
   transition: filter 0.2s ease;
 }
 
-.logo:hover {
-  filter: brightness(1.15);
-}
 
 /* Container for left links */
 .nav-left-links {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 5px;
   padding-left: 0;
   margin-left: 0;
 }
+
 
 .nav-left-links a,
 .dropdown-trigger {
@@ -105,7 +104,7 @@
 
 .nav-left-links a:hover,
 .dropdown-trigger:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.25) !important;
 }
 .dropdown-trigger {
   -webkit-font-smoothing: antialiased;

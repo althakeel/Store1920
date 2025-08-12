@@ -38,7 +38,27 @@ const AllOrders = ({
   };
 
   const toggleOrderDetails = (orderId) => {
-    setExpandedOrderId(prev => (prev === orderId ? null : orderId));
+    setExpandedOrderId((prev) => (prev === orderId ? null : orderId));
+  };
+
+  const orderStatusLabels = {
+    pending: 'Pending',
+    confirmed: 'Confirmed',
+    processing: 'Processing',
+    completed: 'Delivered',
+    cancelled: 'Cancelled',
+    refunded: 'Refunded',
+    failed: 'Failed',
+  };
+
+  const orderStatusColors = {
+    pending: '#ff4800ff',     // orange
+    confirmed: '#28a745',     // green
+    processing: '#007bff',    // blue
+    completed: '#007bff',     // blue
+    cancelled: '#6c757d',     // gray
+    refunded: '#17a2b8',      // teal
+    failed: '#dc3545',        // red
   };
 
   const handleBuyAgain = async (lineItems, orderId) => {
@@ -108,7 +128,7 @@ const AllOrders = ({
           formData: {
             ...prev.formData,
             billingSameAsShipping: checked,
-          }
+          },
         };
       }
       return {
@@ -118,8 +138,8 @@ const AllOrders = ({
           [section]: {
             ...prev.formData[section],
             [name]: value,
-          }
-        }
+          },
+        },
       };
     });
   };
@@ -237,31 +257,31 @@ const AllOrders = ({
           {/* Header */}
           <div className="order-header-simple">
             <div>
-              <strong>Order confirmed</strong> | Email sent to{' '}
+              <strong style={{ color: orderStatusColors[order.status] || '#000' }}>
+                Order {orderStatusLabels[order.status] || order.status}
+              </strong> | Email sent to{' '}
               <span>{order.billing.email}</span> on{' '}
               {new Date(order.date_created).toLocaleDateString()}
             </div>
-        <button
-  onClick={() => setDetailedOrder(order)}
-  aria-expanded={false}
-  style={{
-    background: 'none',
-    border: 'none',
-    padding: 0,
-    margin: 0,
-    color: '#FF8C00',       // or your preferred link color
-    cursor: 'pointer',
-    textDecoration: 'none',
-    fontSize: 'inherit',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '4px',
-  }}
->
-  View order details &nbsp;<span style={{ fontWeight: 'bold', color: '#FF8C00' }}>→</span>
-
-</button>
-
+            <button
+              onClick={() => setDetailedOrder(order)}
+              aria-expanded={false}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                margin: 0,
+                color: '#FF8C00',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontSize: 'inherit',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              View order details &nbsp;<span style={{ fontWeight: 'bold', color: '#FF8C00' }}>→</span>
+            </button>
           </div>
 
           {/* Delivery */}
@@ -303,14 +323,25 @@ const AllOrders = ({
               <del>{order.currency} {order.total}</del>&nbsp;
               <strong>{order.currency} {order.total}</strong>
             </div>
-            <div>Order Time: {new Date(order.date_created).toLocaleString()}</div>
+            <div>
+              Order Time:{' '}
+              {new Intl.DateTimeFormat('en-GB', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Dubai',
+              }).format(new Date(order.date_created))}
+            </div>
             <div>Order ID: PO-{order.id}</div>
             <div>Payment method: {order.payment_method_title || order.payment_method}</div>
           </div>
 
           {/* Actions */}
           <div className="order-actions-simple">
-            {/* <button className="btn-orange">Add more items to order</button> */}
             <button className="btn-outline" onClick={() => openEditAddress(order)}>
               Change address
             </button>
@@ -321,7 +352,9 @@ const AllOrders = ({
             >
               {buyingAgainOrderId === order.id ? 'Adding...' : 'Buy this again'}
             </button>
-            <button className="btn-secondary" onClick={() => setTrackingOrder(order)}>Track</button>
+            <button className="btn-secondary" onClick={() => setTrackingOrder(order)}>
+              Track
+            </button>
             {isCancelable(order.status) && (
               <button
                 className="btn-secondary"

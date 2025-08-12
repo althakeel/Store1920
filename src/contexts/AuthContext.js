@@ -17,9 +17,10 @@ export const AuthProvider = ({ children }) => {
     } else {
       // fallback to localStorage
       const id = localStorage.getItem('userId');
+      const email = localStorage.getItem('email');
       const token = localStorage.getItem('token');
-      if (id && token) {
-        setUser({ id, token });
+      if (id && email && token) {
+        setUser({ id, email, token });
       }
     }
   
@@ -38,18 +39,22 @@ export const AuthProvider = ({ children }) => {
   const login = (userData) => {
     setUser(userData);
 
-     if (userData?.id) {
-    localStorage.setItem('userId', userData.id);
-  }
-  if (userData?.token) {
-    localStorage.setItem('token', userData.token);
-  }
+    if (userData?.id) {
+      localStorage.setItem('userId', userData.id);
+    }
+    if (userData?.email) {
+      localStorage.setItem('email', userData.email);
+    }
+    if (userData?.token) {
+      localStorage.setItem('token', userData.token);
+    }
   };
 
   const logout = () => {
     setUser(null);
-      localStorage.removeItem('userId');
-  localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('email');
+    localStorage.removeItem('token');
   };
 
   return (
