@@ -12,6 +12,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CookieConsentProvider } from './contexts/CookieConsentContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // import { SignOutModalProvider } from './contexts/SignOutModalProvider';
 
@@ -64,8 +65,11 @@ import ProductDetailsRedirect from './pages/ProductDetailsRedirect';
 import TrackOrder from './pages/track-order';
 import MobileNavbar from './components/Mobile/MobileNavbar';
 import ChatBot from './components/sub/Chatbot';
+import { useNetworkSpeed } from './hooks/useNetworkSpeed';
+import { ToastContainer } from 'react-toastify';
 
 const AppContent = () => {
+  useNetworkSpeed(); 
   const { isCartOpen, setIsCartOpen } = useCart();
   const location = useLocation();
   const path = location.pathname;
@@ -139,6 +143,7 @@ const AppContent = () => {
   }, [onCheckoutPage, isCartOpen, setIsCartOpen]);
 
   return (
+    <GoogleOAuthProvider clientId="HwYK8fUGicIEYk3RV16SVyvWJN9sctAJoxFhnTsT">
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <>
@@ -229,11 +234,13 @@ const AppContent = () => {
             )}
           </div>
 <ChatBot/>
+  <ToastContainer />
           <Footer />
           {isMobile && !onCartPage && !onCheckoutPage && !is404Page && <MobileBottomNav />}
         </>
       </AuthProvider>
     </QueryClientProvider>
+    </GoogleOAuthProvider>
   );
 };
 

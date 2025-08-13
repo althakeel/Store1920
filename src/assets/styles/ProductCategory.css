@@ -303,6 +303,19 @@ img.flying-clone {
 
 }
 
+.pcus-prd-image1.secondary-img {
+  opacity: 0;
+  z-index: 1;
+}
+
+.pcus-image-wrapper1:hover .primary-img {
+  opacity: 0;
+}
+
+.pcus-image-wrapper1:hover .secondary-img {
+  opacity: 1;
+}
+
 
 /* Badges overlay at bottom of image */
 .pcus-badges-overlay {

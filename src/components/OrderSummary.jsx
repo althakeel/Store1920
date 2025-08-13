@@ -131,13 +131,13 @@ export default function OrderSummary({
 
       {/* <p className="os-almost-sold" aria-live="polite">⏰ 1 almost sold out</p> */}
 
-      <button
+      {/* <button
         type="button"
         className="os-paypal-btn"
         aria-label="Express checkout with PayPal"
       >
         Express checkout with <strong>PayPal</strong>
-      </button>
+      </button> */}
 
       <p className="os-footnote">
         <span>ⓘ</span> Item availability and pricing are not guaranteed until payment is final.

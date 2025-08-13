@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import MainBanner from '../components/MainBanner';
 import Whychoose from '../components/sub/home/whychoose';
-import WhychooseMobile from '../components/sub/home/whychoosemobile'; // Make sure this exists
+import WhychooseMobile from '../components/sub/home/whychoosemobile';
 import CategorySlider from '../components/sub/home/categoryslider';
 import ProductCategory from '../components/sub/home/productcategory';
 import LightningBanner from '../components/sub/home/LightningBanner';
-import LightningBannerMobile from '..//components/Mobile/mobileLightningdeals'; // Assume a different mobile version
+import LightningBannerMobile from '..//components/Mobile/mobileLightningdeals'; 
 import CourierBanner from '../components/sub/home/CourierBanner';
 import Shippingmobile from '../components/Mobile/shipping'
 import MobileCategoriesSlider from '../components/Mobile/MobileCategorySlider';

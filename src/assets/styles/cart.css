@@ -1,4 +1,6 @@
-/* --- Cart Grid Layout --- */
+/* =====================
+   Cart Page - Desktop (default)
+===================== */
 .cartGrid {
     display: flex;
     flex-wrap: wrap;
@@ -7,104 +9,101 @@
     margin: 10px auto;
     padding: 0 16px;
     font-family: 'Segoe UI', Tahoma, sans-serif;
-    /* background-color: #f9f9f9; */
-  }
-  
-  /* --- Columns --- */
-  .cartLeft,
-  .cartRight {
+}
+
+.cartLeft,
+.cartRight {
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     padding: 20px;
-  }
-  
-  .cartLeft {
-    flex: 1 1 500px;
+}
+
+.cartLeft {
+    flex: 1 1 500px; /* desktop column width */
     min-width: 320px;
-  }
-  
-  .cartRight {
-    flex: 0 0 360px;
-  }
-  
-  /* --- Cart Item --- */
-  .cartItem {
+}
+
+.cartRight {
+    flex: 0 0 360px; /* desktop sidebar width */
+}
+
+/* --- Cart Items --- */
+.cartItem {
     display: flex;
     gap: 15px;
     padding-bottom: 15px;
     margin-bottom: 20px;
     border-bottom: 1px solid #eee;
     align-items: center;
-  }
-  
-  .cartItem img {
+}
+
+.cartItem img {
     width: 80px;
     height: 80px;
     object-fit: cover;
     border-radius: 8px;
-    flex-shrink: 0;
-  }
-  
-  .cartInfo {
+}
+
+.cartInfo {
     flex: 1;
-  }
-  
-  .cartInfo .price {
+}
+
+.cartInfo .price {
     margin: 6px 0;
     color: #333;
     font-weight: 600;
     font-size: 1rem;
-  }
-  
-  .removeBtn {
+}
+
+.removeBtn {
     background: none;
     border: none;
     font-size: 24px;
     color: #e53935;
     cursor: pointer;
     transition: color 0.2s ease;
-  }
-  
-  .removeBtn:hover {
+}
+
+.removeBtn:hover {
     color: #b71c1c;
-  }
-  
-  /* --- Order Summary --- */
-  .orderSummary h3 {
+}
+
+/* --- Order Summary --- */
+.orderSummary h3 {
     margin-bottom: 20px;
     font-weight: 700;
     font-size: 1.5rem;
     color: #222;
-  }
-  
-  .orderSummary .row {
+}
+
+.orderSummary .row {
     display: flex;
     justify-content: space-between;
     margin-bottom: 12px;
     font-size: 1rem;
     color: #444;
-  }
-  
-  .orderSummary .discount {
+}
+
+.orderSummary .discount {
     color: #c62828;
     font-weight: 600;
-  }
-  
-  .orderSummary .total {
+}
+
+.orderSummary .total {
     font-weight: 700;
     font-size: 1.25rem;
     color: #111;
-  }
-  
-  .orderSummary .note {
+}
+
+.orderSummary .note {
     font-size: 12px;
     color: #555;
     margin-bottom: 24px;
-  }
-  
-  /* Checkout Button */
-  .checkoutBtn {
+}
+
+/* Checkout Button */
+.checkoutBtn {
     background-color: #4caf50;
     color: #fff;
     border: none;
@@ -114,38 +113,32 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-  }
-  
-  .checkoutBtn:hover {
+}
+
+.checkoutBtn:hover {
     background-color: #388e3c;
-  }
-  
-  /* --- Coupon Box --- */
-  .couponBox {
+}
+
+/* Coupon Box */
+.couponBox {
     margin-top: 20px;
-  }
-  
-  .couponBox .row {
+}
+
+.couponBox .row {
     display: flex;
     gap: 8px;
     margin-top: 6px;
-  }
-  
-  .couponBox input {
+}
+
+.couponBox input {
     flex: 1;
     padding: 8px 12px;
     border: 1px solid #bbb;
     border-radius: 4px;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
-  }
-  
-  .couponBox input:focus {
-    border-color: #2196f3;
-    outline: none;
-  }
-  
-  .couponBox button {
+}
+
+.couponBox button {
     padding: 8px 16px;
     border: none;
     border-radius: 4px;
@@ -153,45 +146,86 @@
     background-color: #2196f3;
     color: #fff;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .couponBox button:hover {
+}
+
+.couponBox button:hover {
     background-color: #1976d2;
-  }
-  
-  .couponBox .err {
-    color: #d32f2f;
-    font-size: 13px;
-    margin-top: 4px;
-  }
-  
-  /* --- Responsive Tweaks --- */
-  @media (max-width: 768px) {
+}
+
+/* =====================
+   Tablet: 1024px and below
+===================== */
+@media (max-width: 1024px) {
     .cartGrid {
-      flex-direction: column;
-      gap: 24px;
-      max-width: 100%;
-      padding: 0 12px;
+        flex-direction: column; /* stack columns */
+        gap: 24px;
+        max-width: 95%;
+        padding: 0 12px;
     }
-  
+
+    .cartLeft,
     .cartRight {
-      flex: 1 1 auto;
-      width: 100%;
+        flex: 1 1 100%; /* override fixed flex */
+        width: 100%;
     }
-  
-    .cartLeft {
-      flex: 1 1 auto;
-      width: 100%;
-    }
-  
+
     .cartItem img {
-      width: 60px;
-      height: 60px;
+        width: 70px;
+        height: 70px;
     }
-  
+
     .checkoutBtn {
-      font-size: 16px;
+        font-size: 17px;
     }
-  }
-  
+}
+
+/* =====================
+   Mobile: 768px and below
+===================== */
+@media (max-width: 768px) {
+    .cartGrid {
+        flex-direction: column; /* ensure stacking */
+        gap: 16px;
+        padding: 0 10px;
+    }
+
+    .cartLeft,
+    .cartRight {
+        flex: 1 1 100%; /* stack fully */
+        width: 100%;
+        padding: 0px;
+    }
+
+    .cartItem {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .cartItem img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .cartInfo {
+        width: 100%;
+    }
+
+    .orderSummary .row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .couponBox .row {
+        flex-direction: column;
+    }
+
+    .couponBox button {
+        width: 100%;
+    }
+
+    .checkoutBtn {
+        font-size: 16px;
+        padding: 10px 0;
+    }
+}

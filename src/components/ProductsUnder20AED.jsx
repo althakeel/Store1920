@@ -90,7 +90,7 @@ const ProductsUnder20AED = () => {
   return (
     <div className="pcus-wrapper12" style={{ display: 'flex' }}>
       <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
-        <h3 style={{ padding: '10px 20px' }}>More Deals You’ll Love </h3>
+        <h3 style={{ padding: '10px 20px 10px 0' }}>More Deals You’ll Love </h3>
 
         {loading && products.length === 0 ? (
           <div className="pcus-prd-grid12">

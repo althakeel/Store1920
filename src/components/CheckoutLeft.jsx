@@ -388,7 +388,10 @@ const CheckoutLeft = ({
       </div>
 
       <div className="section-block">
-        <PaymentMethods onMethodSelect={onPaymentMethodSelect} />
+     <PaymentMethods
+  selectedMethod={formData.paymentMethod || 'cod'}
+  onMethodSelect={(id) => onChange({ target: { name: 'paymentMethod', value: id, type: 'radio' } }, 'payment')}
+/>
       </div>
 
       <HelpText />

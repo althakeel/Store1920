@@ -5,6 +5,8 @@ import '../../../../assets/styles/myaccount/OrderSection.css';
 import AllOrders from './sub/Orders';
 import ProcessingOrders from './sub/processingorder';
 import ShippedOrder from './sub/shippedorder';
+import OrderDelivered from './sub/OrderDelivered';
+import OrderReturns from './sub/OrderReturns';
 
 const API_BASE_URL = 'https://db.store1920.com/wp-json/wc/v3/orders';
 const API_AUTH = {
@@ -31,50 +33,47 @@ const OrderSection = ({ userId }) => {
     { label: 'Returns', value: 'refunded' },
   ];
 
-  // fetchOrders defined here to reuse
   const fetchOrders = async () => {
-  if (!userId) {
-    setError('User not logged in.');
-    setOrders([]);
-    setLoading(false);
-    return;
-  }
-
-  setLoading(true);
-  setError(null);
-
-  try {
-    const params = { customer: userId };
-
-    // Do not send `status=shipped` to API because it is invalid
-    if (activeStatus && activeStatus !== 'shipped') {
-      params.status = activeStatus;
+    if (!userId) {
+      setError('User not logged in.');
+      setOrders([]);
+      setLoading(false);
+      return;
     }
 
-    const response = await axios.get(API_BASE_URL, {
-      auth: API_AUTH,
-      params,
-    });
+    setLoading(true);
+    setError(null);
 
-    let fetchedOrders = response.data || [];
+    try {
+      const params = { customer: userId };
 
-    // If filtering shipped, filter client-side
-    if (activeStatus === 'shipped') {
-      fetchedOrders = fetchedOrders.filter(order => order.status === 'shipped');
+      // WooCommerce API doesn't support shipped filter directly
+      if (activeStatus && activeStatus !== 'shipped') {
+        params.status = activeStatus;
+      }
+
+      const response = await axios.get(API_BASE_URL, {
+        auth: API_AUTH,
+        params,
+      });
+
+      let fetchedOrders = response.data || [];
+
+      // Client-side filtering for shipped
+      if (activeStatus === 'shipped') {
+        fetchedOrders = fetchedOrders.filter(order => order.status === 'shipped');
+      }
+
+      setOrders(fetchedOrders);
+    } catch (err) {
+      const message = err.response?.data?.message || err.message || 'Unknown error';
+      setError(`Failed to load orders: ${message}`);
+      setOrders([]);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setOrders(fetchedOrders);
-  } catch (err) {
-    const message = err.response?.data?.message || err.message || 'Unknown error';
-    setError(`Failed to load orders: ${message}`);
-    setOrders([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  // fetch orders on mount and on activeStatus or userId change
   useEffect(() => {
     fetchOrders();
   }, [activeStatus, userId]);
@@ -119,10 +118,8 @@ const OrderSection = ({ userId }) => {
       );
 
       alert(`Order #${orderId} has been cancelled.`);
-      setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId ? { ...order, status: 'cancelled' } : order
-        )
+      setOrders(prev =>
+        prev.map(order => (order.id === orderId ? { ...order, status: 'cancelled' } : order))
       );
     } catch (err) {
       alert('Failed to cancel the order. Please try again.');
@@ -137,16 +134,16 @@ const OrderSection = ({ userId }) => {
     setActiveStatus('');
   };
 
-  const slugify = (text) =>
+  const slugify = text =>
     text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
-  const handleProductClick = (slug) => {
+  const handleProductClick = slug => {
     navigate(`/product/${slug}`);
   };
 
-  const isCancelable = (status) => ['processing', 'on-hold'].includes(status);
+  const isCancelable = status => ['processing', 'on-hold'].includes(status);
 
-  const handleBuyAgain = async (items) => {
+  const handleBuyAgain = async items => {
     try {
       for (const item of items) {
         await axios.post(CART_API_URL, {
@@ -161,6 +158,66 @@ const OrderSection = ({ userId }) => {
     }
   };
 
+  const renderOrdersByStatus = () => {
+    switch (activeStatus) {
+      case 'processing':
+        return (
+          <ProcessingOrders
+            orders={orders}
+            cancellingOrderId={cancellingOrderId}
+            cancelOrder={cancelOrder}
+            handleProductClick={handleProductClick}
+            slugify={slugify}
+            isCancelable={isCancelable}
+          />
+        );
+
+      case 'shipped':
+        return (
+          <ShippedOrder
+            orders={orders}
+            cancellingOrderId={cancellingOrderId}
+            cancelOrder={cancelOrder}
+            handleProductClick={handleProductClick}
+            slugify={slugify}
+            isCancelable={isCancelable}
+            onOrdersUpdated={fetchOrders}
+          />
+        );
+
+      case 'completed':
+        return (
+          <OrderDelivered
+            orders={orders}
+            handleProductClick={handleProductClick}
+            slugify={slugify}
+          />
+        );
+
+      case 'refunded':
+        return (
+          <OrderReturns
+            orders={orders}
+            handleProductClick={handleProductClick}
+            slugify={slugify}
+          />
+        );
+
+      default:
+        return (
+          <AllOrders
+            orders={orders}
+            cancellingOrderId={cancellingOrderId}
+            cancelOrder={cancelOrder}
+            handleProductClick={handleProductClick}
+            slugify={slugify}
+            isCancelable={isCancelable}
+            onOrdersUpdated={fetchOrders}
+          />
+        );
+    }
+  };
+
   return (
     <div className="order-section">
       <div className="order-header">
@@ -170,7 +227,7 @@ const OrderSection = ({ userId }) => {
             type="text"
             placeholder="Search by Order ID (e.g. PO-12345)"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
           />
           <button onClick={handleSearch}>
             <svg
@@ -209,46 +266,7 @@ const OrderSection = ({ userId }) => {
       {loading && <p>Loading orders...</p>}
       {error && <p className="error">{error}</p>}
       {!loading && !error && orders.length === 0 && <p>No orders found.</p>}
-
-    {!loading && !error && orders.length > 0 && (() => {
-  if (activeStatus === 'processing') {
-    return (
-      <ProcessingOrders
-        orders={orders}
-        cancellingOrderId={cancellingOrderId}
-        cancelOrder={cancelOrder}
-        handleProductClick={handleProductClick}
-        slugify={slugify}
-        isCancelable={isCancelable}
-      />
-    );
-  } else if (activeStatus === 'shipped') {
-    return (
-      <ShippedOrder
-        orders={orders}
-        cancellingOrderId={cancellingOrderId}
-        cancelOrder={cancelOrder}
-        handleProductClick={handleProductClick}
-        slugify={slugify}
-        isCancelable={isCancelable}
-        onOrdersUpdated={fetchOrders}
-      />
-    );
-  } else {
-    return (
-      <AllOrders
-        orders={orders}
-        cancellingOrderId={cancellingOrderId}
-        cancelOrder={cancelOrder}
-        handleProductClick={handleProductClick}
-        slugify={slugify}
-        isCancelable={isCancelable}
-        onOrdersUpdated={fetchOrders}
-      />
-    );
-  }
-})()}
-
+      {!loading && !error && orders.length > 0 && renderOrdersByStatus()}
     </div>
   );
 };

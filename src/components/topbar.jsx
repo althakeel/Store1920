@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../assets/styles/TopBar.css';
 import { FaTruck, FaClipboardCheck, FaMobileAlt } from 'react-icons/fa';
+import { useCart } from '../contexts/CartContext'; // import cart context
 
 const messages = [
   {
@@ -48,6 +49,7 @@ const messages = [
 ];
 
 export default function TopBar() {
+  const { isCartOpen, isMobile } = useCart(); // get cart state
   const [index, setIndex] = useState(0);
   const [fading, setFading] = useState(false);
   const slideRef = useRef(null);
@@ -60,8 +62,8 @@ export default function TopBar() {
       setTimeout(() => {
         setIndex((prev) => prev + 1);
         setFading(false);
-      }, 300); // fade duration
-    }, 3300); // interval slightly longer than fade duration
+      }, 300);
+    }, 3300);
 
     return () => clearInterval(interval);
   }, []);
@@ -84,7 +86,13 @@ export default function TopBar() {
   const loopMessages = [...messages, messages[0]];
 
   return (
-    <div className="topbar-wrapper">
+    <div
+      className="topbar-wrapper"
+      style={{
+        width: isMobile ? '100%' : isCartOpen ? 'calc(100% - 250px)' : '100%',
+        transition: 'width 0.3s ease',
+      }}
+    >
       <div className="topbar-container">
         {/* Left Item */}
         <a href={messages[0].link} className="topbar-col" style={{ color: messages[0].color }}>

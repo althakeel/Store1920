@@ -9,12 +9,13 @@ import Adsicon from '../../../assets/images/summer-saving-coloured.png';
 import IconAED from '../../../assets/images/Dirham 2.png';
 import { throttle } from 'lodash';
 
+
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
 const CONSUMER_SECRET = 'cs_92458ba6ab5458347082acc6681560911a9e993d';
 
 const PAGE_SIZE = 10;
-const PRODUCTS_PER_PAGE = 20;
+const PRODUCTS_PER_PAGE = 40;
 const TITLE_LIMIT = 35;
 
 const badgeLabelMap = {
@@ -115,6 +116,9 @@ const ProductCategory = () => {
   const observerRef = React.useRef(null);
 
 
+const [promoImage, setPromoImage] = useState('');
+const [promoSubtitle, setPromoSubtitle] = useState('');
+
   // Rotate badge color every 10 minutes
   useEffect(() => {
     const interval = setInterval(() => {
@@ -140,6 +144,21 @@ const ProductCategory = () => {
     }
     fetchCurrencySymbol();
   }, []);
+
+useEffect(() => {
+  fetch('https://db.store1920.com/wp-json/custom/v1/promo')
+    .then(res => res.json())
+    .then(data => {
+      console.log('Promo data:', data); // Check this in console
+      const promo = data.data || data; // adjust based on structure
+      setPromoImage(promo.promo_image || '');
+      setPromoSubtitle(promo.promo_subtitle || '');
+    })
+    .catch(err => console.error('Fetch promo error', err));
+}, []);
+
+
+
 
 useEffect(() => {
   const recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
@@ -408,18 +427,18 @@ const onProductClick = useCallback((slug, id) => {
 }, []);
 
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (loadingProducts || !hasMoreProducts) return;
+useEffect(() => {
+  const throttledHandleScroll = throttle(() => {
+    if (loadingProducts || !hasMoreProducts) return;
 
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-        loadMoreProducts();
-      }
-    };
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+      loadMoreProducts();
+    }
+  }, 200); // adjust throttle delay as needed
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loadingProducts, hasMoreProducts, productsPage]);
+  window.addEventListener('scroll', throttledHandleScroll);
+  return () => window.removeEventListener('scroll', throttledHandleScroll);
+}, [loadingProducts, hasMoreProducts, productsPage, loadMoreProducts]);
 
   return (
     <div className="pcus-wrapper3" style={{ display: 'flex' }}>
@@ -431,6 +450,20 @@ const onProductClick = useCallback((slug, id) => {
           </h2>
           <p className="pcus-sub-title">BROWSE WHAT EXCITES YOU</p>
         </div>
+        <div className="pcus-title-section">
+<h2 className="pcus-main-title">
+  {promoImage && <img src={promoImage} style={{ maxWidth: '18px' }} alt="Promo icon" />} 
+  {promoImage && <img src={promoImage} style={{ maxWidth: '18px' }} alt="Promo icon" />}
+</h2>
+<p className="pcus-sub-title">{promoSubtitle}</p>
+
+</div>
+{promoImage && (
+  <div className="promo-section">
+    <img src={promoImage} alt="Promo" style={{ maxWidth: '150px' }} />
+    <p>{promoSubtitle}</p>
+  </div>
+)}
 
         <div className="pcus-categories-wrapper1 pcus-categories-wrapper3">
           {canScrollLeft && (
@@ -528,16 +561,24 @@ const onProductClick = useCallback((slug, id) => {
   onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug)}
   style={{ position: 'relative' }}
 >
-  <div className="pcus-image-wrapper1">
+<div className="pcus-image-wrapper1">
+  <img
+    src={p.images?.[0]?.src || ''}
+    alt={decodeHTML(p.name)}
+    className="pcus-prd-image1 primary-img"
+    loading="lazy"
+    decoding="async"
+  />
+  {p.images?.[1] && (
     <img
-      src={p.images?.[0]?.src || ''}
+      src={p.images[1].src}
       alt={decodeHTML(p.name)}
-      className="pcus-prd-image1 primary-img"
+      className="pcus-prd-image1 secondary-img"
       loading="lazy"
       decoding="async"
     />
-    {/* Secondary image removed for initial load */}
-  </div>
+  )}
+</div>
 
   <div className="pcus-prd-info1">
     <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>

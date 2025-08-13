@@ -179,6 +179,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
       if (res.data?.token) {
         const profileRes = await axios.get(
           'https://db.store1920.com/wp-json/wp/v2/users/me',
+
           {
             headers: {
               Authorization: `Bearer ${res.data.token}`,

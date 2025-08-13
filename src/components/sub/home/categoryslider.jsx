@@ -72,8 +72,8 @@ const CategorySlider = () => {
     responsive: [
       { breakpoint: 2560, settings: { slidesToShow: 6.2 } },
       { breakpoint: 1536, settings: { slidesToShow: 5.5 } },
-      { breakpoint: 1280, settings: { slidesToShow: 5 } },
-      { breakpoint: 1024, settings: { slidesToShow: 3.8 } },
+      { breakpoint: 1280, settings: { slidesToShow: 5.8 } },
+      { breakpoint: 1024, settings: { slidesToShow: 4.8 } },
       { breakpoint: 768, settings: { slidesToShow: 3.5 } },
       { breakpoint: 600, settings: { slidesToShow: 3.8 } },
       { breakpoint: 480, settings: { slidesToShow: 3.5 } },

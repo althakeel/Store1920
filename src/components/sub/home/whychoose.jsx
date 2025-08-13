@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import '../../../assets/styles/WhyChoose.css';
 import ReminderIcon from '../../../assets/images/insurance.png'
+import LockIcon from '../../../assets/images/icons/Asset 324@6x.png'
+import SecureIcon from '../../../assets/images/icons/Asset 338@6x.png'
+import Cardicon from '../../../assets/images/icons/Asset 344@6x.png'
+import Deliveryicon from '../../../assets/images/icons/Asset 325@6x.png'
+import NotficationIcon from '../../../assets/images/icons/Asset 320@6x.png'
+import Test1 from '../../../assets/images/test/4@6x.png'
+import Test2 from '../../../assets/images/test/5@6x.png'
+import Test3 from '../../../assets/images/test/6@6x.png'
+import Test4 from '../../../assets/images/test/7@6x.png'
+
 
 const WhyChoose = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,22 +32,22 @@ const WhyChoose = () => {
           {/* Green Bar */}
           <div className="whychoose-bar" onClick={openModal}>
             <div className="whychoose-left">
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/padlock.png" alt="Check" className="whychoose-icon" />
+              <img src={LockIcon} alt="Check" className="whychoose-icon" />
               <span className="whychoose-title">Why choose Store1920</span>
             </div>
             <div className="whychoose-right">
               <a href="#">
-                <img src="https://db.store1920.com/wp-content/uploads/2025/07/security-1.png" alt="Secure" className="whychoose-link-icon" />
+                <img src={SecureIcon} alt="Secure" className="whychoose-link-icon" />
                 <span>Secure privacy</span>
               </a>
               <span className="divider">|</span>
               <a href="#">
-                <img src="https://db.store1920.com/wp-content/uploads/2025/07/credit-card.png" alt="Payment" className="whychoose-link-icon" />
+                <img src={Cardicon} alt="Payment" className="whychoose-link-icon" />
                 <span>Safe payments</span>
               </a>
               <span className="divider">|</span>
               <a href="#">
-                <img src="https://db.store1920.com/wp-content/uploads/2025/07/van.png" alt="Delivery" className="whychoose-link-icon" />
+                <img src={Deliveryicon} alt="Delivery" className="whychoose-link-icon" />
                 <span>Delivery guarantee&nbsp;&nbsp;&nbsp;&nbsp;</span>
               </a>
             </div>
@@ -45,7 +55,16 @@ const WhyChoose = () => {
 
           {/* Reminder Bar */}
           <div className="whychoose-reminder">
-            <img src="https://db.store1920.com/wp-content/uploads/2025/07/notification.png" alt="Alert" className="reminder-icon" />
+            <img src={NotficationIcon} alt="Alert" className="reminder-icon" />
+
+            <img src={Test1} alt="Alert" className="reminder-icon" />
+
+            <img src={Test2} alt="Alert" className="reminder-icon" />
+
+            <img src={Test3} alt="Alert" className="reminder-icon" />
+
+            <img src={Test4} alt="Alert" className="reminder-icon" />
+
             <p className="reminder-text">
               <strong>Security reminder:</strong> Please be wary of scam messages and links. Store1920 won't ask for extra fees via SMS or email.
             </p>

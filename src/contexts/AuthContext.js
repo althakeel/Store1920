@@ -8,25 +8,37 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load initial user from sessionStorage
+  // Load initial user from localStorage or sessionStorage
   useEffect(() => {
-    const saved = sessionStorage.getItem('user');
-  
-    if (saved) {
-      setUser(JSON.parse(saved));
-    } else {
-      // fallback to localStorage
-      const id = localStorage.getItem('userId');
-      const email = localStorage.getItem('email');
-      const token = localStorage.getItem('token');
-      if (id && email && token) {
-        setUser({ id, email, token });
+    const loadUser = () => {
+      const saved = sessionStorage.getItem('user');
+      if (saved) {
+        setUser(JSON.parse(saved));
+      } else {
+        const id = localStorage.getItem('userId');
+        const email = localStorage.getItem('email');
+        const token = localStorage.getItem('token');
+        if (id && email && token) {
+          setUser({ id, email, token });
+        }
       }
-    }
-  
-    setLoading(false);
+      setLoading(false);
+    };
+
+    loadUser();
+
+    // Listen to storage events from other tabs
+    const handleStorageChange = (e) => {
+      if (e.key === 'userId' || e.key === 'email' || e.key === 'token') {
+        loadUser();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
-  
+
   // Persist user to sessionStorage
   useEffect(() => {
     if (user) {
@@ -39,15 +51,9 @@ export const AuthProvider = ({ children }) => {
   const login = (userData) => {
     setUser(userData);
 
-    if (userData?.id) {
-      localStorage.setItem('userId', userData.id);
-    }
-    if (userData?.email) {
-      localStorage.setItem('email', userData.email);
-    }
-    if (userData?.token) {
-      localStorage.setItem('token', userData.token);
-    }
+    if (userData?.id) localStorage.setItem('userId', userData.id);
+    if (userData?.email) localStorage.setItem('email', userData.email);
+    if (userData?.token) localStorage.setItem('token', userData.token);
   };
 
   const logout = () => {

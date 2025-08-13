@@ -24,8 +24,8 @@ const decodeHtml = (html) => {
   return txt.value;
 };
 
-const NavbarWithMegaMenu = ({cartIconRef , openCart, backgroundColor = '#fff' }) => {
-    const isDark = chroma(backgroundColor).luminance() < 0.5;
+const NavbarWithMegaMenu = ({ cartIconRef, openCart, backgroundColor = '#fff' }) => {
+  const isDark = chroma(backgroundColor).luminance() < 0.5;
   const textColor = isDark ? '#fff' : '#000';
   const [sitelogo, setSitelogo] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -36,17 +36,17 @@ const NavbarWithMegaMenu = ({cartIconRef , openCart, backgroundColor = '#fff' })
   const [signInOpen, setSignInOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
- const { isCartOpen, setIsCartOpen, cartItems } = useCart();
+  const { isCartOpen, setIsCartOpen, cartItems } = useCart();
   const [supportDropdownOpen, setSupportDropdownOpen] = useState(false);
   const timeoutRef = useRef(null);
   const supportTimeoutRef = useRef(null); // 👈 Add this line
   const loggedInUserId = user?.id || null;
-     const navigate = useNavigate();
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-const totalQuantity = cartItems?.reduce(
-  (acc, item) => acc + (Number(item.quantity) || 0),
-  0
-) || 0;
+  const totalQuantity = cartItems?.reduce(
+    (acc, item) => acc + (Number(item.quantity) || 0),
+    0
+  ) || 0;
 
 
   const userTimeoutRef = useRef(null); // ✅ Add this line
@@ -54,44 +54,44 @@ const totalQuantity = cartItems?.reduce(
   const { addToCart } = useCart();
 
   const handleAddToCart = (product, quantity = 1) => {
-  if (!user) {
-    setSignInOpen(true); // show login modal if not logged in
-    return false; // or return to stop further processing
-  }
-  addToCart(product, quantity); // proceed if logged in
-  return true;
-};
+    if (!user) {
+      setSignInOpen(true); // show login modal if not logged in
+      return false; // or return to stop further processing
+    }
+    addToCart(product, quantity); // proceed if logged in
+    return true;
+  };
 
 
-// console.log('Navbar user.id:', user?.id);
+  // console.log('Navbar user.id:', user?.id);
 
-const truncateName = (name, maxLength = 10) => {
-  if (!name) return '';
-  return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
-  
-};
-const capitalizeFirst = (str) => {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-};
-useEffect(() => {
-  if (user) {
-    // console.log('Current user:', user);
-    // console.log('User ID passed to CoinWidget:', user.id);
-  }
-}, [user]);
+  const truncateName = (name, maxLength = 10) => {
+    if (!name) return '';
+    return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
 
-useEffect(() => {
-  const handleResize = () => setIsMobile(window.innerWidth <= 768);
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
+  };
+  const capitalizeFirst = (str) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+  useEffect(() => {
+    if (user) {
+      // console.log('Current user:', user);
+      // console.log('User ID passed to CoinWidget:', user.id);
+    }
+  }, [user]);
 
-useEffect(() => {
-  console.log('Full user object:', user);
-  console.log('user.id:', user?.id);
-  console.log('user.userId:', user?.userId);
-}, [user]);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    console.log('Full user object:', user);
+    console.log('user.id:', user?.id);
+    console.log('user.userId:', user?.userId);
+  }, [user]);
 
 
   useEffect(() => {
@@ -149,46 +149,46 @@ useEffect(() => {
 
   return (
     <>
-    <nav
-  className="navbar"
-  style={{
-     width: isMobile ? '100%' : (isCartOpen ? 'calc(100% - 250px)' : '100%'),
-    transition: 'width 0.3s ease',
-    backgroundColor: backgroundColor || '#FF6C01',
-    color: textColor,
-  }}
->
+      <nav
+        className="navbar"
+        style={{
+          width: isMobile ? '100%' : (isCartOpen ? 'calc(100% - 250px)' : '100%'),
+          transition: 'width 0.3s ease',
+          backgroundColor: backgroundColor || '#FF6C01',
+          color: textColor,
+        }}
+      >
         <div className="navbar-inner">
           <div className="nav-left">
-           { sitelogo ? (
-  <img
-    src='https://db.store1920.com/wp-content/uploads/2025/07/cropped-1.webp'
-    alt="Store1920"
-    className="logo"
-    style={{ maxHeight: 55, cursor: 'pointer' }}
-    onClick={() => {
-      closeMobileMenu();
-      window.location.href = '/';
-    }}
-  />
-) : (
-  <div className="logo" onClick={closeMobileMenu} style={{ color: textColor }}>
- <img
-    src='https://db.store1920.com/wp-content/uploads/2025/07/cropped-1.webp'
-    alt="Store1920"
-    className="logo"
-    style={{ maxHeight: 35, cursor: 'pointer' }}
-    onClick={() => {
-      closeMobileMenu();
-      window.location.href = '/';
-    }}
-  />
-  </div>
-)}
+            {sitelogo ? (
+              <img
+                src='https://db.store1920.com/wp-content/uploads/2025/07/cropped-1.webp'
+                alt="Store1920"
+                className="logo"
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  closeMobileMenu();
+                  window.location.href = '/';
+                }}
+              />
+            ) : (
+              <div className="logo" onClick={closeMobileMenu} style={{ color: textColor }}>
+                <img
+                  src='https://db.store1920.com/wp-content/uploads/2025/07/cropped-1.webp'
+                  alt="Store1920"
+                  className="logo"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    closeMobileMenu();
+                    window.location.href = '/';
+                  }}
+                />
+              </div>
+            )}
 
           </div>
           <div>
-                 <div className="nav-center-mobile">
+            <div className="nav-center-mobile">
               <SearchBar />
             </div>
 
@@ -204,7 +204,7 @@ useEffect(() => {
 
           <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
             <div className="nav-left-links">
-              <div className="nav-icon-with-text"  onClick={() => window.location.href = '/new'}>
+              <div className="nav-icon-with-text" onClick={() => window.location.href = '/new'}>
                 <img
                   src="https://db.store1920.com/wp-content/uploads/2025/07/7.png"
                   alt="New"
@@ -242,23 +242,26 @@ useEffect(() => {
                       ))}
                     </div>
                     <div className="mega-right">
-                      {products.length > 0 ? products.map((product) => (
-                        <a
-                          key={product.id}
-                          href={product.permalink}
-                          className="mega-product"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <div className="circle-img">
-                            <img src={product.images[0]?.src || ''} alt={product.name} />
-                          </div>
-                          <div className="price">{product.price} AED</div>
-                        </a>
-                      )) : (
+                      {products.length > 0 ? (
+                        products.map((product) => (
+                          <a
+                            key={product.id}
+                            href={product.permalink.replace('db.store1920.com', 'store1920.com')}
+                            className="mega-product"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <div className="circle-img">
+                              <img src={product.images[0]?.src || ''} alt={product.name} />
+                            </div>
+                            <div className="price">{product.price} AED</div>
+                          </a>
+                        ))
+                      ) : (
                         <div className="no-products">No products found</div>
                       )}
                     </div>
+
                   </div>
                 )}
               </div>
@@ -269,131 +272,131 @@ useEffect(() => {
             </div>
 
             <div className="nav-right">
-{user ? (
-  <div
-  className="account logged-in"
-  title={`Hi, ${user.name}`}
-  onMouseEnter={() => {
-    if (userTimeoutRef.current) clearTimeout(userTimeoutRef.current);
-    setUserDropdownOpen(true);
-  }}
-onMouseLeave={() => {
-    userTimeoutRef.current = setTimeout(() => {
-      setUserDropdownOpen(false);
-    }, 200);
-  }}
-   style={{ position: 'relative' }} 
-  >
-    <div className="avatar">
-    {user.image ? (
-      <img src={user.image} alt={user.name} />
-    ) : (
-      <div className="avatar-fallback">
-        {user.name.charAt(0).toUpperCase()}
-      </div>
-    )}
-  </div>
-<div className="user-name">
-  Hi, {capitalizeFirst(truncateName(user.name))}{' '}
-  {/* {user.id} */}
-  <CoinWidget userId={Number(user.id)} />
-</div>
+              {user ? (
+                <div
+                  className="account logged-in"
+                  title={`Hi, ${user.name}`}
+                  onMouseEnter={() => {
+                    if (userTimeoutRef.current) clearTimeout(userTimeoutRef.current);
+                    setUserDropdownOpen(true);
+                  }}
+                  onMouseLeave={() => {
+                    userTimeoutRef.current = setTimeout(() => {
+                      setUserDropdownOpen(false);
+                    }, 200);
+                  }}
+                  style={{ position: 'relative' }}
+                >
+                  <div className="avatar">
+                    {user.image ? (
+                      <img src={user.image} alt={user.name} />
+                    ) : (
+                      <div className="avatar-fallback">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <div className="user-name">
+                    Hi, {capitalizeFirst(truncateName(user.name))}{' '}
+                    {/* {user.id} */}
+                    <CoinWidget userId={Number(user.id)} />
+                  </div>
 
 
 
-<UserDropdownMenu
-  user={user}
-  setUser={setUser} // ✅ pass the function as a prop
-  isOpen={userDropdownOpen}
-  onSignOut={handleSignOut}
-  onClose={() => setUserDropdownOpen(false)}
-  setUserDropdownOpen={setUserDropdownOpen}
-  setMobileMenuOpen={setMobileMenuOpen}
-/>
-</div>
-) : (
-    <div className="account guest-account" onClick={() => setSignInOpen(true)}>
-      <img
-        src="https://db.store1920.com/wp-content/uploads/2025/07/2-2.png"
-        alt="Profile Icon"
-        className="icon-small"
-      />
-      <div className="account-text" style={{ color: textColor }}>
-        <span className="account-title">Sign In / Register</span>
-        <span className="small-text">Orders & Account</span>
-      </div>
-    </div>
-  )}
+                  <UserDropdownMenu
+                    user={user}
+                    setUser={setUser} // ✅ pass the function as a prop
+                    isOpen={userDropdownOpen}
+                    onSignOut={handleSignOut}
+                    onClose={() => setUserDropdownOpen(false)}
+                    setUserDropdownOpen={setUserDropdownOpen}
+                    setMobileMenuOpen={setMobileMenuOpen}
+                  />
+                </div>
+              ) : (
+                <div className="account guest-account" onClick={() => setSignInOpen(true)}>
+                  <img
+                    src="https://db.store1920.com/wp-content/uploads/2025/07/2-2.png"
+                    alt="Profile Icon"
+                    className="icon-small"
+                  />
+                  <div className="account-text" style={{ color: textColor }}>
+                    <span className="account-title">Sign In / Register</span>
+                    <span className="small-text">Orders & Account</span>
+                  </div>
+                </div>
+              )}
 
- <div
-  className="nav-icon-with-text support-link"
-  onMouseEnter={() => {
-    if (supportTimeoutRef.current) clearTimeout(supportTimeoutRef.current);
-    setSupportDropdownOpen(true);
-  }}
-  onMouseLeave={() => {
-    supportTimeoutRef.current = setTimeout(() => {
-      setSupportDropdownOpen(false);
-    }, 200);
-  }}
-  style={{ position: 'relative', cursor: 'pointer', marginRight: '20px', color: textColor  }}
->
-  <img
-    src="https://db.store1920.com/wp-content/uploads/2025/07/3-2.png"
-    alt="Support Icon"
-    className="icon-small"
-  />
-  <span>Support</span>
+              <div
+                className="nav-icon-with-text support-link"
+                onMouseEnter={() => {
+                  if (supportTimeoutRef.current) clearTimeout(supportTimeoutRef.current);
+                  setSupportDropdownOpen(true);
+                }}
+                onMouseLeave={() => {
+                  supportTimeoutRef.current = setTimeout(() => {
+                    setSupportDropdownOpen(false);
+                  }, 200);
+                }}
+                style={{ position: 'relative', cursor: 'pointer', marginRight: '20px', color: textColor }}
+              >
+                <img
+                  src="https://db.store1920.com/wp-content/uploads/2025/07/3-2.png"
+                  alt="Support Icon"
+                  className="icon-small"
+                />
+                <span>Support</span>
 
-  <SupportDropdownMenu
-    isOpen={supportDropdownOpen}
-    onClose={() => setSupportDropdownOpen(false)}
-  />
-</div>
+                <SupportDropdownMenu
+                  isOpen={supportDropdownOpen}
+                  onClose={() => setSupportDropdownOpen(false)}
+                />
+              </div>
 
-  
-  </div>
 
-<div
-  className="nav-icon-only"
-  title="Cart"
-  onClick={() => navigate('/cart')}
-  style={{ cursor: 'pointer', position: 'relative' }}
->
-  <img
-    src="https://db.store1920.com/wp-content/uploads/2025/07/1-3.png"
-    alt="Cart"
-    className="icon-cart"
-  />
-  {totalQuantity > 0 && (
-    <div className="cart-badge">{totalQuantity}</div>
-  )}
-</div>
-</div>
+            </div>
 
-     
+            <div
+              className="nav-icon-only"
+              title="Cart"
+              onClick={() => navigate('/cart')}
+              style={{ cursor: 'pointer', position: 'relative' }}
+            >
+              <img
+                src="https://db.store1920.com/wp-content/uploads/2025/07/1-3.png"
+                alt="Cart"
+                className="icon-cart"
+              />
+              {totalQuantity > 0 && (
+                <div className="cart-badge">{totalQuantity}</div>
+              )}
+            </div>
+          </div>
+
+
         </div>
       </nav>
 
-<MobileMenu
-  isOpen={mobileMenuOpen}
-  closeMobileMenu={closeMobileMenu}
-  categories={categories}
-  user={user}
-  userDropdownOpen={userDropdownOpen}
-  setUserDropdownOpen={setUserDropdownOpen}
-  setSignInOpen={setSignInOpen}
-  handleSignOut={handleSignOut}
-  handleCategoryHover={handleCategoryHover}
-  closeUserDropdown={closeUserDropdown}
-/>
+      <MobileMenu
+        isOpen={mobileMenuOpen}
+        closeMobileMenu={closeMobileMenu}
+        categories={categories}
+        user={user}
+        userDropdownOpen={userDropdownOpen}
+        setUserDropdownOpen={setUserDropdownOpen}
+        setSignInOpen={setSignInOpen}
+        handleSignOut={handleSignOut}
+        handleCategoryHover={handleCategoryHover}
+        closeUserDropdown={closeUserDropdown}
+      />
       <SignInModal
         isOpen={signInOpen}
         onClose={() => setSignInOpen(false)}
         onLogin={handleLogin}
       />
-{/* <MiniCart openSignInModal={() => setSignInOpen(true)} /> */}
-      
+      {/* <MiniCart openSignInModal={() => setSignInOpen(true)} /> */}
+
     </>
   );
 };
