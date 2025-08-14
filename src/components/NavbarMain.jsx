@@ -11,6 +11,11 @@ import CoinWidget from './CoinWidget';
 import chroma from 'chroma-js';
 import MiniCart from './MiniCart';
 import { useNavigate } from 'react-router-dom';
+import Newicon from '../assets/images/webicons/Header/White/Asset 34@6x.png'
+import Star from '../assets/images/webicons/Header/White/Asset 33@6x.png'
+import SupportIcon from '../assets/images/webicons/Header/White/Asset 32@6x.png'
+import CartIcon from '../assets/images/webicons/Header/White/Asset 30@6x.png'
+import UserIcon from '../assets/images/webicons/Header/White/Asset 21@6x.png'
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v1';
 const CK = 'ck_2e4ba96dde422ed59388a09a139cfee591d98263';
@@ -39,7 +44,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart, backgroundColor = '#fff' })
   const { isCartOpen, setIsCartOpen, cartItems } = useCart();
   const [supportDropdownOpen, setSupportDropdownOpen] = useState(false);
   const timeoutRef = useRef(null);
-  const supportTimeoutRef = useRef(null); // 👈 Add this line
+  const supportTimeoutRef = useRef(null); 
   const loggedInUserId = user?.id || null;
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -144,7 +149,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart, backgroundColor = '#fff' })
     localStorage.removeItem('user');
     closeUserDropdown();
     setMobileMenuOpen(false);
-    window.location.href = '/'; // Redirect home after sign out
+    window.location.href = '/';
   };
 
   return (
@@ -206,7 +211,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart, backgroundColor = '#fff' })
             <div className="nav-left-links">
               <div className="nav-icon-with-text" onClick={() => window.location.href = '/new'}>
                 <img
-                  src="https://db.store1920.com/wp-content/uploads/2025/07/7.png"
+                  src={Newicon}
                   alt="New"
                   className="icon-small"
                 />
@@ -215,7 +220,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart, backgroundColor = '#fff' })
 
               <div className="nav-icon-with-text star-rating" onClick={() => window.location.href = '/rated'}>
                 <img
-                  src="https://db.store1920.com/wp-content/uploads/2025/07/6.png"
+                  src={Star}
                   alt="5 Star rated"
                   className="icon-star"
                 />
@@ -317,7 +322,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart, backgroundColor = '#fff' })
               ) : (
                 <div className="account guest-account" onClick={() => setSignInOpen(true)}>
                   <img
-                    src="https://db.store1920.com/wp-content/uploads/2025/07/2-2.png"
+                    src={UserIcon}
                     alt="Profile Icon"
                     className="icon-small"
                   />
@@ -342,7 +347,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart, backgroundColor = '#fff' })
                 style={{ position: 'relative', cursor: 'pointer', marginRight: '20px', color: textColor }}
               >
                 <img
-                  src="https://db.store1920.com/wp-content/uploads/2025/07/3-2.png"
+                  src={SupportIcon}
                   alt="Support Icon"
                   className="icon-small"
                 />
@@ -364,7 +369,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart, backgroundColor = '#fff' })
               style={{ cursor: 'pointer', position: 'relative' }}
             >
               <img
-                src="https://db.store1920.com/wp-content/uploads/2025/07/1-3.png"
+                src={CartIcon}
                 alt="Cart"
                 className="icon-cart"
               />

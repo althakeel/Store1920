@@ -133,7 +133,7 @@ const styles = {
   layout: {
     display: 'flex',
     fontFamily: "'Montserrat', sans-serif",
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     margin: '0 auto',
     height: '100vh',
     overflow: 'hidden',

@@ -49,7 +49,7 @@ const RequestItem = () => {
   const containerStyle = {
     fontFamily: 'Montserrat, sans-serif',
     fontSize: '12px',
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     margin: '0 auto',
     padding: '20px',
     color: '#333',

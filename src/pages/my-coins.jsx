@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import BannerImage from '../assets/images/Dirham 2.png';
 import CoinIcon from '../assets/images/coingroup.png';
 import '../assets/styles/MyCoinsPage.css';
 
@@ -85,7 +84,7 @@ export default function MyCoinsPage({ user, userId: propUserId, useMyCoins = fal
   return (
     <>
       <div className="coins-banner">
-        <img src={BannerImage} alt="Store1920 Coins Banner" className="coins-banner-img" />
+        <img src='https://db.store1920.com/wp-content/uploads/2025/08/scoin-banner-1.webp' alt="Store1920 Coins Banner" className="coins-banner-img" />
       </div>
 
       <main className="coins-container">

@@ -1,5 +1,5 @@
 .lightning-banner {
-  background-image: url('https://db.store1920.com/wp-content/uploads/2025/07/5-1-scaled.webp');
+  background-image: url('https://db.store1920.com/wp-content/uploads/2025/08/12-1-scaled.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -8,7 +8,7 @@
   box-sizing: border-box;
   display: flex;
   justify-content: center;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 20px auto !important;
   text-align: center;
     font-family: 'Montserrat', sans-serif;
@@ -16,7 +16,7 @@
 
 @media (max-width: 768px) {
   .lightning-banner {
-    background-image: url('https://db.store1920.com/wp-content/uploads/2025/07/5-3-1-scaled.webp');
+    background-image: url('https://db.store1920.com/wp-content/uploads/2025/08/12-1-scaled.webp');
   }
 }
 
@@ -24,7 +24,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: rgb(0, 0, 0);
   font-family: 'Montserrat', sans-serif;
   font-size: 16px;
   font-weight: 600;

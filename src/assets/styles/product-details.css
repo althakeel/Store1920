@@ -1,7 +1,7 @@
 /* === PRODUCT DETAILS LAYOUT === */
 
 .product-details-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   gap: 15px;
@@ -78,7 +78,7 @@
 
 /* === RELATED PRODUCTS SECTION === */
 .related-products-section {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 40px auto 0;
   padding: 0 15px;
   background: #fff;

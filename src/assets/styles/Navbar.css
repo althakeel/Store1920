@@ -15,9 +15,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1180px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 5px 10px;
+  padding: 5px 20px;
   gap: 10px;
   flex-wrap: nowrap;
   min-height: 56px;
@@ -201,10 +201,10 @@
 }
 
 .icon-small {
-  width: 18px;
+  width: auto;
   height: 18px;
   vertical-align: middle;
-  margin-right: 6px;
+  margin-right: 1px;
 }
 
 .icon-star {

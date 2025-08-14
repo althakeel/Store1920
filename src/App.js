@@ -80,6 +80,7 @@ const AppContent = () => {
   const onCartPage = path.startsWith('/cart');
   const onCheckoutPage = path === '/checkout' || path.startsWith('/checkout/');
   const cartIconRef = useRef(null);
+  // const isMyCoins = path === '/my-coins';
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -115,7 +116,7 @@ const AppContent = () => {
 
   useEffect(() => {
     if (isHomePage) {
-      setNavbarColor('#38A9D8');
+      setNavbarColor('#CBAD01');
       sessionStorage.removeItem('navbarColor');
     } else {
       const storedColor = sessionStorage.getItem('navbarColor');

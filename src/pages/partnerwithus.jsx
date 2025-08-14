@@ -7,7 +7,7 @@ const PartnerWithStore1920 = () => {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     margin: '0 auto',
     fontFamily: "'Montserrat', sans-serif",
     color: '#222',

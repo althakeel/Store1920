@@ -6,10 +6,7 @@ import SecureIcon from '../../../assets/images/icons/Asset 338@6x.png'
 import Cardicon from '../../../assets/images/icons/Asset 344@6x.png'
 import Deliveryicon from '../../../assets/images/icons/Asset 325@6x.png'
 import NotficationIcon from '../../../assets/images/icons/Asset 320@6x.png'
-import Test1 from '../../../assets/images/test/4@6x.png'
-import Test2 from '../../../assets/images/test/5@6x.png'
-import Test3 from '../../../assets/images/test/6@6x.png'
-import Test4 from '../../../assets/images/test/7@6x.png'
+
 
 
 const WhyChoose = () => {
@@ -56,14 +53,6 @@ const WhyChoose = () => {
           {/* Reminder Bar */}
           <div className="whychoose-reminder">
             <img src={NotficationIcon} alt="Alert" className="reminder-icon" />
-
-            <img src={Test1} alt="Alert" className="reminder-icon" />
-
-            <img src={Test2} alt="Alert" className="reminder-icon" />
-
-            <img src={Test3} alt="Alert" className="reminder-icon" />
-
-            <img src={Test4} alt="Alert" className="reminder-icon" />
 
             <p className="reminder-text">
               <strong>Security reminder:</strong> Please be wary of scam messages and links. Store1920 won't ask for extra fees via SMS or email.

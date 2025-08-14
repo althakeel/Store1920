@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import '../assets/styles/UserDropdownMenu.css';
 import SignOutConfirmModal from './sub/SignOutConfirmModal';
 
-import orderIcon from '../assets/images/Orders 2.png';
+import orderIcon from '../assets/images/webicons/Home/Black/add-tocart-black.png';
 import reviewIcon from '../assets/images/Reviews 2.png';
-import profileIcon from '../assets/images/Accounts  2.png';
-import couponIcon from '../assets/images/coupons.png';
-import notificationIcon from '../assets/images/Notification2.png';
-import historyIcon from '../assets/images/History2.png';
-import SignOut from '../assets/images/Signout2.png';
+import profileIcon from '../assets/images/webicons/Header/Black/profile-black.png';
+import couponIcon from '../assets/images/webicons/Header/Black/coupon--black.png';
+import notificationIcon from '../assets/images/webicons/Header/Black/Asset 13@6x.png';
+import historyIcon from '../assets/images/webicons/Header/Black/Asset 10@6x.png';
+import SignOut from '../assets/images/webicons/Header/Black/Asset 8@6x.png';
 
 const UserDropdownMenu = ({ isOpen, onClose, setUserDropdownOpen, setMobileMenuOpen, user, setUser }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);

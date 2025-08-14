@@ -52,7 +52,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  z-index: 1200;
+  z-index: 1400;
   pointer-events: none;
 }
 

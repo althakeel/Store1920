@@ -53,7 +53,7 @@ const SafeAccess = () => {
   const containerStyle = {
     fontFamily: 'Montserrat, sans-serif',
     fontSize: '14px',
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     margin: '0 auto',
     padding: '20px',
     color: '#333',

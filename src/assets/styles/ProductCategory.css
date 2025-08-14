@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
 .pcus-wrapper3 {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 20px 10px;
+  padding: 20px 0px;
   font-family: 'Montserrat',  sans-serif;
   box-sizing: border-box;
   color: #222;
@@ -577,7 +577,10 @@ img.flying-clone {
 /* Responsive styles for screens below 768px */
 /* Responsive styles for screens below 768px */
 @media (max-width: 768px) {
-
+  
+  .pcus-wrapper3{
+    padding: 10px 10px;
+  }
   /* Product grid: flexible columns */
   .pcus-prd-grid {
     display: grid;

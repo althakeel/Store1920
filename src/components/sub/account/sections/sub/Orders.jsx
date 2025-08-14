@@ -7,6 +7,7 @@ import axios from 'axios';
 import AddressForm from '../../../../checkoutleft/AddressForm'; 
 import OrderTracking from './OrderTracking';
 import OrderDetailsInline from './OrderDetailsInline';
+import { generateInvoicePDF } from '../../../../../utils/generateInvoice'
 
 const AllOrders = ({
   orders,
@@ -36,6 +37,28 @@ const AllOrders = ({
       return 'N/A';
     }
   };
+
+
+const downloadInvoice = async (orderId) => {
+  try {
+    const res = await axios.get(`/wp-json/custom/v1/download-invoice/${orderId}`);
+    if (res.data.url) {
+      const link = document.createElement('a');
+      link.href = res.data.url;
+      link.download = `Invoice_PO-${orderId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Invoice downloaded!');
+    } else {
+      toast.error('Invoice not found');
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error('Failed to download invoice');
+  }
+};
+
 
   const toggleOrderDetails = (orderId) => {
     setExpandedOrderId((prev) => (prev === orderId ? null : orderId));
@@ -364,6 +387,17 @@ const AllOrders = ({
                 {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel items'}
               </button>
             )}
+
+   {/* Show only if order is completed */}
+{order.status === 'completed' && (
+<button
+  className="btn-outline"
+  onClick={() => generateInvoicePDF(order)}
+>
+  Download Invoice
+</button>
+)}
+
           </div>
         </div>
       ))}

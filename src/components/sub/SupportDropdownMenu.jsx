@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
 import '../../assets/styles/supportDropdownMenu.css';
-import Support from '../../assets/images/supportcenter1.png'
-import Safety from '../../assets/images/saftycenter1.png'
+import Support from '../../assets/images/webicons/Header/Black/support-black.png'
+import Safety from '../../assets/images/webicons/Header/Black/shield-black.png'
 import Chat from '../../assets/images/saftycenter1.png'
 import Protection from '../../assets/images/Purchaseprotection1.png'
-import PrivacyPolicy from '../../assets/images/privacypolicy1.png'
-import Terms from '../../assets/images/terms1.png'
+import PrivacyPolicy from '../../assets/images/webicons/Header/Black/privacy-policy-black.png'
+import Terms from '../../assets/images/webicons/Header/Black/terms-of-use-black.png'
 
 const SupportDropdownMenu = ({ isOpen, onClose }) => {
   const menuRef = useRef(null);
@@ -15,8 +15,8 @@ const SupportDropdownMenu = ({ isOpen, onClose }) => {
   const menuItems = [
     { label: 'Support Center', icon: Support, link: '/support' },
     { label: 'Safety Center', icon: Safety, link: '/safety' },
-    { label: 'Chat with Store1920', icon: Chat, link: '/chat' },
-    { label: 'Store1920 Purchase Protection', icon: Protection, link: '/protection' },
+    // { label: 'Chat with Store1920', icon: Chat, link: '/chat' },
+    // { label: 'Store1920 Purchase Protection', icon: Protection, link: '/protection' },
     { label: 'Privacy Policy', icon: PrivacyPolicy, link: '/privacy' },
     { label: 'Terms of Use', icon: Terms, link: '/terms' },
   ];

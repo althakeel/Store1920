@@ -12,18 +12,15 @@ import { throttle } from 'lodash';
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v2';
 const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
 const CONSUMER_SECRET = 'cs_92458ba6ab5458347082acc6681560911a9e993d';
-
-const PAGE_SIZE = 10;
-const PRODUCTS_PER_PAGE = 20;
+const PAGE_SIZE = 15;
+const PRODUCTS_PER_PAGE = 50;
 const TITLE_LIMIT = 35;
 
 const badgeLabelMap = {
   best_seller: 'Best Seller',
   recommended: 'Recommended',
 };
-
 const badgeColors = ['darkgreen', 'orange', 'red'];
-
 const decodeHTML = (html) => {
   const txt = document.createElement('textarea');
   txt.innerHTML = html;
@@ -32,7 +29,6 @@ const decodeHTML = (html) => {
 
 const ReviewPills = memo(({ productId }) => {
   const [reviews, setReviews] = useState([]);
-
   useEffect(() => {
     fetch(`https://db.store1920.com/wp-json/custom-reviews/v1/product/${productId}`)
       .then((res) => res.json())
@@ -56,20 +52,12 @@ const ReviewPills = memo(({ productId }) => {
   );
 });
 
-
 const handleProductClick = (productId) => {
   let recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
-
-  // Remove if it already exists
   recent = recent.filter(id => id !== productId);
-
-  // Add to front
   recent.unshift(productId);
-
-  // Save only latest 5
   localStorage.setItem('recentProducts', JSON.stringify(recent.slice(0, 5)));
 };
-
 
 const SkeletonCard = () => (
   <div className="pcus-prd-card pcus-skeleton">
@@ -81,8 +69,7 @@ const SkeletonCard = () => (
     </div>
   </div>
 );
-
-const ProductCategory = () => {
+const Festsaleproducts = ({ isFestSale = false, festSaleTagId: propFestSaleTagId }) => {
   const navigate = useNavigate();
   const { addToCart, cartItems } = useCart();
 
@@ -110,19 +97,14 @@ const ProductCategory = () => {
   const [productVariations, setProductVariations] = useState({});
   const [sortedProducts, setSortedProducts] = useState([]);
 
-   const [page, setPage] = React.useState(1);
+  const [page, setPage] = React.useState(1);
   const [hasMore, setHasMore] = React.useState(true);
   const observerRef = React.useRef(null);
 
-
-const [festSaleTagId, setfestSaleTagId] = useState(null);
-
+  const [loading, setLoading] = useState(false);
+  const [festSaleTagId, setfestSaleTagId] = useState(propFestSaleTagId || null);
 
   const BEST_RATED_TAG_SLUG = 'festsale';
-
-
-
-  // Rotate badge color every 10 minutes
   useEffect(() => {
     const interval = setInterval(() => {
       setBadgeColorIndex((idx) => (idx + 1) % badgeColors.length);
@@ -130,7 +112,6 @@ const [festSaleTagId, setfestSaleTagId] = useState(null);
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch currency symbol
   useEffect(() => {
     async function fetchCurrencySymbol() {
       try {
@@ -148,24 +129,24 @@ const [festSaleTagId, setfestSaleTagId] = useState(null);
     fetchCurrencySymbol();
   }, []);
 
-useEffect(() => {
-  const recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
+  useEffect(() => {
+    const recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
 
-  if (recent.length === 0) {
-    setSortedProducts(products);
-    return;
-  }
+    if (recent.length === 0) {
+      setSortedProducts(products);
+      return;
+    }
 
-  const recentSet = new Set(recent);
+    const recentSet = new Set(recent);
 
-  const recentProducts = recent
-    .map(id => products.find(p => p.id === id))
-    .filter(Boolean);
+    const recentProducts = recent
+      .map(id => products.find(p => p.id === id))
+      .filter(Boolean);
 
-  const remainingProducts = products.filter(p => !recentSet.has(p.id));
+    const remainingProducts = products.filter(p => !recentSet.has(p.id));
 
-  setSortedProducts([...recentProducts, ...remainingProducts]);
-}, [products]);
+    setSortedProducts([...recentProducts, ...remainingProducts]);
+  }, [products]);
 
 
   useEffect(() => {
@@ -182,85 +163,131 @@ useEffect(() => {
         `${API_BASE}/products/${productId}/variations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100`
       );
       const data = await res.json();
+
       if (data && data.length > 0) {
-        setProductVariations((prev) => ({
+        const prices = data.map(v => ({
+          price: parseFloat(v.price || 0),
+          regular_price: parseFloat(v.regular_price || 0),
+          sale_price: parseFloat(v.sale_price || 0)
+        }));
+
+        const minPrice = Math.min(...prices.map(p => p.price));
+        const minRegularPrice = Math.min(...prices.map(p => p.regular_price));
+        const minSalePrice = Math.min(...prices.map(p => p.sale_price || p.price));
+
+        setVariationPrices(prev => ({
           ...prev,
-          [productId]: data,
+          [productId]: {
+            price: minPrice,
+            regular_price: minRegularPrice,
+            sale_price: minSalePrice
+          }
         }));
       }
     } catch (error) {
       console.error(`Error fetching variations for product ${productId}`, error);
     }
   };
-
-  const fetchCategories = useCallback(
-    async (page = 1) => {
-      setLoadingCategories(true);
-      try {
-        const res = await fetch(
-          `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PAGE_SIZE}&page=${page}&orderby=name`
-        );
-        const data = await res.json();
-        if (data.length < PAGE_SIZE) setHasMoreCategories(false);
-        setCategories((prev) => [...prev, ...data]);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoadingCategories(false);
-      }
-    },
-    []
-  );
-
-  const getTagIdFromSlug = async (slug) => {
-  const res = await fetch(
-    `${API_BASE}/products/tags?slug=${slug}&consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
-  );
-  const tags = await res.json();
-  return tags[0]?.id || null;
-};
-
-
-useEffect(() => {
-  getTagIdFromSlug(BEST_RATED_TAG_SLUG).then((id) => setfestSaleTagId(id));
-}, []);
-
-const fetchProducts = useCallback(
-  async (page = 1, categoryId = selectedCategoryId) => {
-    if (!festSaleTagId) return; // wait until tagId is loaded
-    setLoadingProducts(true);
+const fetchCategories = useCallback(
+  async (page = 1) => {
+    setLoadingCategories(true);
     try {
-      let url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc&tag=${festSaleTagId}`;
-      if (categoryId !== 'all') url += `&category=${categoryId}`;
-
-      const res = await fetch(url);
+      const res = await fetch(
+        `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PAGE_SIZE}&page=${page}&orderby=name`
+      );
       const data = await res.json();
 
-      if (page === 1) {
-        setProducts(data);
-      } else {
-        setProducts((prev) => [...prev, ...data]);
-      }
+// Filter categories to keep only those that have products with the Fest Sale tag
+const filteredCats = [];
+for (let cat of data) {
+  const res2 = await fetch(
+    `${API_BASE}/products?per_page=1&category=${cat.id}&tag=${festSaleTagId}&consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+  );
+  const productsInCat = await res2.json();
+  if (productsInCat.length > 0) filteredCats.push(cat);
+}
 
-      setHasMoreProducts(data.length >= PRODUCTS_PER_PAGE);
+
+
+      if (filteredCats.length < PAGE_SIZE) setHasMoreCategories(false);
+      setCategories((prev) => [...prev, ...filteredCats]);
     } catch (e) {
       console.error(e);
     } finally {
-      setLoadingProducts(false);
+      setLoadingCategories(false);
     }
   },
-  [selectedCategoryId, festSaleTagId]
+  [festSaleTagId]
 );
 
+  const getTagIdFromSlug = async (slug) => {
+    const res = await fetch(
+      `${API_BASE}/products/tags?slug=${slug}&consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+    );
+    const tags = await res.json();
+    return tags[0]?.id || null;
+  };
   useEffect(() => {
+    if (!festSaleTagId && isFestSale) {
+      getTagIdFromSlug(BEST_RATED_TAG_SLUG).then((id) => setfestSaleTagId(id));
+    }
+  }, [festSaleTagId, isFestSale]);
+
+  const fetchProducts = async (pageNumber = 1) => {
+    if (loading || !festSaleTagId) return;
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `${API_BASE}/products?per_page=${PRODUCTS_PER_PAGE}&page=${pageNumber}&tag=${festSaleTagId}&consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+      );
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+
+      // Extra safety: keep only products with the FEST SALE tag
+      const filtered = data.filter(p =>
+        p.tags.some(t => t.id === festSaleTagId)
+      );
+      const uniqueProducts = [...new Map([...products, ...filtered].map(p => [p.id, p])).values()];
+      setProducts(uniqueProducts);
+      setHasMore(filtered.length === PRODUCTS_PER_PAGE);
+      setProductsPage(pageNumber);
+    } catch (err) {
+      console.error('Error fetching FEST SALE products:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+useEffect(() => {
+  if (festSaleTagId) {
     fetchCategories(1);
-  }, [fetchCategories]);
+  }
+}, [festSaleTagId, fetchCategories]);
 
   useEffect(() => {
+    if (!festSaleTagId) return;
+
+    setProducts([]); 
+    setVariationPrices({});
     setProductsPage(1);
     setHasMoreProducts(true);
-    fetchProducts(1, selectedCategoryId);
-  }, [selectedCategoryId, fetchProducts]);
+
+    const fetchInitial = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE}/products?per_page=${PRODUCTS_PER_PAGE}&page=1&tag=${festSaleTagId}&consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+        );
+        const data = await res.json();
+        const filtered = data.filter(p => p.tags.some(t => t.id === festSaleTagId));
+        setProducts(filtered);
+        setHasMoreProducts(filtered.length === PRODUCTS_PER_PAGE);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchInitial();
+  }, [festSaleTagId]);
 
   const loadMoreProducts = () => {
     if (loadingProducts || !hasMoreProducts) return;
@@ -271,35 +298,33 @@ const fetchProducts = useCallback(
 
   useEffect(() => {
     products.forEach((p) => {
-      if (p.type === 'variable') {
-        fetchFirstVariation(p.id);
+      if (p.type === 'variable' && !variationPrices[p.id]) {
+        fetchAllVariations(p.id);
       }
     });
   }, [products]);
 
   const fetchFirstVariation = async (productId) => {
-  try {
-    const res = await fetch(
-      `${API_BASE}/products/${productId}/variations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=1`
-    );
-    const data = await res.json();
-    if (data && data.length > 0) {
-      const variation = data[0];
-      setVariationPrices((prev) => ({
-        ...prev,
-        [productId]: {
-          price: variation.price,
-          regular_price: variation.regular_price,
-          sale_price: variation.sale_price,
-        },
-      }));
+    try {
+      const res = await fetch(
+        `${API_BASE}/products/${productId}/variations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=1`
+      );
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const variation = data[0];
+        setVariationPrices((prev) => ({
+          ...prev,
+          [productId]: {
+            price: variation.price,
+            regular_price: variation.regular_price,
+            sale_price: variation.sale_price,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error(`Error fetching first variation for product ${productId}`, error);
     }
-  } catch (error) {
-    console.error(`Error fetching first variation for product ${productId}`, error);
-  }
-};
-
-
+  };
   const updateArrowVisibility = useCallback(() => {
     const el = categoriesRef.current;
     if (!el) return;
@@ -372,10 +397,8 @@ const fetchProducts = useCallback(
 
   const flyToCart = (e, imgSrc) => {
     if (!cartIconRef.current || !imgSrc) return;
-
     const cartRect = cartIconRef.current.getBoundingClientRect();
     const startRect = e.currentTarget.getBoundingClientRect();
-
     const clone = document.createElement('img');
     clone.src = imgSrc;
     clone.style.position = 'fixed';
@@ -404,19 +427,16 @@ const fetchProducts = useCallback(
     if (el) el.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
   };
 
-  // Changed: Open product in new tab instead of navigate within same tab
-const onProductClick = useCallback((slug, id) => {
-  // Save in localStorage as most recently viewed
-  let recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
+  const onProductClick = useCallback((slug, id) => {
+    let recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
+    recent = recent.filter(rid => rid !== id); 
+    recent.unshift(id); // add to top
+    localStorage.setItem('recentProducts', JSON.stringify(recent.slice(0, 5))); // keep top 5
 
-  recent = recent.filter(rid => rid !== id); // remove if exists
-  recent.unshift(id); // add to top
-  localStorage.setItem('recentProducts', JSON.stringify(recent.slice(0, 5))); // keep top 5
-
-  const url = `/product/${slug}`;
-  window.open(url, '_blank', 'noopener,noreferrer');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}, []);
+    const url = `/product/${slug}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
 
   useEffect(() => {
@@ -431,6 +451,14 @@ const onProductClick = useCallback((slug, id) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loadingProducts, hasMoreProducts, productsPage]);
+
+const filteredProducts = sortedProducts.filter((p) => {
+  const hasFestSaleTag = p.tags.some(t => t.id === festSaleTagId);
+  if (!hasFestSaleTag) return false;
+  if (selectedCategoryId === 'all') return true;
+  return p.categories.some(cat => cat.id === selectedCategoryId);
+});
+
 
   return (
     <div className="pcus-wrapper10" style={{ display: 'flex' }}>
@@ -488,20 +516,20 @@ const onProductClick = useCallback((slug, id) => {
           )}
         </div>
 
-       {loadingProducts && products.length === 0 ? (
-  <div className="pcus-prd-grid">
-    {Array.from({ length: 8 }).map((_, i) => (
-      <SkeletonCard key={i} />
-    ))}
-  </div>
-) : products.length === 0 ? (
-  <div className="pcus-no-products" style={{ minHeight: '300px', textAlign: 'center', paddingTop: '40px', fontSize: '18px', color: '#666' }}>
-    No products found.
-  </div>
-) : (
-  <>
+        {loadingProducts && products.length === 0 ? (
+          <div className="pcus-prd-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        ) : products.length === 0 ? (
+          <div className="pcus-no-products" style={{ minHeight: '300px', textAlign: 'center', paddingTop: '40px', fontSize: '18px', color: '#666' }}>
+            No products found.
+          </div>
+        ) : (
+          <>
             <div className="pcus-prd-grid">
-              {sortedProducts.map((p) => {
+              {filteredProducts.map((p) => {
                 const isVariable = p.type === 'variable';
                 const variationPriceInfo = variationPrices[p.id] || { price: null, regular_price: null, sale_price: null };
                 const variantsCount = p.variations ? p.variations.length : 0;
@@ -527,47 +555,44 @@ const onProductClick = useCallback((slug, id) => {
                   <div
                     key={p.id}
                     className="pcus-prd-card"
-                   onClick={(e) => {
-  e.stopPropagation();
-  onProductClick(p.slug, p.id); // Pass product ID
-}}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onProductClick(p.slug, p.id); // Pass product ID
+                    }}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug)}
                     style={{ position: 'relative' }}
                   >
-                   <div className="pcus-image-wrapper1">
-  <img
-    src={p.images?.[0]?.src || ''}
-    alt={decodeHTML(p.name)}
-    className="pcus-prd-image1 primary-img"
-    loading="lazy"
-    decoding="async"
-  />
-  {p.images?.[1] && (
-    <img
-      src={p.images[1].src}
-      alt={`${decodeHTML(p.name)} - second`}
-      className="pcus-prd-image1 secondary-img"
-      loading="lazy"
-      decoding="async"
-    />
-  )}
- {p.stock_status && (
-  <>
-    {p.stock_status === 'outofstock' ? (
-      <div className="pcus-stock-overlay10 out-of-stock">Out of Stock</div>
-    ) : typeof p.stock_quantity === 'number' && p.stock_quantity < 50 ? (
-      <div className="pcus-stock-overlay10 low-stock">
-        Only {p.stock_quantity} left in stock
-      </div>
-    ) : null}
-  </>
-)}
-
-
-</div>
-
+                    <div className="pcus-image-wrapper1">
+                      <img
+                        src={p.images?.[0]?.src || ''}
+                        alt={decodeHTML(p.name)}
+                        className="pcus-prd-image1 primary-img"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      {p.images?.[1] && (
+                        <img
+                          src={p.images[1].src}
+                          alt={`${decodeHTML(p.name)} - second`}
+                          className="pcus-prd-image1 secondary-img"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
+                      {p.stock_status && (
+                        <>
+                          {p.stock_status === 'outofstock' ? (
+                            <div className="pcus-stock-overlay10 out-of-stock">Out of Stock</div>
+                          ) : typeof p.stock_quantity === 'number' && p.stock_quantity < 50 ? (
+                            <div className="pcus-stock-overlay10 low-stock">
+                              Only {p.stock_quantity} left in stock
+                            </div>
+                          ) : null}
+                        </>
+                      )}
+                    </div>
                     <div className="pcus-prd-info1">
                       <h3 className="pcus-prd-title1">
                         {badges.length > 0 && (
@@ -587,15 +612,13 @@ const onProductClick = useCallback((slug, id) => {
                         <div className="pcus-sold-badge" style={{ position: 'static' }}>
                           Sold: {soldCount}
                         </div>
-                       
-                       {isVariable && variantsCount > 1 && (
-  <div className="pcus-variant-count-label" style={{ marginTop: '6px' }}>
-    + {variantsCount} variants
-  </div>
-)}
+{/* 
+                        {isVariable && variantsCount > 1 && (
+                          <div className="pcus-variant-count-label" style={{ marginTop: '6px' }}>
+                            + {variantsCount} variants
+                          </div>
+                        )} */}
                       </div>
-                     
-
                       <ReviewPills productId={p.id} />
 
                       <div className="pcus-prd-price-cart1">
@@ -605,37 +628,33 @@ const onProductClick = useCallback((slug, id) => {
                             alt="AED currency icon"
                             style={{ width: 'auto', height: '13px', marginRight: '0px', verticalAlign: 'middle' }}
                           />
-                 {onSale ? (
-  <>
-    <span className="pcus-prd-sale-price1">
-      {parseFloat(displaySalePrice || 0).toFixed(2)}
-    </span>
-    <span className="pcus-prd-regular-price1">
-      {parseFloat(displayRegularPrice || 0).toFixed(2)}
-    </span>
-    {displayRegularPrice && displaySalePrice && (
-      <span className="pcus-prd-discount-box1">
-        -{Math.round(
-          ((parseFloat(displayRegularPrice) - parseFloat(displaySalePrice)) /
-            parseFloat(displayRegularPrice)) *
-            100
-        )}
-        % OFF
-      </span>
-    )}
-  </>
-) : (
-  <span className="price1">{parseFloat(displayPrice || 0).toFixed(2)}</span>
-)}
+                          {onSale ? (
+                            <>
+                              <span className="pcus-prd-sale-price1">
+                                {parseFloat(displaySalePrice || 0).toFixed(2)}
+                              </span>
+                              <span className="pcus-prd-regular-price1">
+                                {parseFloat(displayRegularPrice || 0).toFixed(2)}
+                              </span>
+                              {displayRegularPrice && displaySalePrice && (
+                                <span className="pcus-prd-discount-box1">
+                                  -{Math.round(
+                                    ((parseFloat(displayRegularPrice) - parseFloat(displaySalePrice)) /
+                                      parseFloat(displayRegularPrice)) *
+                                    100
+                                  )}
+                                  % OFF
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span className="price1">{parseFloat(displayPrice || 0).toFixed(2)}</span>
+                          )}
 
-
-                          
                         </div>
-
                         <button
-                          className={`pcus-prd-add-cart-btn10 ${
-                            cartItems.some((item) => item.id === p.id) ? 'added-to-cart' : ''
-                          }`}
+                          className={`pcus-prd-add-cart-btn10 ${cartItems.some((item) => item.id === p.id) ? 'added-to-cart' : ''
+                            }`}
                           onClick={(e) => {
                             e.stopPropagation();
                             flyToCart(e, p.images?.[0]?.src);
@@ -649,26 +668,21 @@ const onProductClick = useCallback((slug, id) => {
                             className="pcus-prd-add-cart-icon-img"
                           />
                         </button>
-
                         <div
                           id="cart-icon"
                           ref={cartIconRef}
                           style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000, cursor: 'pointer' }}
                         />
                       </div>
-                        {/* <div style={{fontSize:"10px"}}>
-                              + {variantsCount} variants
-                          </div> */}
-                    </div>
-                    
-                  </div>
-                  
-                );
-                
-              })}
-              
-            </div>
+                    <div style={{ fontSize: "10px", color: "#8B4513", background: "#FFD580", padding: "2px 5px",maxWidth:"65px",borderRadius:'25px' }}>
+  + {variantsCount} variants
+</div>
 
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
             {hasMoreProducts && (
               <div style={{ textAlign: 'center', margin: '20px 0' }}>
                 <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>
@@ -684,4 +698,4 @@ const onProductClick = useCallback((slug, id) => {
   );
 };
 
-export default ProductCategory;
+export default Festsaleproducts;

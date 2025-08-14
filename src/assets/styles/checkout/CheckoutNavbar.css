@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto; /* centers the inner content */
   width: 100%; /* ensure it fills horizontally up to max-width */
 }

@@ -6,7 +6,7 @@
   left: 0;  /* Add this */
   right: 0; /* Add this */
   width: 100vw; /* or just 100% */
-  background: #f13c05;
+  background: #ffffff;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -16,7 +16,7 @@
 }
 
 .nav-item {
-  color: #fff;
+  color: #e28409;
   text-align: center;
   text-decoration: none;
   font-size: 11px;
@@ -37,11 +37,11 @@
   position: absolute;
   top: -4px;
   right: 20%;
-  background: #f06000;
-  color: #000;
-  font-size: 10px;
+  background: #ff3c00;
+  color: #ffffff;
+  font-size: 12px;
   font-weight: bold;
-  padding: 2px 5px;
+  padding: 2px 3px;
   border-radius: 999px;
   min-width: 16px;
   height: 16px;
