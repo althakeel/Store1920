@@ -36,7 +36,7 @@ const CategorySlider = () => {
         params: { consumer_key: CK, consumer_secret: CS },
       })
       .then((res) => {
-        const cats = res.data.filter((c) => c.image && c.parent === 0);
+const cats = res.data.filter((c) => c.parent === 0);
         setCategories(cats);
         localStorage.setItem('categories', JSON.stringify(cats));
       })
@@ -160,7 +160,7 @@ const CategorySlider = () => {
                   }}
                 >
                   <img
-                    src={cat.image?.src || placeholderImg}
+                   src={cat.image?.src || placeholderImg} 
                     alt={name}
                     style={{
                       width: '100%',

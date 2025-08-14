@@ -91,7 +91,7 @@ const CategorySlider = () => {
         <div className="category-skeleton-text" />
       </div>
     ));
-  
+
   return (
     <section
       className="category-slider-container"
@@ -149,30 +149,27 @@ const CategorySlider = () => {
         <div className="skeleton-wrapper">{renderSkeletons()}</div>
       ) : (
         <Slider {...settings} ref={sliderRef}>
-  {categories === null
-    ? renderSkeletons()
-    : categories.map((cat) => {
-        const decodedName = decodeHTML(cat.name);
-        return (
-          <Link
-            to={`/category/${cat.slug}`}
-            key={cat.id}
-            className="category-slide"
-            aria-label={`View products in ${decodedName} category`}
-          >
-            <img
-              src={cat.image.src}
-              alt={decodedName}
-              className="category-image"
-              loading="lazy"
-              decoding="async"
-            />
-            <p className="category-title">{decodedName}</p>
-          </Link>
-        );
-      })}
-</Slider>
-
+          {categories.map((cat) => {
+            const decodedName = decodeHTML(cat.name);
+            return (
+              <Link
+                to={`/category/${cat.slug}`}
+                key={cat.id}
+                className="category-slide"
+                aria-label={`View products in ${decodedName} category`}
+              >
+                <img
+                  src={cat.image?.src || placeholderImg}
+                  alt={decodedName}
+                  className="category-image"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <p className="category-title">{decodedName}</p>
+              </Link>
+            );
+          })}
+        </Slider>
       )}
     </section>
   );

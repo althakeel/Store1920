@@ -250,7 +250,11 @@ export default function ProductDetails() {
 
       <div className="related-products-section">
         <Suspense fallback={<div>Loading related products...</div>}>
-          <RelatedProducts productId={product.id} />
+          <RelatedProducts 
+  categories={product.categories || []} 
+  tags={product.tags || []} 
+  currentProductId={product.id}
+/>
         </Suspense>
       </div>
 

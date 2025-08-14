@@ -158,11 +158,12 @@
 /* Small mobile devices */
 @media (max-width: 480px) {
   .pi-product-info {
-    padding-left: 16px;
-    padding-right: 16px;
-    max-width: 360px;
+    padding-left: 2px;
+    padding-right: 7px;
+    max-width: 400px;
     margin-left: auto;
     margin-right: auto;
+    margin-top: 0;
   }
 
   .pi-product-title-row h1 {

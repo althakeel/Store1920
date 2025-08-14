@@ -1,17 +1,16 @@
 .product-description-section {
   max-width: 650px;
-  /* margin: 0 auto; */
-  padding: 20px 5px;
+  padding: 20px 15px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
   background: #fff;
   border-radius: 8px;
-  /* box-shadow: 0 0 8px rgba(0,0,0,0.1); */
   line-height: 1.6;
-  overflow-wrap: break-word; /* better text wrapping */
+  overflow-wrap: break-word;
+  margin: 0 auto;
 }
 
-/* Keep your heading styling as is */
+/* Headings */
 .product-description-section h2 {
   font-size: 1.9rem;
   margin-bottom: 18px;
@@ -20,24 +19,23 @@
   font-weight: 600;
 }
 
+/* Product description content */
 .product-description-content {
   margin-bottom: 24px;
   font-size: 1rem;
   color: #444;
-
-  /* NEW: Make images inside responsive */
 }
 
 .product-description-content img {
-  max-width: 100%;  /* Image won't exceed container width */
-  height: auto;     /* Maintain aspect ratio */
+  max-width: 100%;
+  height: auto;
   display: block;
-  margin: 15px 0;   /* vertical spacing */
-  border-radius: 6px; /* optional: rounded corners */
+  margin: 15px 0;
+  border-radius: 6px;
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
 
-/* Existing styles for SKU, categories, tags, attributes */
+/* SKU, categories, tags */
 .product-sku,
 .product-categories,
 .product-tags {
@@ -66,6 +64,7 @@
   cursor: default;
 }
 
+/* Attributes */
 .product-attributes {
   margin-top: 20px;
 }
@@ -87,4 +86,59 @@
   margin-bottom: 8px;
   font-size: 1rem;
   color: #444;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .product-description-section {
+    max-width: 90%;
+    padding: 18px 12px;
+  }
+
+  .product-description-section h2 {
+    font-size: 1.7rem;
+  }
+
+  .product-attributes h3 {
+    font-size: 1.2rem;
+  }
+
+  .product-attributes li,
+  .product-description-content {
+    font-size: 0.95rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .product-description-section {
+    max-width: 95%;
+    padding: 15px 10px;
+  }
+
+  .product-description-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .product-attributes h3 {
+    font-size: 1.1rem;
+  }
+
+  .product-attributes li,
+  .product-description-content {
+    font-size: 0.9rem;
+  }
+
+  .product-description-content img {
+    margin: 10px 0;
+  }
+
+  .product-sku dd,
+  .product-categories dd,
+  .product-tags dd {
+    display: block;
+    margin-top: 2px;
+  }
 }

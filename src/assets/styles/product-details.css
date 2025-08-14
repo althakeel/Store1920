@@ -232,7 +232,9 @@
   .related-products-list {
     grid-template-columns: 1fr;
   }
-
+.product-details-container{
+  gap: 0;
+}
   
 
    .desktop-only {

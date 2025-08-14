@@ -6,6 +6,7 @@ const ChatBot = () => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [messages, setMessages] = useState([
     {
       from: 'bot',
@@ -34,6 +35,13 @@ const ChatBot = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth < 768);
+  handleResize(); // Initial check
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
 
   // Send message
   const sendMessage = async () => {
@@ -205,7 +213,7 @@ const ChatBot = () => {
       })}
     </div>
   );
-
+if (isMobile) return null;
   return (
     <>
       {/* Floating Button */}

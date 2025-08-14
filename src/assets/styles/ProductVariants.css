@@ -1,37 +1,77 @@
-.variants-inline {
+/* ========================
+   Product Variants - Responsive CSS
+   ======================== */
+
+/* Base styles (desktop) */
+.variants-section {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.variant-attribute-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .variant-title {
   font-weight: 500;
   font-size: 0.85rem;
   color: #333;
-  white-space: nowrap; /* prevent breaking in title text */
 }
 
 .variants-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  flex-grow: 1; /* take remaining space */
-  min-width: 0; /* prevent flexbox overflow */
-}
-.variant-attribute-group {
-  margin-bottom: 10px; /* Adds space between each attribute group */
 }
 
-.variant-attribute-group:last-child {
-  margin-bottom: 0; /* Prevent extra space after last group */
+/* Variant buttons */
+.variant-btn {
+  flex: 1 1 105px; /* grow, shrink, base width */
+  min-width: 70px;
+  max-width: 120px;
+  padding: 5px 2px;
+  border: 0.5px solid #cfcfcf;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.55rem;
+  color: #333;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+.variant-btn:hover:not(.selected):not(.out-of-stock) {
+  border-color: #ffa84d;
+}
 
+.variant-btn.selected {
+  border-color: #000;
+}
+
+.variant-btn.out-of-stock {
+  opacity: 0.4;
+  pointer-events: none;
+  border-style: dashed;
+}
+
+/* Image inside button */
 .variant-image-wrapper {
-  position: relative;
   width: 100%;
-  
+  position: relative;
+}
+
+.variant-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 4px 4px 0 0;
+  margin-bottom: 4px;
 }
 
 .variant-overlay {
@@ -51,53 +91,72 @@
   pointer-events: none;
 }
 
-.variant-btn.out-of-stock {
-  opacity: 0.5;
-  border-style: dashed;
-}
-
-
-.variant-btn {
-  width: 105px;
-  padding: 0px 0px 5px;
-  border: .5px solid #cfcfcf;
-  border-radius: 4px ;
-    background: #fff;
-  cursor: pointer;
-  text-align: center;
-  font-size: 0.55rem;
-  color: #333;
-  transition: all 0.2s ease-in-out;
-  flex-shrink: 0; /* prevent shrinking smaller than width */
-}
-
-.variant-btn:hover:not(.selected):not(.out-of-stock) {
-  border-color: #ffa84d;
-}
-
-.variant-btn.selected {
-  border-color: #000;
-}
-
-.variant-image {
-  width: 100%;
-  height: auto;
-  object-fit: fill;
-  border-radius: 4px 4px 0 0 ;
-  margin-bottom: 6px;
-}
-
+/* Label */
 .variant-label {
-  display: block;
   font-weight: 500;
   text-transform: capitalize;
   font-size: 0.75rem;
-  /* width: 85px;
-  margin: 0 auto; */
+  text-align: center;
 }
 
-.variant-btn.out-of-stock {
-  opacity: 0.4;
-  pointer-events: none;
-  border-style: dashed;
+/* ----------------------
+   Tablet (max-width: 1024px)
+   ---------------------- */
+@media (max-width: 1024px) {
+  .variant-btn {
+    flex: 1 1 80px;
+    min-width: 60px;
+    font-size: 0.5rem;
+  }
+
+  .variant-title {
+    font-size: 0.8rem;
+  }
+
+  .variants-list {
+    gap: 6px;
+  }
+}
+
+/* ----------------------
+   Mobile (max-width: 768px)
+   ---------------------- */
+@media (max-width: 768px) {
+  .variant-btn {
+    flex: 1 1 45%; /* roughly two buttons per row */
+    min-width: 45px;
+    font-size: 0.45rem;
+  }
+
+  .variant-title {
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+  }
+
+  .variant-label {
+    font-size: 0.65rem;
+  }
+
+  .variants-list {
+    gap: 6px;
+  }
+}
+
+/* ----------------------
+   Extra small mobile (max-width: 480px)
+   ---------------------- */
+@media (max-width: 480px) {
+  .variant-btn {
+    flex: 1 1 48%; /* two per row, small spacing */
+    min-width: 40px;
+    font-size: 0.4rem;
+  }
+
+  .variant-label {
+    font-size: 0.6rem;
+  }
+
+  .variants-list {
+    gap: 4px;
+  }
 }
