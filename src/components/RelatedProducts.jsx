@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import '../assets/styles/related-products.css';
 import AddCarticon from '../assets/images/addtocart.png';
 import AddedToCartIcon from '../assets/images/added-cart.png';
+import DummyReviewsSold from '../components/temp/productcardreviews'
+
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3/products';
 const AUTH = {
-  username: 'ck_8adb881aaff96e651cf69b9a8128aa5d9c80eb46',
-  password: 'cs_595f6cb2c159c14024d77a2a87fa0b6947041f9f',
+  username: 'ck_5441db4d77e2a329dc7d96d2db6a8e2d8b63c29f',
+  password: 'cs_81384d5f9e75e0ab81d0ea6b0d2029cba2d52b63',
 };
 
 // Skeleton Loader
@@ -77,29 +79,60 @@ function Toast({ message, visible }) {
   );
 }
 
+
 export default function HorizontalRelatedProducts({ productId }) {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ message: '', visible: false });
+  const [reviews, setReviews] = useState([]);
+
 
   const { cartItems, addToCart } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!productId) return;
-
+  
     const fetchRelatedProducts = async () => {
       try {
         setLoading(true);
-
-        const { data: product } = await axios.get(`${API_BASE}/${productId}`, { auth: AUTH });
-        const relatedIds = product.related_ids || [];
-
-        const productRequests = relatedIds.map(id =>
-          axios.get(`${API_BASE}/${id}`, { auth: AUTH }).then(res => res.data)
-        );
-
-        const related = await Promise.all(productRequests);
+  
+        const { data: product } = await axios.get(`${API_BASE}/${productId}?status=publish`, { auth: AUTH });
+  
+        let related = [];
+  
+        // 1️⃣ related_ids
+        if (product.related_ids?.length) {
+          const requests = product.related_ids.map(id =>
+            axios.get(`${API_BASE}/${id}?status=publish`, { auth: AUTH }).then(res => res.data)
+          );
+          related = await Promise.all(requests);
+        }
+  
+        // 2️⃣ category fallback
+        if (!related.length && product.categories?.length) {
+          const categoryIds = product.categories.map(c => c.id).join(',');
+          const { data: categoryRelated } = await axios.get(
+            `${API_BASE}?category=${categoryIds}&per_page=10&status=publish`, { auth: AUTH }
+          );
+          related = categoryRelated.filter(p => p.id !== productId);
+        }
+  
+        // 3️⃣ tag fallback
+        if (!related.length && product.tags?.length) {
+          const tagIds = product.tags.map(t => t.id).join(',');
+          const { data: tagRelated } = await axios.get(
+            `${API_BASE}?tag=${tagIds}&per_page=10&status=publish`, { auth: AUTH }
+          );
+          related = tagRelated.filter(p => p.id !== productId);
+        }
+  
+        // 4️⃣ latest fallback
+        if (!related.length) {
+          const { data: latest } = await axios.get(`${API_BASE}?per_page=10&status=publish`, { auth: AUTH });
+          related = latest.filter(p => p.id !== productId);
+        }
+  
         setRelatedProducts(related);
       } catch (error) {
         console.error('Error fetching related products:', error);
@@ -107,9 +140,10 @@ export default function HorizontalRelatedProducts({ productId }) {
         setLoading(false);
       }
     };
-
-    fetchRelatedProducts();
+  
+    fetchRelatedProducts(); // ✅ call it here
   }, [productId]);
+  
 
   const showToast = (message) => {
     setToast({ message, visible: true });
@@ -133,6 +167,33 @@ export default function HorizontalRelatedProducts({ productId }) {
       sale: validSale || (validPrice !== validRegular ? validPrice : null),
     };
   };
+
+  const ReviewPills = memo(({ productId }) => {
+    const [reviews, setReviews] = useState([]);
+  
+    useEffect(() => {
+      fetch(`https://db.store1920.com/wp-json/custom-reviews/v1/product/${productId}`)
+        .then((res) => res.json())
+        .then((data) => setReviews(data.reviews || []))
+        .catch((err) => console.error('Review fetch error', err));
+    }, [productId]);
+  
+    if (reviews.length === 0) return null;
+  
+    return (
+      <div className="pcus-review-pill-wrapper">
+        <div className="pcus-review-title">Customer Reviews</div>
+        <div className="pcus-review-pill-scroll">
+          {reviews.map((r, i) => (
+            <div key={i} className="pcus-review-pill">
+              <div className="pcus-review-pill-text">{r.comment}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  });
+  
 
   const calcDiscount = (regular, sale) => {
     if (regular && sale && regular > sale) {
@@ -206,6 +267,16 @@ export default function HorizontalRelatedProducts({ productId }) {
                   >
                     {truncate(prod.name)}
                   </div>
+                  <div
+    style={{
+      height: '1px',
+      width: '100%', // adjust length
+      backgroundColor: 'lightgrey', // choose color
+      margin: '0px 0 2px 0',
+      borderRadius: '1px',
+    }}
+  />
+                        <DummyReviewsSold/>
 
                   <div className="hr-bottom-row">
                     <div className="hr-price-info">

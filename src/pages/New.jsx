@@ -7,6 +7,7 @@ import AddCarticon from '../assets/images/addtocart.png';
 import AddedToCartIcon from '../assets/images/added-cart.png';
 import Adsicon from '../assets/images/summer-saving-coloured.png';
 import IconAED from '../assets/images/Dirham 2.png';
+import DummyReviewsSold from '../components/temp/DummyReviewsSold'
 import { throttle } from 'lodash';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v2';
@@ -404,7 +405,7 @@ const fetchProducts = useCallback(
     if (el) el.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
   };
 
-  // Changed: Open product in new tab instead of navigate within same tab
+  // Changed: Open product in new tab instead of navigate within  tab
 const onProductClick = useCallback((slug, id) => {
   // Save in localStorage as most recently viewed
   let recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
@@ -564,10 +565,7 @@ const onProductClick = useCallback((slug, id) => {
     ) : null}
   </>
 )}
-
-
 </div>
-
                     <div className="pcus-prd-info1">
                       <h3 className="pcus-prd-title1">
                         {badges.length > 0 && (
@@ -583,9 +581,9 @@ const onProductClick = useCallback((slug, id) => {
                       </h3>
 
                       <div className="pcus-prd-review" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        {renderStars(p.average_rating)}
+                      <DummyReviewsSold/>
                         <div className="pcus-sold-badge" style={{ position: 'static' }}>
-                          Sold: {soldCount}
+                        
                         </div>
                        
                        {isVariable && variantsCount > 1 && (
@@ -594,8 +592,6 @@ const onProductClick = useCallback((slug, id) => {
   </div>
 )}
                       </div>
-                     
-
                       <ReviewPills productId={p.id} />
 
                       <div className="pcus-prd-price-cart1">
@@ -626,10 +622,7 @@ const onProductClick = useCallback((slug, id) => {
   </>
 ) : (
   <span className="price1">{parseFloat(displayPrice || 0).toFixed(2)}</span>
-)}
-
-
-                          
+)}   
                         </div>
 
                         <button
@@ -656,19 +649,11 @@ const onProductClick = useCallback((slug, id) => {
                           style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000, cursor: 'pointer' }}
                         />
                       </div>
-                        {/* <div style={{fontSize:"10px"}}>
-                              + {variantsCount} variants
-                          </div> */}
                     </div>
-                    
                   </div>
-                  
                 );
-                
               })}
-              
             </div>
-
             {hasMoreProducts && (
               <div style={{ textAlign: 'center', margin: '20px 0' }}>
                 <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>

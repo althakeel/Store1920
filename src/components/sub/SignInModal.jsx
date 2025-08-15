@@ -403,7 +403,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         </div>
 
         <div className="signin-social-login">
-          <button
+          {/* <button
             className="signin-social-btn signin-google-btn"
             onClick={() => handleSocialLogin('google')}
             disabled={socialLoading}
@@ -415,9 +415,9 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
               className="signin-social-logo"
             />
             <span>Sign in with Google</span>
-          </button>
+          </button> */}
 
-          <button
+          {/* <button
             className="signin-social-btn signin-facebook-btn"
             onClick={() => handleSocialLogin('facebook')}
             disabled={socialLoading}
@@ -429,9 +429,9 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
               className="signin-social-logo"
             />
             <span>Sign in with Facebook</span>
-          </button>
+          </button> */}
 
-          <button
+          {/* <button
             className="signin-social-btn signin-apple-btn"
             disabled
             aria-label="Sign in with Apple (disabled)"
@@ -442,7 +442,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
               className="signin-social-logo"
             />
             <span>Sign in with Apple</span>
-          </button>
+          </button> */}
         </div>
       </div>
     </>

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // For navigation
-import { useCart } from '../contexts/CartContext'; // Adjust path if needed
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext';
 
 import '../assets/styles/ProductInfo.css';
+
 import OfferBox from './OfferBox';
 import ProductBadges from './ProductSellerbadge';
+import ProductBadgesseller from './sub/ProductBadges';
 import ShareDropdown from './ShareDropdown';
 import PriceDisplay from './products/PriceDisplay';
 import ProductVariants from './products/ProductVariants';
@@ -14,20 +16,23 @@ import ButtonSection from './products/ButtonSection';
 import OrderPerks from './products/OrderPerks';
 import ProductShortDescription from './products/ProductShortDescription';
 import ItemDetailsTable from './products/ItemDetailsTable';
-import ProductBadgesseller from './sub/ProductBadges';
+import DummyReviewsSold from '../components/temp/DummyReviewsSold';
 
 export default function ProductInfo({ product, variations, selectedVariation, onVariationChange }) {
   const [quantity, setQuantity] = useState(1);
   const [hasItemDetails, setHasItemDetails] = useState(false);
+
+  const navigate = useNavigate();
+  const { addToCart, setIsCartOpen } = useCart();
+
   const isOutOfStock = selectedVariation?.stock_status === 'outofstock';
 
-  // Reset quantity when selectedVariation changes
+  // Reset quantity when selected variation changes
   useEffect(() => {
-    console.log('selectedVariation changed:', selectedVariation);
     setQuantity(1);
   }, [selectedVariation]);
 
-  // Extract brand attribute from product attributes
+  // Extract brand attribute
   const brandAttribute = product.attributes?.find(attr => {
     if (!attr.name) return false;
     const name = attr.name.toLowerCase();
@@ -37,11 +42,10 @@ export default function ProductInfo({ product, variations, selectedVariation, on
   const brandOptions = brandAttribute?.options || [];
   const brand = brandOptions.length ? brandOptions[0] : null;
 
-  // Parse stock quantity from selectedVariation or product
+  // Stock quantity calculation
   const rawQty = Number(selectedVariation?.stock_quantity);
   const productQty = Number(product?.stock_quantity);
   const manageStock = selectedVariation?.manage_stock;
-
   const maxQuantity =
     manageStock && Number.isInteger(rawQty) && rawQty > 0
       ? rawQty
@@ -49,15 +53,11 @@ export default function ProductInfo({ product, variations, selectedVariation, on
       ? productQty
       : 99;
 
-  const navigate = useNavigate();
-  const { addToCart, setIsCartOpen } = useCart();
-
   if (!product) return null;
 
   const showClearance = product.show_clearance_sale === true;
   const clearanceEndTime = product.clearance_end_time;
 
-  // Handle Add To Cart button click
   const handleAddToCart = () => {
     const variation = selectedVariation || product;
 
@@ -73,70 +73,67 @@ export default function ProductInfo({ product, variations, selectedVariation, on
     addToCart(itemToAdd);
     setIsCartOpen(true);
 
-    if (showClearance) {
-      navigate('/checkout'); // Direct to checkout if clearance sale
-    }
+    if (showClearance) navigate('/checkout'); // Go to checkout for clearance
   };
 
   return (
     <section className="pi-product-info">
-  <OfferBox />
+      <OfferBox />
 
-  <div className="pi-product-title-row">
-    <div className="pi-badges-and-title">
-      <ProductBadges badges={product.custom_seller_badges || []} />
-      <h1>{product.name}</h1>
-      <ProductBadgesseller />
+      <div className="pi-product-title-row">
+        <div className="pi-badges-and-title">
+          <ProductBadges badges={product.custom_seller_badges || []} />
+          <h1 style={{margin:'5px 0'}}>{product.name} <ShareDropdown url={window.location.href} /></h1>
+          <ProductBadgesseller />
+          <DummyReviewsSold reviews={200} rating={4.7} sold={150} />
 
-      {product.sku && <p className="pi-product-sku">SKU: {product.sku}</p>}
+          {product.sku && <p className="pi-product-sku">SKU: {product.sku}</p>}
+          {brand && <p className="pi-product-brand">Brand: {brand}</p>}
+        </div>
+        
+      </div>
 
-      {brand && <p className="pi-product-brand">Brand: {brand}</p>}
-    </div>
-    <ShareDropdown url={window.location.href} />
-  </div>
+      <PriceDisplay product={product} selectedVariation={selectedVariation} />
+      <ProductShortDescription shortDescription={product.short_description} />
 
-  <PriceDisplay product={product} selectedVariation={selectedVariation} />
-  <ProductShortDescription shortDescription={product.short_description} />
+      {showClearance && clearanceEndTime ? (
+        <ClearanceSaleBox endTime={clearanceEndTime}>
+          <ProductVariants
+            variations={variations}
+            selectedVariation={selectedVariation}
+            onVariationChange={onVariationChange}
+          />
+          <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
+        </ClearanceSaleBox>
+      ) : (
+        <>
+          <ProductVariants
+            variations={variations}
+            selectedVariation={selectedVariation}
+            onVariationChange={onVariationChange}
+            maxQuantity={maxQuantity}
+          />
+          <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
+        </>
+      )}
 
-  {showClearance && clearanceEndTime ? (
-    <ClearanceSaleBox endTime={clearanceEndTime}>
-      <ProductVariants
-        variations={variations}
+      <ButtonSection
+        product={product}
         selectedVariation={selectedVariation}
-        onVariationChange={onVariationChange}
+        quantity={quantity}
+        isClearance={showClearance}
+        handleAddToCart={handleAddToCart}
       />
-      <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
-    </ClearanceSaleBox>
-  ) : (
-    <>
-      <ProductVariants
-        variations={variations}
-        selectedVariation={selectedVariation}
-        onVariationChange={onVariationChange}
-        maxQuantity={maxQuantity}
-      />
-      <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
-    </>
-  )}
 
-  <ButtonSection
-    product={product}
-    selectedVariation={selectedVariation}
-    quantity={quantity}
-    isClearance={showClearance}
-    handleAddToCart={handleAddToCart}
-  />
+      {hasItemDetails && (
+        <ItemDetailsTable
+          postId={product.id}
+          postType="posts"
+          onHasData={(exists) => setHasItemDetails(exists)}
+        />
+      )}
 
-  {hasItemDetails && (
-    <ItemDetailsTable
-      postId={product.id}
-      postType="posts"
-      onHasData={(exists) => setHasItemDetails(exists)}
-    />
-  )}
-
-  <OrderPerks />
-</section>
-
+      <OrderPerks />
+    </section>
   );
 }

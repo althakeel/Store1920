@@ -7,7 +7,7 @@
   padding: 30px;
   background-color: #fff;
   font-family: 'Montserrat', sans-serif;
-  min-height: 40vh;
+  min-height: 50vh;
 }
 
 /* Header Section */
@@ -19,6 +19,48 @@
   flex-wrap: wrap;
   gap: 10px;
 }
+
+.load-more-btn {
+  background-color: #fff;
+  border: 2px solid #d6671d;
+  color: #d6671d;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.load-more-btn::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 100%;
+  background-color: #e16410;
+  z-index: -1;
+  transition: width 0.3s ease;
+}
+
+.load-more-btn:hover {
+  color: #e86e36;
+}
+
+.load-more-btn:hover::after {
+  width: 100%;
+}
+
+.load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+
 
 .custom-category-title {
   font-size: 24px;
@@ -79,6 +121,33 @@
   margin: 8px 0;
   flex-wrap: wrap;
 }
+
+.pcus-prd-add-cart-btn {
+  background: transparent; /* So it doesn’t become black */
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.pcus-prd-add-cart-btn:active,
+.pcus-prd-add-cart-btn:focus {
+  outline: none;
+  background: transparent; /* prevent default dark background */
+}
+
+.pcus-prd-add-cart-btn img {
+  width: 24px;
+  height: 24px;
+}
+
+.pcus-prd-add-cart-btn.added-to-cart img {
+  filter: brightness(1); /* optional: keep it visible */
+}
+
 
 .custom-badge {
   font-size: 10px;

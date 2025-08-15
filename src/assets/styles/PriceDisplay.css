@@ -15,6 +15,17 @@
   font-size: 1.8rem;
 }
 
+.price-int {
+  font-size: 1.8rem; /* big number */
+  font-weight: 700;
+}
+
+.price-dec {
+  font-size: 1rem; /* smaller number */
+  vertical-align: super; /* raise decimal slightly */
+}
+
+
 .pd-regular-price {
   color: #6b6b6b; /* text color */
   position: relative;

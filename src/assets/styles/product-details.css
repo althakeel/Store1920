@@ -1,5 +1,4 @@
 /* === PRODUCT DETAILS LAYOUT === */
-
 .product-details-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -10,10 +9,11 @@
   width: 100%;
   align-items: flex-start;
 
-  /* Fix height to viewport so sticky works properly */
+  /* Keep viewport height for left scroll first */
   height: 100vh;
-  overflow: hidden; /* Prevent overall scroll */
+  overflow: hidden;
 }
+
 
 .product-details-container > .left,
 .product-details-container > .right {
@@ -27,25 +27,21 @@
   max-height: 100vh;
   padding-right: 10px;
 
-  /* Hide scrollbar */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+
 
 .product-details-container > .left::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
 }
 
-.product-details-container > .right {
-  /* Sticky sidebar */
-  position: sticky;
-  top: 20px;
-  align-self: flex-start;
-  z-index: 10;
 
-  /* Limit height to viewport minus top offset */
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
+.product-details-container > .right {
+  position: relative; /* no sticky, no fixed height */
+  height: auto;        /* let it expand naturally */
+  overflow: visible;   /* no internal scroll */
+  top: 20px;
 }
 
 /* === GALLERY AND DESCRIPTION === */
