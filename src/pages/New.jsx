@@ -434,15 +434,15 @@ const onProductClick = useCallback((slug, id) => {
   }, [loadingProducts, hasMoreProducts, productsPage]);
 
   return (
-    <div className="pcus-wrapper10" style={{ display: 'flex' }}>
+    <div className="pcus-wrapper10" style={{ display: 'flex'}}>
       <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
         <div className="pcus-title-section">
           <h2 className="pcus-main-title">
-            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" /> BEST RATED{' '}
-            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" />
+            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" /> LATEST ARRIVALS{' '}
+            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" />  
           </h2>
-          <p className="pcus-sub-title">DISCOVER TOP-LOVED PICKS</p>
-        </div>
+          <p className="pcus-sub-title">NEW SEASON PICKS</p>
+          </div>
 
         <div className="pcus-categories-wrapper1 pcus-categories-wrapper3">
           {canScrollLeft && (
@@ -586,11 +586,11 @@ const onProductClick = useCallback((slug, id) => {
                         
                         </div>
                        
-                       {isVariable && variantsCount > 1 && (
+                       {/* {isVariable && variantsCount > 1 && (
   <div className="pcus-variant-count-label" style={{ marginTop: '6px' }}>
     + {variantsCount} variants
   </div>
-)}
+)} */}
                       </div>
                       <ReviewPills productId={p.id} />
 

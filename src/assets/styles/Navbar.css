@@ -15,10 +15,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1400px;
+  max-width: 1450px;
   margin: 0 auto;
   padding: 5px 20px;
-  gap: 10px;
+  gap: 35px;
   flex-wrap: nowrap;
   min-height: 56px;
 }
@@ -99,7 +99,7 @@
   margin-left: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   font-weight: 500;
      font-family: 'Montserrat',  sans-serif;
 }
@@ -230,6 +230,14 @@
   color: white;
   user-select: none;
   white-space: nowrap;
+  padding: 10px 15px;
+}
+.nav-icon-with-text:hover {
+  background-color: rgba(255, 255, 255, 0.2); /* semi-transparent */
+  backdrop-filter: blur(10px);               /* blur behind */
+  -webkit-backdrop-filter: blur(10px);       /* Safari support */
+  padding: 10px 15px;
+  border-radius: 25px;
 }
 
 .nav-icon-only {
@@ -247,39 +255,58 @@
 .nav-center-mobile {
   display: none;
 }
-
-
+/* Mega menu container */
 .mega-menu {
   position: absolute;
   top: 42px;
   left: 0;
   width: 820px;
-  max-height: 600px;
-  background: white;
-  color: black;
+  max-height: 600px;   /* fixed */
   display: flex;
+  background: white;
   border-radius: 8px;
-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.25);
   overflow: hidden;
-  z-index: 1000;
   user-select: text;
-  transition: opacity 0.2s ease;
+  z-index: 1000;
 }
-
-/* LEFT CATEGORIES - scrollable & hide scrollbar */
 .mega-left {
   width: 270px;
+  max-height: 100%;
+  overflow-y: auto;    /* scroll if categories exceed height */
   padding: 15px 20px;
-  border-right: 1px solid #ddd;
-  max-height: 600px;
-  overflow-y: auto;
-
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 
-.mega-left::-webkit-scrollbar {
-  display: none;
+
+/* make left & right panels stretch */
+.mega-left, .mega-right {
+  max-height: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding: 15px 20px;
+  flex-shrink: 0; /* prevent shrinking */
+}
+
+.mega-right {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  gap: 18px;
+  max-height: 600px;        /* fix mega menu height */
+  overflow-y: auto;         /* scroll if more products */
+  padding: 15px 20px;
+  scroll-behavior: smooth;
+}
+
+
+.mega-left::-webkit-scrollbar,
+.mega-right::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mega-left::-webkit-scrollbar-thumb,
+.mega-right::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
 }
 
 .mega-cat-item {
@@ -293,34 +320,33 @@
   color: #333;
 }
 
-.mega-cat-item:hover {
+.mega-cat-item:hover,
+.mega-cat-item.active {
   background-color: #fff4e6;
   font-weight: 700;
   color: #ff6a00;
 }
 
-/* RIGHT PRODUCTS GRID - scrollable & hide scrollbar */
+/* RIGHT PRODUCTS GRID - scrollable */
 .mega-right {
+  flex: 1;
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 columns */
-  grid-template-rows: repeat(3, 1fr);    /* 3 rows */
+  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
-  max-height: 600px;      /* keep mega menu height fixed */
-  overflow-y: auto;       /* scroll if more products */
+  max-height: 100%;        /* match mega-menu height */
+  overflow-y: auto;
   padding: 15px 20px;
   scroll-behavior: smooth;
 }
 
-
 .mega-right::-webkit-scrollbar {
   display: none;
 }
-.mega-left,
-.mega-right {
-  padding-bottom: 10px;
-}
 
+/* Individual product */
 .mega-product {
+  width: 100%;              /* take full column width */
+  height: auto;            /* fixed height */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -328,22 +354,20 @@
   text-align: center;
   font-size: 13px;
   border-radius: 12px;
-  padding: 12px;
-  color: #444;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-  cursor: pointer;
+  padding: 8px;
   background: #fff;
-  border: 1px solid transparent;
+ 
+  box-sizing: border-box;
+  transition: transform 0.2s ease;
 }
+
 
 .mega-product:hover {
-  border-color: #d4d4d4;
-  color: #ff6a00;
-  transform: translateY(-4px);
+  transform: translateY(-3px);
 }
 
 
-
+/* Circle image */
 .mega-product .circle-img {
   width: 80px;
   height: 80px;
@@ -354,34 +378,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  background: #fff;
 }
 
-.mega-left,
-.mega-right {
-  scroll-behavior: smooth;
-}
 .mega-product .circle-img img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  /* keep all images same size */
 }
 
+/* Product price */
 
 .mega-product .price {
   font-weight: 700;
-  color: #444;
   font-size: 14px;
-  margin-top: 4px;
+  margin-top: 6px;
+  color: red;
 }
 
+/* No products placeholder */
 .no-products {
   font-size: 14px;
   color: #999;
   text-align: center;
   margin-top: 40px;
 }
+
 
 /* MOBILE TOGGLE BUTTON */
 .mobile-toggle {

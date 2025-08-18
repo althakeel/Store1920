@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ChatBotIcon from '../../assets/images/chatbot/chatbot.png';
 
 const ChatBot = () => {
   const API_URL = 'https://db.store1920.com/wp-json/ai-chatbot/v1/chat';
 
   const [open, setOpen] = useState(false);
+  const [showIcon, setShowIcon] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -16,12 +18,43 @@ const ChatBot = () => {
   const [typing, setTyping] = useState(false);
   const chatEndRef = useRef(null);
 
-  // Scroll to bottom on new message
+  // Funny AI replies for unrecognized input
+  const funnyReplies = [
+    "😅 Hmm, that sounds like something only a cat would understand!",
+    "😂 I wish I knew that… maybe one day AI will!",
+    "🤔 I think my circuits are confused. Can you try something else?",
+    "😎 Did you just invent a new word? Impressive!",
+    "🤖 Beep boop… I have no clue about that, but I like your style!",
+    "🙃 I'm not sure about that, but I can show you some cool products!",
+    "💡 Fun fact: Asking me random stuff doesn’t always break me!",
+    "🎯 You missed the target, but let’s try again!",
+    "🍕 I’d recommend pizza, but maybe you meant shampoo?",
+    "🐱 Meow! I mean… I don’t understand that either!"
+  ];
+
+  // Show icon after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowIcon(true);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Scroll to bottom on new messages
   useEffect(() => {
     if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [messages, open, typing]);
 
-  // Toggle chat window
+  // Hide on mobile
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  if (isMobile) return null;
+
   const toggleChat = () => {
     setOpen(prev => !prev);
     if (!open) {
@@ -36,14 +69,6 @@ const ChatBot = () => {
     }
   };
 
-  useEffect(() => {
-  const handleResize = () => setIsMobile(window.innerWidth < 768);
-  handleResize(); // Initial check
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
-
-  // Send message
   const sendMessage = async () => {
     if (!input.trim()) return;
     const userMsg = input.trim();
@@ -58,6 +83,7 @@ const ChatBot = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMsg }),
       });
+
       if (!res.ok) throw new Error('Network error');
       const data = await res.json();
 
@@ -69,7 +95,7 @@ const ChatBot = () => {
         return;
       }
 
-      // Handle redirects
+      // Redirect category
       if (data.intent === 'redirect_category' && data.categorySlug) {
         setMessages(prev => [
           ...prev,
@@ -82,6 +108,7 @@ const ChatBot = () => {
         return;
       }
 
+      // Redirect product
       if (data.intent === 'redirect_product' && data.productSlug) {
         setMessages(prev => [
           ...prev,
@@ -94,7 +121,7 @@ const ChatBot = () => {
         return;
       }
 
-      // Products
+      // Show products
       if (data.products && data.products.length > 0) {
         setMessages(prev => [
           ...prev,
@@ -105,17 +132,19 @@ const ChatBot = () => {
           },
         ]);
       } else {
+        // Pick random funny reply
+        const randomReply = funnyReplies[Math.floor(Math.random() * funnyReplies.length)];
         setMessages(prev => [
           ...prev,
-          {
-            from: 'bot',
-            text: '❌ No products found. Try another keyword like "زيت", "كريم", or "مكياج".',
-          },
+          { from: 'bot', text: randomReply },
         ]);
       }
     } catch (e) {
       setTyping(false);
-      setMessages(prev => [...prev, { from: 'bot', text: '❌ Something went wrong. Please try again later.' }]);
+      setMessages(prev => [
+        ...prev,
+        { from: 'bot', text: '❌ Something went wrong. Please try again later.' },
+      ]);
     }
     setLoading(false);
   };
@@ -124,7 +153,6 @@ const ChatBot = () => {
     if (e.key === 'Enter' && !loading) sendMessage();
   };
 
-  // Render product cards
   const renderProducts = (products) => (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 10 }}>
       {products.map((p) => {
@@ -213,62 +241,84 @@ const ChatBot = () => {
       })}
     </div>
   );
-if (isMobile) return null;
+
   return (
     <>
-      {/* Floating Button */}
-      <button
-        onClick={toggleChat}
-        style={{
-          position: 'fixed',
-          bottom: 24,
-          right: 24,
-          width: 60,
-          height: 60,
-          borderRadius: '50%',
-          backgroundColor: '#e65100',
-          border: 'none',
-          color: 'white',
-          fontSize: 30,
-          cursor: 'pointer',
-          boxShadow: '0 6px 14px rgba(230,81,0,0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-        }}
-      >
-        {open ? '×' : '💬'}
-      </button>
+      {/* Floating Chat Icon */}
+      {!open && (
+        <button
+          onClick={toggleChat}
+          style={{
+            position: 'fixed',
+            bottom: 50,
+            right: 24,
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            backgroundColor: '#fff',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 6px 14px rgba(0,0,0,0.2)',
+            display: showIcon ? 'flex' : 'none',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: 0,
+            transform: showIcon ? 'translateY(0)' : 'translateY(100px)',
+            opacity: showIcon ? 1 : 0,
+            transition: 'all 0.6s ease-out',
+          }}
+        >
+          <img
+            src={ChatBotIcon}
+            alt="ChatBot"
+            style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+          />
+        </button>
+      )}
 
       {/* Chat Window */}
       {open && (
         <div
           style={{
             position: 'fixed',
-            bottom: 90,
+            bottom: 50,
             right: 24,
             width: '90vw',
             maxWidth: 420,
             height: 520,
-            background: 'linear-gradient(to bottom right, #4732ff, #6a1b9a)',
             borderRadius: 20,
             boxShadow: '0 14px 40px rgba(0,0,0,0.15)',
             display: 'flex',
             flexDirection: 'column',
             fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-            color: '#fff',
+            color: '#000',
             zIndex: 9999,
+            backgroundColor: '#fff', // White background
+            animation: 'slideUp 0.5s ease-out',
           }}
         >
-          {/* Messages container */}
+          <style>
+            {`
+              @keyframes slideUp {
+                from { transform: translateY(100%); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+              }
+              @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+            `}
+          </style>
+
+          {/* Messages */}
           <div
             style={{
               flexGrow: 1,
               overflowY: 'auto',
               padding: 16,
-              backgroundColor: '#fff8e1',
               borderRadius: '20px 20px 0 0',
+              backgroundColor: '#fff', // White messages background
             }}
           >
             {messages.map((msg, i) => (
@@ -286,15 +336,14 @@ if (isMobile) return null;
                 <div
                   style={{
                     maxWidth: '75%',
-                    backgroundColor: msg.from === 'user' ? '#ff8f00' : '#fff3e0',
-                    color: msg.from === 'user' ? 'white' : '#5d4037',
+                    backgroundColor: msg.from === 'user' ? '#ff8f00' : '#f5f5f5',
+                    color: msg.from === 'user' ? 'white' : '#333',
                     padding: '14px 20px',
                     borderRadius: 25,
                     fontSize: 15,
                     boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
-                    position: 'relative',
                   }}
                 >
                   {msg.text}
@@ -302,9 +351,7 @@ if (isMobile) return null;
                 </div>
               </div>
             ))}
-            {typing && (
-              <div style={{ color: '#555', fontStyle: 'italic', marginBottom: 10 }}>🤖 AI is typing...</div>
-            )}
+            {typing && <div style={{ color: '#555', fontStyle: 'italic', marginBottom: 10 }}>🤖 AI is typing...</div>}
             <div ref={chatEndRef} />
           </div>
 
@@ -314,9 +361,9 @@ if (isMobile) return null;
               display: 'flex',
               alignItems: 'center',
               padding: '12px 16px',
-              backgroundColor: 'white',
               borderRadius: '0 0 20px 20px',
               boxShadow: 'inset 0 1px 4px rgba(0,0,0,0.05)',
+              backgroundColor: '#fff', // White input background
             }}
           >
             <input
@@ -342,7 +389,7 @@ if (isMobile) return null;
               onClick={sendMessage}
               disabled={loading || !input.trim()}
               style={{
-                backgroundColor: loading || !input.trim() ? '#ffe082' : '#ffa000',
+                backgroundColor: loading || !input.trim() ? '#ffffffff' : '#e67b3eff',
                 color: '#4e342e',
                 border: 'none',
                 borderRadius: '50%',

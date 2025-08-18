@@ -3,9 +3,9 @@
     box-sizing: border-box;
   }
   
-  /* Wrapper centered max-width 1400px */
+  /* Wrapper centered max-width 1450px */
   .horizontal-related-wrapper {
-    max-width: 1400px;
+    max-width: 1450px;
     width: 100%;
     margin: 0 auto;
     padding: 16px 0;
@@ -19,7 +19,7 @@
     grid-template-columns: repeat(5, 1fr); /* 5 columns max */
     gap: 20px;
     width: 100%;
-    max-width: 1400px;
+    max-width: 1450px;
   }
   
   /* Card styles */
@@ -117,10 +117,10 @@
   /* Cart button with icon */
   .hr-cart-btn {
     background: none;
-    border: 1px solid #000;
+    border: .5px solid #000;
     cursor: pointer;
     padding: 6px;
-    border-radius: 7px;
+    border-radius: 25px;
     transition: background 0.25s ease;
     display: flex;
     align-items: center;

@@ -16,7 +16,7 @@ const TrackOrder = () => {
 
   const contentWrapperStyle = {
     width: '100%',
-    maxWidth: '1400px',
+    maxWidth: '1450px',
     margin: '0 auto',
   };
 

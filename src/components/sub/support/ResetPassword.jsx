@@ -49,7 +49,7 @@ const ResetPassword = () => {
   const containerStyle = {
     fontFamily: 'Montserrat, sans-serif',
     fontSize: '12px',
-    maxWidth: '1400px',
+    maxWidth: '1450px',
     margin: '0 auto',
     padding: '20px',
     color: '#333',

@@ -1,32 +1,34 @@
 .courier-banner-section {
-  max-width: 1400px;
-  margin: 20px auto;
+  max-width: 1450px;            /* cap the whole bar at 1450px */
+  width: 100%;                  /* let it shrink on smaller screens */
+  margin: 20px auto;            /* center horizontally */
   background-color: #FF0100;
-  padding: 0 0px; /* small side padding for smaller screens */
+  padding: 0;                    /* no extra gap around bar */
   box-sizing: border-box;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;   /* align content left inside */
 }
 
 .banner-content {
   position: relative;
   display: flex;
   align-items: center;
-  max-width: 1400px;
+  justify-content: flex-start;   /* keep yellow block at start */
   width: 100%;
   box-sizing: border-box;
 }
+
+
 
 .banner-image {
   height: 50px;
   max-height: 50px;
   width: auto;
-  object-fit: cover;
+  object-fit: contain;            /* keeps proportions */
   object-position: left center;
   flex-shrink: 0;
   margin: 0;
-  left: 0;
-  z-index: 3;
+  z-index: 3;                     /* sits above overlay */
 }
 
 .banner-overlay {
@@ -35,13 +37,14 @@
   left: 0;
   height: 50px;
   width: 100%;
-  background-color: rgba(255, 0, 0, 0);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center;        /* center text/icons */
   gap: 20px;
+  padding-left: 70px;             /* reserve space for image */
   box-sizing: border-box;
   z-index: 2;
+  background-color: transparent;  /* no overlay background */
 }
 
 .banner-text {
@@ -53,18 +56,16 @@
   flex-grow: 1;
 }
 
-
 .banner-arrow {
   font-size: 24px;
   color: #ffffff;
   cursor: pointer;
   user-select: none;
   flex-shrink: 0;
-  margin-right: 20px; /* 👈 Add this line to shift it left */
+  margin-right: 20px;             /* small offset */
 }
-/* Responsive tweaks */
 
-/* Tablets and below */
+/* Responsive tweaks */
 @media (max-width: 768px) {
   .courier-banner-section {
     max-width: 100%;
@@ -79,6 +80,7 @@
   .banner-overlay {
     height: 40px;
     gap: 10px;
+    padding-left: 55px;           /* reserve smaller space for image */
   }
 
   .banner-text {
@@ -90,66 +92,131 @@
   }
 }
 
-
-
-/* Popup */
-.popup-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 99;
-}
-
-.popup-box {
-  background: white;
-  padding: 20px 30px;
-  max-width: 400px;
-  text-align: center;
-  border-radius: 10px;
-}
-
-.popup-message {
-  margin: 15px 0;
-  font-size: 15px;
-  line-height: 1.4;
-}
-
-.popup-logo {
-  max-width: 120px;
-  margin-bottom: 10px;
-}
-
-.popup-close-btn {
-  background-color: #ff5100;
-  color: white;
-  padding: 8px 20px;
-  border: none;
-  border-radius: 5px;
-  font-weight: 600;
-  cursor: pointer;
-}
-@media (max-width: 768px) {
-  .courier-banner-text {
-    font-size: 16px;
-  }
-
-  .courier-banner-arrow {
-    font-size: 20px;
-  }
-
-  .courier-banner-wrapper {
-    height: 40px;
-  }
-}
-
 /* Mobile devices */
 @media (max-width: 480px) {
   .courier-banner-section {
-    display: none; /* Hide this desktop banner on mobile */
+    display: none; /* Hide desktop banner on mobile */
   }
-
-  /* You can create another component/banner for mobile and show it here */
+  /* You can add a separate mobile banner component */
 }
+
+
+
+/* ===========================
+   Popup (New Modern Design)
+   =========================== */
+   .popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 1000;
+  }
+  
+  .popup-box {
+    background: #fff;
+    border-radius: 16px;
+    max-width: 480px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+    animation: fadeUp 0.35s ease;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;     /* prevent overflow */
+  }
+  
+  .popup-header {
+    background: linear-gradient(135deg, #ff0100, #ff5100);
+    padding: 18px;
+    text-align: center;
+    color: #fff;
+  }
+  
+  .popup-header img {
+    max-width: 120px;
+    display: block;
+    margin: 0 auto 8px auto;
+  }
+  
+  .popup-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+  }
+  
+  .popup-body {
+    padding: 20px;
+    text-align: left;
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .popup-message {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #444;
+    margin-bottom: 12px;
+  }
+  
+  .popup-features {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+  }
+  
+  .popup-features li {
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+  }
+  
+  .popup-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    text-align: right;
+  }
+  
+  .popup-close-btn {
+    background: #ff0100;
+    color: #fff;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .popup-close-btn:hover {
+    background: #d60000;
+  }
+  
+  /* Animation */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Responsive */
+  @media (max-width: 480px) {
+    .popup-title {
+      font-size: 16px;
+    }
+    .popup-message,
+    .popup-features li {
+      font-size: 13px;
+    }
+    .popup-close-btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+  

@@ -84,18 +84,47 @@ const MobileNavbar = () => {
   }, [dropdownVisible]);
 
   // Filter suggestions based on search term
-  useEffect(() => {
+// Debounce search requests
+useEffect(() => {
+  const delayDebounce = setTimeout(async () => {
     if (!searchTerm.trim()) {
       setSuggestions(items.slice(0, MAX_SUGGESTIONS));
       return;
     }
 
-    const filtered = items.filter(item =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    try {
+      const [catRes, prodRes] = await Promise.all([
+        axios.get("https://db.store1920.com/wp-json/wc/v3/products/categories", {
+          params: { search: searchTerm, per_page: 10 },
+        }),
+        axios.get("https://db.store1920.com/wp-json/wc/v3/products", {
+          params: { search: searchTerm, per_page: 10 },
+        }),
+      ]);
 
-    setSuggestions(filtered.slice(0, MAX_SUGGESTIONS));
-  }, [searchTerm, items]);
+      const categories = catRes.data.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug,
+        type: "category",
+      }));
+
+      const products = prodRes.data.map(prod => ({
+        id: prod.id,
+        name: prod.name,
+        slug: prod.slug,
+        type: "product",
+      }));
+
+      setSuggestions([...categories, ...products].slice(0, MAX_SUGGESTIONS));
+    } catch (err) {
+      console.error("Search failed:", err);
+    }
+  }, 400); // ⏳ debounce (400ms)
+
+  return () => clearTimeout(delayDebounce);
+}, [searchTerm]);
+
 
   // Handle selecting an item from dropdown
   const handleSelect = (item) => {

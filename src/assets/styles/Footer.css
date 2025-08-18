@@ -8,7 +8,7 @@
 
 
 .footer-container {
-  max-width: 1400px; /* limit content width */
+  max-width: 1450px; /* limit content width */
   margin: 0 auto;    /* center content */
   padding: 0 15px;   /* some horizontal padding */
   box-sizing: border-box;

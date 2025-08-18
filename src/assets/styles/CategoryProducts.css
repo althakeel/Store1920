@@ -2,7 +2,7 @@
 
 /* General Layout */
 .custom-category-wrapper {
-  max-width: 1400px;
+  max-width: 1450px;
   margin: 0 auto;
   padding: 30px;
   background-color: #fff;
@@ -290,7 +290,7 @@
 }
 
 /* Responsive Layout */
-@media screen and (max-width: 1400px) {
+@media screen and (max-width: 1450px) {
   .custom-grid-layout {
     grid-template-columns: repeat(4, 1fr);
   }

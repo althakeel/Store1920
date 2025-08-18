@@ -5,8 +5,8 @@ import { useCart } from '../contexts/CartContext';
 import '../assets/styles/related-products.css';
 import AddCarticon from '../assets/images/addtocart.png';
 import AddedToCartIcon from '../assets/images/added-cart.png';
-import DummyReviewsSold from '../components/temp/productcardreviews'
-
+import DummyReviewsSold from '../components/temp/productcardreviews';
+import Dirham from '../assets/images/Dirham 2.png';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3/products';
 const AUTH = {
@@ -79,28 +79,24 @@ function Toast({ message, visible }) {
   );
 }
 
-
 export default function HorizontalRelatedProducts({ productId }) {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ message: '', visible: false });
-  const [reviews, setReviews] = useState([]);
-
 
   const { cartItems, addToCart } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!productId) return;
-  
+
     const fetchRelatedProducts = async () => {
       try {
         setLoading(true);
-  
         const { data: product } = await axios.get(`${API_BASE}/${productId}?status=publish`, { auth: AUTH });
-  
+
         let related = [];
-  
+
         // 1️⃣ related_ids
         if (product.related_ids?.length) {
           const requests = product.related_ids.map(id =>
@@ -108,31 +104,33 @@ export default function HorizontalRelatedProducts({ productId }) {
           );
           related = await Promise.all(requests);
         }
-  
+
         // 2️⃣ category fallback
         if (!related.length && product.categories?.length) {
           const categoryIds = product.categories.map(c => c.id).join(',');
           const { data: categoryRelated } = await axios.get(
-            `${API_BASE}?category=${categoryIds}&per_page=10&status=publish`, { auth: AUTH }
+            `${API_BASE}?category=${categoryIds}&per_page=10&status=publish`,
+            { auth: AUTH }
           );
           related = categoryRelated.filter(p => p.id !== productId);
         }
-  
+
         // 3️⃣ tag fallback
         if (!related.length && product.tags?.length) {
           const tagIds = product.tags.map(t => t.id).join(',');
           const { data: tagRelated } = await axios.get(
-            `${API_BASE}?tag=${tagIds}&per_page=10&status=publish`, { auth: AUTH }
+            `${API_BASE}?tag=${tagIds}&per_page=10&status=publish`,
+            { auth: AUTH }
           );
           related = tagRelated.filter(p => p.id !== productId);
         }
-  
+
         // 4️⃣ latest fallback
         if (!related.length) {
           const { data: latest } = await axios.get(`${API_BASE}?per_page=10&status=publish`, { auth: AUTH });
           related = latest.filter(p => p.id !== productId);
         }
-  
+
         setRelatedProducts(related);
       } catch (error) {
         console.error('Error fetching related products:', error);
@@ -140,10 +138,9 @@ export default function HorizontalRelatedProducts({ productId }) {
         setLoading(false);
       }
     };
-  
-    fetchRelatedProducts(); // ✅ call it here
+
+    fetchRelatedProducts();
   }, [productId]);
-  
 
   const showToast = (message) => {
     setToast({ message, visible: true });
@@ -167,33 +164,6 @@ export default function HorizontalRelatedProducts({ productId }) {
       sale: validSale || (validPrice !== validRegular ? validPrice : null),
     };
   };
-
-  const ReviewPills = memo(({ productId }) => {
-    const [reviews, setReviews] = useState([]);
-  
-    useEffect(() => {
-      fetch(`https://db.store1920.com/wp-json/custom-reviews/v1/product/${productId}`)
-        .then((res) => res.json())
-        .then((data) => setReviews(data.reviews || []))
-        .catch((err) => console.error('Review fetch error', err));
-    }, [productId]);
-  
-    if (reviews.length === 0) return null;
-  
-    return (
-      <div className="pcus-review-pill-wrapper">
-        <div className="pcus-review-title">Customer Reviews</div>
-        <div className="pcus-review-pill-scroll">
-          {reviews.map((r, i) => (
-            <div key={i} className="pcus-review-pill">
-              <div className="pcus-review-pill-text">{r.comment}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  });
-  
 
   const calcDiscount = (regular, sale) => {
     if (regular && sale && regular > sale) {
@@ -234,6 +204,16 @@ export default function HorizontalRelatedProducts({ productId }) {
     return <p style={{ textAlign: 'center' }}>No related products found.</p>;
   }
 
+  const formatPrice = (price) => {
+    const [integer, decimal] = price.toFixed(2).split('.');
+    return (
+      <>
+        <span style={{ fontSize: '20px', fontWeight: '700' }}>{integer}</span>
+        <span style={{ fontSize: '10px', fontWeight: '500' }}>.{decimal}</span>
+      </>
+    );
+  };
+
   return (
     <>
       <div className="horizontal-related-wrapper">
@@ -268,19 +248,24 @@ export default function HorizontalRelatedProducts({ productId }) {
                     {truncate(prod.name)}
                   </div>
                   <div
-    style={{
-      height: '1px',
-      width: '100%', // adjust length
-      backgroundColor: 'lightgrey', // choose color
-      margin: '0px 0 2px 0',
-      borderRadius: '1px',
-    }}
-  />
-                        <DummyReviewsSold/>
+                    style={{
+                      height: '1px',
+                      width: '100%',
+                      backgroundColor: 'lightgrey',
+                      margin: '0px 0 2px 0',
+                      borderRadius: '1px',
+                    }}
+                  />
+                  <DummyReviewsSold />
 
                   <div className="hr-bottom-row">
-                    <div className="hr-price-info">
-                      <span className="hr-sale-price">{displayPrice.toFixed(2)}</span>
+                    <div className="hr-price-info" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <img
+                        src={Dirham}
+                        alt="Dirham"
+                        style={{ width: '12px', height: '12px', verticalAlign: 'text-bottom' }}
+                      />
+                      {formatPrice(displayPrice)}
                       {sale && sale < regular && (
                         <>
                           <span className="hr-regular-price">{regular.toFixed(2)}</span>

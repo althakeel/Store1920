@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
 .pcus-wrapper1 {
-  max-width: 1400px;
+  max-width: 1450px;
   margin: 0 auto;
   padding: 20px 10px;
   font-family: 'Montserrat',  sans-serif;
   box-sizing: border-box;
   color: #222;
-  min-height: 50vh;
+  /* min-height: 50vh; */
 }
 
 .pcus-category-img {

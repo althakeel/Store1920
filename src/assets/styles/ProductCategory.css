@@ -1,13 +1,83 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
 .pcus-wrapper3 {
-  max-width: 1400px;
+  max-width: 1450px;
   margin: 0 auto;
-  padding: 20px 0px;
+  padding: 20px 10px;
   font-family: 'Montserrat',  sans-serif;
   box-sizing: border-box;
   color: #222;
 }
+
+/* .mega-offer-badge {
+  position: absolute;
+  top: 27px;
+  left: -45px;
+  width: 140px;
+  text-align: center;
+  background: linear-gradient(145deg, #ff4d4d, #ff1a1a); 
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 4px 20px;
+  transform: rotate(-45deg) perspective(200px) translateZ(5px); 
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4), inset -1px -1px 4px rgba(255, 255, 255, 0.3); 
+  z-index: 10;
+  border-top: 1px solid rgba(255,255,255,0.3); 
+  border-bottom: 1px solid rgba(0,0,0,0.3); 
+} */
+
+
+.mega-offer-badge {
+  position: absolute;
+  top: 25px;
+  left: -25px;
+  width: 120px;
+  text-align: center;
+  background: #ff4d4d;
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 4px 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 10;
+  overflow: hidden; /* ensures text slides smoothly */
+}
+.mega-offer-text {
+  display: inline-block;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+@keyframes slideUp {
+  0% {
+    transform: rotate(-45deg) translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(-45deg) translateY(0%);
+    opacity: 1;
+  }
+}
+
+
+
+@media (max-width: 768px) {
+  .quick-view-grid {
+    flex-direction: column;
+  }
+  .quick-view-images-box, .quick-view-details {
+    flex: 1 1 100%;
+  }
+  .thumbnails-wrapper {
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+}
+
+
 
 
 /* starts review */
@@ -494,12 +564,12 @@ img.flying-clone {
 
 /* Sale price */
 .pcus-prd-sale-price1 {
-  font-size: 18px;
+  font-size: 32px;
   font-weight: 700;
   color: #d3632f; 
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 2px;
   user-select: text;
 }
 
@@ -708,6 +778,9 @@ img.flying-clone {
     height: 32px;
     margin: 0;
     flex-shrink: 0;
+  }
+  .schoolimage{
+    max-width: 250px !important;
   }
 }
 

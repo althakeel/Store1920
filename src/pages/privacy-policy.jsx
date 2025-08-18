@@ -37,7 +37,7 @@ const PrivacyPolicy = () => {
 
       <style>{`
         .pp-container {
-          max-width: 1400px;
+          max-width: 1450px;
           margin: 40px auto;
           padding: 0 10px;
           font-family: 'Montserrat', sans-serif;

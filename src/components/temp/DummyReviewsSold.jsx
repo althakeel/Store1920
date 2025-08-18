@@ -77,7 +77,7 @@ export default function DummyReviewsSold({ reviews = 120, rating = 4.5, sold = 7
         </span>
         <span style={{ color: '#555', fontSize: '10px' }}>({reviews} reviews)</span>
     
-        <span
+        {/* <span
           style={{
             backgroundColor: '#4caf50',
             color: '#fff',
@@ -89,7 +89,7 @@ export default function DummyReviewsSold({ reviews = 120, rating = 4.5, sold = 7
           }}
         >
           Trusted Reviews
-        </span>
+        </span> */}
       </div>
       <div style={{ color: '#777', fontSize: '12px' }}>{sold} sold</div>
     </div>

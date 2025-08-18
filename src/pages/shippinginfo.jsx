@@ -4,7 +4,7 @@ const ShippingInfo = () => {
   return (
     <div
       style={{
-        maxWidth: 1400,
+        maxWidth: 1450,
         margin: '40px auto',
         padding: '0 10px',
         fontFamily: "'Montserrat', sans-serif",

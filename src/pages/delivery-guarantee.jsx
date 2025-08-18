@@ -3,7 +3,7 @@ import React from 'react';
 const DeliveryGuarantee = () => {
   return (
     <div style={{ backgroundColor: '#f5fbf7', width: '100%', fontFamily: "'Montserrat', sans-serif" }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '40px 10px' }}>
+      <div style={{ maxWidth: '1450px', margin: '0 auto', padding: '40px 10px' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <h2 style={{ color: '#2aa745', fontSize: '22px' }}>🛡️ Shop confidently with delivery guarantee</h2>

@@ -79,11 +79,13 @@ export default function ProductCardReviews() {
         <span style={{ fontWeight: 'bold', fontSize: 12 }}>{rating}</span>
         <div style={{ display: 'flex', gap: 2 }}>{starsArray.map(renderStar)}</div>
         <span style={{ color: '#777', fontSize: 12 }}>({reviews})</span>
+        <span style={{ fontSize: 12 }}>{sold} sold</span>
+
       </div>
-      <div style={soldStyle}>
+      {/* <div style={soldStyle}>
         <span style={{ fontSize: 12 }}>{sold} sold</span>
         {rating >= 4 && <span style={verifiedStyle}>Verified Customer</span>}
-      </div>
+      </div> */}
 
       {/* Mobile responsive adjustments */}
       <style>

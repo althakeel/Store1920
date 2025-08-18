@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../../../assets/styles/CourierBanner.css';
-// import emxLogo from '../../../assets/images/emx-logo.png'; // Adjust the path
+// import emxLogo from '../../../assets/images/emx-logo.png';
 
 const CourierBanner = () => {
   const [bannerUrl, setBannerUrl] = useState('');
@@ -35,9 +35,26 @@ const CourierBanner = () => {
         <div className="popup-overlay" onClick={() => setShowPopup(false)}>
           <div className="popup-box" onClick={(e) => e.stopPropagation()}>
             {/* <img src={emxLogo} alt="EMX Logo" className="popup-logo" /> */}
+            
+            <h2 className="popup-title">Powered by EMX Logistics</h2>
             <p className="popup-message">
-              Temu is working with EMX to provide you with safe and fast delivery services while focusing on sustainable development, such as using pick up points and lockers.
+              Store1920 has partnered with <strong>EMX</strong> to ensure your orders are delivered 
+              quickly, safely, and sustainably. Our goal is to provide a seamless shopping-to-delivery experience.
             </p>
+
+            <ul className="popup-features">
+              <li>🚚 <strong>Fast Delivery</strong> – Same-day and next-day delivery options available.</li>
+              <li>🔒 <strong>Safe & Secure</strong> – Every package is handled with extra care.</li>
+              <li>🌍 <strong>Eco-Friendly</strong> – Focus on sustainable logistics, including pick-up points and lockers.</li>
+              <li>📦 <strong>Real-time Tracking</strong> – Get live updates on your shipment’s journey.</li>
+              <li>🏬 <strong>Flexible Pick-up</strong> – Collect from lockers, hubs, or at your doorstep.</li>
+            </ul>
+
+            <p className="popup-note">
+              With EMX, Store1920 ensures your online shopping experience doesn’t just stop at checkout— 
+              it continues until your order is right in your hands.
+            </p>
+
             <button className="popup-close-btn" onClick={() => setShowPopup(false)}>
               Got it
             </button>

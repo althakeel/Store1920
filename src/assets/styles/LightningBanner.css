@@ -3,15 +3,18 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  
   width: 100%;
-  padding: 16px 20px;
+  max-width: 1450px;             /* cap width */
+  margin: 20px auto;             /* auto centers */
+  
+  padding: 16px 20px;            /* inner padding only */
   box-sizing: border-box;
   display: flex;
   justify-content: center;
-  max-width: 1400px;
-  margin: 20px auto !important;
   text-align: center;
-    font-family: 'Montserrat', sans-serif;
+  
+  font-family: 'Montserrat', sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -24,8 +27,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: rgb(0, 0, 0);
-  font-family: 'Montserrat', sans-serif;
+  color: #000;
   font-size: 16px;
   font-weight: 600;
   gap: 8px;
@@ -39,6 +41,7 @@
 .lightning-banner .title {
   font-style: italic;
   font-weight: bold;
+  color: #000000  ;
 }
 
 .lightning-banner .subtitle {

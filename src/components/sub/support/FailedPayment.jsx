@@ -47,7 +47,7 @@ const FailedPayment = () => {
   ];
 
   const containerStyle = {
-    maxWidth: '1400px',
+    maxWidth: '1450px',
     margin: '0 auto',
     padding: '32px 20px',
     fontFamily: 'Segoe UI, sans-serif',

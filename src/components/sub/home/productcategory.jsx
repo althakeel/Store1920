@@ -8,7 +8,8 @@ import AddedToCartIcon from "../../../assets/images/added-cart.png";
 import Adsicon from "../../../assets/images/summer-saving-coloured.png";
 import IconAED from "../../../assets/images/Dirham 2.png";
 import { throttle } from "lodash";
-import ProductCardReviews from '../../temp/productcardreviews'
+import ProductCardReviews from "../../temp/productcardreviews";
+import TitleImage from '../../../assets/images/seasontitle/bannertitle copy.png'
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
@@ -61,14 +62,8 @@ const ReviewPills = memo(({ productId }) => {
 
 const handleProductClick = (productId) => {
   let recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
-
-  // Remove if it already exists
   recent = recent.filter((id) => id !== productId);
-
-  // Add to front
   recent.unshift(productId);
-
-  // Save only latest 5
   localStorage.setItem("recentProducts", JSON.stringify(recent.slice(0, 5)));
 };
 
@@ -117,16 +112,45 @@ const ProductCategory = () => {
 
   const [promoImage, setPromoImage] = useState("");
   const [promoSubtitle, setPromoSubtitle] = useState("");
+  const [badgeText, setBadgeText] = useState("MEGA OFFER");
+  const [animate, setAnimate] = useState(true);
 
-  // Rotate badge color every 10 minutes
+  const [quickViewImages, setQuickViewImages] = useState([]);
+  const [quickViewTitle, setQuickViewTitle] = useState("");
+  const [showQuickView, setShowQuickView] = useState(false);
+
+  const openQuickView = (images, title) => {
+    setQuickViewImages(images);
+    setQuickViewTitle(title);
+    setShowQuickView(true);
+  };
+
+  const closeQuickView = () => setShowQuickView(false);
+
   useEffect(() => {
+    const texts = ["MEGA OFFER", "HURRY UP"];
+    let idx = 0;
+
     const interval = setInterval(() => {
-      setBadgeColorIndex((idx) => (idx + 1) % badgeColors.length);
-    }, 600000);
+      setAnimate(false); // start moving down/fade out
+
+      setTimeout(() => {
+        idx = (idx + 1) % texts.length;
+        setBadgeText(texts[idx]);
+        setAnimate(true); // slide up / fade in
+      }, 500); // match transition duration
+    }, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch currency symbol
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBadgeColorIndex((idx) => (idx + 1) % badgeColors.length);
+    }, 600000); // rotate every 10 minutes
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     async function fetchCurrencySymbol() {
       try {
@@ -146,27 +170,26 @@ const ProductCategory = () => {
     fetchCurrencySymbol();
   }, []);
 
-
-
   function Price({ value, className }) {
-    const price = parseFloat(value || 0).toFixed(2); // ensures 2 decimals
+    const price = parseFloat(value || 0).toFixed(2);
     const [integerPart, decimalPart] = price.split(".");
-  
+
     return (
       <span className={className}>
-        <span style={{ fontSize: "18px", fontWeight: "bold" }}>{integerPart}</span>
+        <span style={{ fontSize: "18px", fontWeight: "bold" }}>
+          {integerPart}
+        </span>
         <span style={{ fontSize: "12px" }}>.{decimalPart}</span>
       </span>
     );
   }
-  
 
   useEffect(() => {
     fetch("https://db.store1920.com/wp-json/custom/v1/promo")
       .then((res) => res.json())
       .then((data) => {
-        console.log("Promo data:", data); // Check this in console
-        const promo = data.data || data; // adjust based on structure
+        console.log("Promo data:", data);
+        const promo = data.data || data;
         setPromoImage(promo.promo_image || "");
         setPromoSubtitle(promo.promo_subtitle || "");
       })
@@ -188,7 +211,6 @@ const ProductCategory = () => {
       .filter(Boolean);
 
     const remainingProducts = products.filter((p) => !recentSet.has(p.id));
-
     setSortedProducts([...recentProducts, ...remainingProducts]);
   }, [products]);
 
@@ -199,6 +221,25 @@ const ProductCategory = () => {
       }
     });
   }, [products]);
+
+  const getProductBadges = (product) => {
+    const badges = [];
+    product.meta_data?.forEach((meta) => {
+      if (
+        meta.key === "_best_seller" &&
+        (meta.value === "1" || meta.value === true)
+      ) {
+        badges.push("best_seller");
+      }
+      if (
+        meta.key === "_recommended" &&
+        (meta.value === "1" || meta.value === true)
+      ) {
+        badges.push("recommended");
+      }
+    });
+    return badges;
+  };
 
   const fetchAllVariations = async (productId) => {
     try {
@@ -219,7 +260,6 @@ const ProductCategory = () => {
       );
     }
   };
-
   const fetchCategories = useCallback(async (page = 1) => {
     setLoadingCategories(true);
     try {
@@ -287,13 +327,13 @@ const ProductCategory = () => {
   useEffect(() => {
     products.forEach((p) => {
       if (p.type === "variable") {
-        fetchFirstVariation(p.id); // also fetch first variation for every variable product
+        fetchFirstVariation(p.id);
       }
     });
   }, [products]);
 
   const fetchFirstVariation = async (productId) => {
-    if (variationPrices[productId]) return; // already fetched
+    if (variationPrices[productId]) return;
 
     try {
       const res = await fetch(
@@ -318,8 +358,6 @@ const ProductCategory = () => {
       );
     }
   };
-
-  // For example, call this function when user clicks a product card or hovers over it
 
   const updateArrowVisibility = useCallback(() => {
     const el = categoriesRef.current;
@@ -346,7 +384,6 @@ const ProductCategory = () => {
     let isDown = false,
       startX,
       scrollLeft;
-
     const start = (e) => {
       isDown = true;
       startX = e.pageX - el.offsetLeft;
@@ -394,13 +431,10 @@ const ProductCategory = () => {
       </span>
     );
   };
-
   const flyToCart = (e, imgSrc) => {
     if (!cartIconRef.current || !imgSrc) return;
-
     const cartRect = cartIconRef.current.getBoundingClientRect();
     const startRect = e.currentTarget.getBoundingClientRect();
-
     const clone = document.createElement("img");
     clone.src = imgSrc;
     clone.style.position = "fixed";
@@ -430,14 +464,12 @@ const ProductCategory = () => {
       el.scrollBy({ left: dir === "left" ? -200 : 200, behavior: "smooth" });
   };
 
-  // Changed: Open product in new tab instead of navigate within same tab
   const onProductClick = useCallback((slug, id) => {
-    // Save in localStorage as most recently viewed
     let recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
 
-    recent = recent.filter((rid) => rid !== id); // remove if exists
-    recent.unshift(id); // add to top
-    localStorage.setItem("recentProducts", JSON.stringify(recent.slice(0, 5))); // keep top 5
+    recent = recent.filter((rid) => rid !== id);
+    recent.unshift(id);
+    localStorage.setItem("recentProducts", JSON.stringify(recent.slice(0, 5)));
 
     const url = `/product/${slug}`;
     window.open(url, "_blank", "noopener,noreferrer");
@@ -454,8 +486,7 @@ const ProductCategory = () => {
       ) {
         loadMoreProducts();
       }
-    }, 200); // adjust throttle delay as needed
-
+    }, 200);
     window.addEventListener("scroll", throttledHandleScroll);
     return () => window.removeEventListener("scroll", throttledHandleScroll);
   }, [loadingProducts, hasMoreProducts, productsPage, loadMoreProducts]);
@@ -466,7 +497,7 @@ const ProductCategory = () => {
         className="pcus-categories-products1"
         style={{ width: "100%", transition: "width 0.3s ease" }}
       >
-        <div className="pcus-title-section">
+        {/* <div className="pcus-title-section">
           <h2 className="pcus-main-title">
             <img src={Adsicon} style={{ maxWidth: "18px" }} alt="Ads icon" />{" "}
             SUMMER SAVINGS{" "}
@@ -492,14 +523,13 @@ const ProductCategory = () => {
             )}
           </h2>
           <p className="pcus-sub-title">{promoSubtitle}</p>
-        </div>
-        {promoImage && (
-          <div className="promo-section">
-            <img src={promoImage} alt="Promo" style={{ maxWidth: "150px" }} />
-            <p>{promoSubtitle}</p>
-          </div>
-        )}
+       
+        </div> */}
 
+<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+  <img src={TitleImage} className="schoolimage" style={{ maxWidth: '400px', width: '100%', height: 'auto' }} />
+</div>
+   
         <div className="pcus-categories-wrapper1 pcus-categories-wrapper3">
           {canScrollLeft && (
             <button
@@ -580,7 +610,47 @@ const ProductCategory = () => {
           <>
             <div className="pcus-prd-grid">
               {sortedProducts.map((p) => {
+                const hasMegaOffer = !!p.enable_offer; // true if enabled, false otherwise
+
                 const isVariable = p.type === "variable";
+                let stockQty = 0;
+                let inStock = false;
+
+                if (isVariable) {
+                  const variations = productVariations[p.id];
+                  if (!variations) {
+                    // Variations not loaded yet
+                    return <span>Loading stock…</span>;
+                  }
+
+                  variations.forEach((v) => {
+                    const qty = Number(v.stock_quantity) || 0;
+                    stockQty += qty;
+
+                    if (
+                      v.stock_status === "instock" ||
+                      v.backorders === "allowed"
+                    ) {
+                      inStock = true;
+                    }
+                  });
+                } else {
+                  stockQty = Number(p.stock_quantity) || 0;
+                  if (
+                    p.stock_status === "instock" ||
+                    p.backorders === "allowed"
+                  ) {
+                    inStock = true;
+                  }
+                }
+
+                // Display badge
+                const stockBadge = inStock
+                  ? stockQty > 0
+                    ? `Only ${stockQty} left`
+                    : "In stock"
+                  : "Out of stock";
+                const badgeColor = inStock ? "green" : "red";
                 const variationPriceInfo = variationPrices[p.id] || {
                   price: null,
                   regular_price: null,
@@ -602,11 +672,8 @@ const ProductCategory = () => {
 
                 const onSale =
                   displaySalePrice && displaySalePrice !== displayRegularPrice;
-
-                const badges = []; // Placeholder, add your badge logic here if any
-                const soldCount = 0; // Placeholder, add your sold count logic here if any
-
-                // Determine if variation price data is loaded for variable products
+                const badges = [];
+                const soldCount = 0;
                 const priceLoaded =
                   !isVariable ||
                   (isVariable && variationPriceInfo.price !== null);
@@ -643,18 +710,49 @@ const ProductCategory = () => {
                           decoding="async"
                         />
                       )}
-                    </div>
+                      {hasMegaOffer && (
+                        <div className="mega-offer-badge">
+                          <span
+                            className="mega-offer-text"
+                            style={{
+                              transform: animate
+                                ? "translateY(0)"
+                                : "translateY(100%)",
+                              opacity: animate ? 1 : 0,
+                              display: "inline-block",
+                            }}
+                          >
+                            {badgeText}
+                          </span>
+                        </div>
+                      )}
 
+                      {/* {p.images?.length > 0 && (
+    <button
+      className="quick-view-btn"
+      onClick={(e) => {
+        e.stopPropagation();
+        openQuickView(p.images, decodeHTML(p.name));
+      }}
+    >
+      Quick View
+    </button>
+  )} */}
+                    </div>
                     <div className="pcus-prd-info1">
                       <h3 className="pcus-prd-title1">
-                        {truncate(decodeHTML(p.name))}
+                        {decodeHTML(p.name)}
+                        {/* {getProductBadges(p).map((badge, idx) => (
+    <span
+      key={idx}
+      className="pcus-badge"
+      style={{ backgroundColor: badgeColors[idx % badgeColors.length] }}
+    >
+      {badgeLabelMap[badge] || badge}
+    </span>
+  ))} */}
                       </h3>
-                      <ProductCardReviews  />
-
-                      {/* Removed reviews, badges, sold count, variant count */}
-
-                      
-
+                      <ProductCardReviews />
                       <div className="pcus-prd-price-cart1">
                         <div className="pcus-prd-prices1">
                           <img
@@ -662,33 +760,68 @@ const ProductCategory = () => {
                             alt="AED currency icon"
                             style={{
                               width: "auto",
-                              height: "13px",
+                              height: "12px",
                               marginRight: "0px",
                               verticalAlign: "middle",
                             }}
                           />
-                         {onSale ? (
-  <>
-    <Price value={displaySalePrice} className="pcus-prd-sale-price1" />
-    <Price value={displayRegularPrice} className="pcus-prd-regular-price1" />
-    {displayRegularPrice && displaySalePrice && (
-      <span className="pcus-prd-discount-box1">
-        -
-        {Math.round(
-          ((parseFloat(displayRegularPrice) -
-            parseFloat(displaySalePrice)) /
-            parseFloat(displayRegularPrice)) *
-            100
-        )}
-        % OFF
-      </span>
-    )}
-  </>
-) : (
-  <Price value={displayPrice} className="price1" />
-)}
-
+                          {onSale ? (
+                            <>
+                              <Price
+                                value={displaySalePrice}
+                                className="pcus-prd-sale-price1"
+                              />
+                              <Price
+                                value={displayRegularPrice}
+                                className="pcus-prd-regular-price1"
+                              />
+                              {displayRegularPrice && displaySalePrice && (
+                                <span className="pcus-prd-discount-box1">
+                                  {" "}
+                                  -
+                                  {Math.round(
+                                    ((parseFloat(displayRegularPrice) -
+                                      parseFloat(displaySalePrice)) /
+                                      parseFloat(displayRegularPrice)) *
+                                      100
+                                  )}
+                                  % OFF
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <Price value={displayPrice} className="price1" />
+                          )}
                         </div>
+
+                        {showQuickView && (
+                          <div
+                            className="quick-view-modal"
+                            onClick={closeQuickView}
+                          >
+                            <div
+                              className="quick-view-content"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                className="close-btn"
+                                onClick={closeQuickView}
+                              >
+                                ×
+                              </button>
+                              <h3>{quickViewTitle}</h3>
+                              <div className="quick-view-images">
+                                {quickViewImages.map((img, i) => (
+                                  <img
+                                    key={i}
+                                    src={img.src}
+                                    alt={`${quickViewTitle} ${i}`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         <button
                           className={`pcus-prd-add-cart-btn ${
@@ -730,17 +863,23 @@ const ProductCategory = () => {
                           }}
                         />
                       </div>
+                      {/* {inStock ? (
+  stockQty > 0 ? (
+    <span className="pcus-bdge" style={{ backgroundColor: "green" }}>
+      Only {stockQty} left
+    </span>
+  ) : (
+    <span className="pcusadge" style={{ backgroundColor: "green" }}>
+      In stock
+    </span>
+  )
+) : (
+  <span className="pcusdge" style={{ backgroundColor: "red" }}>
+    Out of stock
+  </span>
+)} */}
                     </div>
                   </div>
-
-
-
-
-
-
-
-
-
                 );
               })}
             </div>
@@ -763,5 +902,4 @@ const ProductCategory = () => {
     </div>
   );
 };
-
 export default ProductCategory;
