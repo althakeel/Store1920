@@ -8,20 +8,128 @@
   top: 0;
   z-index: 1000;
   user-select: none;
+  position: relative;
 
 }
 
 .navbar-inner {
   display: flex;
+  position: relative; 
+  z-index: 100;
   justify-content: space-between;
   align-items: center;
   max-width: 1450px;
   margin: 0 auto;
   padding: 5px 20px;
-  gap: 35px;
+  gap: 20px;
   flex-wrap: nowrap;
   min-height: 56px;
 }
+
+.language-dropdown{
+  min-width: 80px;
+  padding: 10px 8px;
+
+}
+.language-dropdown:hover{
+  min-width: 80px;
+    padding: 10px 8px;
+ 
+}
+.lang-dropdown-card {
+  position: absolute;
+  top: calc(100% + 8px);  /* adds 8px space below the parent */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  padding: 10px;
+  min-width: 220px;
+  max-width: calc(100vw - 20px);
+  z-index: 1000;
+}
+
+.dropdown-arrow-up {
+  position: absolute;
+  top: -6px;             
+  left: 50%;             
+  transform: translateX(-50%); /* align arrow to center */
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #fff;
+  filter: drop-shadow(0 -1px 1px rgba(0,0,0,0.1));
+}
+.dropdown-section {
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.dropdown-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #000;
+}
+
+.radio-item {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #000;
+}
+
+.radio-item input {
+  margin-right: 6px;
+}
+
+.currency-item {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000;
+}
+
+.dropdown-footer {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  margin: 10px 0;
+  color: #000;
+}
+
+.footer-flag {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+
+.change-btn {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #000;
+  border-radius: 20px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #000;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 .cart-badge {
@@ -53,7 +161,7 @@
 .nav-left {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 1px;
   flex-shrink: 0;
   white-space: nowrap;
   min-width: auto;
@@ -79,7 +187,7 @@
 .nav-left-links {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 2px;
   padding-left: 0;
   margin-left: 0;
 }
@@ -99,19 +207,18 @@
   margin-left: 0;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
   font-weight: 500;
      font-family: 'Montserrat',  sans-serif;
 }
 
-.nav-left-links a:hover,
-.dropdown-trigger:hover {
-  background: rgba(255, 255, 255, 0.25) !important;
-  padding: 10px;
-}
+
 .dropdown-trigger {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.categories-dropdown{
+  font-size: 13px;
 }
 
 /* -------- CENTER SECTION -------- */
@@ -130,7 +237,7 @@
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 5px;
   font-size: 14px;
   flex-shrink: 0;
   min-width: 240px;
@@ -224,19 +331,20 @@
 .nav-icon-with-text {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   cursor: pointer;
   font-size: 13px;
   color: white;
   user-select: none;
   white-space: nowrap;
-  padding: 10px 15px;
+  padding: 10px 8px;
 }
+
 .nav-icon-with-text:hover {
   background-color: rgba(255, 255, 255, 0.2); /* semi-transparent */
   backdrop-filter: blur(10px);               /* blur behind */
   -webkit-backdrop-filter: blur(10px);       /* Safari support */
-  padding: 10px 15px;
+  padding: 10px 8px;
   border-radius: 25px;
 }
 
@@ -248,6 +356,22 @@
 }
 
 /* ========== MEGA MENU ========== */
+/* Navbar.css */
+.mega-dropdown-card {
+  position: absolute;      /* fixes it to the viewport */
+  top: 65px;                /* adjust based on navbar height */
+  left: 50%;                /* horizontal center */
+  transform: translateX(-50%);
+  width: 1000px;            /* or max-width: 95vw for responsive */
+  max-height: 80vh;         /* limit height and allow scrolling inside menu */
+  overflow-y: auto;         /* scroll inside mega menu only */
+  z-index: 9999;            /* above all content */
+  background: #fff;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+
 .dropdown-container {
   position: relative;
   user-select: none;

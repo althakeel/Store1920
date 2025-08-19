@@ -1,44 +1,65 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FaTruck, FaClipboardCheck, FaMobileAlt } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaTruck, FaClipboardCheck, FaGift } from "react-icons/fa";
 import "../assets/styles/TopBar.css";
-
-const ITEM_HEIGHT = 40;
-
-const messages = [
-  { icon: <FaTruck />, title: "Free Shipping", subtitle: "Special for you", link: "/free-shipping", color: "#28a745", type: "shipping" },
-  { icon: <FaClipboardCheck />, title: "Delivery Guarantee", subtitle: "Refund for any issues", link: "/delivery-guarantee", color: "#ffc107", type: "returns" },
-  { icon: <FaMobileAlt />, title: "Get the Store1920 App", subtitle: "Exclusive offers inside", link: "/get-app", color: "#007bff", type: "app" },
-  { icon: <FaTruck />, title: "Fast Delivery", subtitle: "From UAE Warehouse", link: "/fast-delivery", color: "#17a2b8", type: "shipping" },
-  { icon: <FaClipboardCheck />, title: "15-Day Returns", subtitle: "No questions asked", link: "/returns-policy", color: "#dc3545", type: "returns" },
-  { icon: <FaMobileAlt />, title: "Special App Coupons", subtitle: "Extra discounts inside", link: "/app-coupons", color: "#6f42c1", type: "app" },
-];
+import { useCart } from '../contexts/CartContext';
 
 export default function TopBar() {
-  const [index, setIndex] = useState(0);
-  const [fading, setFading] = useState(false);
   const [popup, setPopup] = useState(null);
-  const slideRef = useRef(null);
-  const totalMessages = messages.length;
-  const loopMessages = [...messages, messages[0]];
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+const { isCartOpen, setIsCartOpen } = useCart();
+  // Countdown (24 hours from now)
+  useEffect(() => {
+    const targetTime = new Date().getTime() + 24 * 60 * 60 * 1000;
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetTime - now;
+
+      if (distance <= 0) {
+        clearInterval(timer);
+        setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      setTimeLeft({ hours, minutes, seconds });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setFading(true);
-      setTimeout(() => {
-        setIndex((prev) => (prev + 1) % (totalMessages + 1));
-        setFading(false);
-      }, 300);
-    }, 3300);
+  const handleResize = () => setIsMobile(window.innerWidth <= 768);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
 
-    return () => clearInterval(interval);
-  }, [totalMessages]);
-
-  useEffect(() => {
-    if (slideRef.current) {
-      slideRef.current.style.transition = "transform 0.5s ease-in-out";
-      slideRef.current.style.transform = `translateY(-${index * ITEM_HEIGHT}px)`;
-    }
-  }, [index]);
+  const messages = [
+    {
+      icon: <FaTruck />,
+      title: "Free Shipping",
+      subtitle: "Special for you",
+      color: "#28a745",
+      type: "shipping",
+    },
+    {
+      icon: <FaClipboardCheck />,
+      title: "Delivery Guarantee",
+      subtitle: "Refund for any issues",
+      color: "#ffc107",
+      type: "returns",
+    },
+    {
+      icon: <FaGift />,
+      title: "Signup Rewards",
+      subtitle: "100 Coins + Free Coupons",
+      color: "#e63946",
+      type: "signup",
+    },
+  ];
 
   const handlePopup = (item) => setPopup(item);
   const closePopup = () => setPopup(null);
@@ -47,68 +68,59 @@ export default function TopBar() {
     if (!popup) return null;
 
     switch (popup.type) {
-      case "app":
+      case "signup":
         return (
           <>
-            <h2>Get the Store1920 App</h2>
-            <p>Enjoy exclusive features and discounts directly on your phone:</p>
+            <h2>🎁 Sign Up & Get Rewards</h2>
+            <p>Join Store1920 today and claim your exclusive benefits:</p>
             <ul className="popup-list">
-              <li>📦 Track order status in real-time</li>
-              <li>💬 24/7 Customer support</li>
-              <li>🎉 Special app-only promotions</li>
-              <li>🛒 Easy repeat orders with one click</li>
-              <li>🔔 Instant notifications on deals</li>
+              <li>💰 <strong>100 Free Coins</strong> instantly</li>
+              <li>🎟 <strong>Exclusive Coupons</strong> for your first order</li>
+              <li>⚡ <strong>Limited-time Bonus</strong> if you sign up today</li>
             </ul>
-            <div className="qr-section">
-              {/* <img src="/qr-sample.png" alt="QR" className="qr-img" /> */}
-              <div className="app-links">
-                <button className="store-btn google">Google Play</button>
-                <button className="store-btn apple">App Store</button>
+            <div className="countdown-box">
+              <p className="countdown-title">Offer ends in:</p>
+              <div className="countdown-timer">
+                <div>
+                  <span>{String(timeLeft.hours).padStart(2, "0")}</span>
+                  <small>Hours</small>
+                </div>
+                <div>
+                  <span>{String(timeLeft.minutes).padStart(2, "0")}</span>
+                  <small>Min</small>
+                </div>
+                <div>
+                  <span>{String(timeLeft.seconds).padStart(2, "0")}</span>
+                  <small>Sec</small>
+                </div>
               </div>
             </div>
           </>
         );
-
       case "returns":
         return (
           <>
-            <h2>Delivery & Returns</h2>
-            <p>We make shopping safe and easy:</p>
-            <div className="info-box">
-              <h3>Return Policy</h3>
-              <p>• First return is free <br />• 15-day return window <br />• Products must be in original condition</p>
-            </div>
-            <div className="info-box">
-              <h3>Refund Guarantee</h3>
-              <p>• Refund issued to original payment method <br />• No questions asked <br />• Quick processing within 2-3 days</p>
-            </div>
-            <div className="info-box">
-              <h3>Exchange Options</h3>
-              <p>• Exchange for same or different product <br />• Shipping handled by us <br />• Easy tracking for exchanged orders</p>
-            </div>
+            <h2>Delivery Guarantee</h2>
+            <p>Shop with confidence — we’ve got you covered:</p>
+            <ul className="popup-list">
+              <li>✅ Refund issued within 2-3 days</li>
+              <li>✅ 15-day easy return policy</li>
+              <li>✅ Exchange options available</li>
+            </ul>
           </>
         );
-
       case "shipping":
         return (
           <>
-            <h2>Shipping Info</h2>
-            <p>Fast and reliable delivery from UAE warehouse:</p>
-            <div className="info-box">
-              <h3>Standard Delivery</h3>
-              <p>• Free on orders over AED100 <br />• Estimated 2-5 business days <br />• Track your order in-app</p>
-            </div>
-            <div className="info-box">
-              <h3>Fast Delivery</h3>
-              <p>• Same-day delivery for selected items <br />• AED20 credit for late delivery <br />• Priority support for fast orders</p>
-            </div>
-            <div className="info-box">
-              <h3>International Shipping</h3>
-              <p>• Shipping worldwide <br />• Real-time tracking <br />• Custom duties and taxes handled</p>
-            </div>
+            <h2>Free Shipping</h2>
+            <p>Enjoy fast and reliable delivery from our UAE warehouse:</p>
+            <ul className="popup-list">
+              <li>🚚 Free on orders over AED 100</li>
+              <li>⚡ Same-day delivery available</li>
+              <li>🌍 International shipping supported</li>
+            </ul>
           </>
         );
-
       default:
         return <p>No details available</p>;
     }
@@ -116,9 +128,18 @@ export default function TopBar() {
 
   return (
     <>
-      <div className="topbar-wrapper">
+      <div className="topbar-wrapper"
+        style={{
+  width: isMobile ? "100%" : isCartOpen ? "calc(100% - 250px)" : "100%",
+  transition: "width 0.3s ease",
+}}>
         <div className="topbar-container">
-          <div className="topbar-col clickable" style={{ color: messages[0].color }} onClick={() => handlePopup(messages[0])}>
+          {/* Left Item */}
+          <div
+            className="topbar-col clickable"
+            style={{ color: messages[0].color }}
+            onClick={() => handlePopup(messages[0])}
+          >
             {messages[0].icon}
             <div className="text-box">
               <div className="title">{messages[0].title}</div>
@@ -128,31 +149,34 @@ export default function TopBar() {
 
           <div className="pipe-divider"></div>
 
-          <div className="topbar-center clickable" onClick={() => handlePopup(loopMessages[index])}>
-            <div ref={slideRef} className={`slide-wrapper ${fading ? "fade" : ""}`}>
-              {loopMessages.map((item, i) => (
-                <div className="topbar-center-item" style={{ color: item.color }} key={i}>
-                  {item.icon}
-                  <div className="text-box">
-                    <div className="title">{item.title}</div>
-                    {item.subtitle && <div className="subtitle">{item.subtitle}</div>}
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Center Countdown */}
+          <div className="topbar-center">
+            <span className="countdown-text">⏳ Hurry Up! Sale ends in</span>
+            <span className="timer">
+              {String(timeLeft.hours).padStart(2, "0")}:
+              {String(timeLeft.minutes).padStart(2, "0")}:
+              {String(timeLeft.seconds).padStart(2, "0")}
+            </span>
           </div>
 
           <div className="pipe-divider"></div>
 
-          <div className="topbar-col clickable" style={{ color: messages[2].color }} onClick={() => handlePopup(messages[2])}>
+          {/* Right Item */}
+          <div
+            className="topbar-col clickable"
+            style={{ color: messages[2].color }}
+            onClick={() => handlePopup(messages[2])}
+          >
             {messages[2].icon}
             <div className="text-box">
               <div className="title">{messages[2].title}</div>
+              <div className="subtitle">{messages[2].subtitle}</div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Popup */}
       {popup && (
         <div className="popup-overlay" onClick={closePopup}>
           <div className="popup-content" onClick={(e) => e.stopPropagation()}>

@@ -17,8 +17,8 @@ const ChatBot = () => {
   ]);
   const [typing, setTyping] = useState(false);
   const chatEndRef = useRef(null);
+  const chatWindowRef = useRef(null); // Ref for detecting outside click
 
-  // Funny AI replies for unrecognized input
   const funnyReplies = [
     "😅 Hmm, that sounds like something only a cat would understand!",
     "😂 I wish I knew that… maybe one day AI will!",
@@ -32,26 +32,33 @@ const ChatBot = () => {
     "🐱 Meow! I mean… I don’t understand that either!"
   ];
 
-  // Show icon after 3 seconds
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowIcon(true);
-    }, 3000);
+    const timer = setTimeout(() => setShowIcon(true), 3000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [messages, open, typing]);
 
-  // Hide on mobile
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Close chat when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (chatWindowRef.current && !chatWindowRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener('mousedown', handleClickOutside);
+    else document.removeEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open]);
 
   if (isMobile) return null;
 
@@ -86,7 +93,6 @@ const ChatBot = () => {
 
       if (!res.ok) throw new Error('Network error');
       const data = await res.json();
-
       setTyping(false);
 
       if (data.error) {
@@ -95,12 +101,8 @@ const ChatBot = () => {
         return;
       }
 
-      // Redirect category
       if (data.intent === 'redirect_category' && data.categorySlug) {
-        setMessages(prev => [
-          ...prev,
-          { from: 'bot', text: `Redirecting to category: ${data.categorySlug}...` },
-        ]);
+        setMessages(prev => [...prev, { from: 'bot', text: `Redirecting to category: ${data.categorySlug}...` }]);
         setTimeout(() => {
           window.location.href = `https://store1920.com/product-category/${data.categorySlug}`;
         }, 1500);
@@ -108,12 +110,8 @@ const ChatBot = () => {
         return;
       }
 
-      // Redirect product
       if (data.intent === 'redirect_product' && data.productSlug) {
-        setMessages(prev => [
-          ...prev,
-          { from: 'bot', text: `Redirecting to product: ${data.productSlug}...` },
-        ]);
+        setMessages(prev => [...prev, { from: 'bot', text: `Redirecting to product: ${data.productSlug}...` }]);
         setTimeout(() => {
           window.open(`https://store1920.com/product/${data.productSlug}`, '_blank');
         }, 1500);
@@ -121,31 +119,20 @@ const ChatBot = () => {
         return;
       }
 
-      // Show products
       if (data.products && data.products.length > 0) {
         setMessages(prev => [
           ...prev,
-          {
-            from: 'bot',
-            text: 'Here are some products you might like:',
-            products: data.products,
-          },
+          { from: 'bot', text: 'Here are some products you might like:', products: data.products },
         ]);
       } else {
-        // Pick random funny reply
         const randomReply = funnyReplies[Math.floor(Math.random() * funnyReplies.length)];
-        setMessages(prev => [
-          ...prev,
-          { from: 'bot', text: randomReply },
-        ]);
+        setMessages(prev => [...prev, { from: 'bot', text: randomReply }]);
       }
     } catch (e) {
       setTyping(false);
-      setMessages(prev => [
-        ...prev,
-        { from: 'bot', text: '❌ Something went wrong. Please try again later.' },
-      ]);
+      setMessages(prev => [...prev, { from: 'bot', text: '❌ Something went wrong. Please try again later.' }]);
     }
+
     setLoading(false);
   };
 
@@ -155,7 +142,7 @@ const ChatBot = () => {
 
   const renderProducts = (products) => (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 10 }}>
-      {products.map((p) => {
+      {products.map(p => {
         const fixedUrl = p.url.replace('https://db.store1920.com', 'https://store1920.com');
         return (
           <div
@@ -173,8 +160,8 @@ const ChatBot = () => {
               alignItems: 'center',
               transition: 'transform 0.2s',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.03)')}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
           >
             {p.image ? (
               <img
@@ -217,10 +204,7 @@ const ChatBot = () => {
               {p.name}
             </div>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(fixedUrl, '_blank');
-              }}
+              onClick={e => { e.stopPropagation(); window.open(fixedUrl, '_blank'); }}
               style={{
                 marginTop: 6,
                 backgroundColor: '#e65100',
@@ -280,6 +264,7 @@ const ChatBot = () => {
       {/* Chat Window */}
       {open && (
         <div
+          ref={chatWindowRef}
           style={{
             position: 'fixed',
             bottom: 50,
@@ -294,7 +279,7 @@ const ChatBot = () => {
             fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
             color: '#000',
             zIndex: 9999,
-            backgroundColor: '#fff', // White background
+            backgroundColor: '#fff',
             animation: 'slideUp 0.5s ease-out',
           }}
         >
@@ -311,6 +296,31 @@ const ChatBot = () => {
             `}
           </style>
 
+          {/* Close Button */}
+          <button
+            onClick={() => setOpen(false)}
+            style={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              backgroundColor: '#e65100',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '50%',
+              width: 30,
+              height: 30,
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10000,
+            }}
+          >
+            ×
+          </button>
+
           {/* Messages */}
           <div
             style={{
@@ -318,7 +328,7 @@ const ChatBot = () => {
               overflowY: 'auto',
               padding: 16,
               borderRadius: '20px 20px 0 0',
-              backgroundColor: '#fff', // White messages background
+              backgroundColor: '#fff',
             }}
           >
             {messages.map((msg, i) => (
@@ -351,7 +361,11 @@ const ChatBot = () => {
                 </div>
               </div>
             ))}
-            {typing && <div style={{ color: '#555', fontStyle: 'italic', marginBottom: 10 }}>🤖 AI is typing...</div>}
+            {typing && (
+              <div style={{ color: '#555', fontStyle: 'italic', marginBottom: 10 }}>
+                🤖 AI is typing...
+              </div>
+            )}
             <div ref={chatEndRef} />
           </div>
 
@@ -363,14 +377,14 @@ const ChatBot = () => {
               padding: '12px 16px',
               borderRadius: '0 0 20px 20px',
               boxShadow: 'inset 0 1px 4px rgba(0,0,0,0.05)',
-              backgroundColor: '#fff', // White input background
+              backgroundColor: '#fff',
             }}
           >
             <input
               type="text"
               placeholder={loading ? 'Loading...' : 'Ask me anything about products...'}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={loading}
               autoFocus

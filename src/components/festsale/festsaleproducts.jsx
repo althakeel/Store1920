@@ -8,6 +8,7 @@ import AddedToCartIcon from '../../assets/images/added-cart.png';
 import Adsicon from '../../assets/images/summer-saving-coloured.png';
 import IconAED from '../../assets/images/Dirham 2.png';
 import { throttle } from 'lodash';
+import ProductCardReviews from '../temp/productcardreviews';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v2';
 const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
@@ -608,10 +609,10 @@ const filteredProducts = sortedProducts.filter((p) => {
                       </h3>
 
                       <div className="pcus-prd-review" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        {renderStars(p.average_rating)}
+                        {/* {renderStars(p.average_rating)}
                         <div className="pcus-sold-badge" style={{ position: 'static' }}>
                           Sold: {soldCount}
-                        </div>
+                        </div> */}
 {/* 
                         {isVariable && variantsCount > 1 && (
                           <div className="pcus-variant-count-label" style={{ marginTop: '6px' }}>
@@ -619,8 +620,9 @@ const filteredProducts = sortedProducts.filter((p) => {
                           </div>
                         )} */}
                       </div>
-                      <ReviewPills productId={p.id} />
-
+                      {/* <ReviewPills productId={p.id} /> 
+                      */}
+<ProductCardReviews/>
                       <div className="pcus-prd-price-cart1">
                         <div className="pcus-prd-prices1">
                           <img

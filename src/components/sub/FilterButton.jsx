@@ -38,7 +38,7 @@ export default function FilterButton({ onFilterChange }) {
 
   const dropdownRef = useRef(null);
 
-  // Fetch product categories on mount
+  // Fetch product categories
   useEffect(() => {
     async function fetchCategories() {
       try {
@@ -56,7 +56,7 @@ export default function FilterButton({ onFilterChange }) {
     fetchCategories();
   }, []);
 
-  // Fetch min and max product prices on mount
+  // Fetch min & max product prices
   useEffect(() => {
     async function fetchPriceRange() {
       try {
@@ -120,7 +120,7 @@ export default function FilterButton({ onFilterChange }) {
     }));
   };
 
-  // Validate and update price inputs
+  // Handle price inputs
   const handlePriceChange = (name, value) => {
     let numValue = Number(value);
     if (isNaN(numValue)) numValue = '';
@@ -134,15 +134,16 @@ export default function FilterButton({ onFilterChange }) {
       if (numValue < Number(filters.priceMin || storeMinPrice))
         numValue = Number(filters.priceMin || storeMinPrice);
     }
+
     setFilters((prev) => ({ ...prev, [name]: numValue }));
   };
 
-  // Handle rating selection
+  // Handle rating
   const handleRatingChange = (value) => {
     setFilters((prev) => ({ ...prev, rating: value }));
   };
 
-  // Apply filters and close dropdown
+  // Apply filters
   const applyFilters = () => {
     if (typeof onFilterChange === 'function') {
       onFilterChange(filters);
@@ -150,7 +151,7 @@ export default function FilterButton({ onFilterChange }) {
     setIsOpen(false);
   };
 
-  // Reset all filters to defaults and notify parent
+  // Reset filters
   const resetFilters = () => {
     setFilters({
       priceMin: storeMinPrice,
@@ -212,31 +213,7 @@ export default function FilterButton({ onFilterChange }) {
             </div>
           </div>
 
-          {/* Categories */}
-          <div className="filter-section">
-            <label className="filter-label">Categories</label>
-            <div className="categories-scroll">
-              {categories.length === 0 ? (
-                <p>Loading categories...</p>
-              ) : (
-                categories.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => toggleCategory(cat)}
-                    className={
-                      filters.selectedCategories.includes(cat)
-                        ? 'category-btn selected'
-                        : 'category-btn'
-                    }
-                    aria-pressed={filters.selectedCategories.includes(cat)}
-                  >
-                    {cat}
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
+       
 
           {/* Sort Options */}
           <div className="filter-section">

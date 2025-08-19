@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import '../../assets/styles/SignInModal.css';
-import { auth, googleProvider, facebookProvider } from '../../utils/firebase';
-import { signInWithPopup } from 'firebase/auth';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from "react";
+import axios from "axios";
+import "../../assets/styles/SignInModal.css";
+import { auth, googleProvider, facebookProvider } from "../../utils/firebase";
+import { signInWithPopup } from "firebase/auth";
+import { useAuth } from "../../contexts/AuthContext";
 
 // ===================== Alert Component =====================
 const Alert = ({ children, onClose }) => (
@@ -23,10 +23,10 @@ const parseErrorMsg = (rawMsg) => {
   if (linkMatch) {
     const url = linkMatch[1];
     const linkText = linkMatch[2];
-    const textOnly = rawMsg.replace(/<a[^>]*>[^<]*<\/a>/, '').replace(/<[^>]+>/g, '').trim();
+    const textOnly = rawMsg.replace(/<a[^>]*>[^<]*<\/a>/, "").replace(/<[^>]+>/g, "").trim();
     return (
       <>
-        <strong>Error:</strong> {textOnly}{' '}
+        <strong>Error:</strong> {textOnly}{" "}
         <a href={url} target="_blank" rel="noopener noreferrer" className="signin-lost-password-link">
           {linkText}
         </a>
@@ -34,25 +34,14 @@ const parseErrorMsg = (rawMsg) => {
     );
   }
 
-  return <>{rawMsg.replace(/<[^>]+>/g, '').trim()}</>;
+  return <>{rawMsg.replace(/<[^>]+>/g, "").trim()}</>;
 };
 
 // ===================== Main Component =====================
 const SignInModal = ({ isOpen, onClose, onLogin }) => {
   const { login } = useAuth();
-
   const [isRegister, setIsRegister] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    phone: '',
-  });
-
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "", phone: "" });
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -65,23 +54,23 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
 
   const handleForgotPassword = () => {
     onClose();
-    window.location.href = '/lost-password';
+    window.location.href = "/lost-password";
   };
 
   // ===================== Validation =====================
   const validateRegister = () => {
-    if (!formData.name.trim()) return setErrorMsg('Name is required'), false;
-    if (!formData.email.trim()) return setErrorMsg('Email is required'), false;
-    if (!formData.phone.trim()) return setErrorMsg('Phone number is required'), false;
-    if (!formData.password) return setErrorMsg('Password is required'), false;
-    if (formData.password !== formData.confirmPassword) return setErrorMsg('Passwords do not match'), false;
+    if (!formData.name.trim()) return setErrorMsg("Name is required"), false;
+    if (!formData.email.trim()) return setErrorMsg("Email is required"), false;
+    if (!formData.phone.trim()) return setErrorMsg("Phone number is required"), false;
+    if (!formData.password) return setErrorMsg("Password is required"), false;
+    if (formData.password !== formData.confirmPassword) return setErrorMsg("Passwords do not match"), false;
     setErrorMsg(null);
     return true;
   };
 
   const validateLogin = () => {
-    if (!formData.email.trim()) return setErrorMsg('Email is required'), false;
-    if (!formData.password) return setErrorMsg('Password is required'), false;
+    if (!formData.email.trim()) return setErrorMsg("Email is required"), false;
+    if (!formData.password) return setErrorMsg("Password is required"), false;
     setErrorMsg(null);
     return true;
   };
@@ -93,14 +82,14 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     setErrorMsg(null);
 
     try {
-      const res = await axios.post('https://db.store1920.com/wp-json/custom/v1/register', {
+      const res = await axios.post("https://db.store1920.com/wp-json/custom/v1/register", {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
       });
 
-      const loginRes = await axios.post('https://db.store1920.com/wp-json/jwt-auth/v1/token', {
+      const loginRes = await axios.post("https://db.store1920.com/wp-json/jwt-auth/v1/token", {
         username: formData.email,
         password: formData.password,
       });
@@ -108,7 +97,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
       if (loginRes.data?.token) {
         const userInfo = {
           name: formData.name,
-          image: '',
+          image: "",
           token: loginRes.data.token,
           id: res.data.id || res.data.user_id,
           user: res.data,
@@ -117,10 +106,10 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         onLogin?.(userInfo);
         onClose();
       } else {
-        setErrorMsg('Login failed after registration');
+        setErrorMsg("Login failed after registration");
       }
     } catch (err) {
-      setErrorMsg(parseErrorMsg(err.response?.data?.message || 'Registration failed'));
+      setErrorMsg(parseErrorMsg(err.response?.data?.message || "Registration failed"));
     } finally {
       setLoading(false);
     }
@@ -132,19 +121,19 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     setErrorMsg(null);
 
     try {
-      const res = await axios.post('https://db.store1920.com/wp-json/jwt-auth/v1/token', {
+      const res = await axios.post("https://db.store1920.com/wp-json/jwt-auth/v1/token", {
         username: formData.email,
         password: formData.password,
       });
 
       if (res.data?.token) {
-        const profileRes = await axios.get('https://db.store1920.com/wp-json/wp/v2/users/me', {
+        const profileRes = await axios.get("https://db.store1920.com/wp-json/wp/v2/users/me", {
           headers: { Authorization: `Bearer ${res.data.token}` },
         });
 
         const userInfo = {
           name: profileRes.data.name || formData.email,
-          image: '',
+          image: "",
           token: res.data.token,
           id: profileRes.data.id,
           user: profileRes.data,
@@ -154,10 +143,10 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         onLogin?.(userInfo);
         onClose();
       } else {
-        setErrorMsg('Invalid login credentials');
+        setErrorMsg("Invalid login credentials");
       }
     } catch (err) {
-      setErrorMsg(parseErrorMsg(err.response?.data?.message || 'Login failed'));
+      setErrorMsg(parseErrorMsg(err.response?.data?.message || "Login failed"));
     } finally {
       setLoading(false);
     }
@@ -168,12 +157,12 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     setErrorMsg(null);
 
     try {
-      const provider = providerType === 'google' ? googleProvider : facebookProvider;
+      const provider = providerType === "google" ? googleProvider : facebookProvider;
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const idToken = await user.getIdToken();
 
-      const res = await axios.post('https://db.store1920.com/wp-json/firebase/v1/verify_token', { idToken });
+      const res = await axios.post("https://db.store1920.com/wp-json/firebase/v1/verify_token", { idToken });
 
       if (res.data?.token) {
         const userInfo = {
@@ -187,10 +176,10 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         onLogin?.(userInfo);
         onClose();
       } else {
-        setErrorMsg('Could not sync with WordPress');
+        setErrorMsg("Could not sync with WordPress");
       }
     } catch (err) {
-      setErrorMsg(parseErrorMsg(err.response?.data?.message || err.message || 'Social login failed'));
+      setErrorMsg(parseErrorMsg(err.response?.data?.message || err.message || "Social login failed"));
     } finally {
       setSocialLoading(false);
     }
@@ -211,10 +200,43 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         <button className="signin-modal-close" onClick={onClose} aria-label="Close modal">
           ✕
         </button>
-        <h2>{isRegister ? 'Register' : 'Sign In'}</h2>
+
+        <div className="signin-modal-header">
+  <h2 className="signin-modal-title">Sign in / Register</h2>
+  <div className="signin-security">🔒 All data will be encrypted</div>
+
+  {/* Benefit strip */}
+  <div className="signin-benefits">
+    <div className="benefit-item">🚚 Free shipping <span className="benefit-subtext">Special for you</span></div>
+    <div className="benefit-item">↩ Free returns <span className="benefit-subtext">Up to 90 days</span></div>
+  </div>
+</div>
+
 
         <form className="signin-modal-form" onSubmit={handleSubmit} noValidate>
           {errorMsg && <Alert onClose={() => setErrorMsg(null)}>{errorMsg}</Alert>}
+
+          <input
+            type="text"
+            name="email"
+            placeholder="Email or phone number"
+            value={formData.email}
+            onChange={handleChange}
+            className="signin-modal-input"
+            required
+          />
+
+          {!isRegister && (
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              className="signin-modal-input"
+              required
+            />
+          )}
 
           {isRegister && (
             <>
@@ -236,109 +258,74 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
                 className="signin-modal-input"
                 required
               />
-            </>
-          )}
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            className="signin-modal-input"
-            required
-          />
-
-          <div className="signin-input-wrapper">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="signin-modal-input"
-              required
-              autoComplete="current-password"
-            />
-            <button
-              type="button"
-              className="signin-toggle-password"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? '🙈' : '👁️'}
-            </button>
-          </div>
-
-          {isRegister && (
-            <div className="signin-input-wrapper">
               <input
-                type={showConfirmPassword ? 'text' : 'password'}
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className="signin-modal-input"
+                required
+              />
+              <input
+                type="password"
                 name="confirmPassword"
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 className="signin-modal-input"
                 required
-                autoComplete="new-password"
               />
-              <button
-                type="button"
-                className="signin-toggle-password"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
-              >
-                {showConfirmPassword ? '🙈' : '👁️'}
-              </button>
-            </div>
+            </>
           )}
 
           <button type="submit" className="signin-submit-btn" disabled={loading}>
-            {loading ? 'Please wait...' : isRegister ? 'Register' : 'Sign In'}
+            {loading ? "Please wait..." : isRegister ? "Register" : "Continue"}
           </button>
         </form>
 
         {!isRegister && (
-          <div
-            className="signin-forgot-password-text"
-            onClick={handleForgotPassword}
-            role="link"
-            tabIndex={0}
-            onKeyPress={(e) => e.key === 'Enter' && handleForgotPassword()}
-          >
-            Forgot password?
+          <div className="signin-forgot-password-text" onClick={handleForgotPassword}>
+            Trouble signing in?
           </div>
         )}
 
-        <div className="signin-toggle-text">
-          {isRegister ? (
-            <>Already have an account?{' '}<button type="button" onClick={() => setIsRegister(false)} className="signin-toggle-link">Sign In</button></>
-          ) : (
-            <>Don’t have an account?{' '}<button type="button" onClick={() => setIsRegister(true)} className="signin-toggle-link">Register</button></>
-          )}
+        <div className="signin-divider">
+          <span>Or continue with</span>
         </div>
 
-        <div className="signin-social-login">
-          <button
-            className="signin-social-btn signin-google-btn"
-            onClick={() => handleSocialLogin('google')}
-            disabled={socialLoading}
-            aria-label="Sign in with Google"
-          >
-            <img src="https://db.store1920.com/wp-content/uploads/2025/07/google.png" alt="Google logo" className="signin-social-logo" />
-            <span>Sign in with Google</span>
+        <div className="signin-social-icons">
+          <button onClick={() => handleSocialLogin("google")} disabled={socialLoading}>
+            <img src="https://db.store1920.com/wp-content/uploads/2025/07/google.png" alt="Google" />
           </button>
+          <button onClick={() => handleSocialLogin("facebook")} disabled={socialLoading}>
+            <img src="https://db.store1920.com/wp-content/uploads/2025/07/facebook.png" alt="Facebook" />
+          </button>
+          <button disabled>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple" width="40px" />
+          </button>
+        </div>
 
-          {/* Uncomment if Facebook login is ready */}
-          <button
-            className="signin-social-btn signin-facebook-btn"
-            onClick={() => handleSocialLogin('facebook')}
-            disabled={socialLoading}
-            aria-label="Sign in with Facebook"
-          >
-            <img src="https://db.store1920.com/wp-content/uploads/2025/07/facebook.png" alt="Facebook logo" className="signin-social-logo" />
-            <span>Sign in with Facebook</span>
-          </button>
+        <div className="signin-terms">
+          By continuing, you agree to our <a href="/terms-0f-use">Terms</a> and <a href="/privacy-policy">Privacy Policy</a>.
+        </div>
+
+        <div className="signin-toggle-text">
+          {isRegister ? (
+            <>
+              Already have an account?{" "}
+              <button type="button" onClick={() => setIsRegister(false)} className="signin-toggle-link">
+                Sign In
+              </button>
+            </>
+          ) : (
+            <>
+              Don’t have an account?{" "}
+              <button type="button" onClick={() => setIsRegister(true)} className="signin-toggle-link">
+                Register
+              </button>
+            </>
+          )}
         </div>
       </div>
     </>

@@ -1,84 +1,50 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
-import '../assets/styles/MainBanner.css';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../assets/styles/MainBanner.css';
 
-const API_BANNERS = 'https://db.store1920.com/wp-json/custom/v1/banners';
-
-const MainBanner = () => {
-  const [banners, setBanners] = useState(null);
+const MainBanner = ({ banners = [], bannerKey }) => {
   const [currentBanner, setCurrentBanner] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const navigate = useNavigate();
 
-  // Update isMobile on window resize
+  // Update mobile flag on resize
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Fetch banners
+  // Pick a random banner once per site session (persistent across browser restarts)
   useEffect(() => {
-    let isMounted = true;
-
-    const cachedBanners = sessionStorage.getItem('banners');
-    const cachedBannerIndex = sessionStorage.getItem('currentBannerIndex');
-
-    if (cachedBanners && cachedBannerIndex !== null) {
-      const bannersData = JSON.parse(cachedBanners);
-      setBanners(bannersData);
-      setCurrentBanner(bannersData[cachedBannerIndex]);
-      return;
+    if (!banners || banners.length === 0 || !bannerKey) return;
+  
+    const localKey = `currentBanner_${bannerKey}`;
+    const savedBanner = localStorage.getItem(localKey);
+    let chosenBanner;
+  
+    if (savedBanner) {
+      // Use saved banner only if it matches the current banners list
+      const parsed = JSON.parse(savedBanner);
+      const existsInBanners = banners.some(b => b.id === parsed.id);
+      if (existsInBanners) {
+        chosenBanner = parsed;
+      } else {
+        // saved banner is outdated, pick new
+        const randomIndex = Math.floor(Math.random() * banners.length);
+        chosenBanner = banners[randomIndex];
+        localStorage.setItem(localKey, JSON.stringify(chosenBanner));
+      }
+    } else {
+      // No saved banner, pick new
+      const randomIndex = Math.floor(Math.random() * banners.length);
+      chosenBanner = banners[randomIndex];
+      localStorage.setItem(localKey, JSON.stringify(chosenBanner));
     }
-
-    axios
-      .get(API_BANNERS)
-      .then((res) => {
-        if (isMounted) {
-          const bannersData = [
-            {
-              id: 'banner_1',
-              url: isMobile ? res.data.banner_1_mobile : res.data.banner_1,
-              category: isMobile ? res.data.banner_1_mobile_category : res.data.banner_1_category,
-              leftBg: res.data.banner_1_left_bg || '#ffffff',
-              rightBg: res.data.banner_1_right_bg || '#ffffff',
-            },
-            {
-              id: 'banner_2',
-              url: isMobile ? res.data.banner_2_mobile : res.data.banner_2,
-              category: isMobile ? res.data.banner_2_mobile_category : res.data.banner_2_category,
-              leftBg: res.data.banner_2_left_bg || '#ffffff',
-              rightBg: res.data.banner_2_right_bg || '#ffffff',
-            },
-            {
-              id: 'banner_3',
-              url: isMobile ? res.data.banner_3_mobile : res.data.banner_3,
-              category: isMobile ? res.data.banner_3_mobile_category : res.data.banner_3_category,
-              leftBg: res.data.banner_3_left_bg || '#ffffff',
-              rightBg: res.data.banner_3_right_bg || '#ffffff',
-            },
-          ].filter((b) => b.url);
-
-          setBanners(bannersData);
-
-          // Pick a random banner for this session
-          const randomIndex = Math.floor(Math.random() * bannersData.length);
-          setCurrentBanner(bannersData[randomIndex]);
-
-          // Cache in sessionStorage
-          sessionStorage.setItem('banners', JSON.stringify(bannersData));
-          sessionStorage.setItem('currentBannerIndex', randomIndex);
-        }
-      })
-      .catch(() => {
-        if (isMounted) setBanners({});
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isMobile]);
+  
+    setCurrentBanner(chosenBanner);
+  }, [banners, bannerKey]);
+  
+  
 
   const handleClick = (category) => {
     if (category) navigate(`/${category}`);
@@ -92,6 +58,8 @@ const MainBanner = () => {
     );
   }
 
+  const bannerUrl = isMobile ? currentBanner.mobileUrl || currentBanner.url : currentBanner.url;
+
   return (
     <div
       className="banner-wrap"
@@ -99,16 +67,12 @@ const MainBanner = () => {
       aria-label="Homepage Banner"
       style={{
         background: `linear-gradient(to right, ${currentBanner.leftBg} 0%, ${currentBanner.leftBg} 50%, ${currentBanner.rightBg} 50%, ${currentBanner.rightBg} 100%)`,
+        cursor: currentBanner.category ? 'pointer' : 'default',
       }}
       onClick={() => handleClick(currentBanner.category)}
     >
       <div className="banner-inner">
-        <img
-          src={currentBanner.url}
-          alt="Main Banner"
-          style={{ cursor: currentBanner.category ? 'pointer' : 'default' }}
-          loading="lazy"
-        />
+        <img src={bannerUrl} alt="Main Banner" loading="lazy" />
       </div>
     </div>
   );

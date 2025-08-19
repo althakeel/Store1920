@@ -356,7 +356,7 @@ useEffect(() => {
                 userSelect: 'none',
               }}
             >
-              <img
+              {/* <img
                 src={UserIcon}
                 alt="User Icon"
                 style={{
@@ -368,7 +368,7 @@ useEffect(() => {
                   userSelect: 'none',
                 }}
                 draggable={false}
-              />
+              /> */}
               <div
                 style={{
                   backgroundColor: '#1b1b1fff',

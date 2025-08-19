@@ -11,6 +11,12 @@ import UserDropdownMenu from './UserDropdownMenu';
 import SupportDropdownMenu from './sub/SupportDropdownMenu';
 import CoinWidget from './CoinWidget';
 import { useCart } from '../contexts/CartContext';
+import { useTheme } from '../contexts/ThemeContext'; 
+import LogoMain from '../assets/images/Logo/3.webp'
+
+import Dirham from '../assets/images/language/aed (1).png'
+import Dollor from '../assets/images/language/dollor.png'
+import aeFlag from '../assets/images/language/aed (3).png'
 
 import '../assets/styles/Navbar.css';
 
@@ -21,10 +27,8 @@ import SupportIcon from '../assets/images/webicons/Header/White/Asset 32@6x.png'
 import CartIcon from '../assets/images/webicons/Header/White/Asset 30@6x.png';
 import UserIcon from '../assets/images/webicons/Header/White/Asset 21@6x.png';
 
-// Logos
-import Logo1 from '../assets/images/Logo/Asset 1.svg';
-import Logo2 from '../assets/images/Logo/Asset 2.svg';
-import Logo3 from '../assets/images/Logo/Asset 3.svg';
+// Import the external mega menu component
+import MegaMenu from '../components/sub/megamenu';
 
 // API constants
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v1';
@@ -38,6 +42,7 @@ const decodeHtml = (html) => {
 };
 
 const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
+  const { currentTheme } = useTheme(); // get theme from ThemeContext
   const [categories, setCategories] = useState([]);
   const [activeCategoryId, setActiveCategoryId] = useState(null);
   const [products, setProducts] = useState([]);
@@ -49,12 +54,17 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
   const [supportDropdownOpen, setSupportDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+  const [language, setLanguage] = useState('en'); // default language
+  const [currency, setCurrency] = useState('AED'); // default currency
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+
   const { isCartOpen, cartItems } = useCart();
   const navigate = useNavigate();
 
   const timeoutRef = useRef(null);
   const supportTimeoutRef = useRef(null);
   const userTimeoutRef = useRef(null);
+  const langTimeoutRef = useRef(null);
 
   const totalQuantity = cartItems?.reduce((acc, item) => acc + (Number(item.quantity) || 0), 0) || 0;
 
@@ -73,6 +83,39 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(
+          `${API_BASE}/products/categories?per_page=100&hide_empty=false`,
+          { auth: { username: CK, password: CS } }
+        );
+  
+        const allCats = res.data.map((cat) => ({
+          ...cat,
+          id: Number(cat.id),
+          parent: parseInt(cat.parent) || 0,
+        }));
+  
+        // find parent categories (level 1)
+        const mainCats = allCats.filter((cat) => cat.parent === 0);
+  
+        // map subcategories inside parent
+        const structuredCats = mainCats.map((parent) => ({
+          ...parent,
+          subCategories: allCats.filter((c) => c.parent === parent.id),
+        }));
+  
+        setCategories(structuredCats);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+  
+    fetchCategories();
+  }, []);
+  
+
 
   // Fetch categories & user
   useEffect(() => {
@@ -105,11 +148,19 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
     setUserDropdownOpen(false);
   };
 
-  const handleLogin = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const handleLogin = (firebaseUser) => {
+    const mappedUser = {
+      id: firebaseUser.uid,
+      name: firebaseUser.displayName || firebaseUser.email.split('@')[0], // use first part of email if name missing
+      email: firebaseUser.email,
+      image: firebaseUser.photoURL || null, // use null if no photo
+    };
+  
+    setUser(mappedUser);
+    localStorage.setItem('user', JSON.stringify(mappedUser));
     setSignInOpen(false);
   };
+  
 
   const handleSignOut = () => {
     setUser(null);
@@ -119,34 +170,9 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
     window.location.href = '/';
   };
 
-  // Logo & background cycling
-  const navbarBackgrounds = ['#ffc901', '#fe6c03', '#38a9d8'];
-  const navbarLogos = [Logo1, Logo2, Logo3];
-  const [navbarIndex, setNavbarIndex] = useState(0);
-
-  useEffect(() => {
-    // Only run once per session
-    const sessionFlag = sessionStorage.getItem('navbarSessionActive');
-    let nextIndex = 0;
-
-    if (!sessionFlag) {
-      let lastIndex = localStorage.getItem('navbarIndex');
-      lastIndex = lastIndex !== null ? parseInt(lastIndex, 10) : -1;
-
-      nextIndex = (lastIndex + 1) % navbarLogos.length;
-
-      localStorage.setItem('navbarIndex', nextIndex);
-      sessionStorage.setItem('navbarSessionActive', 'true');
-    } else {
-      const savedIndex = localStorage.getItem('navbarIndex');
-      if (savedIndex !== null) nextIndex = parseInt(savedIndex, 10);
-    }
-
-    setNavbarIndex(nextIndex);
-  }, []);
-
-  const backgroundColor = navbarBackgrounds[navbarIndex];
-  const sitelogo = navbarLogos[navbarIndex];
+  // Get navbar background and logo from current theme
+  const backgroundColor = currentTheme?.navbarBg || '#CCA000';
+  const sitelogo = currentTheme?.logo || LogoMain;
   const isDark = chroma(backgroundColor).luminance() < 0.5;
   const textColor = isDark ? '#fff' : '#fff';
 
@@ -170,7 +196,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
               style={{ cursor: 'pointer' }}
               onClick={() => {
                 closeMobileMenu();
-                window.location.href = '/';
+                navigate('/');
               }}
             />
           </div>
@@ -189,58 +215,38 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
 
           <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
             <div className="nav-left-links">
-              <div className="nav-icon-with-text" onClick={() => window.location.href = '/new'}>
+              <div className="nav-icon-with-text star-rating" onClick={() => navigate('/top-selling-item')}>
+                <img src={Star} alt="5 Star rated" className="icon-star" />
+                <span>Top Selling Items</span>
+              </div>
+              <div className="nav-icon-with-text" onClick={() => navigate('/new')}>
                 <img src={Newicon} alt="New" className="icon-small" />
                 <span>New</span>
               </div>
-              <div className="nav-icon-with-text star-rating" onClick={() => window.location.href = '/rated'}>
+              <div className="nav-icon-with-text star-rating" onClick={() => navigate('/rated')}>
                 <img src={Star} alt="5 Star rated" className="icon-star" />
                 <span>5-Star Rated</span>
               </div>
-
-            <div
-  className="dropdown-container"
-  onMouseEnter={() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setHovering(true);
-  }}
-  onMouseLeave={() => {
-    timeoutRef.current = setTimeout(() => setHovering(false), 300); // small delay
-  }}
+<div
+  className="categories-dropdown"
+  onMouseEnter={handleMouseEnter}
+  onMouseLeave={handleMouseLeave}
 >
-  <div className="dropdown-trigger">Categories ▾</div>
-  {hovering && (
-    <div className="mega-menu">
-      <div className="mega-left">
-        {categories.map(cat => (
-          <div
-            key={cat.id}
-            className={`mega-cat-item ${activeCategoryId === cat.id ? 'active' : ''}`}
-            onMouseEnter={() => handleCategoryHover(cat.id)}
-          >
-            {decodeHtml(cat.name)}
-          </div>
-        ))}
-      </div>
-      <div className="mega-right">
-        {products.map(product => (
-          <a
-            key={product.id}
-            href={product.permalink.replace('db.store1920.com', 'store1920.com')}
-            className="mega-product"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="circle-img">
-              <img src={product.images[0]?.src || ''} alt={product.name} />
-            </div>
-            <div className="price">{product.price} AED</div>
-          </a>
-        ))}
-      </div>
-    </div>
-  )}
+  <span>Categories&nbsp;▾</span>
 </div>
+{hovering && (
+  <div
+    className="mega-dropdown-card"
+    onMouseEnter={handleMouseEnter}
+    onMouseLeave={handleMouseLeave}
+  >
+    <MegaMenu categories={categories} />
+  </div>
+)}
+
+
+
+
 
             </div>
 
@@ -248,6 +254,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
               <SearchBar />
             </div>
 
+            {/* Right side: user, support, language, cart */}
             <div className="nav-right">
               {user ? (
                 <div
@@ -282,8 +289,8 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
               ) : (
                 <div className="account guest-account" onClick={() => setSignInOpen(true)}>
                   <img src={UserIcon} alt="Profile Icon" className="icon-small" />
-                  <div className="account-text" style={{  color: textColor,}}>
-                    <span className="account-title" >Sign In / Register</span>
+                  <div className="account-text" style={{ color: textColor }}>
+                    <span className="account-title">Sign In / Register</span>
                     <span className="small-text">Orders & Account</span>
                   </div>
                 </div>
@@ -298,22 +305,105 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
                 onMouseLeave={() => {
                   supportTimeoutRef.current = setTimeout(() => setSupportDropdownOpen(false), 200);
                 }}
-                style={{ position: 'relative', cursor: 'pointer', marginRight: '20px', color: textColor }}
+                style={{ position: 'relative', cursor: 'pointer', color: textColor }}
               >
                 <img src={SupportIcon} alt="Support Icon" className="icon-small" />
                 <span>Support</span>
                 <SupportDropdownMenu isOpen={supportDropdownOpen} onClose={() => setSupportDropdownOpen(false)} />
               </div>
-            </div>
 
-            <div
-              className="nav-icon-only"
-              title="Cart"
-              onClick={() => navigate('/cart')}
-              style={{ cursor: 'pointer', position: 'relative' }}
-            >
-              <img src={CartIcon} alt="Cart" className="icon-cart" />
-              {totalQuantity > 0 && <div className="cart-badge">{totalQuantity}</div>}
+              {/* Language Dropdown */}
+              <div
+                className="nav-icon-with-text language-dropdown"
+                onMouseEnter={() => {
+                  if (langTimeoutRef.current) clearTimeout(langTimeoutRef.current);
+                  setLangDropdownOpen(true);
+                }}
+                onMouseLeave={() => {
+                  langTimeoutRef.current = setTimeout(() => setLangDropdownOpen(false), 200);
+                }}
+                style={{ position: 'relative', cursor: 'pointer', marginRight: '20px', color: textColor }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center' }}>
+                  <img
+                    src={language === 'en' ? aeFlag : aeFlag}
+                    alt={language === 'en' ? 'English' : 'العربية'}
+                    className="lang-icon"
+                    style={{ marginRight: '5px', width: '20px', height: '20px' }}
+                  />
+                  {language === 'en' ? 'English' : 'العربية'} ▾
+                </span>
+
+                {langDropdownOpen && (
+                  <div className="lang-dropdown-card">
+                    <div className="dropdown-arrow-up" /> {/* Arrow pointing to parent */}
+
+                    {/* Language Section */}
+                    <div className="dropdown-section">
+                      <div className="dropdown-title">Language</div>
+                      <label className="radio-item">
+                        <input
+                          type="radio"
+                          checked={language === 'ar'}
+                          onChange={() => setLanguage('ar')}
+                        />
+                        العربية
+                      </label>
+                      <label className="radio-item">
+                        <input
+                          type="radio"
+                          checked={language === 'en'}
+                          onChange={() => setLanguage('en')}
+                        />
+                        English
+                      </label>
+                    </div>
+
+                    <hr />
+
+                    {/* Currency Section */}
+                    <div className="dropdown-section">
+                      <div className="currency-item" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span>Currency:</span>
+                        <img 
+                          src={currency === 'AED' ? Dirham : Dollor} 
+                          alt={currency} 
+                          style={{ width: '14px', height: '12px' }}
+                        />
+                        <span>{currency}</span>
+                      </div>
+                    </div>
+
+                    <hr />
+
+                    {/* Country Info */}
+                    <div className="dropdown-footer">
+                      <img src={aeFlag} alt="UAE" className="footer-flag" />
+                      <span
+                        style={{
+                          maxWidth: "250px",
+                          display: "inline-block",
+                          whiteSpace: "normal",
+                          lineHeight: "1.4",
+                        }}
+                      >
+                        You are shopping in United Arab Emirates.
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Cart Icon */}
+              <div
+                className="nav-icon-only"
+                title="Cart"
+                onClick={() => navigate('/cart')}
+                style={{ cursor: 'pointer', position: 'relative' }}
+              >
+                <img src={CartIcon} alt="Cart" className="icon-cart" />
+                {totalQuantity > 0 && <div className="cart-badge">{totalQuantity}</div>}
+              </div>
             </div>
           </div>
         </div>
