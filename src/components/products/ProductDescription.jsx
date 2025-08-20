@@ -1,7 +1,7 @@
+// ProductDescription.jsx
 import React from 'react';
 import '../../assets/styles/ProductDescription.css';
 
-// Helper function to decode HTML entities
 function decodeHtml(html) {
   const txt = document.createElement('textarea');
   txt.innerHTML = html;
@@ -11,7 +11,7 @@ function decodeHtml(html) {
 function joinWithComma(items, key = 'id', display = 'name') {
   return items.map((item, i) => (
     <span key={item[key] || i} className={`${display.toLowerCase()}-name`}>
-      {decodeHtml(item[display])} {/* decodeHtml used here */}
+      {decodeHtml(item[display])}
       {i < items.length - 1 ? ', ' : ''}
     </span>
   ));
@@ -20,20 +20,14 @@ function joinWithComma(items, key = 'id', display = 'name') {
 export default function ProductDescription({ product, selectedVariation }) {
   if (!product) return null;
 
-  // Use selected variation description or fallback to product description
   const descriptionHtml = selectedVariation?.description || product.description || '';
-
-  // SKU: use variation SKU if available else product SKU
   const sku = selectedVariation?.sku || product.sku || '';
-
-  // Categories and tags arrays from product object
   const categories = product.categories || [];
   const tags = product.tags || [];
-
-  // Attributes either from variation or product
   const attributes = selectedVariation?.attributes?.length
     ? selectedVariation.attributes
     : product.attributes || [];
+  const media = selectedVariation?.images || product.images || [];
 
   return (
     <section className="product-description-section">
@@ -72,7 +66,6 @@ export default function ProductDescription({ product, selectedVariation }) {
               const options = Array.isArray(attr.options) ? attr.options : [attr.options];
               const displayName = attr.name || attr.attribute_name || 'Attribute';
               const displayOptions = attr.option ? [attr.option] : options;
-
               return (
                 <li key={attr.id || i}>
                   <strong>{displayName}:</strong> {displayOptions.join(', ')}
@@ -83,11 +76,40 @@ export default function ProductDescription({ product, selectedVariation }) {
         </section>
       )}
 
-      {/* Product Description (HTML content) */}
+      {/* 1️⃣ Description first */}
       <article
         className="product-description-content"
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
       />
+
+      {/* 2️⃣ Media below the description */}
+      {media.length > 0 && (
+        <section className="product-description-media">
+          {media.map((item, i) => {
+            if (item.src || item.url) {
+              return (
+                <img
+                  key={item.id || i}
+                  src={item.src || item.url}
+                  alt={item.alt || product.name || 'Product Image'}
+                  className="product-desc-image"
+                />
+              );
+            }
+            if (item.video) {
+              return (
+                <video
+                  key={item.id || i}
+                  src={item.video}
+                  controls
+                  className="product-desc-video"
+                />
+              );
+            }
+            return null;
+          })}
+        </section>
+      )}
     </section>
   );
 }

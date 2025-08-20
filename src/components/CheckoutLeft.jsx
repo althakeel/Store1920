@@ -9,6 +9,7 @@ import ItemList from './checkoutleft/ItemList';
 import ShippingMethods from '../components/checkout/ShippingMethods';
 import emptyAddressImg from '../assets/images/adress-not-found.png';
 import DeleteIcon from '../assets/images/Delete-icon.png';
+import ProductsUnder20AED from './ProductsUnder20AED';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
@@ -239,12 +240,19 @@ const CheckoutLeft = ({
     setSaveSuccess(false);
     setError(null);
   };
-
+// Add this near the top, with other handlers
+// Add this near the top of CheckoutLeft component
+const handlePaymentSelect = (id) => {
+  onChange({ target: { name: 'paymentMethod', value: id, type: 'radio' } }, 'payment');
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError(null);
     setSaveSuccess(false);
+
+
+
 
     const payload = {
       shipping: formData.shipping,
@@ -275,6 +283,7 @@ const CheckoutLeft = ({
       setSaving(false);
     }
   };
+  
 
   return (
     <div className="checkout-left">
@@ -388,13 +397,16 @@ const CheckoutLeft = ({
       </div>
 
       <div className="section-block">
-     <PaymentMethods
-  selectedMethod={formData.paymentMethod || 'cod'}
-  onMethodSelect={(id) => onChange({ target: { name: 'paymentMethod', value: id, type: 'radio' } }, 'payment')}
-/>
+  <PaymentMethods
+    selectedMethod={formData.paymentMethod || 'cod'}
+    onMethodSelect={handlePaymentSelect}
+  />
       </div>
-
+<div className='desktop-only'>
       <HelpText />
+  {/* <ProductsUnder20AED/> */}
+</div>
+
 
       <SignInModal
         isOpen={!user && showSignInModal}

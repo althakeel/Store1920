@@ -75,6 +75,8 @@
   display: inline-block;
   text-align: center;
   white-space: nowrap;
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+
 }
 
 .placeOrderBtnCR:disabled {
@@ -132,3 +134,74 @@
   cursor: pointer;
   line-height: 1;
 }
+
+/* CheckoutRight.module.css */
+
+/* Default styles (desktop) are already defined above */
+
+/* Tablet screens */
+@media (max-width: 1024px) {
+  .checkoutRightContainer {
+    max-width: 100%;
+    padding: 16px;
+    margin: 0 auto;
+  }
+
+  .checkoutRightContainer h2 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+  }
+
+  .summaryRowCR {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+
+  .placeOrderBtnCR {
+    font-size: 0.9rem;
+    padding: 12px 28px;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 640px) {
+  .checkoutRightContainer {
+    max-width: 100%;
+    padding: 14px;
+    border-radius: 6px;
+  }
+
+  .checkoutRightContainer h2 {
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .summaryRowCR {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+
+  .summaryRowCR.totalCR {
+    font-size: 1rem;
+    padding-top: 10px;
+  }
+
+  .placeOrderBtnCR {
+    font-size: 0.85rem;
+    padding: 12px 24px;
+    border-radius: 20px;
+  }
+
+  .alertCR {
+    font-size: 0.85rem;
+    padding: 10px 14px;
+  }
+
+  .alertCR button {
+    font-size: 14px;
+    top: 8px;
+    right: 8px;
+  }
+}
+

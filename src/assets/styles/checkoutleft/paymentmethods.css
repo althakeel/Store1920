@@ -138,3 +138,19 @@
   filter: grayscale(0);
   transition: filter 0.3s ease;
 }
+@media (max-width: 768px) {
+.payment-methods-wrapper {
+  padding: 0px;
+  background: #fff;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+.payment-card {
+  padding: 10px 5px;
+  display: flex;
+  align-items: center;   /* vertical alignment */
+  justify-content: space-between; /* optional: spread items horizontally */
+}
+
+
+}

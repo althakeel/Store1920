@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import AddCarticon from '../assets/images/addtocart.png';
 import AddedToCartIcon from '../assets/images/added-cart.png';
 import IconAED from '../assets/images/Dirham 2.png';
+import ProductCardReviews from './temp/productcardreviews';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v2';
 const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
@@ -125,6 +126,7 @@ const ProductsUnder20AED = () => {
                 </div>
                 <div className="pcus-prd-info1">
                   <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>
+                  <ProductCardReviews/>
                   <div className="pcus-prd-price-cart1">
                     <div className="pcus-prd-prices1">
                       <img

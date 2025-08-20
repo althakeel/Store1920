@@ -8,6 +8,7 @@ import CheckoutRight from '../components/CheckoutRight';
 import SignInModal from '../components/sub/SignInModal';
 import AuthContent from '../contexts/AuthContext'
 import '../assets/styles/checkout.css';
+import ProductsUnder20AED from '../components/ProductsUnder20AED';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_e09e8cedfae42e5d0a37728ad6c3a6ce636695dd';
@@ -260,6 +261,7 @@ useEffect(() => {
   if (error) return <div className="error">{error}</div>;
 
   return (
+    <>
     <div className="checkoutGrid">
       <CheckoutLeft
         formData={formData}
@@ -289,5 +291,7 @@ useEffect(() => {
         <SignInModal onClose={() => setShowSignInModal(false)} onLoginSuccess={handleLoginSuccess} />
       )}
     </div>
+    <ProductsUnder20AED/>
+    </>
   );
 }

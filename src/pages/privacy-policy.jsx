@@ -1,276 +1,167 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
-const sections = [
-  { id: 'intro', title: 'Introduction' },
-  { id: 'dataCollection', title: 'What Information We Collect' },
-  { id: 'usage', title: 'How and Why We Use Your Information' },
-  { id: 'sharing', title: 'How and Why We Share Your Information' },
-  { id: 'rights', title: 'Your Rights and Choices' },
-  { id: 'children', title: 'Children' },
-  { id: 'security', title: 'Data Security and Retention' },
-  { id: 'changes', title: 'Changes to the Privacy Policy' },
-  { id: 'contact', title: 'Contact Us' },
-];
-
-const PrivacyPolicy = () => {
-  const refs = useRef({});
-
+const privacyPolicy = () => {
   return (
-    <div className="pp-container">
-      <main className="pp-content">
-        {sections.map(({ id, title }) => (
-          <section
-            key={id}
-            id={id}
-            ref={(el) => (refs.current[id] = el)}
-            className="pp-section"
-            tabIndex={-1}
-            aria-labelledby={`${id}-heading`}
-          >
-            <h2 id={`${id}-heading`} className="pp-section-title">
-              {title}
-            </h2>
-            <SectionContent id={id} />
-          </section>
-        ))}
-      </main>
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: 20,fontFamily: 'Montserrat, sans-serif', lineHeight: 1.6,fontSize:'13px' }}>
+      <h1>Privacy Policy</h1>
+      <p>Last updated: August 14, 2025</p>
 
-      <style>{`
-        .pp-container {
-          max-width: 1450px;
-          margin: 40px auto;
-          padding: 0 10px;
-          font-family: 'Montserrat', sans-serif;
-          color: #222;
-          background: transparent;
-        }
 
-        .pp-content {
-          width: 100%;
-          line-height: 1.65;
-          font-size: 14px;
-          color: #333;
-          background: transparent;
-          padding: 0; /* no extra padding */
-        }
 
-        .pp-section {
-          margin-bottom: 60px;
-          scroll-margin-top: 120px;
-          outline: none;
-        }
 
-        .pp-section-title {
-          font-size: 18px;
-          margin-bottom: 24px;
-          border-bottom: 3px solid #eee;
-          padding-bottom: 10px;
-          font-weight: 700;
-          color: #222;
-        }
+<p>
+Introduction: This Privacy Policy describes how Althakeel General Trading LLC (doing business as “Store1920,” referred to as “we,” “us,” or “our”) handles personal information that we collect through our digital properties, such as the store1920.com website and Store1920 mobile applications, and in the course of our business operations. We care deeply about your privacy and are committed to protecting your personal information. This policy explains what information we collect, how we use and share it, and the choices you have regarding your information. By using Store1920’s services, you agree to the terms of this Privacy Policy.
+</p>
 
-        h3 {
-          font-size: 20px;
-          margin-top: 30px;
-          margin-bottom: 12px;
-          font-weight: 600;
-          color: #444;
-        }
+<h2>1. Information We Collect</h2>
 
-        ul {
-          margin-left: 1.4rem;
-          margin-bottom: 24px;
-          color: #555;
-        }
+<p>
+We collect various types of information from and about our users for different purposes. The main categories include:
+</p>
+<ul>
+<p>
+<strong>Information You Provide Directly:</strong> When using Store1920, you may provide personal information, including your name, email address, phone number, billing and shipping addresses, and payment information when creating an account or making a purchase. This also includes content you submit on the platform, such as product reviews, ratings, questions, and images or files. Additionally, information provided when contacting Customer Service or participating in promotions and surveys is collected. All information you provide is voluntary and used to deliver and improve our services.
+</p>
 
-        a {
-          color: #e60023;
-          text-decoration: none;
-        }
-        a:hover {
-          text-decoration: underline;
-        }
+<p>
+<strong>Information from Third-Party Sources:</strong> We may receive information about you from other sources, for example, if you log in or register via social media accounts (like Facebook or Google), we may obtain your username, profile picture, or email with your permission. We may also receive demographic or fraud-prevention data from trusted providers to improve our services and verify users. Our logistics partners may provide shipping updates, such as delivery status and tracking information, to ensure smooth delivery of your orders. All third-party information is handled according to this Privacy Policy and any restrictions imposed by the source.
+</p>
 
-        @media (max-width: 600px) {
-          .pp-content {
-            font-size: 16px;
-          }
-          .pp-section-title {
-            font-size: 24px;
-            margin-bottom: 18px;
-          }
-          h3 {
-            font-size: 18px;
-          }
-        }
-      `}</style>
+<p>
+<strong>Information Collected Automatically:</strong> Like many online services, Store1920 automatically collects certain data about your device and usage, including:
+</p>
+
+<p>
+<strong>Device and Technical Data:</strong> This includes your device type, operating system, browser type, IP address, device identifiers, and regional/language settings, helping us understand what devices and browsers access our Services.
+</p>
+
+<p>
+<strong>Usage Data:</strong> We collect information about your activity on Store1920, such as pages or products viewed, time spent on pages, links or buttons clicked, search queries, and how you arrived at and leave the site. This helps us identify popular features and areas for improvement.
+</p>
+
+<p>
+<strong>Location Data:</strong> We may estimate your location from your IP address or shipping address (city or country level) to show relevant content and prevent fraud. With your permission, we may collect more precise geolocation data from your mobile device (e.g., to find nearby pickup locations). You can disable location access at any time in your device or app settings.
+</p>
+
+<p>
+<strong>Cookies and Similar Technologies:</strong> Store1920 uses cookies, pixels, and similar technologies to personalize your experience and gather analytics. These technologies help remember your preferences, keep you logged in, track site usage, provide relevant advertisements, prevent fraud, and improve security. You can manage your cookie preferences through your browser or app settings. For more information, see our Cookie and Similar Technologies Policy.
+</p>
+</ul>
+
+<h2>2. How We Use Your Information</h2>
+<p>
+Store1920 uses the personal information we collect to operate, improve, and personalize our services. The specific purposes for which we use your information include:
+</p>
+
+<ul>
+<p><strong>Providing and Improving the Service:</strong> We use your information to enable browsing and purchasing products and ensure smooth transactions. For example, we process payments, coordinate shipping, debug issues, analyze performance, and develop new features. We may also aggregate or anonymize data to generate insights and statistics about service usage, helping optimize our platform.</p>
+
+<p><strong>Account Creation and Management:</strong> Information provided during registration is used to create and maintain your account, allowing login, updating settings, and using features like wishlists or order history. We also use your email or phone for account verification and security, such as password resets or important alerts.</p>
+
+<p><strong>Processing Orders and Returns:</strong> We use your name, delivery address, and payment information to process orders, communicate order status, arrange shipment, and manage returns or refunds under our Return & Refund Policy.</p>
+
+<p><strong>Communicating with You:</strong> We may send service-related communications, including transactional emails (order confirmations, shipping notifications, receipts), support responses, and important alerts about your account. These communications are necessary and cannot be opted out of. If you contact us, we may retain a record of the correspondence for future reference.</p>
+
+<p><strong>Personalizing Your Experience:</strong> We use your browsing and purchase history and preferences to recommend products or services, tailor homepage banners, and personalize ads, making your shopping experience more relevant.</p>
+
+<p><strong>Marketing and Promotions:</strong> Where permitted by law and with your consent, we may send promotional messages about new products, offers, or sales via email, SMS, push notifications, or WhatsApp. You can opt out of marketing communications at any time. Essential transactional messages will still be sent regardless of opt-out.</p>
+
+<p><strong>Interest-Based Advertising:</strong> We may collaborate with third-party advertising partners to show you ads based on your activities on Store1920. These ads use cookies or device IDs and target anonymous audience segments. You can opt out of certain interest-based advertising through industry opt-outs or device settings.</p>
+
+<p><strong>Fraud Prevention and Security:</strong> We use your information to detect and prevent fraud, abuse, and security incidents. This includes monitoring for suspicious activity, reviewing flagged transactions, and enforcing our Terms of Use and other policies.</p>
+
+<p><strong>Legal Compliance and Protection:</strong> We may use or disclose information as necessary to comply with laws, regulations, lawful requests, or legal processes, including subpoenas or court orders. Additionally, personal information may be used to exercise or defend legal claims and protect the rights, property, and safety of Store1920, our users, or others.</p>
+</ul>
+<p>We will only use your personal information for the purposes we collected it, as outlined above, unless we reasonably consider that we need to use it for another related reason and that reason is compatible with the original purpose. If we need to use your information for an unrelated purpose, we will notify you and explain the legal basis that allows us to do so.</p>
+ 
+ 
+ 
+ <h2>3. How We Share Your Information</h2>
+  <p>Store1920 respects your privacy. We do not sell your personal information to third parties. However, in the normal course of providing our services, we do share personal information with certain categories of recipients, as detailed below, only to the extent necessary and with appropriate safeguards:</p>
+   <ul>
+   <p><strong>Service Providers:</strong> We work with companies and individuals to provide our services, such as web hosting, payment processing, fraud detection, logistics, customer support, analytics, and marketing. These providers may access personal information necessary to perform their tasks, such as payment details for processing or delivery info for shipping. They are required to use your data only for providing services to Store1920 and follow strict privacy and security standards.</p>
+
+<p><strong>Merchants (Sellers) on Store1920:</strong> As a marketplace, Store1920 allows third-party merchants to sell products. When you place an order, your name, shipping address, and order details may be shared with the merchant for order fulfillment. Your phone or email may also be shared for delivery or customs purposes. Merchants do not have access to payment info or account credentials and must use your data only for fulfilling orders and related customer service. Communications with merchants may be shared with them, and aggregated product performance data may be provided without identifying you personally.</p>
+
+<p><strong>Analytics and Advertising Partners:</strong> We use third-party analytics and advertising tools (like Google Analytics) to understand user behavior and optimize our platform. These partners may set cookies or use similar technologies to collect technical and usage information. Limited information, such as hashed emails or device identifiers, may be shared with advertising networks and social media platforms to deliver relevant ads and measure ad performance. You can opt out of certain interest-based advertising via industry opt-outs or device settings.</p>
+
+<p><strong>Affiliates and Corporate Group:</strong> Store1920 may share information with corporate affiliates under common ownership or control. Information shared within the group will be used according to this Privacy Policy. For instance, future subsidiaries handling customer service or payment processing will follow the same data protection practices.</p>
+
+<p><strong>Third Parties You Authorize:</strong> We may share information with third parties when you explicitly consent, such as sharing a product link on social media or participating in a co-sponsored promotion. In all cases, we will inform you what data is shared and with whom, giving you the choice to proceed or not.</p>
+
+<p><strong>Legal and Compliance:</strong> We may disclose information to comply with legal obligations or requests, such as subpoenas, court orders, or government demands. Data may also be shared to investigate, prevent, or act on illegal activities, fraud, threats to safety, violations of Terms, or as evidence in litigation.</p>
+
+<p><strong>Professional Advisors and Insurers:</strong> Your information may be shared with professional advisors (lawyers, accountants, auditors) or insurers for legitimate business purposes such as advice, audits, or insurance claims. These parties are bound by confidentiality obligations.</p>
+
+<p><strong>Business Transfers:</strong> If Store1920 or Althakeel General Trading LLC undergoes a merger, acquisition, financing, reorganization, bankruptcy, sale of assets, or service transition, personal information may be transferred as part of the transaction. We require new owners to maintain the privacy practices described here. Similarly, information may be shared confidentially during evaluation of joint ventures or other business combinations.</p>
+
+   </ul>
+   <p>We want to re-emphasize: we do not sell personal data to third-party companies for their independent marketing purposes. All sharing of information is either at your direction, to fulfill our service to you, or as otherwise outlined above for legitimate and limited purposes.We want to re-emphasize: we do not sell personal data to third-party companies for their independent marketing purposes. All sharing of information is either at your direction, to fulfill our service to you, or as otherwise outlined above for legitimate and limited purposes.</p>
+   <p>If we need to share your information in any other way not covered by this Privacy Policy, we will inform you and, if legally necessary, obtain your consent.</p>
+   
+   
+   <h2>4. Your Rights and Choices</h2>
+   
+   <p>Store1920 respects the rights you have regarding your personal information. Depending on your location and subject to applicable law, you may have some or all of the following rights:</p>
+   <ul>
+    <p><strong>Access Your Information:</strong> You can request access to the personal information we hold about you. Most basic account info can also be viewed directly by logging into your Store1920 account.</p>
+
+<p><strong>Correct Your Information:</strong> You have the right to request corrections if your personal details are inaccurate or incomplete. Many updates can be made directly in your account settings; for other changes, contact us and we will update your information as needed.</p>
+
+<p><strong>Delete Your Information:</strong> You may request deletion of your personal data in certain cases, such as closing your Store1920 account. We will delete or anonymize your information unless retention is required for legal, fraud prevention, or other legitimate purposes.</p>
+
+<p><strong>Object to Processing:</strong> You can object to certain data processing, including for direct marketing or when we rely on a legitimate interest. We will honor objections where required by law, unless compelling reasons exist to continue processing.</p>
+
+<p><strong>Restrict Processing:</strong> You may request to suspend processing of your data, e.g., if accuracy is contested or you have objected to processing. Restricted data will be stored but not used until resolved.</p>
+
+<p><strong>Data Portability:</strong> Where applicable, you may receive your personal information in an electronic format to transfer to another provider. Contact us for assistance with data export.</p>
+
+<p><strong>Withdraw Consent:</strong> If we process your data based on consent, you can withdraw it at any time (e.g., location sharing or promotional messages). Withdrawing consent does not affect prior lawful processing but may limit some services.</p>
+
+<p><strong>Opt Out of Marketing Communications:</strong> You can opt out of promotional emails, SMS, or push notifications via unsubscribe links, replying “STOP” to SMS, toggling off notifications in-app, or updating account preferences. Essential transactional messages will still be sent.</p>
+
+<p><strong>Cookies and Tracking Choices:</strong> You can modify your browser to decline or clear cookies. Disabling cookies may affect site functionality. Mobile apps may allow limiting tracking or resetting ad identifiers. To opt out of Google Analytics, install the Google Analytics opt-out add-on. For interest-based ads, use NAI, DAA, or YourOnlineChoices tools.</p>
+
+<p><strong>Do Not Track:</strong> Store1920 does not currently respond to “Do Not Track” signals. We will review this if a universal standard is established in the future.</p>
+
+<p><strong>California Privacy Rights:</strong> California residents may have additional rights under CCPA, such as accessing personal information, opting out of “sale” of data (note: Store1920 does not sell personal data), and not being discriminated against for exercising rights. A separate notice may apply.</p>
+
+<p><strong>European Privacy Rights:</strong> For users in the EEA or UK, our legal basis for processing personal information is typically your consent, performance of a contract, or legitimate interests (unless overridden by your rights). You may also lodge a complaint with your local Data Protection Authority. We encourage contacting us first to address concerns directly.</p>
+
+
+
+
+   </ul>
+
+
+
+   <p>To exercise any of your rights, please contact us using the details in the Contact Us section of this Privacy Policy. We will respond to your request as soon as reasonably possible and within any timeframes required by law. For security purposes, we may ask you to verify your identity before we comply with your request. Please understand that these rights are not absolute – in some cases, we may decline requests if an exemption applies (for example, we cannot provide certain data if doing so would violate another person’s privacy or if we are legally prevented from disclosing it). If we decline a request, we will explain the reasons, subject to legal restrictions.</p>
+    
+    <h2>
+      5. Data Security and Retention
+    </h2>
+<p><strong>Security Measures:</strong> Store1920 uses administrative, technical, and physical safeguards to protect personal information from loss, theft, misuse, and unauthorized access or disclosure. This includes encrypting sensitive data in transit (HTTPS) and at rest where appropriate, using firewalls and access controls, and performing regular security assessments. Access to personal information is limited to employees and service providers who need it to perform their duties, and they are bound by strict confidentiality obligations. We monitor for vulnerabilities and attacks, and keep personnel updated on best practices. However, no method of data transmission or storage is completely secure. You also play a role in protecting your information – use a strong, unique password and notify us immediately if you suspect unauthorized access to your account.</p>
+
+<p><strong>Retention Period:</strong> We retain personal information as long as necessary to fulfill the purposes for which it was collected, unless a longer period is required or allowed by law. For example, account information is kept while your account is active and for a reasonable period after deletion in case you reactivate. Transaction records and correspondence may be kept for disputes, audits, or legal obligations. Information needed to enforce agreements or protect legal rights is also retained. When personal data is no longer needed, we securely dispose of it or anonymize it, such as anonymizing usage data for analytics once it can no longer identify a user.</p>
+
+<p><strong>International Transfers:</strong> Store1920 is based in the United Arab Emirates, but personal data may be processed or stored in other countries if we use cloud services or service providers abroad. If you are outside the UAE, your data may be transferred to jurisdictions that may not provide the same level of protection as your home country. We implement safeguards, such as standard contractual clauses or other legal mechanisms, to protect your information. By using our services, you acknowledge and consent to these transfers to our facilities and third-party partners as described in this policy.</p>
+
+<h2>6. Children’s Privacy</h2>
+<p>Store1920 is not directed to individuals under the age of 18. We do not knowingly collect personal information from children under 18. If you are under 18, you are not permitted to use the Store1920 platform or provide any personal information to us. If we learn that we have inadvertently collected personal data from a child under 18, we will take steps to delete that information promptly. Parents or guardians who believe that Store1920 might have collected information from their child can submit a request to us to remove the content and terminate the child’s account.</p>
+
+<h2>7. Updates to this Privacy Policy</h2>
+<p>We may update or modify this Privacy Policy from time to time. If we make material changes, we will notify you by (for example) posting a prominent notice on our website or app and/or sending you an email notification, and updating the “Last Updated” date at the top of this Policy. Changes will become effective on the date they are posted unless stated otherwise. We encourage you to review this Privacy Policy periodically to stay informed about how we are protecting your information. If you continue to use Store1920’s services after any updated Privacy Policy has been posted, it means you accept and agree to the changes. If you do not agree with the changes, you should stop using our services and, if you wish, delete your account.</p>
+
+ <h2>8. Contact Us</h2>
+ <p>If you have any questions, concerns, or requests regarding this Privacy Policy or your personal information, please do not hesitate to contact us.</p>
+    <ul>
+     <li>By Email (Data Protection Officer): privacy@store1920.com</li>
+     <li>By Email (Data Protection Officer): privacy@store1920.com</li>
+
+    </ul>
+<p>We will do our best to address your inquiry promptly and thoroughly. Your privacy is important to Store1920, and we welcome your feedback.</p>
     </div>
   );
 };
 
-const SectionContent = ({ id }) => {
-  switch (id) {
-    case 'intro':
-      return (
-        <>
-          <p>
-            This Privacy Policy describes how, Whaleco Technology Limited, an Irish company ("Store1920", "we", "us" or "our") handles personal information that we collect through our digital properties that link to this Privacy Policy, including our website (www.db.store1920.com), Store1920's mobile application (collectively, the "Service"), and other activities as described in this Privacy Policy. At Store1920, we care deeply about privacy and strive to be transparent about our privacy practices, including how we treat your personal information. This Privacy Policy explains how we collect, use, share, and otherwise process the personal information of users in connection with our Service.
-          </p>
-          <p><em>Last updated: May 28, 2025</em></p>
-        </>
-      );
-    case 'dataCollection':
-      return (
-        <>
-          <p>
-            In the course of providing and improving our products and services, we collect your personal information for the purposes described in this Privacy Policy. The following are the types of personal information that we collect:
-          </p>
-          <h3>Information that you provide</h3>
-          <p>
-            When you create an account, place an order at checkout, contact us directly, or otherwise use the Service, you may provide some or all of the following information:
-          </p>
-          <ul>
-            <li><strong>Account and profile:</strong> Your mobile phone number or email address used as login credentials, profile photo, username, account settings, and preferences.</li>
-            <li><strong>Purchases:</strong> Data related to your order (transaction history), payment information (e.g., payment card number or third-party payment info), shipping address, and recipient contact information.</li>
-            <li><strong>Customer support activity:</strong> Communication history with our customer service team to improve support.</li>
-            <li><strong>Information when you contact us:</strong> Reports, feedback, or inquiries you send.</li>
-            <li><strong>Chats with merchandise partners:</strong> Chat communications and related info when chatting with merchandise partners.</li>
-            <li><strong>User-generated content:</strong> Product reviews, ratings, images, videos, text, and associated metadata.</li>
-            <li><strong>Promotion and event participation:</strong> Information you share when participating in contests, sweepstakes, promotions, or surveys.</li>
-            <li><strong>Other data:</strong> Other information you provide as disclosed at the time of collection.</li>
-          </ul>
-          <h3>Information from third-party sources</h3>
-          <p>We may combine information from you with data from third-party sources, including:</p>
-          <ul>
-            <li>Data providers (e.g., demographic info, fraud detection)</li>
-            <li>Marketing partners (e.g., joint events)</li>
-            <li>Public sources (e.g., government records)</li>
-            <li>Social media services (profile info if you login via third party)</li>
-            <li>Logistics providers (delivery progress and address info)</li>
-          </ul>
-          <h3>Information collected automatically</h3>
-          <ul>
-            <li><strong>Device data:</strong> Device model, OS, ISP, language, unique IDs (including for advertising)</li>
-            <li><strong>Service usage information:</strong> Pages viewed, time spent, clicks, email opens and link clicks</li>
-            <li><strong>Location data:</strong> Approximate location (IP address), precise location with permission</li>
-            <li><strong>Cookies and similar technologies:</strong> To analyze usage, improve service, deliver ads, and measure ad effectiveness</li>
-          </ul>
-        </>
-      );
-    case 'usage':
-      return (
-        <>
-          <p>We use your personal information to:</p>
-          <ul>
-            <li>Create and maintain your account, enable security features.</li>
-            <li>Process orders, payments, deliver products/services, communicate regarding orders and promotions.</li>
-            <li>Improve, optimize, and troubleshoot our Service.</li>
-            <li>Personalize your experience and recommend products.</li>
-            <li>Communicate with you, provide support and respond to inquiries.</li>
-            <li>Manage sweepstakes, contests, and promotions.</li>
-            <li>Send marketing communications (email, SMS, push notifications, WhatsApp) with opt-out options.</li>
-            <li>Provide interest-based advertising following Digital Advertising Alliance principles.</li>
-            <li>Prevent fraud and unauthorized use.</li>
-            <li>Comply with laws, legal requests, and protect rights.</li>
-            <li>Use cookies and similar technologies for technical operations, performance, and advertising.</li>
-          </ul>
-        </>
-      );
-    case 'sharing':
-      return (
-        <>
-          <p>We may share your personal information with:</p>
-          <ul>
-            <li><strong>Affiliates:</strong> For order fulfillment, only relevant order info shared, with privacy protections.</li>
-            <li><strong>Service providers:</strong> Such as hosting, customer support, order fulfillment, marketing, analytics.</li>
-            <li><strong>Payment processors:</strong> To complete payments, disputes, refunds.</li>
-            <li><strong>Advertising and analytics partners:</strong> For interest-based ads, with opt-out choices.</li>
-            <li><strong>Third parties you designate:</strong> Per your consent or instructions.</li>
-            <li><strong>Business and marketing partners:</strong> For co-sponsored events or related products/services.</li>
-            <li><strong>Professional advisors and authorities:</strong> Lawyers, auditors, regulators, legal compliance, fraud prevention.</li>
-            <li><strong>Business transferees:</strong> In mergers, acquisitions, or sales of business/assets.</li>
-            <li><strong>Merchandise partners:</strong> Product reviews, order info, customer support communication; no payment or device data shared.</li>
-          </ul>
-          <p>Note: Other users may see your reviews unless you hide your profile photo and name when posting reviews.</p>
-        </>
-      );
-    case 'rights':
-      return (
-        <>
-          <p>Depending on your location, you may have rights including:</p>
-          <ul>
-            <li>Access and obtain information about your personal data.</li>
-            <li>Withdraw consent at any time (subject to other lawful bases for processing).</li>
-            <li>Receive data in a structured, machine-readable format or transmit it to a third party.</li>
-            <li>Request correction or deletion of your personal data.</li>
-            <li>Object to or restrict processing in certain circumstances.</li>
-            <li>Lodge complaints with data protection authorities.</li>
-          </ul>
-          <p>You can exercise these rights by contacting us at the contact info below.</p>
-          <h3>Marketing Communications Opt-Out</h3>
-          <ul>
-            <li>Email: Use unsubscribe links or Notification settings.</li>
-            <li>Mobile text messages: Follow message instructions or Notification settings.</li>
-            <li>WhatsApp: Follow message instructions or Notification settings.</li>
-            <li>Push notifications: Adjust device or app Notification settings.</li>
-          </ul>
-          <h3>Cookies & Tracking Settings</h3>
-          <p>
-            You can manage cookies through your browser settings. Disabling cookies may affect Service functionality. For more info, visit <a href="https://www.allaboutcookies.org" target="_blank" rel="noreferrer">allaboutcookies.org</a>.
-          </p>
-          <h3>Third-Party Links</h3>
-          <p>
-            Our Service may contain links to third-party sites and apps not controlled by us. Please review their privacy policies. Revoking access to third-party platforms won’t affect data already shared.
-          </p>
-          <h3>Do Not Track</h3>
-          <p>We do not currently respond to Do Not Track browser signals.</p>
-          <h3>Declining to Provide Information</h3>
-          <p>Some personal data is required to provide services. Refusal may limit service availability.</p>
-        </>
-      );
-    case 'children':
-      return (
-        <>
-          <p>
-            Store1920 does not knowingly collect personal information from minors under 18. If we become aware of such collection, we will delete the information promptly. Contact us if you believe a minor has provided us data.
-          </p>
-        </>
-      );
-    case 'security':
-      return (
-        <>
-          <p>
-            We use technical and administrative safeguards (encryption, access controls, PCI-DSS compliance) to protect your personal information. However, no online system is 100% secure.
-          </p>
-          <p>
-            We retain data to fulfill its purpose, legal and accounting requirements, fraud prevention, or defending legal claims. When no longer needed, data is deleted, anonymized, or isolated from processing.
-          </p>
-          <p>
-            Your data may be stored or processed outside your country, with appropriate legal protections.
-          </p>
-        </>
-      );
-    case 'changes':
-      return (
-        <>
-          <p>
-            We may update this policy anytime. Material changes will be notified by updating the date and posting on our Service. Please review this policy regularly.
-          </p>
-        </>
-      );
-    case 'contact':
-      return (
-        <>
-          <p>Questions or comments? Contact Store1920's Data Protection Office:</p>
-          <ul>
-            <li>Email: <a href="mailto:privacy@db.store1920.com">privacy@db.store1920.com</a></li>
-            <li>Postal Address: Whaleco Technology Limited, First Floor, 25 St, Stephens Green, Dublin 2, Ireland</li>
-          </ul>
-        </>
-      );
-    default:
-      return null;
-  }
-};
-
-export default PrivacyPolicy;
+export default privacyPolicy;

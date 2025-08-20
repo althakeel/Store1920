@@ -14,6 +14,7 @@ import CourierBanner from '../components/sub/home/CourierBanner';
 import Shippingmobile from '../components/Mobile/shipping';
 import MobileCategoriesSlider from '../components/Mobile/MobileCategorySlider';
 import MobileCourierBanner from '../components/Mobile/MobileCourierBanner';
+import GridCategories from '../components/sub/home/gridcategories';
 
 const Home = ({ setNavbarColor }) => {
   const { currentTheme } = useTheme();
@@ -97,9 +98,10 @@ const Home = ({ setNavbarColor }) => {
     <div style={{ width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
       {/* Main Banner */}
       <MainBanner banners={banners} bannerKey={currentTheme?.bannerKey} />
-
+            {isMobile ? <Shippingmobile /> : <Whychoose />}
+<GridCategories/>
       {/* Conditional mobile/desktop sections */}
-      {isMobile ? <Shippingmobile /> : <Whychoose />}
+
       {isMobile ? <LightningBannerMobile /> : <LightningBanner />}
       {isMobile ? <MobileCategoriesSlider /> : <CategorySlider />}
       {isMobile ? <MobileCourierBanner /> : <CourierBanner />}

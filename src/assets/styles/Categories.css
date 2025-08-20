@@ -173,4 +173,20 @@
     max-width: 100%;
     margin: 0 auto;
   }
+
+  .category-wrapper {
+  padding: 20px 10px;
+  font-family: 'Montserrat', sans-serif;
+  background: #fff;
+  max-width: 1450px;
+  margin: 0 auto;
+}
+.category-filters select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  min-width: 50px;
+  font-size: 14px;
+}
 }

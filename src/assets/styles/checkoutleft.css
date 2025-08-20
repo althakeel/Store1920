@@ -49,6 +49,16 @@
     min-width: auto;
     margin-bottom: 24px;
   }
+  .checkout-left {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 10px 0px;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  background: #fff;
+  border-radius: 12px;
+}
+
 }
 
 /* Buttons (general) */
@@ -466,6 +476,10 @@
 @media (max-width: 768px) {
   .addrf-grid {
     grid-template-columns: 1fr;
+  }
+
+  .checkout-left{
+    margin: 0 10px;
   }
 }
 

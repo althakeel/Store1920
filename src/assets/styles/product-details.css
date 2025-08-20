@@ -222,6 +222,13 @@
   .related-products-list {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .product-details-container {
+ 
+  padding: 0 10px;
+ 
+}
+
 }
 
 @media (max-width: 480px) {

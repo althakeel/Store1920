@@ -265,8 +265,8 @@ const CategoryPage = () => {
         const [intPart, decPart] = p.regular_price.includes(".") ? p.regular_price.split(".") : [p.regular_price, "00"];
         return (
           <>
-            <span className="price-int">{intPart}</span>
-            <span className="price-dec">.{decPart}</span>
+            <span className="price-int-regular">{intPart}</span>
+            <span className="price-dec-regular">.{decPart}</span>
           </>
         );
       })()}

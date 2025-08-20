@@ -14,108 +14,134 @@ const injectFont = () => {
 
 const sections = [
   {
+    id: 'eligibility',
+    title: '1. Return Window & Eligibility',
+    content: (
+      <>
+        <p>
+          Almost all items purchased on Store1920 are eligible for return within <strong>7 days</strong> from the date of purchase for a full refund. 
+          There are exceptions for health, safety, or hygiene reasons:
+        </p>
+        <ul>
+          <li>Used or damaged personal items (e.g., worn clothing, lingerie without tags/seals).</li>
+          <li>Perishable or personal care items (food, groceries, opened cosmetics/skincare, sanitary products).</li>
+          <li>Custom or made-to-order products (e.g., engraved items).</li>
+          <li>Underwear & swimwear (if hygiene liners are removed).</li>
+          <li>Free gifts or promotional items.</li>
+        </ul>
+        <p>
+          <strong>Electronics:</strong> Most electronics have a 90-day window, though some may be shorter (45–60 days). 
+          Electronics also come with manufacturer warranties and consumer law protection.
+        </p>
+      </>
+    ),
+  },
+  {
     id: 'how-to-return',
-    title: '1. How do I make a return?',
+    title: '2. How to Initiate a Return',
     content: (
       <>
-        <p>You can make a return by following these steps:</p>
         <ol>
-          <li>Open the Store1920 app or website.</li>
-          <li>Go to "Your Orders" and click "Return / Refund".</li>
-          <li>Select item(s), reason, and return method.</li>
-          <li>Download the return label and attach it to the package.</li>
-          <li>Schedule a pickup or drop off at the return center.</li>
+          <li>Log in to your Store1920 account → “Your Orders” → click “Return/Refund”.</li>
+          <li>If you checked out as guest, use the link in your confirmation email.</li>
+          <li>Select item(s) & reason for return. Upload a photo if requested.</li>
+          <li>Receive a prepaid return shipping label (or QR code).</li>
+          <li>Pack securely, attach label, and hand over to courier/drop-off point.</li>
         </ol>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod massa ac justo vehicula,
-          vitae blandit nulla fermentum. Curabitur vulputate lorem at enim fermentum, sed tincidunt justo
-          pulvinar.
-        </p>
+        <p>The first return per order is <strong>free</strong>. Later returns from the same order may incur a fee.</p>
       </>
     ),
   },
   {
-    id: 'free-shipping',
-    title: '2. Is the return shipping free?',
+    id: 'shipping',
+    title: '3. Return Shipping Costs',
     content: (
       <>
         <p>
-          Yes, return shipping is free for most items within the return window. You'll receive a prepaid
-          label when you initiate the return.
+          The first return per order is <strong>free</strong>. If you return additional items later from the same order, 
+          a return shipping fee may be deducted from your refund.
         </p>
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus magnam molestiae hic nulla!
+          Oversized/heavy items or remote locations may require special arrangements. 
+          If you pay for return shipping due to our or seller’s fault, we reimburse reasonable costs.
         </p>
       </>
     ),
   },
   {
-    id: 'return-window',
-    title: '3. How long do I have before making a return?',
+    id: 'refund-process',
+    title: '4. Refund Process & Methods',
+    content: (
+      <>
+        <p>Once your return arrives and passes inspection, refunds are processed as follows:</p>
+        <ul>
+          <li><strong>Original Payment Method:</strong> 5–14 business days (up to 30 for some banks).</li>
+          <li><strong>Cash on Delivery:</strong> Refunded via bank transfer or Store1920 credits.</li>
+          <li><strong>Store1920 Credits:</strong> Instant after check-in (can be used for future orders).</li>
+        </ul>
+        <p>
+          In some cases, we may issue an <strong>Instant/Advanced Refund</strong> before the return arrives, 
+          especially for loyal customers or obvious defects.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'refund-amounts',
+    title: '5. Refund Amounts',
     content: (
       <>
         <p>
-          You usually have <strong>90 days</strong> from the date of purchase to request a return.
+          If the return is due to our/seller’s fault (wrong/defective item), you’ll receive a full refund including shipping.  
+          If due to buyer’s remorse, original shipping fees may not be refunded.
         </p>
-        <p>Items must be in their original condition, unused, and with all packaging included.</p>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras gravida mi non orci egestas,
-          id blandit quam tincidunt.
+          Items returned used/damaged beyond normal inspection may be refunded partially.  
+          We assess fairly and notify you if a deduction applies.
         </p>
       </>
     ),
   },
   {
-    id: 'refunds',
-    title: '4. Refunds',
+    id: 'non-delivery',
+    title: '6. Non-Delivery & Missing Items',
+    content: (
+      <>
+        <p>
+          If your order shows “delivered” but you didn’t receive it, or if items are missing from the package, 
+          contact us. We’ll investigate and either resend or refund after verification.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'exchange',
+    title: '7. Exchange Policy',
+    content: (
+      <>
+        <p>
+          Currently, exchanges are processed as return-and-reorder.  
+          Return the item for a refund, then place a new order for the size/color you want.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'important-notices',
+    title: '8. Important Notices',
     content: (
       <>
         <ul>
-          <li>Refunds can go back to your original payment method or Store1920 credit.</li>
-          <li>Store1920 credit is refunded instantly after approval.</li>
-          <li>Card/Bank refunds may take up to 14 business days.</li>
+          <li>Always use the return label provided — not the manufacturer/original sender’s address.</li>
+          <li>Do not include unrelated/personal items in your return package.</li>
+          <li>Contact support if you face issues; we can assist or liaise with sellers.</li>
+          <li>Policy abuse (excessive returns of used items) may result in refusal or restocking fees.</li>
         </ul>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores, numquam! Fugiat eaque totam
-          aperiam recusandae?
-        </p>
-      </>
-    ),
-  },
-  {
-    id: 'refund-timeline',
-    title: '5. Refund timeline',
-    content: (
-      <>
-        <ul>
-          <li><strong>Store1920 credit:</strong> Instant</li>
-          <li><strong>PayPal / Apple Pay:</strong> 1–5 business days</li>
-          <li><strong>Debit/Credit Card:</strong> 5–14 business days</li>
-        </ul>
-        <p>
-          Proin viverra mi a eros porta, in finibus sapien porttitor. Suspendisse potenti. Cras a nulla a
-          libero malesuada laoreet.
-        </p>
-      </>
-    ),
-  },
-  {
-    id: 'important-notice',
-    title: '6. Important Notice',
-    content: (
-      <>
-        <p>
-          ❗ Please do not use the original sender address for returns. Always use the label provided.
-        </p>
-        <p>Items sent by mistake or damaged returns may not be refunded. Contact support for assistance.</p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vero nobis quae molestiae! Quibusdam
-          itaque velit consequatur!
-        </p>
       </>
     ),
   },
 ];
+
 
 // CSS styles for hiding scrollbar on Webkit and Firefox
 const hideScrollbar = {
@@ -226,7 +252,10 @@ const ReturnPolicyPage = () => {
         behavior: 'smooth',
       });
     }
+  // Immediately highlight in sidebar
+ setActiveSection(id);
   };
+
 
   return (
     <div style={styles.layout}>
@@ -262,12 +291,21 @@ const ReturnPolicyPage = () => {
         ref={contentRef}
         className="hide-scrollbar"
       >
-        {sections.map(({ id, title, content }) => (
-          <section key={id} id={id} style={styles.section}>
-            <h2 style={styles.heading}>{title}</h2>
-            <div style={styles.text}>{content}</div>
-          </section>
-        ))}
+      {sections.map(({ id, title, content }) => (
+  <section key={id} id={id} style={styles.section}>
+    <h2
+      style={{
+        ...styles.heading,
+        textDecoration: activeSection === id ? 'underline' : 'none',
+        textDecorationColor: '#FF6600',
+        textDecorationThickness: '2px',
+      }}
+    >
+      {title}
+    </h2>
+    <div style={styles.text}>{content}</div>
+  </section>
+))}
       </main>
 
       {/* Inline style to hide scrollbars on Webkit browsers */}

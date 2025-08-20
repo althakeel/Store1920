@@ -110,26 +110,26 @@ const CategoryList = () => {
             <option value="best">Best Selling</option>
           </select>
 
-          <select value={filterOption} onChange={(e) => setFilterOption(e.target.value)}>
+          {/* <select value={filterOption} onChange={(e) => setFilterOption(e.target.value)}>
             <option value="" disabled>Filter</option>
             <option value="empty">Empty Only</option>
-          </select>
+          </select> */}
 
-          <select value={brandFilter} onChange={(e) => setBrandFilter(e.target.value)}>
+          {/* <select value={brandFilter} onChange={(e) => setBrandFilter(e.target.value)}>
             <option value="" disabled>Brand</option>
             {brands.map((brand) => (
               <option key={brand} value={brand}>
                 {brand}
               </option>
             ))}
-          </select>
+          </select> */}
 
-          <select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value)}>
+          {/* <select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value)}>
             <option value="" disabled>Price Range</option>
             <option value="low">Under 10</option>
             <option value="mid">11–50</option>
             <option value="high">Above 50</option>
-          </select>
+          </select> */}
 
           <button className="reset-button" onClick={resetFilters}>Reset</button>
         </div>

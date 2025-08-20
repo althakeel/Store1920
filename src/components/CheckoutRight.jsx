@@ -5,6 +5,7 @@ import '../assets/styles/checkout/CheckoutRight.css';
 import TrustSection from './checkout/TrustSection';
 import CouponDiscount from './sub/account/CouponDiscount';
 import CoinBalance from './sub/account/CoinBalace';
+import HelpText from './HelpText';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_680365deac11404c39d7d9b523ac5dc2e1795863';
@@ -363,6 +364,11 @@ export default function CheckoutRight({ cartItems, formData }) {
       </button>
 
       <TrustSection />
+      <div className='mobile-only'>
+      <HelpText />
+  
+</div>
+
     </aside>
   );
 }
