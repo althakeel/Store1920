@@ -9,50 +9,52 @@ const CS = "cs_43b449072b8d7d63345af1b027f2c8026fd15428";
 
 const SearchBar = () => {
   const [term, setTerm] = useState("");
-  const [allProducts, setAllProducts] = useState([]); // store many products locally
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);
-
   const wrapper = useRef(null);
   const timeoutRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fetch many products once for fast local filtering
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axios.get(`${API_BASE}/products`, {
-          auth: { username: CK, password: CS },
-          params: { per_page: 100, orderby: "date", order: "desc" }, // fetch 100 latest
-        });
-        setAllProducts(
-          res.data.map((p) => ({
-            label: p.name,
-            slug: p.slug,
-            id: p.id,
-          }))
-        );
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      }
-    };
-    fetchProducts();
-  }, []);
-
-  // Filter suggestions locally as user types
+  // Fetch suggestions dynamically as user types
   useEffect(() => {
     if (!term.trim()) {
       setSuggestions([]);
       return;
     }
-    const filtered = allProducts.filter(
-      (p) =>
-        p.label.toLowerCase().includes(term.toLowerCase()) ||
-        p.slug.toLowerCase().includes(term.toLowerCase()) ||
-        String(p.id).includes(term)
-    );
-    setSuggestions(filtered);
-  }, [term, allProducts]);
+
+    const controller = new AbortController();
+
+    const fetchSuggestions = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/products`, {
+          auth: { username: CK, password: CS },
+          params: {
+            search: term,
+            per_page: 10, // limit suggestions for dropdown
+            orderby: "date",
+            order: "desc",
+          },
+          signal: controller.signal,
+        });
+
+        const mapped = res.data.map((p) => ({
+          label: p.name,
+          slug: p.slug,
+          id: p.id,
+        }));
+
+        setSuggestions(mapped);
+      } catch (err) {
+        if (err.name !== "CanceledError") {
+          console.error("Error fetching suggestions:", err);
+        }
+      }
+    };
+
+    fetchSuggestions();
+
+    return () => controller.abort(); // cancel previous request if term changes
+  }, [term]);
 
   // Handle clicks outside dropdown
   useEffect(() => {
@@ -75,16 +77,13 @@ const SearchBar = () => {
   };
 
   const goToProduct = (slug = null, customLabel = "") => {
-  const searchTerm = customLabel || term;
-  if (slug) {
-    navigate(`/product/${slug}`); 
-  } else {
-    navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-  }
-};
-
-
-  const displayList = term.trim() ? suggestions : allProducts.slice(0, 8); // show top 8 if empty
+    const searchTerm = customLabel || term;
+    if (slug) {
+      navigate(`/product/${slug}`);
+    } else {
+      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+    }
+  };
 
   return (
     <div
@@ -133,8 +132,8 @@ const SearchBar = () => {
       {open && (
         <div className="scoped-search-dropdown">
           <div className="scoped-search-grid">
-            {displayList.length > 0 ? (
-              displayList.map((item, index) => (
+            {suggestions.length > 0 ? (
+              suggestions.map((item, index) => (
                 <div
                   key={index}
                   className="scoped-search-item"

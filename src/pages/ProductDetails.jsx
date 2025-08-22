@@ -205,12 +205,12 @@ useEffect(() => {
             />
 
             <div className="product-review desktop-only">
-              <Whislistreport
+              {/* <Whislistreport
                 onAddToWishlist={handleAddToWishlist}
                 onReportProduct={handleReportProduct}
                 isLoggedIn={isLoggedIn}
                 onOpenLoginPopup={() => setShowLoginModal(true)}
-              />
+              /> */}
             </div>
 
             <div className="product-review desktop-only">
