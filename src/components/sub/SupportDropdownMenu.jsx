@@ -14,11 +14,11 @@ const SupportDropdownMenu = ({ isOpen, onClose }) => {
 
   const menuItems = [
     { label: 'Support Center', icon: Support, link: '/support' },
-    { label: 'Safety Center', icon: Safety, link: '/safety' },
+    { label: 'Safety Center', icon: Safety, link: '/safetycenter' },
     // { label: 'Chat with Store1920', icon: Chat, link: '/chat' },
     // { label: 'Store1920 Purchase Protection', icon: Protection, link: '/protection' },
-    { label: 'Privacy Policy', icon: PrivacyPolicy, link: '/privacy' },
-    { label: 'Terms of Use', icon: Terms, link: '/terms' },
+    { label: 'Privacy Policy', icon: PrivacyPolicy, link: '/privacy-policy' },
+    { label: 'Terms of Use', icon: Terms, link: '/Terms-0f-use' },
   ];
 
   return (

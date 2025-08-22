@@ -53,7 +53,7 @@ const YourSecurity = () => {
   const containerStyle = {
     fontFamily: 'Montserrat, sans-serif',
     fontSize: '14px',
-    maxWidth: '1450px',
+    maxWidth: '1400px',
     margin: '0 auto',
     padding: '20px',
     color: '#333',

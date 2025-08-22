@@ -1,5 +1,5 @@
 .category-slider-container {
-  max-width: 1450px;
+  max-width: 1400px;
   width: 100%;
   margin: 20px auto;
   padding: 10px 0;
@@ -201,7 +201,7 @@ box-shadow: 0 2px 6px rgba(255, 255, 255, 0.15);
 }
 
 /* Responsive adjustments */
-@media (max-width: 1450px) {
+@media (max-width: 1400px) {
   .category-slide {
     margin: 0 5px;
     min-width: 120px;

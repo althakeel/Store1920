@@ -39,7 +39,7 @@ export default function SaleBanner() {
     >
       <div
         style={{
-          maxWidth: 1450,
+          maxWidth: 1400,
           margin: '0 auto',
           // padding: '0 15px',
           boxSizing: 'border-box',
@@ -52,7 +52,7 @@ export default function SaleBanner() {
           alt="Sale Banner"
           style={{
             display: 'block',
-            width: '100%',       // fill container width fully (max 1450px)
+            width: '100%',       // fill container width fully (max 1400px)
             maxHeight: 300,
             height: 'auto',
             objectFit: 'contain',

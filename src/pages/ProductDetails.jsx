@@ -12,6 +12,8 @@ import Whislistreport from '../components/products/Whislist-report';
 import ProductReviewList from '../components/products/ProductReviewList';
 import DummyReviewsSold from '../components/temp/DummyReviewsSold';
 import { getProductReviews } from '../data/dummyReviews';
+import  { getProductReviewsWoo } from '../data/wooReviews'
+
 
 import '../assets/styles/product-details.css';
 
@@ -113,10 +115,25 @@ export default function ProductDetails() {
   }, [product, variations]);
 
   // Generate dummy reviews
-  useEffect(() => {
-    if (!product) return;
-    setReviews(getProductReviews(product.id));
-  }, [product]);
+
+
+useEffect(() => {
+  if (!product) return;
+
+  async function fetchReviews() {
+    try {
+      const reviewsFromWoo = await getProductReviewsWoo(product.id);
+      setReviews(reviewsFromWoo);
+    } catch (err) {
+      console.error('Failed to fetch WooCommerce reviews:', err);
+      setReviews([]);
+    }
+  }
+
+  fetchReviews();
+}, [product]);
+
+
 
   const reviewSummary = getReviewSummary(reviews);
 
@@ -198,14 +215,13 @@ export default function ProductDetails() {
 
             <div className="product-review desktop-only">
             <Suspense fallback={<div>Loading reviews...</div>}>
-  <ProductReviewList
-    productId={product.id}
-    user={user}
-    onLogin={login}
-    reviews={reviews}       // <-- pass parent reviews
-    setReviews={setReviews} // <-- allow updating reviews from review list
-  />
-
+<ProductReviewList
+  productId={product.id}
+  user={user}
+  onLogin={login}
+  reviews={reviews}
+  setReviews={setReviews}
+/>
 </Suspense>
 </div>
 

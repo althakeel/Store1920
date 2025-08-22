@@ -1,50 +1,31 @@
+// src/hooks/useNetworkSpeed.js
 import { useEffect } from 'react';
 import { showNetworkSlowToast } from '../components/NetworkToast';
 
-export const useNetworkSpeed = () => {
+export const useNetworkSpeed = (url = '/api/data') => {
   useEffect(() => {
-    let timeout;
+    let didCancel = false;
 
-    // 1️⃣ Check Network Information API
-    if (navigator.connection) {
-      const connection = navigator.connection;
-      if (connection.effectiveType !== '4g') {
-        showNetworkSlowToast();
-        return;
-      }
-    }
-
-    // 2️⃣ Fallback: page load timeout
-    const handleLoad = () => clearTimeout(timeout);
-    window.addEventListener('load', handleLoad);
-
-    timeout = setTimeout(() => {
-      showNetworkSlowToast();
-    }, 5000);
-
-    // 3️⃣ Optional: real speed test after mount
-    const testNetworkSpeed = async () => {
-      const startTime = Date.now();
+    const fetchData = async () => {
       try {
-        const response = await fetch('/speed-test.png?cacheBust=' + Date.now());
-        const blob = await response.blob();
-        const duration = Date.now() - startTime;
-        const speedKbps = (blob.size * 8) / (duration / 1000) / 1024;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network error');
 
-        if (speedKbps < 300) {
-          showNetworkSlowToast();
+        const data = await response.blob(); // check size
+        const sizeKB = data.size / 1024;
+
+        if (!didCancel && sizeKB < 10) {
+          showNetworkSlowToast(); // show toast if data is too small
         }
-      } catch {
-        showNetworkSlowToast();
+      } catch (err) {
+        if (!didCancel) showNetworkSlowToast(); // show toast on fetch failure
       }
     };
 
-    testNetworkSpeed();
+    fetchData();
 
-    // 4️⃣ Cleanup
     return () => {
-      clearTimeout(timeout);
-      window.removeEventListener('load', handleLoad);
+      didCancel = true;
     };
-  }, []);
+  }, [url]);
 };

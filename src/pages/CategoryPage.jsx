@@ -12,7 +12,7 @@ import '../assets/styles/singlecategorypage.css'
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CONSUMER_KEY = "ck_be7e3163c85f7be7ca616ab4d660d65117ae5ac5";
-const CONSUMER_SECRET = "cs_df731e48bf402020856ff21450c53503d545ac35";
+const CONSUMER_SECRET = "cs_df731e48bf402020856ff21400c53503d545ac35";
 const PRODUCTS_PER_PAGE = 50;
 const MAX_PRODUCTS = 10000;
 const TITLE_LIMIT = 35;
@@ -137,31 +137,35 @@ const CategoryPage = () => {
     params.append("order", order);
     return params.toString();
   };
+const fetchProducts = useCallback(
+  async (pageNum = 1, appliedFilters = null, replace = false) => {
+    setLoading(true);
+    try {
+      const queryParams = buildQueryParams(pageNum, appliedFilters);
+      const url = `${API_BASE}/products?${queryParams}`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-  const fetchProducts = useCallback(
-    async (pageNum = 1, appliedFilters = null, replace = false) => {
-      setLoading(true);
-      try {
-        const queryParams = buildQueryParams(pageNum, appliedFilters);
-        const url = `${API_BASE}/products?${queryParams}`;
-        const res = await fetch(url);
-        const data = await res.json();
+      // Ensure data is always an array
+      const safeData = Array.isArray(data) ? data : [];
 
-        if (replace) setProducts(data);
-        else setProducts((prev) => [...prev, ...data]);
+      if (replace) setProducts(safeData);
+      else setProducts((prev) => [...prev, ...safeData]);
 
-        if (data.length < PRODUCTS_PER_PAGE || pageNum * PRODUCTS_PER_PAGE >= MAX_PRODUCTS) {
-          setHasMore(false);
-        } else setHasMore(true);
-      } catch (e) {
-        console.error(e);
+      if (safeData.length < PRODUCTS_PER_PAGE || pageNum * PRODUCTS_PER_PAGE >= MAX_PRODUCTS) {
         setHasMore(false);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [id]
-  );
+      } else setHasMore(true);
+    } catch (e) {
+      console.error(e);
+      setHasMore(false);
+      setProducts([]); // fallback empty array
+    } finally {
+      setLoading(false);
+    }
+  },
+  [id]
+);
+
 
   // Refetch when category or filters change
   useEffect(() => {
@@ -216,11 +220,11 @@ const CategoryPage = () => {
 
       {/* Product Grid */}
       <div className="catepage-prod-grid">
-        {products.length === 0 && !loading ? (
-          <div style={{ textAlign: "center", margin: "50px 0", fontSize: "18px" }}>
-            No products found
-          </div>
-        ) : (
+       {products.length === 0 && !loading ? (
+  <div className="catepage-no-products">
+    No products found
+  </div>
+) : (
           <>
             {products.map((p) => {
               const onSale = p.price !== p.regular_price;

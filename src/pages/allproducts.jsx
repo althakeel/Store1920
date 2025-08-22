@@ -7,7 +7,7 @@ import '../assets/styles/allproducts.css';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_be7e3163c85f7be7ca616ab4d660d65117ae5ac5';
-const CONSUMER_SECRET = 'cs_df731e48bf402020856ff21450c53503d545ac35';
+const CONSUMER_SECRET = 'cs_df731e48bf402020856ff21400c53503d545ac35';
 const PRODUCTS_PER_PAGE = 50;
 const MAX_PRODUCTS = 10000;
 const TITLE_LIMIT = 35;

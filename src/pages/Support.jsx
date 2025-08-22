@@ -102,13 +102,13 @@ import WholesalePricing from '../components/sub/support/WholesalePricing';
 
 const helpTopics = {
   'Recommended topics': [],
-  'Order issues': ['Buying on Temu', 'Checkout', 'Find my order', 'Order changes', 'Reviews'],
+  'Order issues': ['Buying on Store1920', 'Checkout', 'Find my order', 'Order changes', 'Reviews'],
   'Shipping & delivery': ['Track shipment', 'Shipping options', 'Delivery times', 'Missed delivery', 'Courier info', 'International shipping'],
   'Return & refund': ['How to return', 'Refund process', 'Return window', 'Damaged items', 'Refund delay', 'Return shipping cost'],
   'Product & stock': ['Out of stock', 'Size chart', 'Product info', 'Color options', 'Restock alerts', 'Limited edition'],
   'Managing my account': ['Change email', 'Reset password', 'Delete account', 'Two-factor auth', 'Update info', 'Linked accounts'],
   'Payment & promos': ['Payment methods', 'Add card', 'Promo code', 'Failed payment', 'Billing info', 'Coupons'],
-  'Your security': ['Phishing scams', 'SMS scams', 'Data protection', 'Safe access', 'Temu certifications', 'Report issues'],
+  'Your security': ['Phishing scams', 'SMS scams', 'Data protection', 'Safe access', 'Store1920 certifications', 'Report issues'],
   'Policies & others': ['Privacy policy', 'Terms of service', 'Cookies', 'User agreement', 'Community rules', 'Legal'],
   'Request an item': ['Suggest product', 'Request feature', 'Bulk order', 'Custom items', 'Supplier info', 'Wholesale pricing']
 };
@@ -400,7 +400,7 @@ export default function SupportPage() {
           <main className="support-content" style={{ position: 'relative', paddingBottom: '80px' }}>
   {renderMainContent()}
 
-<button
+{/* <button
   onClick={() => window.location.href = '/contact-us'}
   style={{
     position: 'absolute',
@@ -433,7 +433,7 @@ export default function SupportPage() {
 >
   <FaPaperPlane />
   Contact Us
-</button>
+</button> */}
 
 </main>
         </div>

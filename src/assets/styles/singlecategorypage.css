@@ -4,12 +4,13 @@
    Global Wrapper
 ========================= */
 .catepage-wrapper {
-  max-width: 1450px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 10px 15px 50px 15px;
   font-family: 'Montserrat', sans-serif;
   color: #222;
   box-sizing: border-box;
+  min-height: 40vh;
 }
 
 /* =========================
@@ -77,6 +78,19 @@
   display: block;
   padding: 10px;
 }
+
+.catepage-no-products {
+  grid-column: 1 / -1; /* span full width of grid */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #555;
+  text-align: center;
+}
+
 
 /* =========================
    Product Badges

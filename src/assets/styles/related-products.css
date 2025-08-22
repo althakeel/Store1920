@@ -3,9 +3,9 @@
     box-sizing: border-box;
   }
   
-  /* Wrapper centered max-width 1450px */
+  /* Wrapper centered max-width 1400px */
   .horizontal-related-wrapper {
-    max-width: 1450px;
+    max-width: 1400px;
     width: 100%;
     margin: 0 auto;
     padding: 16px 0;
@@ -19,7 +19,7 @@
     grid-template-columns: repeat(5, 1fr); /* 5 columns max */
     gap: 20px;
     width: 100%;
-    max-width: 1450px;
+    max-width: 1400px;
   }
   
   /* Card styles */

@@ -42,6 +42,8 @@ import LostPassword from './pages/lost-password';
 import MyCoins from './pages/my-coins';
 import TopSellingitems from './pages/topselling';
 import CategoryPage from './pages/CategoryPage';
+import Contact from './pages/contact';
+import Search from './pages/search';
 
 // Components
 import Topbar from './components/topbar';
@@ -60,7 +62,7 @@ import CookiePopup from './components/common/CookiePopup';
 
 
 const AppContent = () => {
-  useNetworkSpeed();
+
   const { isCartOpen, setIsCartOpen } = useCart();
   const location = useLocation();
   const path = location.pathname;
@@ -186,6 +188,8 @@ const AppContent = () => {
                     <Route path="/top-selling-item" element={<TopSellingitems />} />
                     <Route path="/categorypage/:id" element={<CategoryPage />} />
                     <Route path="*" element={<NotFound />} />
+                          <Route path="contact" element={<Contact />} />
+                                <Route path="search" element={<Search />} />
                   </Routes>
                 </main>
 
@@ -195,7 +199,7 @@ const AppContent = () => {
               </div>
            <CookiePopup/>
               <ChatBot />
-              <ToastContainer />
+              {/* <ToastContainer /> */}
               <Footer />
               {isMobile &&
                 !excludeMiniCartPaths.includes(path) && (

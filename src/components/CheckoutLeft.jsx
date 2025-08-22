@@ -242,8 +242,9 @@ const CheckoutLeft = ({
   };
 // Add this near the top, with other handlers
 // Add this near the top of CheckoutLeft component
-const handlePaymentSelect = (id) => {
+const handlePaymentSelect = (id, title) => {
   onChange({ target: { name: 'paymentMethod', value: id, type: 'radio' } }, 'payment');
+  onChange({ target: { name: 'paymentMethodTitle', value: title, type: 'text' } }, 'payment');
 };
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -397,10 +398,11 @@ const handlePaymentSelect = (id) => {
       </div>
 
       <div className="section-block">
-  <PaymentMethods
-    selectedMethod={formData.paymentMethod || 'cod'}
-    onMethodSelect={handlePaymentSelect}
-  />
+<PaymentMethods
+  selectedMethod={formData.paymentMethod || 'cod'}
+  onMethodSelect={handlePaymentSelect}
+/>
+
       </div>
 <div className='desktop-only'>
       <HelpText />

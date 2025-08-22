@@ -1,5 +1,5 @@
 .courier-banner-section {
-  max-width: 1450px;            /* cap the whole bar at 1450px */
+  max-width: 1400px;            /* cap the whole bar at 1400px */
   width: 100%;                  /* let it shrink on smaller screens */
   margin: 20px auto;            /* center horizontally */
   background-color: #FF0100;

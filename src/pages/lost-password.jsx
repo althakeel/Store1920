@@ -49,7 +49,7 @@ const ForgotPassword = () => {
 
   // Styles with responsiveness based on isMobile
  const containerStyle = {
-  maxWidth: 1450,
+  maxWidth: 1400,
   margin: '20px auto 40px',
   minHeight: '40vh',
   padding: isMobile ? 15 : 20,

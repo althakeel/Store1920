@@ -12,7 +12,7 @@
 /* Inner container to limit max width */
 .sale-banner-image-container {
   width: 100%;
-  max-width: 1450px;
+  max-width: 1400px;
 }
 
 /* Common styles for both desktop and mobile images */

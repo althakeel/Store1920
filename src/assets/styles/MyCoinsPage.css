@@ -1,7 +1,7 @@
 /* Banner */
 .coins-banner {
   width: 100%;
-  max-width: 1450px;
+  max-width: 1400px;
   height: 280px;
   margin: 0rem auto;
   overflow: hidden;
@@ -16,7 +16,7 @@
 
 /* Container */
 .coins-container {
-  max-width: 1450px;
+  max-width: 1400px;
   margin: 0 auto 4rem;
   padding: 0 1rem;
   font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -125,7 +125,7 @@
 
 /* FAQ Section */
 .coins-faq-section {
-  max-width: 1450px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 .coins-faq-title {

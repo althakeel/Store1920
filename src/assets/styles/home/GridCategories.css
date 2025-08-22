@@ -1,94 +1,120 @@
-/* Main Grid Container */
+/* --- Layout reset for precise sizing --- */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ==============================
+   GRID CATEGORIES CONTAINER
+   ============================== */
 .gcx-container {
   display: grid;
   grid-template-columns: 1.5fr 1.5fr 2fr;
-  gap: 20px;
-  margin: 20px auto;
-  max-width: 1450px;
-  padding: 0 10px;
+  gap: 15px;
+  margin: 20px auto 40px;
+  max-width: 1400px;
+  padding: 0 0px;
   font-family: "Inter", sans-serif;
+  align-items: stretch;
+  height: 520px; /* fixed height for all columns */
 }
 
-/* Section Titles */
+/* Force all children to match height */
+.gcx-left,
+.gcx-middle,
+.gcx-right {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0; /* critical to avoid leftover space */
+}
+
+/* ==============================
+   SECTION TITLES
+   ============================== */
 .gcx-section-title {
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 15px;
-  color: #333;
+  color: #000;
 }
 
-/* LEFT - Categories */
-
-/* Container */
-/* Container */
+/* ==============================
+   LEFT - CATEGORIES
+   ============================== */
 .gcx-left {
   background: #8cc8f0;
   border-radius: 12px;
-  padding: 15px;
+  padding: 15px 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  display: flex;
-  flex-direction: column;
-  max-height: 490px;
-  height: 100%;
 }
 
 .gcx-left-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto; /* let rows auto-size based on content */
+  grid-template-rows: repeat(2, minmax(0, 1fr)); /* 2 equal rows filling height */
   gap: 10px;
+  flex: 1 1 auto;     /* fill column */
+  min-height: 0;      /* allow to shrink within fixed parent */
   height: 100%;
 }
 
-/* Card */
 .gcx-category-card {
-  background: #ffffff;
+  background: #fff;
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
-  height: 90%;
+  justify-content: flex-start;
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;       /* fill grid cell */
 }
 
-/* Card image fills width, auto-crops height, stays sharp */
+.gcx-category-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
 .gcx-category-card img {
   width: 100%;
-  height: auto;         /* keep natural image ratio */
-  max-height: 150px;    /* crop if taller than 140px */
-  object-fit: cover;    /* crop excess to fill width */
-  object-position: center;
-  display: block;
+  flex: 1 1 auto;           /* fill remaining card height */
+  object-fit: contain;      /* keep proportion */
   border-radius: 12px 12px 0 0;
   background-color: #f5f5f5;
+  min-height: 0;            /* avoid overflow in some browsers */
 }
 
-/* Text stays at bottom */
 .gcx-cat-info {
-  padding: 5px  10px 0px;
+  padding: 8px 10px;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
+
 .gcx-cat-info h4 {
   font-size: 14px;
   font-weight: 700;
-  margin: 4px 0px;
+  margin: 4px 0;
 }
+
 .gcx-cat-info p {
   font-size: 12px;
   color: #666;
   margin: 0;
 }
 
-
-/* CENTER - Mega Deals */
+/* ==============================
+   CENTER - PRODUCTS
+   ============================== */
 .gcx-middle {
   background: #f7d4c5;
   border-radius: 12px;
-  padding: 15px;
+  padding: 15px 10px;
+}
+
+.gcx-featured-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex: 0 0 auto; /* header keeps natural height */
 }
 
 .gcx-mega-title {
@@ -97,17 +123,6 @@
   background: linear-gradient(90deg, #ff0080, #ff6600);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-.gcx-mega-title span {
-  color: #ffffff;
-  font-size: 15px;
-  margin-left: 8px;
-}
-
-.gcx-featured-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .gcx-featured-countdown {
@@ -118,63 +133,55 @@
   border-radius: 6px;
 }
 
-/* Product Cards */
+/* Product Grid fills the remaining height exactly */
 .gcx-middle-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);  /* ✅ always 2 columns */
-  grid-auto-rows: 1fr;                    /* ✅ rows auto equal */
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr)); /* 2 equal rows */
   gap: 15px;
-  margin-top: 15px;
+  flex: 1 1 auto;  /* take the rest under header */
+  min-height: 0;   /* allow to shrink within fixed parent */
+  height: 100%;
 }
 
 .gcx-product-card {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  padding: 10px;
-  text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  padding: 10px;
+  height: 100%; /* fill grid cell */
+  min-height: 0;
 }
 
 .gcx-product-card img {
   width: 100%;
-  height: 120px;
+  max-height: 100px; /* keep images compact */
   object-fit: contain;
   margin-bottom: 8px;
-}
-
-.gcx-product-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 8px;
-  line-height: 1.2em;
-  flex-grow: 1;
 }
 
 .gcx-price-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-
+  gap: 8px;
 }
 
-/* Prices */
 .gcx-old-price {
   font-size: 12px;
   color: #888;
   text-decoration: line-through;
 }
+
 .gcx-product-price {
   font-size: 15px;
   font-weight: 700;
   color: #e60023;
 }
 
-/* Add to Cart Button */
 .gcx-cart-btn {
   background: #ffce00;
   border: none;
@@ -183,37 +190,71 @@
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: 0.2s;
+  margin-top: 8px;
+  transition: transform 0.2s, background 0.2s;
 }
+
 .gcx-cart-btn:hover {
   transform: scale(1.05);
   background: #ffd633;
 }
 
-/* RIGHT - Banners */
+/* ==============================
+   RIGHT - BANNERS
+   ============================== */
 .gcx-right {
-  background: #ffffff;
+  background: #fff;
   border-radius: 12px;
-  /* padding: 15px; */
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 0;                 /* no inner padding */
+  display: flex;
+  flex-direction: column;     /* stack top-to-bottom */
+  gap: 15px;
+  height: 100%;
+  min-height: 0;
 }
 
 .gcx-banner {
+  flex: 1;                    /* equal heights for each banner */
   border-radius: 12px;
   overflow: hidden;
-}
-.gcx-banner img {
-  width: 100%;
-  height: auto;
-  display: block;
+  display: flex;
+  min-height: 0;
 }
 
-/* Responsive */
+.gcx-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;          /* fill banner area edge-to-edge */
+  border-radius: 12px;
+}
+
+/* ==============================
+   RESPONSIVE
+   ============================== */
+@media (max-width: 1200px) {
+  .gcx-container {
+    grid-template-columns: 1fr 1fr 2fr;
+    gap: 12px;
+    padding: 0 20px;
+    height: 460px;           /* slightly shorter on md screens */
+  }
+}
+
 @media (max-width: 992px) {
   .gcx-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    height: auto;            /* stack naturally on tablets */
   }
+  .gcx-left { display: none; }
+}
+
+@media (max-width: 768px) {
+  .gcx-container {
+    grid-template-columns: 1fr;
+    padding: 0 15px;
+    height: auto;            /* full flow on mobile */
+  }
+  .gcx-left { display: none; }
+  .gcx-middle-grid { grid-template-columns: 1fr; }
 }

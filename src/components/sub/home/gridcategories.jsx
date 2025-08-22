@@ -1,7 +1,7 @@
 // src/components/home/GridCategories.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // for redirect
+import { useNavigate } from "react-router-dom"; 
 import "../../../assets/styles/home/GridCategories.css";
 import { useCart } from "../../../contexts/CartContext";
 import MiniCart from "../../MiniCart";
@@ -64,18 +64,19 @@ const GridCategories = () => {
       .catch((err) => console.error("Product fetch error:", err));
   }, []);
 
-  useEffect(() => {
+useEffect(() => {
     setBanners([
       {
         id: 1,
-        image: "https://db.store1920.com/wp-content/uploads/2025/08/1-6.webp",
+        image: "https://db.store1920.com/wp-content/uploads/2025/08/3-6.webp",
       },
       {
         id: 2,
-        image: "https://db.store1920.com/wp-content/uploads/2025/08/2-4.webp",
+        image: "https://db.store1920.com/wp-content/uploads/2025/08/4-4.webp",
       },
     ]);
   }, []);
+
 
   const isInCart = (id) => cartItems.some((item) => item.id === id);
 
@@ -94,6 +95,7 @@ const GridCategories = () => {
               <img
                 src={cat?.image?.src || "https://via.placeholder.com/200"}
                 alt={cat?.name || "Category"}
+                style={{objectFit:'fill'}}
               />
               <div className="gcx-cat-info">
                 <h4 dangerouslySetInnerHTML={{ __html: cat?.name }} />

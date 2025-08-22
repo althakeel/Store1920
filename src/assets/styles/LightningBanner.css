@@ -5,10 +5,10 @@
   background-repeat: no-repeat;
   
   width: 100%;
-  max-width: 1450px;             /* cap width */
+  max-width: 1150px;             /* cap width */
   margin: 20px auto;             /* auto centers */
   
-  padding: 16px 20px;            /* inner padding only */
+  padding: 25px 20px;            /* inner padding only */
   box-sizing: border-box;
   display: flex;
   justify-content: center;
@@ -21,6 +21,9 @@
   .lightning-banner {
     background-image: url('https://db.store1920.com/wp-content/uploads/2025/08/12-1-scaled.webp');
   }
+
+
+  
 }
 
 .lightning-banner__content {

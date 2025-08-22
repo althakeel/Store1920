@@ -4,6 +4,7 @@ import { FaInstagram, FaFacebookF, FaXTwitter, FaTiktok, FaYoutube, FaPinterest 
 import { FaApple, FaGooglePlay } from "react-icons/fa";
 import { IoIosArrowUp } from "react-icons/io";
 import { useCart } from "../contexts/CartContext";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
    const { isCartOpen } = useCart();
@@ -19,60 +20,93 @@ const Footer = () => {
       <div className="footer-container">
 
         <div className="footer-top">
+     <div className="footer-section">
+  <h4>Men</h4>
+  <ul>
+    <li><Link to="/categorypage/men-tshirts">T-Shirts</Link></li>
+    <li><Link to="/categorypage/men-hoodies">Hoodies & Sweatshirts</Link></li>
+    <li><Link to="/categorypage/men-jeans">Jeans</Link></li>
+    <li><Link to="/categorypage/men-trousers">Trousers</Link></li>
+    <li><Link to="/categorypage/men-shoes">Shoes</Link></li>
+    <li><Link to="/categorypage/men-sandals">Sandals & Slippers</Link></li>
+    <li><Link to="/categorypage/men-accessories">Accessories</Link></li>
+    <li><Link to="/categorypage/men-belts">Belts</Link></li>
+    <li><Link to="/categorypage/men-wallets">Wallets</Link></li>
+    <li><Link to="/categorypage/men-watches">Watches</Link></li>
+  </ul>
+</div>
+
+
           <div className="footer-section">
-            <h4>Company Info</h4>
+            <h4>Women</h4>
             <ul>
-              <li><a href="/about">About Us</a></li>
-              <li><a href="/billionaire-style">Shop Like a Billionaire</a></li>
-              <li><a href="/affiliate">Affiliate & Influencer</a></li>
-              <li><a href="/careers">Careers</a></li>
-              <li><a href="/press">Press</a></li>
-              <li><a href="/tree-program">Tree Planting Program</a></li>
-              <li><a href="/contact">Contact</a></li>
+              <li><a href="/">Dresses</a></li>
+             <li><a href="/">Tops & Blouses</a></li>
+              <li><a href="/">Abayas & Kaftans</a></li>
+              <li><a href="/">Handbags</a></li>
+              <li><a href="/">Shoes</a></li>
+              <li><a href="/">Heels & Flats</a></li>
+              <li><a href="/">Jewelry</a></li>
+             <li><a href="/">Earrings</a></li>
+             <li><a href="/">Necklaces</a></li>
+              <li><a href="/">Makeup & Beauty</a></li>
+              {/* <li><a href="/terms-of-sale">Terms of Sale</a></li> */}
             </ul>
           </div>
 
           <div className="footer-section">
-            <h4>Customer Service</h4>
-            <ul>
-              <li><a href="/returnandrefundpolicy">Return & Refund Policy</a></li>
-              <li><a href="/shippinginfo">Shipping Info</a></li>
-              <li><a href="/Intellectual-property-policy">Intellectual Property</a></li>
-              <li><a href="/report-abuse">Report Abuse</a></li>
-              <li><a href="/terms-of-sale">Terms of Sale</a></li>
-            </ul>
-          </div>
+  <h4>Kids</h4>
+  <ul>
+    <li><Link to="/categorypage/kids-clothing">Clothing</Link></li>
+    <li><Link to="/categorypage/kids-tshirts">T-Shirts & Shorts</Link></li>
+    <li><Link to="/categorypage/kids-dresses">Dresses</Link></li>
+    <li><Link to="/categorypage/kids-shoes">Shoes</Link></li>
+    <li><Link to="/categorypage/kids-schoolbags">School Bags</Link></li>
+    <li><Link to="/categorypage/kids-toys">Toys</Link></li>
+    <li><Link to="/categorypage/kids-babycare">Baby Care</Link></li>
+  </ul>
+</div> 
 
-          <div className="footer-section">
-            <h4>Help</h4>
+
+<div className="footer-section">
+  <h4>Home</h4>
+  <ul>
+    <li><Link to="/categorypage/home-furniture">Furniture</Link></li>
+    <li><Link to="/categorypage/home-sofas">Sofas & Chairs</Link></li>
+    <li><Link to="/categorypage/home-tables">Tables & Storage</Link></li>
+    <li><Link to="/categorypage/home-kitchen">Kitchen & Dining</Link></li>
+    <li><Link to="/categorypage/home-cookware">Cookware</Link></li>
+    <li><Link to="/categorypage/home-appliances">Appliances</Link></li>
+    <li><Link to="/categorypage/home-decor">Home Decor</Link></li>
+    <li><Link to="/categorypage/home-bedding">Bedding</Link></li>
+    <li><Link to="/categorypage/home-lighting">Lighting</Link></li>
+  </ul>
+</div>
+
+                    <div className="footer-section">
+            <h4>Quick Links</h4>
             <ul>
-              <li><a href="/support">Support & FAQ</a></li>
-              <li><a href="/safety">Safety Center</a></li>
+            
+              <li><a href="/about" target="blank">About Us</a></li>
+              {/* <li><a href="/safety" target="blank">Contact Us</a></li> */}
               <li><a href="/purchaseprotection">Purchase Protection</a></li>
-              <li><a href="/track-order">Track Order</a></li>
-              <li><a href="/sitemap">Sitemap</a></li>
-              <li><a href="/partnerwithus">Partner With Us</a></li>
+              <li><a href="/safetycenter" target="blank">Safety Center</a></li>
+           
+            </ul>
+              <h4>Support</h4>
+              <ul>
+                 <li><a href="/track-order" target="blank">Track order</a></li>
+               <li><a href="/shippinginfo" target="blank">Shipping Info</a></li>
+              {/* <li><a href="/help">help</a></li> */}
+              {/* <li><a href="/track-order">Track order</a></li> */}
             </ul>
           </div>
 
-          <div className="footer-section">
-            <h4>Download the App</h4>
-            <ul className="app-links">
-              <li><FaApple /> <a href="#">App Store</a></li>
-              <li><FaGooglePlay /> <a href="#">Google Play</a></li>
-            </ul>
-            <ul className="app-alerts">
-              <li>✔ Price-drop alerts</li>
-              <li>✔ Low stock alerts</li>
-              <li>✔ Faster checkout</li>
-              <li>✔ Exclusive offers</li>
-            </ul>
-          </div>
 
           <div className="footer-section">
             <h4>Follow Us</h4>
             <div className="social-icons">
-              <a href="#"><FaInstagram /></a>
+              <a href="instagram.com/the_store1920" target="blank"><FaInstagram /></a>
               <a href="#"><FaFacebookF /></a>
               <a href="#"><FaXTwitter /></a>
               <a href="#"><FaTiktok /></a>
@@ -125,10 +159,10 @@ const Footer = () => {
       }}>
           <p>&copy; 2022 – 2025 Al Thakeel Group. All rights reserved.</p>
           <ul className="legal-links">
-            <li><a href="/Terms0fuse">Terms of Use</a></li>
+            <li><a href="/Terms-0f-use">Terms of Use</a></li>
             <li><a href="/privacy-policy">Privacy Policy</a></li>
             <li><a href="/cookies-settings">Cookie Settings</a></li>
-            <li><a href="/ads">Ad Choices</a></li>
+            {/* <li><a href="/ads">Ad Choices</a></li> */}
           </ul>
           {/* <button className="scroll-top-btn" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <IoIosArrowUp /> Top

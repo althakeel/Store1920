@@ -2,7 +2,7 @@
   position: absolute;
   top: calc(100% + 10px); /* moved 10px down */
   right: 0;
-  margin-top: 0; /* remove this if you want */
+  margin-top: 0; 
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);

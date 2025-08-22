@@ -149,20 +149,28 @@ useEffect(() => {
   }, [selectedPaymentMethod, paymentMethods]);
 
   // Handle form input changes
-  const handleChange = (e, section) => {
-    const { name, value, checked, type } = e.target;
-    if (section === 'checkbox') {
-      setFormData((prev) => ({
-        ...prev,
-        billingSameAsShipping: checked,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [section]: { ...prev[section], [name]: value },
-      }));
-    }
-  };
+// Inside CheckoutPage
+const handleChange = (e, section) => {
+  const { name, value, checked, type } = e.target;
+
+  if (section === 'checkbox') {
+    setFormData((prev) => ({
+      ...prev,
+      billingSameAsShipping: checked,
+    }));
+  } else if (section === 'shipping' || section === 'billing') {
+    setFormData((prev) => ({
+      ...prev,
+      [section]: { ...prev[section], [name]: value },
+    }));
+  } else if (section === 'payment') {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value, // direct field on formData
+    }));
+  }
+};
+
 
   // Remove item from cart
   const handleRemoveItem = (itemId) => {

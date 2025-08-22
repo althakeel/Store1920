@@ -14,41 +14,16 @@ const MainBanner = ({ banners = [], bannerKey }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Pick a random banner once per site session (persistent across browser restarts)
+  // Use the first banner from the static banners array
   useEffect(() => {
-    if (!banners || banners.length === 0 || !bannerKey) return;
-  
-    const localKey = `currentBanner_${bannerKey}`;
-    const savedBanner = localStorage.getItem(localKey);
-    let chosenBanner;
-  
-    if (savedBanner) {
-      // Use saved banner only if it matches the current banners list
-      const parsed = JSON.parse(savedBanner);
-      const existsInBanners = banners.some(b => b.id === parsed.id);
-      if (existsInBanners) {
-        chosenBanner = parsed;
-      } else {
-        // saved banner is outdated, pick new
-        const randomIndex = Math.floor(Math.random() * banners.length);
-        chosenBanner = banners[randomIndex];
-        localStorage.setItem(localKey, JSON.stringify(chosenBanner));
-      }
-    } else {
-      // No saved banner, pick new
-      const randomIndex = Math.floor(Math.random() * banners.length);
-      chosenBanner = banners[randomIndex];
-      localStorage.setItem(localKey, JSON.stringify(chosenBanner));
-    }
-  
-    setCurrentBanner(chosenBanner);
-  }, [banners, bannerKey]);
-  
-  
+    if (!banners || banners.length === 0) return;
+    setCurrentBanner(banners[0]);
+  }, [banners]);
 
-  const handleClick = (category) => {
-    if (category) navigate(`/${category}`);
+ const handleClick = () => {
+    navigate('/fest-sale'); // 👈 Always redirect here
   };
+
 
   if (!currentBanner) {
     return (
@@ -66,10 +41,10 @@ const MainBanner = ({ banners = [], bannerKey }) => {
       role="region"
       aria-label="Homepage Banner"
       style={{
-        background: `linear-gradient(to right, ${currentBanner.leftBg} 0%, ${currentBanner.leftBg} 50%, ${currentBanner.rightBg} 50%, ${currentBanner.rightBg} 100%)`,
+        backgroundColor: currentBanner.bgColor || 'transparent', // 👈 single background color
         cursor: currentBanner.category ? 'pointer' : 'default',
       }}
-      onClick={() => handleClick(currentBanner.category)}
+     onClick={handleClick}
     >
       <div className="banner-inner">
         <img src={bannerUrl} alt="Main Banner" loading="lazy" />

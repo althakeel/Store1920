@@ -1,5 +1,3 @@
-/* TopBar.css - Full Updated Styles */
-
 /* ===== TopBar Wrapper ===== */
 .topbar-wrapper {
   background: #1a1a1a;
@@ -10,7 +8,7 @@
 }
 
 .topbar-container {
-  max-width: 1450px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 6px 20px;
   display: flex;
@@ -52,109 +50,45 @@
 
 /* ===== Center Section / Countdown ===== */
 .topbar-center {
-  flex: 2;
+  flex: 1;
   display: flex;
-  flex-direction: column; /* stack text above timer */
   align-items: center;
   justify-content: center;
+  position: relative;
+  min-height: 50px;
   font-weight: 600;
   gap: 4px;
-  min-height: 30px; /* taller for bigger numbers */
 }
 
-.countdown-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #222;
-  padding: 6px 4px;
-  border-radius: 12px;
-  gap: 4px;
-  min-width: 240px;
-  text-align: center;
-
-}.countdown-text {
-  font-size: 14px;
-  color: #f1c40f;
-  font-weight: 600;
-}
-
-.timer {
-  font-size: 18px; /* bigger number */
-  font-weight: 600;
-  color: #ff3f3f;  /* bright red */
-  line-height: 1;
-}
-.countdown-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #f1c40f;
-}
-
-.countdown-timer {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-}
-.popup-content .countdown-box .countdown-timer div span {
-  font-size: 28px !important; /* Make it bigger */
-  font-weight: 700;
-  color: #f1c40f !important; /* Bright yellow */
-}
-
-.popup-content .countdown-box .countdown-timer div small {
-  font-size: 14px !important;
-  color: #555 !important;
-}
-
-.popup-content .countdown-box .countdown-timer div {
-  min-width: 60px !important;
-  padding: 12px 16px !important;
-  border-radius: 12px !important;
-  background: #fff !important;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
-}
-
-
-.countdown-timer div {
-  background: #fff;
-  padding: 10px 14px;      /* slightly bigger */
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-  min-width: 70px;         /* wider numbers */
-}
-
-.countdown-timer div span {
-  display: block;
-  font-size: 22px;          /* bigger font */
-  font-weight: bold;
-  color: #ff9f1c;           /* bright orange color */
-}
-.countdown-timer div small {
-  font-size: 12px;
-  color: #555;              /* secondary text color */
-}
-
-/* ===== Slide Wrapper ===== */
 .slide-wrapper {
+  position: relative;
+  height: 50px;
   display: flex;
-  flex-direction: column;
-  transition: transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
-}
-
-.slide-wrapper.fade {
-  opacity: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
 }
 
 .topbar-center-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 40px;
-  justify-content: center;
-  color: inherit;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateY(100%);
+  opacity: 0;
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  line-height: 1.2;
+  white-space: normal;
 }
 
+.topbar-center-item.fade-in {
+  transform: translate(-50%, -50%) translateY(0);
+  opacity: 1;
+}
+
+/* ===== Dividers ===== */
 .pipe-divider {
   width: 1px;
   height: 22px;
@@ -173,21 +107,22 @@
   z-index: 9999;
 }
 
-/* ===== Popup Content ===== */
+/* ===== Popup Content - Simple & Attractive ===== */
 .popup-content {
   background: #fff;
-  border-radius: 20px;
-  padding: 28px 24px;
+  border-radius: 16px;
+  padding: 24px 20px;
   max-width: 400px;
   width: 90%;
   color: #111;
-  text-align: center;
+  text-align: left;
   position: relative;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
-  animation: popupFade 0.3s ease forwards;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.25);
   display: flex;
   flex-direction: column;
   gap: 16px;
+  font-family: 'Segoe UI', sans-serif;
+  animation: popupFade 0.3s ease forwards;
 }
 
 /* Close Button */
@@ -207,18 +142,25 @@
   transform: rotate(90deg);
 }
 
-/* Popup Body */
-.popup-body h2 {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 10px;
+/* Popup Body Cards */
+.popup-body-card {
+  background: #f8f8f8;
+  padding: 14px 16px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.popup-body-card h3 {
+  margin-bottom: 6px;
+  font-size: 16px;
   color: #222;
 }
 
-.popup-body p, .popup-list li {
+.popup-body-card p, .popup-list li {
   font-size: 14px;
-  line-height: 1.6;
   color: #333;
+  line-height: 1.5;
+  margin: 4px 0;
 }
 
 .popup-list {
@@ -227,27 +169,50 @@
   margin: 0;
 }
 
-/* App Links / Buttons */
-.app-links {
+/* Countdown Box */
+.countdown-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff8e1;
+  padding: 8px 6px;
+  border-radius: 12px;
+  gap: 6px;
+  min-width: 220px;
+  text-align: center;
+  border: 1px solid #ffecb3;
+}
+
+.countdown-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f1c40f;
+}
+
+.countdown-timer {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 6px;
 }
 
-.store-btn {
-  background: #007bff;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
+.countdown-timer div {
+  background: #fff;
+  padding: 10px 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  min-width: 60px;
 }
 
-.store-btn:hover {
-  background: #0056b3;
-  transform: scale(1.05);
+.countdown-timer div span {
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff9f1c;
+}
+
+.countdown-timer div small {
+  font-size: 12px;
+  color: #555;
 }
 
 /* Popup Footer */
@@ -259,7 +224,7 @@
 .ok-btn {
   background: #28a745;
   color: #fff;
-  padding: 10px 26px;
+  padding: 10px 24px;
   border-radius: 12px;
   border: none;
   font-weight: bold;
@@ -270,49 +235,6 @@
 .ok-btn:hover {
   transform: scale(1.05);
   background: #218838;
-}
-
-/* Countdown inside Popup */
-.popup-body .countdown-box {
-  background: #f9f9f9;
-  border-radius: 14px;
-  padding: 14px;
-  text-align: center;
-  border: 1px solid #eee;
-}
-
-.popup-body .countdown-title {
-  font-weight: 600;
-  font-size: 15px;
-  margin-bottom: 8px;
-  color: #222;
-}
-
-.popup-body .countdown-timer {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.popup-body .countdown-timer div {
-  background: #fff;
-  padding: 8px 12px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  min-width: 60px;
-}
-
-
-.popup-body .countdown-timer div span {
-  display: block;
-  font-size: 18px;
-  font-weight: bold;
-  color: #e63946;
-}
-
-.popup-body .countdown-timer div small {
-  font-size: 12px;
-  color: #666;
 }
 
 /* Popup Fade Animation */

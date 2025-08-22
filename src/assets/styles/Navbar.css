@@ -20,7 +20,7 @@
   align-items: center;
   max-width: 1450px;
   margin: 0 auto;
-  padding: 5px 20px;
+  padding: 8.5px 20px;
   gap: 20px;
   flex-wrap: nowrap;
   min-height: 56px;
@@ -326,6 +326,7 @@
   height: 22px;
   cursor: pointer;
   user-select: none;
+  justify-content: center;
 }
 
 .nav-icon-with-text {
@@ -588,6 +589,8 @@
 }
 
 
+
+
 /* When mobile menu open on small screen */
 
 /* MOBILE MENU OVERLAY for small screens */
@@ -626,6 +629,20 @@
   .navbar-menu {
     display: none;
   }
+
+  .navbar-inner {
+  display: flex;
+  position: relative; 
+  z-index: 100;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 5px 20px;
+  gap: 20px;
+  flex-wrap: nowrap;
+  min-height: 56px;
+}
 
 }
 

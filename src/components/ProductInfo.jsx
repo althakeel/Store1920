@@ -16,7 +16,9 @@ import ButtonSection from './products/ButtonSection';
 import OrderPerks from './products/OrderPerks';
 import ProductShortDescription from './products/ProductShortDescription';
 import ItemDetailsTable from './products/ItemDetailsTable';
-import DummyReviewsSold from '../components/temp/DummyReviewsSold';
+// import DummyReviewsSold from '../components/temp/DummyReviewsSold';
+import ProductCardReviews from '../components/temp/productcardreviews'
+
 
 export default function ProductInfo({ product, variations, selectedVariation, onVariationChange }) {
   const [quantity, setQuantity] = useState(1);
@@ -85,7 +87,10 @@ export default function ProductInfo({ product, variations, selectedVariation, on
           <ProductBadges badges={product.custom_seller_badges || []} />
           <h1 style={{margin:'5px 0'}}>{product.name} <ShareDropdown url={window.location.href} /></h1>
           <ProductBadgesseller />
-          <DummyReviewsSold reviews={200} rating={4.7} sold={150} />
+       <ProductCardReviews 
+  productId={product.id}   // Pass the WooCommerce product ID
+  soldCount={product.total_sales || 0} // Optional: use WooCommerce total sales if available
+/>
 
           {product.sku && <p className="pi-product-sku">SKU: {product.sku}</p>}
           {brand && <p className="pi-product-brand">Brand: {brand}</p>}

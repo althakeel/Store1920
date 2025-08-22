@@ -19,15 +19,22 @@ const CookiePopup = () => {
   };
 
   const handleClearCookies = () => {
+    // Close popup immediately
+    setShowPopup(false);
+
+    // Save current timestamp to prevent reopening
+    localStorage.setItem("cookiePopupClosed", new Date().getTime());
+
+    // Clear cookies and storage
     document.cookie.split(";").forEach((c) => {
       document.cookie = c
         .replace(/^ +/, "")
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
-
     localStorage.clear();
     sessionStorage.clear();
 
+    // Reload page after clearing
     window.location.reload();
   };
 
@@ -37,58 +44,63 @@ const CookiePopup = () => {
     <div
       style={{
         position: "fixed",
-        bottom: "20px",
-        left: "20px",
-        backgroundColor: "rgba(0,0,0,0.85)",
+        bottom: "25px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "90%",
+        maxWidth: "600px",
+        backgroundColor: "rgba(0,0,0,0.9)",
         color: "#fff",
-        padding: "15px 20px",
-        borderRadius: "12px",
-        boxShadow: "0 8px 20px rgba(0,0,0,0.4)",
-        zIndex: 9999,
-        fontFamily: "Arial, sans-serif",
+        padding: "20px 25px",
+        borderRadius: "14px",
+        boxShadow: "0 12px 24px rgba(0,0,0,0.4)",
         display: "flex",
         flexDirection: "column",
-        gap: "12px",
-        maxWidth: "300px",
-        fontSize: "14px",
+        gap: "15px",
+        fontFamily: "Arial, sans-serif",
+        fontSize: "15px",
         backdropFilter: "blur(5px)",
+        zIndex: 9999,
+        transition: "all 0.3s ease-in-out",
       }}
     >
-      <span style={{ fontWeight: "500" }}>
-        Do you want to continue with old cookies or clear them?
+      <span style={{ fontWeight: "600", textAlign: "center" }}>
+        We use cookies to improve your experience. Would you like to keep them or clear?
       </span>
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+      <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
         <button
           onClick={handleContinue}
           style={{
-            padding: "7px 12px",
+            padding: "10px 18px",
             border: "none",
-            borderRadius: "6px",
-            backgroundColor: "#1abc9c",
-            color: "#fff",
+            borderRadius: "8px",
+            backgroundColor: "#fff",
+            color: "#000",
             cursor: "pointer",
-            fontWeight: "500",
+            fontWeight: "600",
+            minWidth: "120px",
             transition: "0.3s",
           }}
-          onMouseEnter={(e) => (e.target.style.backgroundColor = "#16a085")}
-          onMouseLeave={(e) => (e.target.style.backgroundColor = "#1abc9c")}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#e0e0e0")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#fff")}
         >
           Continue
         </button>
         <button
           onClick={handleClearCookies}
           style={{
-            padding: "7px 12px",
+            padding: "10px 18px",
             border: "none",
-            borderRadius: "6px",
-            backgroundColor: "#e74c3c",
-            color: "#fff",
+            borderRadius: "8px",
+            backgroundColor: "#fff",
+            color: "#000",
             cursor: "pointer",
-            fontWeight: "500",
+            fontWeight: "600",
+            minWidth: "120px",
             transition: "0.3s",
           }}
-          onMouseEnter={(e) => (e.target.style.backgroundColor = "#c0392b")}
-          onMouseLeave={(e) => (e.target.style.backgroundColor = "#e74c3c")}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#e0e0e0")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#fff")}
         >
           Clear Cookies
         </button>

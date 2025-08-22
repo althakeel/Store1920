@@ -9,7 +9,7 @@ import Adsicon from "../../../assets/images/summer-saving-coloured.png";
 import IconAED from "../../../assets/images/Dirham 2.png";
 import { throttle } from "lodash";
 import ProductCardReviews from "../../temp/productcardreviews";
-import TitleImage from '../../../assets/images/seasontitle/bannertitle copy.png'
+import TitleImage from '../../../assets/images//bACK TO SCHOOL BANNER.webp'
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";

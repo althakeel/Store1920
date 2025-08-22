@@ -97,10 +97,8 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
           parent: parseInt(cat.parent) || 0,
         }));
   
-        // find parent categories (level 1)
         const mainCats = allCats.filter((cat) => cat.parent === 0);
   
-        // map subcategories inside parent
         const structuredCats = mainCats.map((parent) => ({
           ...parent,
           subCategories: allCats.filter((c) => c.parent === parent.id),
@@ -116,8 +114,6 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
   }, []);
   
 
-
-  // Fetch categories & user
   useEffect(() => {
     axios.get(`${API_BASE}/products/categories?consumer_key=${CK}&consumer_secret=${CS}`)
       .then(res => setCategories(res.data))
@@ -148,13 +144,24 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
     setUserDropdownOpen(false);
   };
 
-  const handleLogin = (firebaseUser) => {
-    const mappedUser = {
-      id: firebaseUser.uid,
-      name: firebaseUser.displayName || firebaseUser.email.split('@')[0], // use first part of email if name missing
-      email: firebaseUser.email,
-      image: firebaseUser.photoURL || null, // use null if no photo
-    };
+  const handleLogin = (userData) => {
+    let mappedUser;
+    
+    if (userData.uid) {
+      mappedUser = {
+        id: userData.uid,
+        name: userData.displayName || (userData.email ? userData.email.split('@')[0] : 'User'),
+        email: userData.email || '',
+        image: userData.photoURL || null,
+      };
+    } else {
+      mappedUser = {
+        id: userData.id || userData.user?.id,
+        name: userData.name || 'User',
+        email: userData.user?.email || userData.email || '',
+        image: userData.image || null,
+      };
+    }
   
     setUser(mappedUser);
     localStorage.setItem('user', JSON.stringify(mappedUser));
