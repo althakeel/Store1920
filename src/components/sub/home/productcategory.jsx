@@ -10,6 +10,7 @@ import IconAED from "../../../assets/images/Dirham 2.png";
 import { throttle } from "lodash";
 import ProductCardReviews from "../../temp/productcardreviews";
 import TitleImage from '../../../assets/images//bACK TO SCHOOL BANNER.webp'
+import PlaceholderImage from '../../../assets/images/common/Placeholder.png'
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
@@ -707,21 +708,27 @@ const ProductCategory = () => {
                   >
                     <div className="pcus-image-wrapper1">
                       <img
-                        src={p.images?.[0]?.src || ""}
+                          src={p.images?.[0]?.src || PlaceholderImage}
                         alt={decodeHTML(p.name)}
                         className="pcus-prd-image1 primary-img"
                         loading="lazy"
                         decoding="async"
                       />
-                      {p.images?.[1] && (
-                        <img
-                          src={p.images[1].src}
-                          alt={decodeHTML(p.name)}
-                          className="pcus-prd-image1 secondary-img"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      )}
+                      {p.images?.[1] ? (
+  <img
+    src={p.images[1].src}
+    alt={decodeHTML(p.name)}
+    className="pcus-prd-image1 secondary-img"
+    loading="lazy"
+    decoding="async"
+/>
+) : (
+  <img
+    src={PlaceholderImage}
+    alt={decodeHTML(p.name)}
+    className="pcus-prd-image1 secondary-img"
+  />
+)}
                       {hasMegaOffer && (
                         <div className="mega-offer-badge">
                           <span
