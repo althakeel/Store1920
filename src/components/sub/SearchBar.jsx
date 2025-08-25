@@ -15,7 +15,7 @@ const SearchBar = () => {
   const timeoutRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fetch suggestions dynamically as user types
+  // Fetch and filter suggestions dynamically
   useEffect(() => {
     if (!term.trim()) {
       setSuggestions([]);
@@ -29,21 +29,29 @@ const SearchBar = () => {
         const res = await axios.get(`${API_BASE}/products`, {
           auth: { username: CK, password: CS },
           params: {
-            search: term,
-            per_page: 10, // limit suggestions for dropdown
+            per_page: 50, // fetch more to allow substring matching
             orderby: "date",
             order: "desc",
           },
           signal: controller.signal,
         });
 
-        const mapped = res.data.map((p) => ({
+        const termLower = term.toLowerCase();
+
+        // Filter results by name, slug, or ID (case-insensitive)
+        const filtered = res.data.filter((p) => 
+          p.name.toLowerCase().includes(termLower) ||
+          p.slug.toLowerCase().includes(termLower) ||
+          String(p.id).includes(term)
+        );
+
+        const mapped = filtered.map((p) => ({
           label: p.name,
           slug: p.slug,
           id: p.id,
         }));
 
-        setSuggestions(mapped);
+        setSuggestions(mapped.slice(0, 10)); // show top 10 results
       } catch (err) {
         if (err.name !== "CanceledError") {
           console.error("Error fetching suggestions:", err);
@@ -53,7 +61,7 @@ const SearchBar = () => {
 
     fetchSuggestions();
 
-    return () => controller.abort(); // cancel previous request if term changes
+    return () => controller.abort();
   }, [term]);
 
   // Handle clicks outside dropdown
@@ -64,8 +72,7 @@ const SearchBar = () => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleMouseLeave = () => {

@@ -1,15 +1,16 @@
 .payment-methods-wrapper {
-  padding: 20px;
+  padding: 20px 20px 20px 5px;
   background: #fff;
   border-radius: 12px;
   box-sizing: border-box;
 }
 
 .payment-heading {
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 600;
   margin-bottom: 20px;
   text-align: left;
+  margin: 0;
   color: #222;
 }
 

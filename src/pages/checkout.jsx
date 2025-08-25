@@ -299,7 +299,6 @@ const handleChange = (e, section) => {
         <SignInModal onClose={() => setShowSignInModal(false)} onLoginSuccess={handleLoginSuccess} />
       )}
     </div>
-    <ProductsUnder20AED/>
     </>
   );
 }

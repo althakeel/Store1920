@@ -164,7 +164,7 @@ const AppContent = () => {
                     <Route path="/wishlist" element={<Wishlist />} />
                     <Route path="/lightningdeal" element={<Lightningdeal />} />
                     <Route path="/compare" element={<ComparePage />} />
-                    <Route path="/categories" element={<Categories />} />
+                    <Route path="/category" element={<Categories />} />
                     <Route path="/category/:slug" element={<CategoryProducts />} />
                     <Route path="/allproducts" element={<AllProducts />} />
                     <Route path="/new" element={<New />} />
@@ -186,7 +186,7 @@ const AppContent = () => {
                     <Route path="/lost-password" element={<LostPassword />} />
                     <Route path="/my-coins" element={<MyCoins />} />
                     <Route path="/top-selling-item" element={<TopSellingitems />} />
-                    <Route path="/categorypage/:id" element={<CategoryPage />} />
+                    <Route path="/categorypage/:slug" element={<CategoryPage />} />
                     <Route path="*" element={<NotFound />} />
                           <Route path="contact" element={<Contact />} />
                                 <Route path="search" element={<Search />} />

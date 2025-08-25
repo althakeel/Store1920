@@ -4,7 +4,7 @@
     padding: 10px 14px;
     max-width: 420px;
     width: 100%;
-    font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Montserrat',  sans-serif;
     color: #333;
     box-sizing: border-box;
     min-height: 50vh;
@@ -34,7 +34,7 @@
   
   .os-discount,
   .os-small-discount {
-    color: #e9410a;
+    color: #d25613;
     font-weight: 700;
   }
   
@@ -69,12 +69,12 @@
   
   .os-coupon-input:focus {
     outline: none;
-    border-color: #ff4c00;
+    border-color: #d25613;
     box-shadow: 0 0 8px rgba(255, 76, 0, 0.35);
   }
   
   .os-apply-btn {
-    background-color: #ff4c00;
+    background-color: #0b6324;
     color: white;
     border: none;
     padding: 14px 28px;
@@ -170,7 +170,7 @@
   
   .os-checkout-btn {
     width: 100%;
-    background-color: #ff4c00;
+    background-color: #0c601c;
     color: white;
     font-size: 18px;
     font-weight: 800;
@@ -178,13 +178,13 @@
     border: none;
     border-radius: 14px;
     cursor: pointer;
-    box-shadow: 0 10px 24px rgba(255, 76, 0, 0.4);
+    /* box-shadow: 0 10px 24px rgba(255, 76, 0, 0.4); */
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
   }
   
   .os-checkout-btn:hover:not(:disabled) {
-    background-color: #e03e00;
-    box-shadow: 0 12px 28px rgba(224, 62, 0, 0.6);
+    background-color: #0c601c;
+    box-shadow: 0 12px 28px rgba(12, 68, 7, 0.2);
   }
   
   .os-checkout-btn.disabled,

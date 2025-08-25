@@ -5,11 +5,14 @@ const CookiePopup = () => {
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("cookiePopupClosed");
+    const skipPopup = sessionStorage.getItem("skipCookiePopup");
     const now = new Date().getTime();
 
-    // Show popup if not closed before or 30 min passed
-    if (!lastClosed || now - lastClosed > 30 * 60 * 1000) {
+    // Show popup only if not skipped and either never closed or 30 min passed
+    if (!skipPopup && (!lastClosed || now - lastClosed > 30 * 60 * 1000)) {
       setShowPopup(true);
+    } else {
+      setShowPopup(false);
     }
   }, []);
 
@@ -19,23 +22,25 @@ const CookiePopup = () => {
   };
 
   const handleClearCookies = () => {
-    // Close popup immediately
     setShowPopup(false);
 
-    // Save current timestamp to prevent reopening
-    localStorage.setItem("cookiePopupClosed", new Date().getTime());
+    // Set temporary flag to skip popup on reload
+    sessionStorage.setItem("skipCookiePopup", "true");
 
-    // Clear cookies and storage
-    document.cookie.split(";").forEach((c) => {
-      document.cookie = c
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
-    localStorage.clear();
-    sessionStorage.clear();
+    setTimeout(() => {
+      // Clear all cookies
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
 
-    // Reload page after clearing
-    window.location.reload();
+      // Clear localStorage (but keep sessionStorage skip flag)
+      localStorage.clear();
+
+      // Reload page
+      window.location.reload();
+    }, 50);
   };
 
   if (!showPopup) return null;
@@ -67,7 +72,15 @@ const CookiePopup = () => {
       <span style={{ fontWeight: "600", textAlign: "center" }}>
         We use cookies to improve your experience. Would you like to keep them or clear?
       </span>
-      <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "12px",
+          flexWrap: "wrap",
+        }}
+      >
         <button
           onClick={handleContinue}
           style={{
@@ -105,6 +118,17 @@ const CookiePopup = () => {
           Clear Cookies
         </button>
       </div>
+
+      {/* Mobile bottom adjustment */}
+      <style>
+        {`
+          @media (max-width: 480px) {
+            div[style*="position: fixed"] {
+              bottom: 65px !important;
+            }
+          }
+        `}
+      </style>
     </div>
   );
 };

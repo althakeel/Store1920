@@ -4,23 +4,35 @@ import axios from "axios";
 import { throttle } from "lodash";
 import AddCarticon from "../assets/images/addtocart.png";
 import AddedToCartIcon from "../assets/images/added-cart.png";
-import Adsicon from "../assets/images/summer-saving-coloured.png";
 import IconAED from "../assets/images/Dirham 2.png";
 import ProductCardReviews from "../components/temp/productcardreviews";
 import "../assets/styles/CategoryProducts.css";
 
 const TITLE_LIMIT = 35;
+const PER_PAGE = 20;
+const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
+const AUTH = {
+  username: "ck_c4e35c0d93df1f96cae81fccae967b8969a1eb85",
+  password: "cs_b2b2ab3b1cdbc7db01cd718dc52b8f5a5711a6e5",
+};
+
+const decodeHTML = (html) => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+};
+
+const truncate = (str) => (str.length <= TITLE_LIMIT ? str : `${str.slice(0, TITLE_LIMIT)}…`);
 
 const CategoryProducts = () => {
   const { slug } = useParams();
+
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [products, setProducts] = useState([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
-  const [hasMoreProducts, setHasMoreProducts] = useState(true);
   const [productsPage, setProductsPage] = useState(1);
-  const [promoImage, setPromoImage] = useState(Adsicon);
-  const [promoSubtitle, setPromoSubtitle] = useState("BROWSE WHAT EXCITES YOU");
+  const [hasMoreProducts, setHasMoreProducts] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [cartItems, setCartItems] = useState([]);
 
   const categoriesRef = useRef(null);
@@ -28,59 +40,82 @@ const CategoryProducts = () => {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
-  const AUTH = {
-    username: "ck_c4e35c0d93df1f96cae81fccae967b8969a1eb85",
-    password: "cs_b2b2ab3b1cdbc7db01cd718dc52b8f5a5711a6e5",
-  };
-
-  const decodeHTML = (html) => {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = html;
-    return txt.value;
-  };
-
-  const truncate = (str) =>
-    str.length <= TITLE_LIMIT ? str : `${str.slice(0, TITLE_LIMIT)}…`;
-
+  // Fetch categories
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_BASE}/products/categories`, { auth: AUTH });
-      setCategories(res.data.filter((c) => c.parent === 0));
+      const res = await axios.get(`${API_BASE}/products/categories`, {
+        auth: AUTH,
+        params: { per_page: 100 },
+      });
+      setCategories(res.data);
     } catch (err) {
       console.error("Error fetching categories:", err);
     }
   }, []);
 
+  // Convert slug to ID
+  useEffect(() => {
+    if (categories.length && slug) {
+      const cat = categories.find((c) => c.slug === slug);
+      setSelectedCategoryId(cat ? cat.id : "all");
+    }
+  }, [slug, categories]);
+
+  // Fetch products
   const fetchProducts = useCallback(
-    async (categoryId = selectedCategoryId, page = productsPage) => {
+    async (categoryId = selectedCategoryId, page = 1) => {
       setLoadingProducts(true);
       try {
-        const params = { per_page: 20, page };
-        if (categoryId !== "all") params.category = categoryId;
+        let categoryIds = [];
+
+        if (categoryId !== "all") {
+          const getAllChildIds = (id) => {
+            const children = categories.filter((c) => c.parent === id);
+            return [id, ...children.flatMap((c) => getAllChildIds(c.id))];
+          };
+          categoryIds = getAllChildIds(categoryId);
+        }
+
+        const params = { per_page: PER_PAGE, page };
+        if (categoryIds.length) params.category = categoryIds.join(",");
 
         const res = await axios.get(`${API_BASE}/products`, { auth: AUTH, params });
+
         if (page === 1) setProducts(res.data);
         else setProducts((prev) => [...prev, ...res.data]);
 
-        if (res.data.length < 20) setHasMoreProducts(false);
+        setHasMoreProducts(res.data.length === PER_PAGE);
       } catch (err) {
         console.error("Error fetching products:", err);
       } finally {
         setLoadingProducts(false);
       }
     },
-    [selectedCategoryId, productsPage]
+    [categories, selectedCategoryId]
   );
 
+  // Initial fetch
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
+  // Fetch products on category change
   useEffect(() => {
-    fetchProducts();
+    if (selectedCategoryId) {
+      setProductsPage(1);
+      setHasMoreProducts(true);
+      fetchProducts(selectedCategoryId, 1);
+    }
   }, [selectedCategoryId, fetchProducts]);
 
+  // Load more handler
+  const loadMoreProducts = () => {
+    const nextPage = productsPage + 1;
+    setProductsPage(nextPage);
+    fetchProducts(selectedCategoryId, nextPage);
+  };
+
+  // Fly-to-cart animation
   const flyToCart = (e, imgSrc) => {
     if (!cartIconRef.current || !imgSrc) return;
 
@@ -110,6 +145,7 @@ const CategoryProducts = () => {
     setTimeout(() => clone.remove(), 800);
   };
 
+  // Add to cart
   const addToCart = (product) => {
     setCartItems((prev) => {
       if (prev.find((item) => item.id === product.id)) return prev;
@@ -117,6 +153,16 @@ const CategoryProducts = () => {
     });
   };
 
+  // Handle product click
+  const onProductClick = (slug, id) => {
+    const recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
+    const updatedRecent = [id, ...recent.filter((rid) => rid !== id)].slice(0, 5);
+    localStorage.setItem("recentProducts", JSON.stringify(updatedRecent));
+    window.open(`/product/${slug}`, "_blank", "noopener,noreferrer");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Scroll arrows
   const scrollCats = (dir) => {
     const el = categoriesRef.current;
     if (el) el.scrollBy({ left: dir === "left" ? -200 : 200, behavior: "smooth" });
@@ -140,57 +186,16 @@ const CategoryProducts = () => {
     return () => el.removeEventListener("scroll", throttledUpdate);
   }, [categories, updateArrowVisibility]);
 
-  const onProductClick = (slug, id) => {
-    let recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
-    recent = recent.filter((rid) => rid !== id);
-    recent.unshift(id);
-    localStorage.setItem("recentProducts", JSON.stringify(recent.slice(0, 5)));
-    window.open(`/product/${slug}`, "_blank", "noopener,noreferrer");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
     <div className="pcus-wrapper3">
-      {/* Promo Section */}
-      <div className="pcus-title-section">
-        <h2 className="pcus-main-title">
-          <img src={promoImage} alt="Promo icon" style={{ maxWidth: "18px" }} />{" "}
-          SUMMER SAVINGS{" "}
-          <img src={promoImage} alt="Promo icon" style={{ maxWidth: "18px" }} />
-        </h2>
-        <p className="pcus-sub-title">{promoSubtitle}</p>
-      </div>
-
-      {/* Categories Scroll */}
-      <div className="pcus-categories-wrapper1 pcus-categories-wrapper3">
-        {canScrollLeft && <button className="pcus-arrow-btn" onClick={() => scrollCats("left")}>‹</button>}
-        <div className="pcus-categories-scroll" ref={categoriesRef}>
-          <button
-            className={`pcus-category-btn ${selectedCategoryId === "all" ? "active" : ""}`}
-            onClick={() => setSelectedCategoryId("all")}
-          >
-            Recommended
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              className={`pcus-category-btn ${selectedCategoryId === cat.id ? "active" : ""}`}
-              onClick={() => setSelectedCategoryId(cat.id)}
-            >
-              {decodeHTML(cat.name)}
-            </button>
-          ))}
-        </div>
-        {canScrollRight && <button className="pcus-arrow-btn" onClick={() => scrollCats("right")}>›</button>}
-      </div>
-
       {/* Products Grid */}
       <div className="pcus-prd-grid">
         {loadingProducts
-          ? Array.from({ length: 8 }).map((_, i) => <div key={i} className="pcus-prd-skeleton" />)
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="pcus-prd-skeleton" />
+            ))
           : products.map((p) => {
               const onSale = p.sale_price && p.sale_price !== p.regular_price;
-
               return (
                 <div
                   key={p.id}
@@ -198,17 +203,29 @@ const CategoryProducts = () => {
                   onClick={() => onProductClick(p.slug, p.id)}
                 >
                   <div className="pcus-image-wrapper1">
-                    <img src={p.images?.[0]?.src || ""} alt={decodeHTML(p.name)} className="pcus-prd-image1 primary-img" />
-                    {p.images?.[1] && <img src={p.images[1].src} alt={decodeHTML(p.name)} className="pcus-prd-image1 secondary-img" />}
+                    <img
+                      src={p.images?.[0]?.src || ""}
+                      alt={decodeHTML(p.name)}
+                      className="pcus-prd-image1 primary-img"
+                    />
+                    {p.images?.[1] && (
+                      <img
+                        src={p.images[1].src}
+                        alt={decodeHTML(p.name)}
+                        className="pcus-prd-image1 secondary-img"
+                      />
+                    )}
                   </div>
-
                   <div className="pcus-prd-info1">
                     <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>
-                    <ProductCardReviews reviews={p.reviews_count || 0} rating={p.average_rating || 0} sold={p.total_sales || 0} />
-
+                    <ProductCardReviews
+                      reviews={p.reviews_count || 0}
+                      rating={p.average_rating || 0}
+                      sold={p.total_sales || 0}
+                    />
                     <div className="pcus-prd-price-cart1">
                       <div className="pcus-prd-prices1">
-                        <img src={IconAED} alt="AED" style={{ width: "auto", height: "13px", marginRight: "2px" }} />
+                        <img src={IconAED} alt="AED" style={{ width: "auto", height: "13px", marginRight: 2 }} />
                         {onSale ? (
                           <>
                             <span className="pcus-prd-sale-price1">{p.sale_price}</span>
@@ -221,14 +238,19 @@ const CategoryProducts = () => {
                           <span className="price1">{p.price || p.regular_price}</span>
                         )}
                       </div>
-
                       <button
-                        className={`pcus-prd-add-cart-btn ${cartItems.some(item => item.id === p.id) ? "added-to-cart" : ""}`}
-                        onClick={(e) => { e.stopPropagation(); flyToCart(e, p.images?.[0]?.src); addToCart(p); }}
+                        className={`pcus-prd-add-cart-btn ${
+                          cartItems.some((item) => item.id === p.id) ? "added-to-cart" : ""
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          flyToCart(e, p.images?.[0]?.src);
+                          addToCart(p);
+                        }}
                       >
                         <img
-                          src={cartItems.some(item => item.id === p.id) ? AddedToCartIcon : AddCarticon}
-                          alt={cartItems.some(item => item.id === p.id) ? "Added to cart" : "Add to cart"}
+                          src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCarticon}
+                          alt={cartItems.some((item) => item.id === p.id) ? "Added to cart" : "Add to cart"}
                         />
                       </button>
                     </div>
@@ -240,19 +262,12 @@ const CategoryProducts = () => {
 
       {/* Load More */}
       {hasMoreProducts && !loadingProducts && (
-  <div style={{ textAlign: "center", margin: "20px 0" }}>
-    <button
-      onClick={() => {
-        const nextPage = productsPage + 1;
-        setProductsPage(nextPage);
-        fetchProducts(selectedCategoryId, nextPage);
-      }}
-      className="load-more-btn"
-    >
-      Load More
-    </button>
-  </div>
-)}
+        <div style={{ textAlign: "center", margin: "20px 0" }}>
+          <button onClick={loadMoreProducts} className="load-more-btn">
+            Load More
+          </button>
+        </div>
+      )}
 
       <div ref={cartIconRef} style={{ position: "fixed", top: 20, right: 20, zIndex: 1000 }} />
     </div>

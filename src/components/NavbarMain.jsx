@@ -22,10 +22,11 @@ import '../assets/styles/Navbar.css';
 
 // Icons
 import Newicon from '../assets/images/webicons/Header/White/Asset 34@6x.png';
-import Star from '../assets/images/webicons/Header/White/Asset 33@6x.png';
+import Star from '../assets/images/webicons/Common/Asset 117@6x.png';
 import SupportIcon from '../assets/images/webicons/Header/White/Asset 32@6x.png';
 import CartIcon from '../assets/images/webicons/Header/White/Asset 30@6x.png';
 import UserIcon from '../assets/images/webicons/Header/White/Asset 21@6x.png';
+import TopSellicon from '../assets/images/webicons/Header/White/Asset 24@6x.png'
 
 // Import the external mega menu component
 import MegaMenu from '../components/sub/megamenu';
@@ -223,7 +224,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
           <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
             <div className="nav-left-links">
               <div className="nav-icon-with-text star-rating" onClick={() => navigate('/top-selling-item')}>
-                <img src={Star} alt="5 Star rated" className="icon-star" />
+                <img src={TopSellicon} alt="5 Star rated" className="icon-star" />
                 <span>Top Selling Items</span>
               </div>
               <div className="nav-icon-with-text" onClick={() => navigate('/new')}>
@@ -247,7 +248,10 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
     onMouseEnter={handleMouseEnter}
     onMouseLeave={handleMouseLeave}
   >
-    <MegaMenu categories={categories} />
+    <MegaMenu 
+      categories={categories} 
+      onClose={() => setHovering(false)}  // <-- closes MegaMenu
+    />
   </div>
 )}
 

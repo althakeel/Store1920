@@ -256,5 +256,22 @@
     height: auto;            /* full flow on mobile */
   }
   .gcx-left { display: none; }
-  .gcx-middle-grid { grid-template-columns: 1fr; }
+ 
+
+  .gcx-middle-grid {
+    grid-template-columns: repeat(2, 1fr); /* ✅ 2 columns on mobile */
+    gap: 10px;
+  }
+  .gcx-product-card img {
+    height: 100px; /* smaller images to fit mobile */
+  }
+  .gcx-product-card {
+    padding: 8px;
+  }
+  .gcx-cart-btn {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
 }
+

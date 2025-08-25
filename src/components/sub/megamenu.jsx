@@ -7,7 +7,7 @@ const API_V3 = "https://db.store1920.com/wp-json/wc/v1";
 const CK = "ck_2e4ba96dde422ed59388a09a139cfee591d98263";
 const CS = "cs_43b449072b8d7d63345af1b027f2c8026fd15428";
 
-const MegaMenu = () => {
+const MegaMenu = ({ categories, onClose }) => {
   const [parentCategories, setParentCategories] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
@@ -112,33 +112,35 @@ const MegaMenu = () => {
       </div>
 
       {/* RIGHT SIDE - Subcategories */}
+      
       <div className="custom-megamenu-right">
         {activeCategory ? (
           <>
             <h2
               className="custom-megamenu-title"
-              onClick={() => navigate(`/categorypage/${activeCategory.id}`)}
               style={{ cursor: "pointer" }}
+              onClick={() => {
+                navigate(`/category/${activeCategory.slug}`);
+                if (onClose) onClose();  // <-- close MegaMenu
+              }}
             >
               {`All ${decodeHTML(activeCategory.name)} →`}
             </h2>
 
-            {loadingSubs ? (
-              <p style={{ padding: "10px" }}>Loading subcategories...</p>
-            ) : subCategories.length > 0 ? (
+            {subCategories.length > 0 ? (
               <div className="custom-megamenu-grid">
                 {subCategories.map((sub) => (
                   <div
                     key={sub.id}
                     className="custom-megamenu-item"
-                    onClick={() => navigate(`/categorypage/${sub.id}`)}
+                    onClick={() => {
+                      navigate(`/category/${sub.slug}`);
+                      if (onClose) onClose();  // <-- close MegaMenu
+                    }}
                   >
                     <div className="custom-megamenu-imgbox">
                       <img
-                        src={
-                          sub.image?.src ||
-                          "https://via.placeholder.com/140?text=No+Image"
-                        }
+                        src={sub.image?.src || "https://via.placeholder.com/140?text=No+Image"}
                         alt={decodeHTML(sub.name)}
                       />
                     </div>

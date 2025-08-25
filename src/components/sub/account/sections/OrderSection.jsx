@@ -107,6 +107,12 @@ const OrderSection = ({ userId }) => {
     }
   };
 
+
+  const handleViewOrderDetails = (order) => {
+    // navigate to a detailed order page, or open a modal
+    navigate(`/order/${order.id}`);
+  };
+
   const cancelOrder = async (orderId) => {
     if (!window.confirm('Are you sure you want to cancel this order?')) return;
 
@@ -189,19 +195,22 @@ const OrderSection = ({ userId }) => {
       case 'completed':
         return (
           <OrderDelivered
-            orders={orders}
-            handleProductClick={handleProductClick}
-            slugify={slugify}
-          />
+          orders={orders}
+          handleProductClick={handleProductClick}
+          slugify={slugify}
+          viewOrderDetails={handleViewOrderDetails}
+        />
         );
 
       case 'refunded':
         return (
           <OrderReturns
-            orders={orders}
-            handleProductClick={handleProductClick}
-            slugify={slugify}
-          />
+          orders={orders}
+          handleProductClick={handleProductClick}
+          slugify={slugify}
+          isCancelable={isCancelable} // <-- make sure this is a function
+          cancelOrder={cancelOrder}
+        />
         );
 
       default:

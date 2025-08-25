@@ -381,9 +381,9 @@ img.flying-clone {
 }
 
 /* Products grid */
-.pcus-prd-grid12 {
+.pcus-prd-grid16 {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr)); /* allow columns to shrink */
+  grid-template-columns: repeat(5, 1fr); /* exactly 5 equal columns */
   gap: 15px;
 }
 /* Product card */

@@ -3,29 +3,39 @@
 ===================== */
 .cartGrid {
     display: flex;
-    flex-wrap: wrap;
     gap: 40px;
     max-width: 1400px;
     margin: 10px auto;
     padding: 0 16px;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
+    align-items: flex-start;
 }
 
-.cartLeft,
-.cartRight {
+/* Left column */
+.cartLeft {
+    flex: 1 1 500px;
+    min-width: 320px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     padding: 20px;
 }
 
-.cartLeft {
-    flex: 1 1 500px; /* desktop column width */
-    min-width: 320px;
+/* Right column wrapper */
+.cartRightWrapper {
+    flex: 0 0 360px;
+    position: relative;
 }
 
-.cartRight {
-    flex: 0 0 360px; /* desktop sidebar width */
+/* Sticky right sidebar */
+.cartRightFixed {
+    position: sticky;
+    top: 20px; /* or use your dynamic JS value */
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    padding: 20px;
+    max-height: calc(100vh - 40px);
+    overflow: auto;
 }
 
 /* --- Cart Items --- */
@@ -157,16 +167,19 @@
 ===================== */
 @media (max-width: 1024px) {
     .cartGrid {
-        flex-direction: column; /* stack columns */
+        flex-direction: column;
         gap: 24px;
         max-width: 95%;
         padding: 0 12px;
     }
 
     .cartLeft,
+    .cartRightWrapper,
     .cartRight {
-        flex: 1 1 100%; /* override fixed flex */
+        position: relative;
         width: 100%;
+        max-height: none;
+        overflow: visible;
     }
 
     .cartItem img {
@@ -184,16 +197,19 @@
 ===================== */
 @media (max-width: 768px) {
     .cartGrid {
-        flex-direction: column; /* ensure stacking */
+        flex-direction: column;
         gap: 16px;
         padding: 0 10px;
     }
 
     .cartLeft,
+    .cartRightWrapper,
     .cartRight {
-        flex: 1 1 100%; /* stack fully */
         width: 100%;
-        padding: 0px;
+        position: relative;
+        max-height: none;
+        overflow: visible;
+        padding: 0;
     }
 
     .cartItem {

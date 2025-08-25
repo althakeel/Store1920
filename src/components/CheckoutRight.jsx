@@ -283,7 +283,7 @@ export default function CheckoutRight({ cartItems, formData }) {
 
       <div
         className="summaryRow discount"
-        style={{ color: 'red', fontWeight: '600' }}
+        style={{ color: '#fe6c03', fontWeight: '600' }}
         aria-label={`Discount AED ${discount.toFixed(2)}`}
       >
         <span>Item(s) discount:</span>

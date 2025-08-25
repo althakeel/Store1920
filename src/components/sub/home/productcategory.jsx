@@ -16,7 +16,7 @@ const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
 const CONSUMER_SECRET = "cs_92458ba6ab5458347082acc6681560911a9e993d";
 
 const PAGE_SIZE = 10;
-const PRODUCTS_PER_PAGE = 40;
+const PRODUCTS_PER_PAGE = 42;
 const TITLE_LIMIT = 35;
 
 const badgeLabelMap = {
@@ -284,8 +284,13 @@ const ProductCategory = () => {
           `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc` +
           (categoryId !== "all" ? `&category=${categoryId}` : "");
         const res = await fetch(url);
-        const data = await res.json();
+        let data = await res.json();
 
+
+        if (categoryId === "all") {
+          data = shuffleArray(data);
+        }
+  
         if (page === 1) {
           setProducts(data);
         } else {
@@ -303,6 +308,13 @@ const ProductCategory = () => {
     },
     [selectedCategoryId]
   );
+
+  function shuffleArray(arr) {
+    return arr
+      .map((item) => ({ item, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ item }) => item);
+  }
 
   useEffect(() => {
     fetchCategories(1);
@@ -739,7 +751,7 @@ const ProductCategory = () => {
     </button>
   )} */}
                     </div>
-                    <div className="pcus-prd-info1">
+                    <div className="pcus-prd-info12">
                       <h3 className="pcus-prd-title1">
                         {decodeHTML(p.name)}
                         {/* {getProductBadges(p).map((badge, idx) => (
@@ -769,11 +781,11 @@ const ProductCategory = () => {
                             <>
                               <Price
                                 value={displaySalePrice}
-                                className="pcus-prd-sale-price1"
+                                className="pcus-prd-sale-price12"
                               />
                               <Price
                                 value={displayRegularPrice}
-                                className="pcus-prd-regular-price1"
+                                className="pcus-prd-regular-price12"
                               />
                               {displayRegularPrice && displaySalePrice && (
                                 <span className="pcus-prd-discount-box1">

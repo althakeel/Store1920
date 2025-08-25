@@ -16,9 +16,7 @@ import ButtonSection from './products/ButtonSection';
 import OrderPerks from './products/OrderPerks';
 import ProductShortDescription from './products/ProductShortDescription';
 import ItemDetailsTable from './products/ItemDetailsTable';
-// import DummyReviewsSold from '../components/temp/DummyReviewsSold';
-import ProductCardReviews from '../components/temp/productcardreviews'
-
+import ProductCardReviews from '../components/temp/productcardreviews';
 
 export default function ProductInfo({ product, variations, selectedVariation, onVariationChange }) {
   const [quantity, setQuantity] = useState(1);
@@ -57,8 +55,11 @@ export default function ProductInfo({ product, variations, selectedVariation, on
 
   if (!product) return null;
 
-  const showClearance = product.show_clearance_sale === true;
-  const clearanceEndTime = product.clearance_end_time;
+  // Normalize clearance sale values
+  const showClearance = product.show_clearance_sale === true || product.show_clearance_sale === 'yes';
+  const clearanceEndTime = product.clearance_end_time
+    ? product.clearance_end_time.replace(' ', 'T') // Convert "YYYY-MM-DD HH:MM:SS" → "YYYY-MM-DDTHH:MM:SS"
+    : null;
 
   const handleAddToCart = () => {
     const variation = selectedVariation || product;
@@ -75,40 +76,59 @@ export default function ProductInfo({ product, variations, selectedVariation, on
     addToCart(itemToAdd);
     setIsCartOpen(true);
 
-    if (showClearance) navigate('/checkout'); // Go to checkout for clearance
+    if (showClearance) navigate('/checkout');
   };
 
+  const combinedBadges = [
+    ...(product.custom_seller_badges || []),
+    ...(product.best_seller_recommended_badges || []).map(b => {
+      if (b === 'best_seller') return 'best_recommended';
+      if (b === 'recommended') return 'best_recommended'; // optional, or create another key
+      return b;
+    })
+  ];
+  
   return (
     <section className="pi-product-info">
       <OfferBox />
 
       <div className="pi-product-title-row">
         <div className="pi-badges-and-title">
-          <ProductBadges badges={product.custom_seller_badges || []} />
-          <h1 style={{margin:'5px 0'}}>{product.name} <ShareDropdown url={window.location.href} /></h1>
-          <ProductBadgesseller />
-       <ProductCardReviews 
-  productId={product.id}   // Pass the WooCommerce product ID
-  soldCount={product.total_sales || 0} // Optional: use WooCommerce total sales if available
-/>
+      
+        <h1 style={{ margin: '5px 0' }}>
+            {product.name} <ShareDropdown url={window.location.href} />
+          </h1>
+          <ProductBadges badges={combinedBadges} />
+          <div style={{ display: "flex", justifyContent: "flex-start", gap: "10px" }}>
+  <ProductCardReviews 
+    productId={product.id}
+    soldCount={product.total_sales || 0}
+  />
+  <ProductBadgesseller />
+</div>
+
 
           {product.sku && <p className="pi-product-sku">SKU: {product.sku}</p>}
           {brand && <p className="pi-product-brand">Brand: {brand}</p>}
         </div>
-        
       </div>
+    
 
       <PriceDisplay product={product} selectedVariation={selectedVariation} />
       <ProductShortDescription shortDescription={product.short_description} />
 
       {showClearance && clearanceEndTime ? (
-        <ClearanceSaleBox endTime={clearanceEndTime}>
+        <ClearanceSaleBox endTime={clearanceEndTime} style={{padding: '50px', background:"red"}}>
           <ProductVariants
             variations={variations}
             selectedVariation={selectedVariation}
             onVariationChange={onVariationChange}
           />
-          <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
+          <QuantitySelector
+            quantity={quantity}
+            setQuantity={setQuantity}
+            maxQuantity={maxQuantity}
+          />
         </ClearanceSaleBox>
       ) : (
         <>
@@ -118,7 +138,11 @@ export default function ProductInfo({ product, variations, selectedVariation, on
             onVariationChange={onVariationChange}
             maxQuantity={maxQuantity}
           />
-          <QuantitySelector quantity={quantity} setQuantity={setQuantity} maxQuantity={maxQuantity} />
+          <QuantitySelector
+            quantity={quantity}
+            setQuantity={setQuantity}
+            maxQuantity={maxQuantity}
+          />
         </>
       )}
 

@@ -89,12 +89,12 @@ const ProductsUnder20AED = () => {
   };
 
   return (
-    <div className="pcus-wrapper12" style={{ display: 'flex' }}>
+    <div className="pcus-wrapper16" style={{ display: 'flex' }}>
       <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
         <h3 style={{ padding: '10px 20px 10px 0' }}>More Deals You’ll Love </h3>
 
         {loading && products.length === 0 ? (
-          <div className="pcus-prd-grid12">
+          <div className="pcus-prd-grid16">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="pcus-prd-card pcus-skeleton" />
             ))}
@@ -104,7 +104,7 @@ const ProductsUnder20AED = () => {
             No products  found.
           </div>
         ) : (
-          <div className="pcus-prd-grid12">
+          <div className="pcus-prd-grid16">
             {products.map((p) => (
               <div
                 key={p.id}
@@ -115,15 +115,26 @@ const ProductsUnder20AED = () => {
                 onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug, p.id)}
                 style={{ position: 'relative' }}
               >
-                <div className="pcus-image-wrapper1">
-                  <img
-                    src={p.images?.[0]?.src || ''}
-                    alt={decodeHTML(p.name)}
-                    className="pcus-prd-image1 primary-img"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
+            <div className="pcus-image-wrapper1">
+  {p.images?.[0] && (
+    <img
+      src={p.images[0].src}
+      alt={decodeHTML(p.name)}
+      className="pcus-prd-image1 primary-img"
+      loading="lazy"
+      decoding="async"
+    />
+  )}
+  {p.images?.[1] && (
+    <img
+      src={p.images[1].src}
+      alt={decodeHTML(p.name)}
+      className="pcus-prd-image1 secondary-img"
+      loading="lazy"
+      decoding="async"
+    />
+  )}
+</div>
                 <div className="pcus-prd-info1">
                   <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>
                   <ProductCardReviews/>
@@ -182,7 +193,7 @@ const ProductsUnder20AED = () => {
             transform: 'translateX(-50%)',
             backgroundColor: '#28a745',
             color: 'white',
-            padding: '12px 28px',
+            padding: '16px 28px',
             borderRadius: '25px',
             fontSize: '16px',
             fontWeight: '600',

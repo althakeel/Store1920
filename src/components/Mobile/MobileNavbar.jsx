@@ -93,37 +93,54 @@ useEffect(() => {
     }
 
     try {
+      // Fetch WooCommerce search by name (default)
       const [catRes, prodRes] = await Promise.all([
         axios.get("https://db.store1920.com/wp-json/wc/v3/products/categories", {
-          params: { search: searchTerm, per_page: 10 },
+          params: { search: searchTerm, per_page: 50 },
         }),
         axios.get("https://db.store1920.com/wp-json/wc/v3/products", {
-          params: { search: searchTerm, per_page: 10 },
+          params: { search: searchTerm, per_page: 50 },
         }),
       ]);
 
-      const categories = catRes.data.map(cat => ({
+      let categories = catRes.data.map(cat => ({
         id: cat.id,
         name: cat.name,
         slug: cat.slug,
         type: "category",
       }));
 
-      const products = prodRes.data.map(prod => ({
+      let products = prodRes.data.map(prod => ({
         id: prod.id,
         name: prod.name,
         slug: prod.slug,
         type: "product",
       }));
 
+      // ✅ Extra filter for slug and ID matches
+      const lowerSearch = searchTerm.toLowerCase();
+      categories = categories.filter(
+        c =>
+          c.name.toLowerCase().includes(lowerSearch) ||
+          c.slug.toLowerCase().includes(lowerSearch) ||
+          String(c.id) === searchTerm
+      );
+      products = products.filter(
+        p =>
+          p.name.toLowerCase().includes(lowerSearch) ||
+          p.slug.toLowerCase().includes(lowerSearch) ||
+          String(p.id) === searchTerm
+      );
+
       setSuggestions([...categories, ...products].slice(0, MAX_SUGGESTIONS));
     } catch (err) {
       console.error("Search failed:", err);
     }
-  }, 400); // ⏳ debounce (400ms)
+  }, 400);
 
   return () => clearTimeout(delayDebounce);
 }, [searchTerm]);
+
 
 
   // Handle selecting an item from dropdown
@@ -192,31 +209,50 @@ useEffect(() => {
     overflow: 'hidden',    // <-- Prevents content from spilling
   }}
 >
-  <input
-    ref={inputRef}
-    type="text"
-    placeholder="Search products, brands..."
-    aria-label="Search products"
-    autoComplete="off"
-    value={searchTerm}
-    onChange={e => {
-      setSearchTerm(e.target.value);
-      setDropdownVisible(true);
-    }}
-    onFocus={() => setDropdownVisible(true)}
-    style={{
-      border: 'none',
-      outline: 'none',
-      background: 'transparent',
-      flex: 1,
-      fontSize: 13,
-      minWidth: 0,         // <-- Crucial to allow shrinking in small screens
-    }}
-    spellCheck={false}
-  />
-  <div style={{ width: 18, marginLeft: 6, flexShrink: 0 }}>
-    <FaSearch style={{ color: '#064789', width: '100%' }} aria-hidden="true" />
-  </div>
+<input
+  ref={inputRef}
+  type="text"
+  placeholder="Search products, brands..."
+  aria-label="Search products"
+  autoComplete="off"
+  value={searchTerm}
+  onChange={e => {
+    setSearchTerm(e.target.value);
+    setDropdownVisible(true);
+  }}
+  onFocus={() => setDropdownVisible(true)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      setDropdownVisible(false);
+      if (searchTerm.trim()) {
+        navigate(`/search/${encodeURIComponent(searchTerm.trim())}`);
+      }
+    }
+  }}
+  style={{
+    border: 'none',
+    outline: 'none',
+    background: 'transparent',
+    flex: 1,
+    fontSize: 13,
+    minWidth: 0,
+  }}
+  spellCheck={false}
+/>
+
+<div
+  style={{ width: 18, marginLeft: 6, flexShrink: 0, cursor: "pointer" }}
+  onClick={() => {
+    setDropdownVisible(false);
+    if (searchTerm.trim()) {
+      navigate(`/search/${encodeURIComponent(searchTerm.trim())}`);
+    }
+  }}
+>
+  <FaSearch style={{ color: '#064789', width: '100%' }} aria-hidden="true" />
+</div>
+
 
 
 
@@ -415,7 +451,7 @@ useEffect(() => {
       </nav>
 
       {/* Categories Slider */}
-      <HeaderSlider />
+      {/* <HeaderSlider /> */}
     </>
   );
 };
