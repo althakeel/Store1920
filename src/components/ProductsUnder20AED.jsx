@@ -5,6 +5,7 @@ import AddCarticon from '../assets/images/addtocart.png';
 import AddedToCartIcon from '../assets/images/added-cart.png';
 import IconAED from '../assets/images/Dirham 2.png';
 import ProductCardReviews from './temp/productcardreviews';
+import PlaceHolderImage from '../assets/images/common/Placeholder.png'
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v2';
 const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
@@ -115,25 +116,22 @@ const ProductsUnder20AED = () => {
                 onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug, p.id)}
                 style={{ position: 'relative' }}
               >
-            <div className="pcus-image-wrapper1">
-  {p.images?.[0] && (
-    <img
-      src={p.images[0].src}
-      alt={decodeHTML(p.name)}
-      className="pcus-prd-image1 primary-img"
-      loading="lazy"
-      decoding="async"
-    />
-  )}
-  {p.images?.[1] && (
-    <img
-      src={p.images[1].src}
-      alt={decodeHTML(p.name)}
-      className="pcus-prd-image1 secondary-img"
-      loading="lazy"
-      decoding="async"
-    />
-  )}
+    <div className="pcus-image-wrapper1">
+  <img
+    src={p.images?.[0]?.src || PlaceHolderImage} // primary image or placeholder
+    alt={decodeHTML(p.name)}
+    className="pcus-prd-image1 primary-img"
+    loading="lazy"
+    decoding="async"
+  />
+  
+  <img
+    src={p.images?.[1]?.src || PlaceHolderImage} // secondary image or placeholder
+    alt={decodeHTML(p.name)}
+    className="pcus-prd-image1 secondary-img"
+    loading="lazy"
+    decoding="async"
+  />
 </div>
                 <div className="pcus-prd-info1">
                   <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>

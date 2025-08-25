@@ -19,6 +19,28 @@
   flex-direction: column;
   gap: 16px;
 }
+.proceed-btn {
+  margin-top: 20px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #00b894;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.proceed-btn:hover:not(:disabled) {
+  background: #019170;
+}
+
+.proceed-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
 
 .payment-card {
   border: 2px solid #eaeaea;

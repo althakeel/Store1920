@@ -18,7 +18,7 @@ const HelpText = () => {
       <p>
         Need assistance? Visit our{" "}
         <a
-          href="/help"
+          href="/support"
           style={{
             color: "#007bff",
             textDecoration: "underline",
@@ -26,8 +26,8 @@ const HelpText = () => {
         >
           Help Center
         </a>{" "}
-        or{" "}
-        <a
+        {/* or{" "} */}
+        {/* <a
           href="/contact-us"
           style={{
             color: "#007bff",
@@ -35,8 +35,8 @@ const HelpText = () => {
           }}
         >
           contact support
-        </a>
-        .
+        </a> */}
+        {/* . */}
       </p>
       <p>
         If there's an issue charging your selected payment method, we may use another valid method from your account. You can update your preferences on the payments page.

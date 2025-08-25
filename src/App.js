@@ -59,6 +59,7 @@ import ChatBot from './components/sub/Chatbot';
 import { useNetworkSpeed } from './hooks/useNetworkSpeed';
 import { ToastContainer } from 'react-toastify';
 import CookiePopup from './components/common/CookiePopup';
+import PurchasePopup from './components/common/PurchasePopup';
 
 
 const AppContent = () => {
@@ -197,6 +198,7 @@ const AppContent = () => {
                   <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
                 )}
               </div>
+            {!isMobile && <PurchasePopup />}
            <CookiePopup/>
               <ChatBot />
               {/* <ToastContainer /> */}

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../../assets/styles/checkoutleft/paymentmethods.css';
 
-const PaymentMethods = ({ selectedMethod = 'cod', onMethodSelect }) => {
+const PaymentMethods = ({ onMethodSelect }) => {
+  const [selectedMethod, setSelectedMethod] = useState(null);
+
   const paymentOptions = [
     {
       id: 'cod',
@@ -9,6 +11,7 @@ const PaymentMethods = ({ selectedMethod = 'cod', onMethodSelect }) => {
       logo: 'https://db.store1920.com/wp-content/uploads/2025/07/ae5e15c1-ffe8-42c4-9ddb-bb9ed1fdcf6a.png.slim_.webp',
       description: '',
     },
+    // Example for adding another method
     // {
     //   id: 'paymob',
     //   title: 'Paymob',
@@ -18,7 +21,13 @@ const PaymentMethods = ({ selectedMethod = 'cod', onMethodSelect }) => {
   ];
 
   const handleSelection = (id, title) => {
+    setSelectedMethod(id);
     if (onMethodSelect) onMethodSelect(id, title);
+  };
+
+  const handleProceed = () => {
+    // Here you continue checkout process
+    alert(`Proceeding with ${selectedMethod}`);
   };
 
   return (
@@ -56,6 +65,14 @@ const PaymentMethods = ({ selectedMethod = 'cod', onMethodSelect }) => {
           </div>
         ))}
       </div>
+
+      {/* <button
+        className="proceed-btn"
+        onClick={handleProceed}
+        disabled={!selectedMethod} // 🔥 disabled until user selects
+      >
+        Continue
+      </button> */}
     </div>
   );
 };
