@@ -30,16 +30,15 @@ const AllOrders = ({
   handleProductClick,
   slugify,
   isCancelable,
-  onOrdersUpdated, // optional callback to refresh orders after address update
+  onOrdersUpdated,
 }) => {
   const [buyingAgainOrderId, setBuyingAgainOrderId] = useState(null);
   const [editingOrder, setEditingOrder] = useState(null);
   const [savingAddress, setSavingAddress] = useState(false);
   const [addressError, setAddressError] = useState('');
   const [trackingOrder, setTrackingOrder] = useState(null);
-  const [expandedOrderId, setExpandedOrderId] = useState(null);
   const [detailedOrder, setDetailedOrder] = useState(null);
-  const [returningOrder, setReturningOrder] = useState(null); // store current returning order
+  const [returningOrder, setReturningOrder] = useState(null);
   const [selectedReason, setSelectedReason] = useState('');
   const [otherReason, setOtherReason] = useState('');
 
@@ -133,7 +132,7 @@ const AllOrders = ({
   };
 
   const handleAddressChange = (e, section) => {
-    const { name, value, checked, type } = e.target;
+    const { name, value, checked } = e.target;
     setEditingOrder((prev) => {
       if (!prev) return prev;
       if (section === 'checkbox') {
@@ -233,6 +232,15 @@ const AllOrders = ({
     }
   };
 
+  const canReturn = (order) => {
+    if (order.status !== 'completed') return false;
+    const deliveredDate = new Date(order.date_created);
+    deliveredDate.setDate(deliveredDate.getDate() + 7); // assume delivered 7 days after created
+    const now = new Date();
+    const diffDays = Math.floor((now - deliveredDate) / (1000 * 60 * 60 * 24));
+    return diffDays <= 10;
+  };
+
   return (
     <div className="order-list">
       <ToastContainer position="bottom-center" autoClose={2000} hideProgressBar />
@@ -250,56 +258,59 @@ const AllOrders = ({
           error={addressError}
         />
       )}
-      {trackingOrder && (
-  <OrderTracking order={trackingOrder} onClose={() => setTrackingOrder(null)} />
-)}
 
-{detailedOrder && (
-  <OrderDetailsInline order={detailedOrder} onClose={() => setDetailedOrder(null)} />
-)}
+      {trackingOrder && (
+        <OrderTracking order={trackingOrder} onClose={() => setTrackingOrder(null)} />
+      )}
+
+      {detailedOrder && (
+        <OrderDetailsInline order={detailedOrder} onClose={() => setDetailedOrder(null)} />
+      )}
 
       {/* Return popup */}
-    {/* Return popup */}
-    {returningOrder && (
-  <div className="return-modal-overlay">
-    <div className="return-modal">
-      <h2>Return Product - PO-{returningOrder.id}</h2>
-      <p>Please select a reason for returning this product:</p>
+      {returningOrder && (
+        <div className="return-modal-overlay">
+          <div className="return-modal">
+            <h2>Return Product - PO-{returningOrder.id}</h2>
+            <p>Please select a reason for returning this product:</p>
 
-      <div className="return-reasons">
-        <select
-          value={selectedReason}
-          onChange={(e) => setSelectedReason(e.target.value)}
-        >
-          <option value="">-- Select a reason --</option>
-          {returnReasons.map((r, i) => (
-            <option key={i} value={r}>{r}</option>
-          ))}
-        </select>
+            <div className="return-reasons">
+              <select
+                value={selectedReason}
+                onChange={(e) => setSelectedReason(e.target.value)}
+              >
+                <option value="">-- Select a reason --</option>
+                {returnReasons.map((r, i) => (
+                  <option key={i} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
 
-        {selectedReason === 'Other' && (
-          <input
-            type="text"
-            placeholder="Enter your reason"
-            value={otherReason}
-            onChange={(e) => setOtherReason(e.target.value)}
-          />
-        )}
-      </div>
+              {selectedReason === 'Other' && (
+                <input
+                  type="text"
+                  placeholder="Enter your reason"
+                  value={otherReason}
+                  onChange={(e) => setOtherReason(e.target.value)}
+                />
+              )}
+            </div>
 
-      <div className="return-modal-actions">
-        <button className="btn-primary" onClick={handleReturnProduct}>
-          Submit Return
-        </button>
-        <button className="btn-secondary" onClick={() => setReturningOrder(null)}>
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
+            <div className="return-modal-actions">
+              <button className="btn-primary" onClick={handleReturnProduct}>
+                Submit Return
+              </button>
+              <button
+                className="btn-secondary"
+                onClick={() => setReturningOrder(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {orders.map((order) => (
         <div key={order.id} className="order-card-simple">
@@ -308,7 +319,8 @@ const AllOrders = ({
             <div>
               <strong style={{ color: orderStatusColors[order.status] || '#000' }}>
                 Order {orderStatusLabels[order.status] || order.status}
-              </strong> | Email sent to <span>{order.billing.email}</span> on{' '}
+              </strong>{' '}
+              | Email sent to <span>{order.billing.email}</span> on{' '}
               {new Date(order.date_created).toLocaleDateString()}
             </div>
             <button
@@ -328,7 +340,8 @@ const AllOrders = ({
                 gap: '4px',
               }}
             >
-              View order details &nbsp;<span style={{ fontWeight: 'bold', color: '#FF8C00' }}>→</span>
+              View order details &nbsp;
+              <span style={{ fontWeight: 'bold', color: '#FF8C00' }}>→</span>
             </button>
           </div>
 
@@ -350,46 +363,98 @@ const AllOrders = ({
                 onClick={() => handleProductClick(slugify(item.name))}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleProductClick(slugify(item.name)); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleProductClick(slugify(item.name));
+                }}
               >
-                <img src={item.image?.src || 'https://via.placeholder.com/100'} alt={item.name} />
-                <div className="product-price">{order.currency} {item.price}</div>
+                <img
+                  src={item.image?.src || 'https://via.placeholder.com/100'}
+                  alt={item.name}
+                />
+                <div className="product-price">
+                  {order.currency} {item.price}
+                </div>
               </div>
             ))}
           </div>
 
           {/* Summary */}
           <div className="order-summary-simple">
-            <div>{order.line_items.length} item{order.line_items.length > 1 ? 's' : ''}</div>
-            <div><del>{order.currency} {order.total}</del>&nbsp;<strong>{order.currency} {order.total}</strong></div>
+            <div>
+              {order.line_items.length} item
+              {order.line_items.length > 1 ? 's' : ''}
+            </div>
+            <div>
+              <del>
+                {order.currency} {order.total}
+              </del>
+              &nbsp;
+              <strong>
+                {order.currency} {order.total}
+              </strong>
+            </div>
             <div>
               Order Time:{' '}
               {new Intl.DateTimeFormat('en-GB', {
-                year: 'numeric', month: '2-digit', day: '2-digit',
-                hour: '2-digit', minute: '2-digit', second: '2-digit',
-                hour12: false, timeZone: 'Asia/Dubai',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Dubai',
               }).format(new Date(order.date_created))}
             </div>
             <div>Order ID: PO-{order.id}</div>
-            <div>Payment method: {order.payment_method_title || order.payment_method}</div>
+            <div>
+              Payment method: {order.payment_method_title || order.payment_method}
+            </div>
           </div>
 
           {/* Actions */}
           <div className="order-actions-simple">
-            <button className="btn-outline" onClick={() => openEditAddress(order)}>Change address</button>
-            <button className="btn-secondary" onClick={() => handleBuyAgain(order.line_items, order.id)} disabled={buyingAgainOrderId === order.id}>
+            <button className="btn-outline" onClick={() => openEditAddress(order)}>
+              Change address
+            </button>
+            <button
+              className="btn-secondary"
+              onClick={() => handleBuyAgain(order.line_items, order.id)}
+              disabled={buyingAgainOrderId === order.id}
+            >
               {buyingAgainOrderId === order.id ? 'Adding...' : 'Buy this again'}
             </button>
-            <button className="btn-secondary" onClick={() => setTrackingOrder(order)}>Track</button>
+            <button
+              className="btn-secondary"
+              onClick={() => setTrackingOrder(order)}
+            >
+              Track
+            </button>
             {isCancelable(order.status) && (
-              <button className="btn-secondary" onClick={() => cancelOrder(order.id)} disabled={cancellingOrderId === order.id}>
+              <button
+                className="btn-secondary"
+                onClick={() => cancelOrder(order.id)}
+                disabled={cancellingOrderId === order.id}
+              >
                 {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel items'}
               </button>
             )}
             {order.status === 'completed' && (
               <>
-                <button className="btn-outline" onClick={() => generateInvoicePDF(order)}>Download Invoice</button>
-                <button className="btn-outline" onClick={() => setReturningOrder(order)}>Return Product</button>
+                <button
+                  className="btn-outline"
+                  onClick={() => generateInvoicePDF(order)}
+                >
+                  Download Invoice
+                </button>
+                {canReturn(order) && (
+                  <button
+                    className="btn-outline"
+                    onClick={() => setReturningOrder(order)}
+                  >
+                    Return Product
+                  </button>
+                )}
               </>
             )}
           </div>

@@ -79,6 +79,35 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
+
+  // ================= AUTO LOGOUT AFTER 30 MIN =
+useEffect(() => {
+  const AUTO_LOGOUT_MINUTES = 30;
+  const MS_PER_MINUTE = 60 * 1000;
+
+  // 1️⃣ When user closes tab/window, save timestamp
+  const handleBeforeUnload = () => {
+    const now = new Date().getTime();
+    localStorage.setItem('lastClosed', now);
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
+  // 2️⃣ On load, check if 30 min has passed since last close
+  const lastClosed = localStorage.getItem('lastClosed');
+  if (lastClosed) {
+    const now = new Date().getTime();
+    if (now - Number(lastClosed) >= 30 * MS_PER_MINUTE) {
+      localStorage.removeItem('userId');
+      localStorage.removeItem('user'); // optional: also remove user object
+      console.log('User auto-signed out after 30 minutes of inactivity.');
+    }
+  }
+
+  return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+}, []);
+
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
