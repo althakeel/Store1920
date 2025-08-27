@@ -227,4 +227,34 @@
       background-color: #ddd;
     }
   }
-  
+/* Responsive Breakpoints */
+@media (max-width: 1280px) {
+  .horizontal-related-list {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 1120px;
+  }
+}
+
+@media (max-width: 992px) {
+  .horizontal-related-list {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 840px;
+  }
+}
+
+@media (max-width: 768px) {
+  .horizontal-related-list {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns below 768px */
+    max-width: 100%;
+    gap: 16px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .horizontal-related-list {
+    grid-template-columns: repeat(2, 1fr); /* Keep 2 columns even on very small screens */
+    max-width: 100%;
+    padding: 0 5px;
+  }
+}

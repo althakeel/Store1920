@@ -1,17 +1,17 @@
+/* Base sidebar styles */
+.account-sidebar {
+  margin-top: 15px;
+  border-radius: 10px;
+  padding: 12px 0;
+  width: 230px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: width 0.3s ease, padding 0.3s ease;
+}
+
 .account-sidebar ul {
   list-style: none;
   padding-left: 0;
   margin: 0;
-}
-
-.account-sidebar {
-  margin-top: 15px;
-  /* background-color: #fff;  */
-  border-radius: 10px;
-  /* box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); */
-  padding: 12px 0;
-  width: 230px; /* fixed width */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .account-sidebar li {
@@ -34,7 +34,8 @@
     background-color 0.3s ease, 
     color 0.3s ease, 
     border-color 0.3s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    padding 0.2s ease;
 }
 
 .sidebar-item:hover {
@@ -50,7 +51,7 @@
   color: #d35400;
   background-color: #ffe6cc;
   border-left: 5px solid #d35400;
-  padding-left: 18px; /* a little tighter padding for active */
+  padding-left: 18px;
   box-shadow: 2px 0 8px rgba(211, 84, 0, 0.3);
   transform: translateX(5px);
 }
@@ -72,24 +73,52 @@
   white-space: nowrap;
   user-select: none;
 }
-/* Responsive for mobile: narrow sidebar and hide labels */
+
+/* Tablet: ~768px */
 @media (max-width: 768px) {
   .account-sidebar {
-    width: 20px !important; /* narrow fixed width */
-    padding: 12px 4px; /* reduce horizontal padding */
+    width: 40px; /* narrower for tablet */
+    padding: 12px 6px;
   }
 
   .sidebar-item {
-    padding: 12px 4px; /* less padding to fit narrow sidebar */
-    justify-content: center; /* center icon */
+    padding: 12px 6px;
+    justify-content: center;
   }
 
   .sidebar-item .icon {
-    margin-right: 0; /* remove space since label hidden */
-    font-size: 20px; /* optionally slightly bigger icon */
+    margin-right: 0;
+    font-size: 20px;
   }
 
   .sidebar-item .label {
-    display: none; /* hide label on mobile */
+    display: none; /* hide label on tablet */
+  }
+
+  .sidebar-item.active {
+
+  padding-left: 5px;
+
+}
+}
+
+/* Mobile: ~480px */
+@media (max-width: 480px) {
+  .account-sidebar {
+    width: 40px; /* ultra-narrow on mobile */
+    padding: 12px 4px;
+  }
+
+  .sidebar-item {
+    padding: 12px 4px;
+    justify-content: center;
+  }
+
+  .sidebar-item .icon {
+    font-size: 22px; /* slightly bigger for mobile */
+  }
+
+  .sidebar-item .label {
+    display: none;
   }
 }

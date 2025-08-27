@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import '../assets/styles/Rated.css';
+import '../assets/styles/productunder20.css';
 import { useCart } from '../contexts/CartContext';
-import AddCarticon from '../assets/images/addtocart.png';
-import AddedToCartIcon from '../assets/images/added-cart.png';
+import AddCartIcon from '../assets/images/addtocart.png';
+import AddedCartIcon from '../assets/images/added-cart.png';
 import IconAED from '../assets/images/Dirham 2.png';
 import ProductCardReviews from './temp/productcardreviews';
-import PlaceHolderImage from '../assets/images/common/Placeholder.png'
+import PlaceholderImage from '../assets/images/common/Placeholder.png';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v2';
 const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
 const CONSUMER_SECRET = 'cs_92458ba6ab5458347082acc6681560911a9e993d';
-
 const PRODUCTS_PER_PAGE = 20;
 const TITLE_LIMIT = 35;
 
@@ -29,36 +28,33 @@ const ProductsUnder20AED = () => {
   const [showToast, setShowToast] = useState(false);
   const toastTimeoutRef = useRef(null);
 
-  // Fetch products with price filter below 20 AED
-  const fetchProducts = useCallback(
-    async (pageNum = 1) => {
-      setLoading(true);
-      try {
-        const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${pageNum}&max_price=20&orderby=date&order=desc`;
-        const res = await fetch(url);
-        const data = await res.json();
+  // Track loaded images for skeleton replacement
+  const [loadedImages, setLoadedImages] = useState({});
 
-        if (pageNum === 1) {
-          setProducts(data);
-        } else {
-          setProducts((prev) => [...prev, ...data]);
-        }
+  const fetchProducts = useCallback(async (pageNum = 1) => {
+    setLoading(true);
+    try {
+      const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${pageNum}&max_price=20&orderby=date&order=desc`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-        setHasMore(data.length === PRODUCTS_PER_PAGE);
-      } catch (e) {
-        console.error('Failed to fetch products ', e);
-      } finally {
-        setLoading(false);
+      if (pageNum === 1) {
+        setProducts(data);
+      } else {
+        setProducts((prev) => [...prev, ...data]);
       }
-    },
-    []
-  );
+
+      setHasMore(data.length === PRODUCTS_PER_PAGE);
+    } catch (e) {
+      console.error('Failed to fetch products', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchProducts(1);
   }, [fetchProducts]);
-
-  // Removed infinite scroll
 
   const truncate = (str) => (str.length <= TITLE_LIMIT ? str : `${str.slice(0, TITLE_LIMIT)}…`);
 
@@ -73,138 +69,111 @@ const ProductsUnder20AED = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Show toast for product added
   const showAddToCartToast = () => {
     setShowToast(true);
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    toastTimeoutRef.current = setTimeout(() => {
-      setShowToast(false);
-    }, 3000); // 3 seconds
+    toastTimeoutRef.current = setTimeout(() => setShowToast(false), 3000);
   };
 
-  // Handle "Load More" click
   const handleLoadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
     fetchProducts(nextPage);
   };
 
-  return (
-    <div className="pcus-wrapper16" style={{ display: 'flex' }}>
-      <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
-        <h3 style={{ padding: '10px 20px 10px 0' }}>More Deals You’ll Love </h3>
+  const handleImageLoad = (id) => {
+    setLoadedImages((prev) => ({ ...prev, [id]: true }));
+  };
 
-        {loading && products.length === 0 ? (
-          <div className="pcus-prd-grid16">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="pcus-prd-card pcus-skeleton" />
-            ))}
-          </div>
-        ) : products.length === 0 ? (
-          <div style={{ minHeight: '300px', textAlign: 'center', paddingTop: '40px', fontSize: '18px', color: '#666' }}>
-            No products  found.
-          </div>
-        ) : (
-          <div className="pcus-prd-grid16">
-            {products.map((p) => (
-              <div
-                key={p.id}
-                className="pcus-prd-card"
-                onClick={() => onProductClick(p.slug, p.id)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug, p.id)}
-                style={{ position: 'relative' }}
-              >
-    <div className="pcus-image-wrapper1">
-  <img
-    src={p.images?.[0]?.src || PlaceHolderImage} // primary image or placeholder
-    alt={decodeHTML(p.name)}
-    className="pcus-prd-image1 primary-img"
-    loading="lazy"
-    decoding="async"
-  />
-  
-  <img
-    src={p.images?.[1]?.src || PlaceHolderImage} // secondary image or placeholder
-    alt={decodeHTML(p.name)}
-    className="pcus-prd-image1 secondary-img"
-    loading="lazy"
-    decoding="async"
-  />
-</div>
-                <div className="pcus-prd-info1">
-                  <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>
-                  <ProductCardReviews/>
-                  <div className="pcus-prd-price-cart1">
-                    <div className="pcus-prd-prices1">
-                      <img
-                        src={IconAED}
-                        alt="AED currency icon"
-                        style={{ width: 'auto', height: '13px', marginRight: '4px', verticalAlign: 'middle' }}
-                      />
-                      <span className="price1">{parseFloat(p.price).toFixed(2)}</span>
+  return (
+    <div className="pu20-wrapper">
+      <div className="pu20-content">
+        <h3 className="pu20-title">More Deals You’ll Love</h3>
+
+        <div className="pu20-grid">
+          {(loading && products.length === 0
+            ? Array.from({ length: 8 }).map((_, i) => <div key={i} className="pu20-card pu20-skeleton" />)
+            : products
+          ).map((p) => {
+            if (p.id) {
+              return (
+                <div
+                  key={p.id}
+                  className="pu20-card"
+                  onClick={() => onProductClick(p.slug, p.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug, p.id)}
+                >
+                  <div className="pu20-image-wrapper">
+                    {!loadedImages[p.id] && <div className="pu20-image-skeleton" />}
+                    <img
+                      src={p.images?.[0]?.src || PlaceholderImage}
+                      alt={decodeHTML(p.name)}
+                      className={`pu20-image primary ${loadedImages[p.id] ? 'visible' : 'hidden'}`}
+                      loading="lazy"
+                      decoding="async"
+                      onLoad={() => handleImageLoad(p.id)}
+                    />
+                    <img
+                      src={p.images?.[1]?.src || PlaceholderImage}
+                      alt={decodeHTML(p.name)}
+                      className={`pu20-image secondary ${loadedImages[p.id] ? 'visible' : 'hidden'}`}
+                      loading="lazy"
+                      decoding="async"
+                      onLoad={() => handleImageLoad(p.id)}
+                    />
+                  </div>
+
+                  <div className="pu20-info">
+                    <h3 className="pu20-product-title">{truncate(decodeHTML(p.name))}</h3>
+                    <ProductCardReviews />
+
+                    <div className="pu20-price-cart">
+                      <div className="pu20-prices">
+                        <img src={IconAED} alt="AED" className="pu20-currency-icon" />
+                        <span className="pu20-price">{parseFloat(p.price).toFixed(2)}</span>
+                      </div>
+
+                      <button
+                        className={`pu20-add-cart-btn ${cartItems.some((item) => item.id === p.id) ? 'added' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(p, true);
+                          showAddToCartToast();
+                        }}
+                        aria-label={`Add ${decodeHTML(p.name)} to cart`}
+                      >
+                        <img
+                          src={cartItems.some((item) => item.id === p.id) ? AddedCartIcon : AddCartIcon}
+                          alt={cartItems.some((item) => item.id === p.id) ? 'Added' : 'Add'}
+                          className="pu20-add-cart-icon"
+                        />
+                      </button>
                     </div>
-                    <button
-                      className={`pcus-prd-add-cart-btn10 ${cartItems.some((item) => item.id === p.id) ? 'added-to-cart' : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(p, true);
-                        showAddToCartToast();
-                      }}
-                      aria-label={`Add ${decodeHTML(p.name)} to cart`}
-                    >
-                      <img
-                        src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCarticon}
-                        alt={cartItems.some((item) => item.id === p.id) ? 'Added to cart' : 'Add to cart'}
-                        className="pcus-prd-add-cart-icon-img"
-                      />
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            }
+            return null;
+          })}
+        </div>
+
+        {hasMore && (
+          <div className="pu20-loadmore-wrapper">
+            <button
+              className="pu20-loadmore-btn"
+              onClick={handleLoadMore}
+              disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Load More'}
+            </button>
           </div>
         )}
-
-     {hasMore && (
-  <div style={{ textAlign: 'center', margin: '20px 0' }}>
-    <button 
-      className="pcus-load-more-btn" 
-      onClick={handleLoadMore} 
-      disabled={loading}
-      style={{ cursor: loading ? 'not-allowed' : 'pointer' }}
-    >
-      {loading ? 'Loading...' : 'Load More'}
-    </button>
-  </div>
-)}
       </div>
 
-      {/* Toast notification */}
       {showToast && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: '#28a745',
-            color: 'white',
-            padding: '16px 28px',
-            borderRadius: '25px',
-            fontSize: '16px',
-            fontWeight: '600',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
-            zIndex: 9999,
-            pointerEvents: 'none',
-            userSelect: 'none',
-            opacity: showToast ? 1 : 0,
-            transition: 'opacity 0.3s ease-in-out',
-          }}
-        >
-          Product added
-        </div>
+        <div className="pu20-toast">Product added</div>
       )}
     </div>
   );

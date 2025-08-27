@@ -7,6 +7,7 @@ import AddCarticon from '../assets/images/addtocart.png';
 import AddedToCartIcon from '../assets/images/added-cart.png';
 import DummyReviewsSold from '../components/temp/productcardreviews';
 import Dirham from '../assets/images/Dirham 2.png';
+import PlaceHolderImage from '../assets/images/common/Placeholder.png'
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3/products';
 const AUTH = {
@@ -232,7 +233,7 @@ export default function HorizontalRelatedProducts({ productId }) {
             return (
               <div className="horizontal-related-card" key={prod.id}>
                 <img
-                  src={image}
+                   src={image || PlaceHolderImage}
                   alt={prod.name}
                   className="hr-product-image"
                   onClick={() => handleNavigate(prod)}
