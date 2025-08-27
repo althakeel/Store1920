@@ -791,7 +791,7 @@ img.flying-clone {
 
   /* Product grid: smaller columns */
   .pcus-prd-grid001 {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 2fr));
     gap: 10px;
   }
 

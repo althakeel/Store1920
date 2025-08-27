@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
-import { useCart } from '../../../../../contexts/CartContext';
 import 'react-toastify/dist/ReactToastify.css';
+import { useCart } from '../../../../../contexts/CartContext';
 import '../../../../../assets/styles/myaccount/AllOrders.css';
 import axios from 'axios';
 import AddressForm from '../../../../checkoutleft/AddressForm';
@@ -235,7 +235,7 @@ const AllOrders = ({
   const canReturn = (order) => {
     if (order.status !== 'completed') return false;
     const deliveredDate = new Date(order.date_created);
-    deliveredDate.setDate(deliveredDate.getDate() + 7); // assume delivered 7 days after created
+    deliveredDate.setDate(deliveredDate.getDate() + 7);
     const now = new Date();
     const diffDays = Math.floor((now - deliveredDate) / (1000 * 60 * 60 * 24));
     return diffDays <= 10;
@@ -267,7 +267,6 @@ const AllOrders = ({
         <OrderDetailsInline order={detailedOrder} onClose={() => setDetailedOrder(null)} />
       )}
 
-      {/* Return popup */}
       {returningOrder && (
         <div className="return-modal-overlay">
           <div className="return-modal">
@@ -313,14 +312,33 @@ const AllOrders = ({
       )}
 
       {orders.map((order) => (
-        <div key={order.id} className="order-card-simple">
-          {/* Header */}
+        <div key={order.id} 
+          className={`order-card-simple ${order.status === 'cancelled' ? 'order-cancelled' : ''}`}>
+          
+          {order.status === 'cancelled' && (
+            <div className="cancelled-overlay">
+                  <div className="cancel-text-box">
+              <div className="cancel-info-title">Order Cancelled</div>
+              <div>
+                <strong>Cancelled by:</strong> {order.cancelled_by?.toLowerCase() === 'customer' ? 'Customer' : 'Seller'}
+              </div>
+              <div>
+                <strong>Order Date:</strong> {new Date(order.date_created).toLocaleDateString()}
+              </div>
+              {order.date_cancelled && (
+                <div>
+                  <strong>Cancelled Date:</strong> {new Date(order.date_cancelled).toLocaleDateString()}
+                </div>
+              )}
+                  </div>
+            </div>
+          )}
+
           <div className="order-header-simple">
             <div>
               <strong style={{ color: orderStatusColors[order.status] || '#000' }}>
                 Order {orderStatusLabels[order.status] || order.status}
-              </strong>{' '}
-              | Email sent to <span>{order.billing.email}</span> on{' '}
+              </strong> | Email sent to <span>{order.billing.email}</span> on{' '}
               {new Date(order.date_created).toLocaleDateString()}
             </div>
             <button
@@ -330,22 +348,18 @@ const AllOrders = ({
                 background: 'none',
                 border: 'none',
                 padding: 0,
-                margin: 0,
                 color: '#FF8C00',
                 cursor: 'pointer',
-                textDecoration: 'none',
                 fontSize: 'inherit',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '4px',
               }}
             >
-              View order details &nbsp;
-              <span style={{ fontWeight: 'bold', color: '#FF8C00' }}>→</span>
+              View order details &nbsp;<span style={{ fontWeight: 'bold', color: '#FF8C00' }}>→</span>
             </button>
           </div>
 
-          {/* Delivery */}
           <div className="order-delivery-simple">
             <div>
               <span className="fastest-arrival">Fastest arrival within 4 business days.</span>
@@ -354,7 +368,6 @@ const AllOrders = ({
             <div className="credit-badge">AED20 credit if delay</div>
           </div>
 
-          {/* Products */}
           <div className="order-items-grid-simple">
             {order.line_items.map((item) => (
               <div
@@ -363,35 +376,19 @@ const AllOrders = ({
                 onClick={() => handleProductClick(slugify(item.name))}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleProductClick(slugify(item.name));
-                }}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleProductClick(slugify(item.name)); }}
               >
-                <img
-                  src={item.image?.src || 'https://via.placeholder.com/100'}
-                  alt={item.name}
-                />
-                <div className="product-price">
-                  {order.currency} {item.price}
-                </div>
+                <img src={item.image?.src || 'https://via.placeholder.com/100'} alt={item.name} />
+                <div className="product-price">{order.currency} {item.price}</div>
               </div>
             ))}
           </div>
 
-          {/* Summary */}
           <div className="order-summary-simple">
+            <div>{order.line_items.length} item{order.line_items.length > 1 ? 's' : ''}</div>
             <div>
-              {order.line_items.length} item
-              {order.line_items.length > 1 ? 's' : ''}
-            </div>
-            <div>
-              <del>
-                {order.currency} {order.total}
-              </del>
-              &nbsp;
-              <strong>
-                {order.currency} {order.total}
-              </strong>
+              <del>{order.currency} {order.total}</del>&nbsp;
+              <strong>{order.currency} {order.total}</strong>
             </div>
             <div>
               Order Time:{' '}
@@ -407,53 +404,25 @@ const AllOrders = ({
               }).format(new Date(order.date_created))}
             </div>
             <div>Order ID: PO-{order.id}</div>
-            <div>
-              Payment method: {order.payment_method_title || order.payment_method}
-            </div>
+            <div>Payment method: {order.payment_method_title || order.payment_method}</div>
           </div>
 
-          {/* Actions */}
           <div className="order-actions-simple">
-            <button className="btn-outline" onClick={() => openEditAddress(order)}>
-              Change address
-            </button>
-            <button
-              className="btn-secondary"
-              onClick={() => handleBuyAgain(order.line_items, order.id)}
-              disabled={buyingAgainOrderId === order.id}
-            >
+            <button className="btn-outline" onClick={() => openEditAddress(order)}>Change address</button>
+            <button className="btn-secondary" onClick={() => handleBuyAgain(order.line_items, order.id)} disabled={buyingAgainOrderId === order.id}>
               {buyingAgainOrderId === order.id ? 'Adding...' : 'Buy this again'}
             </button>
-            <button
-              className="btn-secondary"
-              onClick={() => setTrackingOrder(order)}
-            >
-              Track
-            </button>
+            <button className="btn-secondary" onClick={() => setTrackingOrder(order)}>Track</button>
             {isCancelable(order.status) && (
-              <button
-                className="btn-secondary"
-                onClick={() => cancelOrder(order.id)}
-                disabled={cancellingOrderId === order.id}
-              >
+              <button className="btn-secondary" onClick={() => cancelOrder(order.id)} disabled={cancellingOrderId === order.id}>
                 {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel items'}
               </button>
             )}
             {order.status === 'completed' && (
               <>
-                <button
-                  className="btn-outline"
-                  onClick={() => generateInvoicePDF(order)}
-                >
-                  Download Invoice
-                </button>
+                <button className="btn-outline" onClick={() => generateInvoicePDF(order)}>Download Invoice</button>
                 {canReturn(order) && (
-                  <button
-                    className="btn-outline"
-                    onClick={() => setReturningOrder(order)}
-                  >
-                    Return Product
-                  </button>
+                  <button className="btn-outline" onClick={() => setReturningOrder(order)}>Return Product</button>
                 )}
               </>
             )}

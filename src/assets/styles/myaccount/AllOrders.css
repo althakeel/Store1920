@@ -1,17 +1,97 @@
-*{
-    font-family: 'Montserrat', sans-serif !important;
+/* Global font */
+* {
+  font-family: 'Montserrat', sans-serif !important;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-}.order-list {
+/* Order List Wrapper */
+.order-list {
   max-width: 1400px;
   margin: 0 auto;
-  font-family: 'Montserrat', sans-serif !important;
-  font-weight: normal;
   display: flex;
   flex-direction: column;
   gap: 24px;
- 
 }
 
+/* Order Card Base */
+.order-card-simple {
+  position: relative;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Cancelled Order Styles */
+.order-card-simple.order-cancelled {
+  background-color: #fff;
+  border: 1px solid #00000000;
+  color: #000;
+  position: relative;
+}
+
+/* Cancelled Overlay */
+/* Cancelled overlay */
+.order-card-simple.order-cancelled .cancelled-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+/* Inner box for text */
+.order-card-simple.order-cancelled .cancelled-overlay .cancel-text-box {
+  background: #000; /* black box */
+  color: #fff;      /* white text */
+  padding: 20px 30px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cancel-info-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* Cancel Info Box */
+.cancel-info-box,
+.cancel-info {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 15px;
+  font-size: 13px;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cancel-info-box strong {
+  font-weight: 600;
+}
+
+/* Return Modal */
 .return-modal-overlay {
   position: fixed;
   top: 0;
@@ -62,6 +142,7 @@
   gap: 10px;
 }
 
+/* Buttons */
 .btn-primary {
   background: #FF8C00;
   color: #fff;
@@ -71,7 +152,6 @@
   cursor: pointer;
   transition: 0.2s;
 }
-
 .btn-primary:hover {
   background: #e67600;
 }
@@ -85,29 +165,28 @@
   cursor: pointer;
   transition: 0.2s;
 }
-
 .btn-secondary:hover {
   background: #FF8C00;
   color: #fff;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-
-
-.order-card-simple {
+.btn-outline {
+  border: 1px solid #ff6f00;
+  color: #ff6f00;
   background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: 0.2s;
+}
+.btn-outline:hover {
+  background: #ff6f00;
+  color: #fff;
 }
 
-
+/* Order Header */
 .order-header-simple {
   display: flex;
   justify-content: space-between;
@@ -117,22 +196,12 @@
   flex-wrap: wrap;
   gap: 8px;
 }
-
 .order-header-simple span {
   font-weight: 500;
   color: #333;
 }
 
-.view-order-link {
-  color: #007185;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 13px;
-}
-.view-order-link:hover {
-  text-decoration: underline;
-}
-
+/* Delivery Section */
 .order-delivery-simple {
   display: flex;
   justify-content: space-between;
@@ -145,12 +214,10 @@
   flex-wrap: wrap;
   gap: 8px;
 }
-
 .fastest-arrival {
   color: #e67e22;
   font-weight: 600;
 }
-
 .credit-badge {
   background: #e9f9ee;
   color: #27ae60;
@@ -161,6 +228,7 @@
   white-space: nowrap;
 }
 
+/* Products Grid */
 .order-items-grid-simple {
   display: flex;
   gap: 12px;
@@ -191,20 +259,19 @@
   background: #fff8f0;
   transform: translateY(-2px);
 }
-
 .order-product-simple img {
   width: 80px;
   height: 80px;
   object-fit: contain;
   margin-bottom: 6px;
 }
-
 .product-price {
   font-size: 13px;
   font-weight: 600;
   color: #ff6f00;
 }
 
+/* Order Summary */
 .order-summary-simple {
   display: flex;
   flex-wrap: wrap;
@@ -214,15 +281,10 @@
   color: #444;
   line-height: 1.6;
 }
+.order-summary-simple del { color: #aaa; }
+.order-summary-simple strong { color: #ff6f00; }
 
-.order-summary-simple del {
-  color: #aaa;
-}
-
-.order-summary-simple strong {
-  color: #ff6f00;
-}
-
+/* Actions */
 .order-actions-simple {
   display: flex;
   flex-wrap: wrap;
@@ -230,57 +292,15 @@
   margin-top: 10px;
 }
 
-.btn-orange {
-  background-color: #ff6f00;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-  transition: background-color 0.2s;
-}
-.btn-orange:hover {
-  background-color: #e65c00;
+/* Fade In Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.btn-outline {
-  border: 1px solid #ff6f00;
-  color: #ff6f00;
-  background: #fff;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-}
-.btn-outline:hover {
-  background: #ff6f00;
-  color: white;
-}
-
-.btn-secondary {
-  background-color: #f0f0f0;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-}
-.btn-secondary:hover {
-  background: #e0e0e0;
-}
-
-/* Mobile responsiveness */
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
-  .order-header-simple {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
+  .order-header-simple,
   .order-delivery-simple {
     flex-direction: column;
     align-items: flex-start;

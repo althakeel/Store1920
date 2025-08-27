@@ -53,6 +53,10 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  // add state
+const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
   const FRONTEND_URL = "https://store1920.com";
 
@@ -240,59 +244,72 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
             className="signin-modal-input"
             required
           />
+{!isRegister && (
+  <>
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      placeholder="Password"
+      value={formData.password}
+      onChange={handleChange}
+      className="signin-modal-input"
+      required
+    />
+    <div className="signin-show-password">
+      <label>
+        <input
+          type="checkbox"
+          checked={showPassword}
+          onChange={() => setShowPassword(!showPassword)}
+        />
+        Show password
+      </label>
+    </div>
+  </>
+)}
 
-          {!isRegister && (
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="signin-modal-input"
-              required
-            />
-          )}
+         {isRegister && (
+  <>
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      placeholder="Password"
+      value={formData.password}
+      onChange={handleChange}
+      className="signin-modal-input"
+      required
+    />
+    <input
+      type={showConfirmPassword ? "text" : "password"}
+      name="confirmPassword"
+      placeholder="Confirm Password"
+      value={formData.confirmPassword}
+      onChange={handleChange}
+      className="signin-modal-input"
+      required
+    />
 
-          {isRegister && (
-            <>
-              <input
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="signin-modal-input"
-                required
-              />
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={handleChange}
-                className="signin-modal-input"
-                required
-              />
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-                className="signin-modal-input"
-                required
-              />
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="signin-modal-input"
-                required
-              />
-            </>
-          )}
+    <div className="signin-show-password">
+      <label>
+        <input
+          type="checkbox"
+          checked={showPassword}
+          onChange={() => setShowPassword(!showPassword)}
+        />
+        Show password
+      </label>
+      <br />
+      <label>
+        <input
+          type="checkbox"
+          checked={showConfirmPassword}
+          onChange={() => setShowConfirmPassword(!showConfirmPassword)}
+        />
+        Show confirm password
+      </label>
+    </div>
+  </>
+)}
 
           <button type="submit" className="signin-submit-btn" disabled={loading}>
             {loading ? "Please wait..." : isRegister ? "Register" : "Continue"}

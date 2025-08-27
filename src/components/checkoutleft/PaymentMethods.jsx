@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import '../../assets/styles/checkoutleft/paymentmethods.css';
-import CreditCardIcon from '../../assets/images/common/credit-card.png'
+import CreditCardIcon from '../../assets/images/common/credit-card.png';
 
 const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
-  const [selectedMethod, setSelectedMethod] = useState(null);
+  const [selectedMethod, setSelectedMethod] = useState('cod');
   const [iframeUrl, setIframeUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // Available payment options
   const paymentOptions = [
     {
       id: 'cod',
@@ -18,62 +18,59 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
     {
       id: 'paymob',
       title: 'Paymob',
-      logo:CreditCardIcon, 
+      logo: CreditCardIcon,
       description: 'Pay securely using your credit/debit card via Paymob',
     },
   ];
 
-  // Supported Paymob card images
   const paymobCardImages = [
     'https://db.store1920.com/wp-content/uploads/2025/07/058c1e09-2f89-4769-9fd9-a3cac76e13e5-1.webp',
     'https://db.store1920.com/wp-content/uploads/2025/07/6fad9cde-cc9c-4364-8583-74bb32612cea.webp',
     'https://db.store1920.com/wp-content/uploads/2025/07/3a626fff-bbf7-4a26-899a-92c42eef809a.png.slim_.webp',
     'https://db.store1920.com/wp-content/uploads/2025/07/b79a2dc3-b089-4cf8-a907-015a25ca12f2.png.slim_.webp',
-
   ];
 
-   // Handle selection of a payment method
   const handleSelection = (id, title) => {
     setSelectedMethod(id);
-    setIframeUrl(null); // reset iframe when switching
+    setIframeUrl(null); // reset iframe if switching method
+    setError('');
     if (onMethodSelect) onMethodSelect(id, title);
   };
 
-  // Initialize Paymob iframe
-  useEffect(() => {
-    if (selectedMethod !== 'paymob' || !orderId) return;
+  // Fetch Paymob iframe URL
+  const fetchPaymobIframe = useCallback(async () => {
+    if (!orderId || selectedMethod !== 'paymob') return;
 
-    const initPaymob = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          'https://db.store1920.com/wp-json/custom/v1/paymob-init',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: Math.round(subtotal * 100), order_id: orderId }),
-          }
-        );
-        const data = await response.json();
-        console.log('Paymob Init Response:', data);
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch('https://db.store1920.com/wp-json/custom/v3/paymob-init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: subtotal, order_id: orderId }), // send decimal AED
+      });
 
+      const data = await response.json();
       if (data.iframe_url) {
-  setIframeUrl(data.iframe_url);
-} else {
-  setIframeUrl(null);
-  console.error('Paymob Init Error:', data);
-  alert("Paymob Init Failed:\n" + JSON.stringify(data, null, 2));
-}
-
-      } catch (err) {
-        console.error('Paymob init error:', err);
-      } finally {
-        setLoading(false);
+        setIframeUrl(data.iframe_url);
+      } else {
+        console.error('Paymob Init Error:', data);
+        setIframeUrl(null);
+        setError('Paymob checkout not available.');
       }
-    };
+    } catch (err) {
+      console.error('Paymob fetch error:', err);
+      setIframeUrl(null);
+      setError('Failed to load Paymob checkout.');
+    } finally {
+      setLoading(false);
+    }
+  }, [subtotal, orderId, selectedMethod]);
 
-    initPaymob();
-  }, [selectedMethod, subtotal, orderId]);
+  // Auto-fetch iframe when method or orderId changes
+  useEffect(() => {
+    if (selectedMethod === 'paymob') fetchPaymobIframe();
+  }, [selectedMethod, orderId, fetchPaymobIframe]);
 
   return (
     <div className="payment-methods-wrapper">
@@ -106,20 +103,13 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
                 <span className="payment-title">{method.title}</span>
               </div>
 
-              {/* Paymob supported card logos */}
-            {method.id === 'paymob' && (
-  <div className="card-logos-top-right">
-    {paymobCardImages.map((img, index) => (
-      <img
-        key={index}
-        src={img}
-        alt={`Paymob card ${index}`}
-        className="card-logo"
-      />
-    ))}
-  </div>
-)}
-
+              {method.id === 'paymob' && (
+                <div className="card-logos-top-right">
+                  {paymobCardImages.map((img, index) => (
+                    <img key={index} src={img} alt={`Paymob card ${index}`} className="card-logo" />
+                  ))}
+                </div>
+              )}
 
               {method.description && <p className="payment-desc">{method.description}</p>}
             </div>
@@ -127,15 +117,25 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
         ))}
       </div>
 
-      {/* Paymob iframe container */}
       {selectedMethod === 'paymob' && (
         <div className="paymob-iframe-wrapper">
           {loading && <p>Loading Paymob checkout...</p>}
           {iframeUrl && !loading && (
-            <iframe src={iframeUrl} title="Paymob Checkout" />
+            <iframe
+              src={iframeUrl}
+              title="Paymob Checkout"
+              width="100%"
+              height="600px"
+              style={{ border: 'none' }}
+            />
           )}
           {!iframeUrl && !loading && (
-            <p style={{ color: '#dc3545' }}>Paymob checkout not available. Please try again.</p>
+            <div style={{ color: '#dc3545', marginTop: '10px' }}>
+              {error}
+              <button onClick={fetchPaymobIframe} style={{ marginLeft: '10px' }}>
+                Retry
+              </button>
+            </div>
           )}
         </div>
       )}

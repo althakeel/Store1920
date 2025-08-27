@@ -10,10 +10,7 @@ import ProductDescription from '../components/products/ProductDescription';
 import SkeletonLoader from '../components/SkeletonLoader';
 import Whislistreport from '../components/products/Whislist-report';
 import ProductReviewList from '../components/products/ProductReviewList';
-import DummyReviewsSold from '../components/temp/DummyReviewsSold';
-import { getProductReviews } from '../data/dummyReviews';
-import  { getProductReviewsWoo } from '../data/wooReviews'
-
+import { getProductReviewsWoo } from '../data/wooReviews';
 
 import '../assets/styles/product-details.css';
 
@@ -43,6 +40,7 @@ export default function ProductDetails() {
   const [activeModal, setActiveModal] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [variations, setVariations] = useState([]);
+  const [extraImages, setExtraImages] = useState([]);
   const [toast, setToast] = useState(null);
   const [reviews, setReviews] = useState([]);
 
@@ -91,49 +89,55 @@ export default function ProductDetails() {
 
   // Auto-select first variation
   useEffect(() => {
-    if (variations.length > 0 && !selectedVariation) setSelectedVariation(variations[0]);
+    if (variations.length > 0 && !selectedVariation) {
+      setSelectedVariation(variations[0]);
+    }
   }, [variations, selectedVariation]);
 
-  // Update main image
+  // Show main image immediately (product first), then switch if variation chosen
   useEffect(() => {
-    if (selectedVariation?.image?.src) setMainImageUrl(selectedVariation.image.src);
-    else if (product?.images?.[0]?.src) setMainImageUrl(product.images[0].src);
-    else setMainImageUrl(null);
+    if (product?.images?.[0]?.src) {
+      setMainImageUrl(product.images[0].src);
+    }
+    if (selectedVariation?.image?.src) {
+      setMainImageUrl(selectedVariation.image.src);
+    }
   }, [product, selectedVariation]);
 
-  // Combined images
+  // Collect extra variation images after fetch
+  useEffect(() => {
+    if (variations.length > 0) {
+      const variantImgs = variations
+        .map((v) => v.image)
+        .filter((img) => img?.src)
+        .filter((img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx);
+      setExtraImages(variantImgs);
+    }
+  }, [variations]);
+
+  // Combined images (product first, then variations)
   const combinedImages = useMemo(() => {
     if (!product) return [];
-    const variantImages = variations
-      .map((v) => v.image)
-      .filter((img) => img && img.src)
-      .filter((img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx);
+    return [
+      ...(product.images || []),
+      ...extraImages,
+    ].filter((img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx);
+  }, [product, extraImages]);
 
-    return [...product.images, ...variantImages].filter(
-      (img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx
-    );
-  }, [product, variations]);
-
-  // Generate dummy reviews
-
-
-useEffect(() => {
-  if (!product) return;
-
-  async function fetchReviews() {
-    try {
-      const reviewsFromWoo = await getProductReviewsWoo(product.id);
-      setReviews(reviewsFromWoo);
-    } catch (err) {
-      console.error('Failed to fetch WooCommerce reviews:', err);
-      setReviews([]);
+  // Fetch reviews
+  useEffect(() => {
+    if (!product) return;
+    async function fetchReviews() {
+      try {
+        const reviewsFromWoo = await getProductReviewsWoo(product.id);
+        setReviews(reviewsFromWoo);
+      } catch (err) {
+        console.error('Failed to fetch WooCommerce reviews:', err);
+        setReviews([]);
+      }
     }
-  }
-
-  fetchReviews();
-}, [product]);
-
-
+    fetchReviews();
+  }, [product]);
 
   const reviewSummary = getReviewSummary(reviews);
 
@@ -205,26 +209,20 @@ useEffect(() => {
             />
 
             <div className="product-review desktop-only">
-              {/* <Whislistreport
-                onAddToWishlist={handleAddToWishlist}
-                onReportProduct={handleReportProduct}
-                isLoggedIn={isLoggedIn}
-                onOpenLoginPopup={() => setShowLoginModal(true)}
-              /> */}
+              {/* Wishlist/report can be enabled here */}
             </div>
 
             <div className="product-review desktop-only">
-            <Suspense fallback={<div>Loading reviews...</div>}>
-<ProductReviewList
-  productId={product.id}
-  user={user}
-  onLogin={login}
-  reviews={reviews}
-  setReviews={setReviews}
-/>
-</Suspense>
-</div>
-
+              <Suspense fallback={<div>Loading reviews...</div>}>
+                <ProductReviewList
+                  productId={product.id}
+                  user={user}
+                  onLogin={login}
+                  reviews={reviews}
+                  setReviews={setReviews}
+                />
+              </Suspense>
+            </div>
           </div>
 
           <div className="product-description desktop-only">
@@ -262,26 +260,24 @@ useEffect(() => {
         />
       </div>
       <div className="product-review mobile-only">
-            <Suspense fallback={<div>Loading reviews...</div>}>
-  <ProductReviewList
-    productId={product.id}
-    user={user}
-    onLogin={login}
-    reviews={reviews}       // <-- pass parent reviews
-    setReviews={setReviews} // <-- allow updating reviews from review list
-  />
-
-</Suspense>
-</div>
+        <Suspense fallback={<div>Loading reviews...</div>}>
+          <ProductReviewList
+            productId={product.id}
+            user={user}
+            onLogin={login}
+            reviews={reviews}
+            setReviews={setReviews}
+          />
+        </Suspense>
+      </div>
 
       <div className="related-products-section">
         <Suspense fallback={<div>Loading related products...</div>}>
-        <RelatedProducts
-  productId={product.id}  // <-- use productId here
-  categories={product.categories || []}
-  tags={product.tags || []}
-/>
-
+          <RelatedProducts
+            productId={product.id}
+            categories={product.categories || []}
+            tags={product.tags || []}
+          />
         </Suspense>
       </div>
 

@@ -341,6 +341,23 @@ useEffect(() => {
     });
   }, [products]);
 
+
+  const fetchAllVariationsForProducts = async (products) => {
+  const variableProducts = products.filter(p => p.type === "variable");
+  const promises = variableProducts.map(p =>
+    fetch(`${API_BASE}/products/${p.id}/variations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100`)
+      .then(res => res.json())
+      .then(data => ({ id: p.id, data }))
+  );
+  const results = await Promise.all(promises);
+  const variationsMap = {};
+  results.forEach(res => {
+    variationsMap[res.id] = res.data;
+  });
+  setProductVariations(variationsMap);
+};
+
+
   const fetchFirstVariation = async (productId) => {
     if (variationPrices[productId]) return;
 
@@ -473,17 +490,23 @@ useEffect(() => {
       el.scrollBy({ left: dir === "left" ? -200 : 200, behavior: "smooth" });
   };
 
-  const onProductClick = useCallback((slug, id) => {
-    let recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
+const onProductClick = useCallback((slug, id) => {
+  setSortedProducts(prevProducts => {
+    const clicked = prevProducts.find(p => p.id === id);
+    const rest = prevProducts.filter(p => p.id !== id);
+    return clicked ? [clicked, ...shuffleArray(rest)] : shuffleArray(rest);
+  });
 
-    recent = recent.filter((rid) => rid !== id);
-    recent.unshift(id);
-    localStorage.setItem("recentProducts", JSON.stringify(recent.slice(0, 5)));
+  // Store recent products if needed
+  const recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
+  const updated = [id, ...recent.filter(rid => rid !== id)].slice(0, 5);
+  localStorage.setItem("recentProducts", JSON.stringify(updated));
 
-    const url = `/product/${slug}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  // Open product page
+  const url = `/product/${slug}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}, []);
+
 
   useEffect(() => {
     const throttledHandleScroll = throttle(() => {
@@ -746,7 +769,10 @@ useEffect(() => {
                       <h3 className="pcus-prd-title1">
                         {decodeHTML(p.name)}
                       </h3>
-                      <ProductCardReviews />
+<ProductCardReviews 
+    productId={p.id} 
+    soldCount={p.total_sales || 0} 
+/>
                       <div className="pcus-prd-price-cart1">
                         <div className="pcus-prd-prices1">
                           <img

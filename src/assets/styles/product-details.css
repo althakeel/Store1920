@@ -38,10 +38,10 @@
 
 
 .product-details-container > .right {
-  position: relative; /* no sticky, no fixed height */
-  height: auto;        /* let it expand naturally */
-  overflow: visible;   /* no internal scroll */
+  position: sticky;  /* keeps it pinned while scrolling left */
   top: 20px;
+  max-height: 100vh;
+  overflow-y: auto;
 }
 
 /* === GALLERY AND DESCRIPTION === */

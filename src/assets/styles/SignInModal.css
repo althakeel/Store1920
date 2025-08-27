@@ -25,6 +25,23 @@
   gap: 16px;
 }
 
+.signin-show-password {
+  font-size: 12px;       /* small text */
+  color: #666;           /* subtle gray */
+  margin-top: -5px;
+  display: flex;
+  justify-content: flex-end; /* aligns to the right */
+}
+
+.signin-show-password label {
+  display: flex;
+  align-items: center;   /* keeps checkbox & text vertically aligned */
+  gap: 4px;              /* space between checkbox and text */
+}
+
+.signin-show-password input[type="checkbox"] {
+  transform: scale(0.8);  /* smaller checkbox */
+}
 
 /* Title */
 .signin-modal-title {

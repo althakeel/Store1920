@@ -116,6 +116,15 @@ const SearchBar = () => {
           autoComplete="off"
           spellCheck="false"
         />
+        {term && (
+  <button
+    className="scoped-search-clear"
+    onClick={() => setTerm("")}
+    aria-label="Clear search"
+  >
+    ×
+  </button>
+)}
         <button
           className="scoped-search-btn"
           onClick={() => goToProduct()}
