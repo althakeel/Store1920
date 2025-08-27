@@ -11,8 +11,7 @@ const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_680365deac11404c39d7d9b523ac5dc2e1795863';
 const CS = 'cs_adb204011230ed75ddee65df8b446d9a2ca32426';
 
-const buildUrl = (endpoint) =>
-  `${API_BASE}/${endpoint}?consumer_key=${CK}&consumer_secret=${CS}`;
+const buildUrl = (endpoint) => `${API_BASE}/${endpoint}?consumer_key=${CK}&consumer_secret=${CS}`;
 
 function Alert({ message, type = 'info', onClose }) {
   useEffect(() => {
@@ -71,7 +70,6 @@ export default function CheckoutRight({ cartItems, formData }) {
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [coinDiscount, setCoinDiscount] = useState(0);
-  const [coinMessage, setCoinMessage] = useState('');
 
   const itemsTotal = cartItems.reduce(
     (acc, item) => acc + parseFloat(item.price) * item.quantity,
@@ -79,57 +77,52 @@ export default function CheckoutRight({ cartItems, formData }) {
   );
 
   const subtotal = Math.max(0, itemsTotal - discount - coinDiscount);
-  const orderTotal = subtotal;
 
-  const showAlert = (message, type = 'info') => {
-    setAlert({ message, type });
-  };
+  const showAlert = (message, type = 'info') => setAlert({ message, type });
 
   const handlePlaceOrder = async () => {
     const populatedBilling = formData.billingSameAsShipping
       ? { ...formData.shipping }
       : formData.billing;
 
-    const [firstNameCheck, ...lastNamePartsCheck] = (populatedBilling?.fullName || '').trim().split(' ');
-    const lastNameCheck = lastNamePartsCheck.join(' ');
-
-    if (
-      !firstNameCheck ||
-      !populatedBilling.address1 ||
-      !formData.paymentMethod ||
-      !formData.paymentMethodTitle
-    ) {
+    // Basic validation
+    const [firstNameCheck] = (populatedBilling?.fullName || '').trim().split(' ');
+    if (!firstNameCheck || !populatedBilling.address1 || !formData.paymentMethod) {
       showAlert('Please fill in all billing details and select a payment method.', 'error');
       return;
     }
 
     setIsPlacingOrder(true);
 
-    const [first_name, ...lastNameParts] = formData.billing.fullName.trim().split(' ');
+    // Split names
+    const [first_name, ...lastNameParts] = populatedBilling.fullName.trim().split(' ');
     const last_name = lastNameParts.join(' ') || '';
 
     const billing = {
       first_name,
       last_name,
       address_1: populatedBilling.address1,
+      address_2: populatedBilling.address2,
       city: populatedBilling.city || '',
       state: populatedBilling.state || '',
       postcode: populatedBilling.postalCode || '',
       country: populatedBilling.country || '',
       email: populatedBilling.email,
-      phone: populatedBilling.phone || '',
+      phone: populatedBilling.phone,
     };
 
     const shipping = formData.billingSameAsShipping
       ? { ...billing }
       : {
           first_name: (formData.shipping.fullName || '').split(' ')[0] || '',
-          last_name: (formData.shipping.fullName || '').split(' ').slice(1).join(' ') || '',
+          last_name: (formData.shipping.fullName || '').split(' ').slice(1).join('') || '',
           address_1: formData.shipping.address1,
+          address_2: formData.shipping.address2,
           city: formData.shipping.city || '',
           state: formData.shipping.state || '',
           postcode: formData.shipping.postalCode || '',
           country: formData.shipping.country || '',
+          phone: formData.shipping.phone,
         };
 
     const line_items = cartItems.map((item) => ({
@@ -139,15 +132,10 @@ export default function CheckoutRight({ cartItems, formData }) {
 
     try {
       const meta_data = [];
-
       if (coinDiscount > 0) {
-        meta_data.push({
-          key: 'coin_discount',
-          value: coinDiscount.toFixed(2),
-        });
+        meta_data.push({ key: 'coin_discount', value: coinDiscount.toFixed(2) });
       }
 
-      // Get WooCommerce customer ID from localStorage (string)
       const userId = localStorage.getItem('userId');
 
       const orderPayload = {
@@ -158,25 +146,20 @@ export default function CheckoutRight({ cartItems, formData }) {
         payment_method_title: formData.paymentMethodTitle,
         set_paid: formData.paymentMethod !== 'cod',
         meta_data,
-        ...(userId ? { customer_id: parseInt(userId, 10) } : {}), // Added customer_id here
+        ...(userId ? { customer_id: parseInt(userId, 10) } : {}),
       };
 
-      const res = await axios.post(
-        `${API_BASE}/orders`,
-        orderPayload,
-        {
-          auth: {
-            username: CK,
-            password: CS,
-          },
-        }
-      );
+      // Place WooCommerce order
+      const res = await axios.post(`${API_BASE}/orders`, orderPayload, {
+        auth: { username: CK, password: CS },
+      });
 
       showAlert(`Order placed successfully! Order ID: ${res.data.id}`, 'success');
 
+      // Redirect to success page for all payment methods
       setTimeout(() => {
         window.location.href = `/order-success?order_id=${res.data.id}`;
-      }, 2000);
+      }, 1500);
     } catch (err) {
       console.error(err.response?.data || err.message);
       showAlert('Failed to place order: ' + (err.response?.data?.message || err.message), 'error');
@@ -186,23 +169,23 @@ export default function CheckoutRight({ cartItems, formData }) {
   };
 
   const handleCoupon = (couponData) => {
-    if (couponData) {
-      let discountAmount = 0;
-      if (couponData.discount_type === 'percent') {
-        discountAmount = (itemsTotal * parseFloat(couponData.amount)) / 100;
-      } else {
-        discountAmount = parseFloat(couponData.amount);
-      }
-      discountAmount = Math.min(discountAmount, itemsTotal);
-
-      setDiscount(discountAmount);
-      showAlert(`Coupon applied! You saved AED ${discountAmount.toFixed(2)}`, 'success');
-      console.log('Coupon applied:', couponData);
-    } else {
+    if (!couponData) {
       setDiscount(0);
       showAlert('Coupon removed or invalid.', 'error');
-      console.log('Coupon invalid or removed');
+      return;
     }
+
+    let discountAmount = 0;
+    if (couponData.discount_type === 'percent') {
+      discountAmount = (itemsTotal * parseFloat(couponData.amount)) / 100;
+    } else {
+      discountAmount = parseFloat(couponData.amount);
+    }
+
+    discountAmount = Math.min(discountAmount, itemsTotal);
+
+    setDiscount(discountAmount);
+    showAlert(`Coupon applied! You saved AED ${discountAmount.toFixed(2)}`, 'success');
   };
 
   const handleCoinRedemption = ({ coinsUsed, discountAED }) => {
@@ -210,58 +193,30 @@ export default function CheckoutRight({ cartItems, formData }) {
     showAlert(`You redeemed ${coinsUsed} coins for AED ${discountAED}`, 'success');
   };
 
-  const handleRemoveCoinDiscount = async () => {
-    try {
-      setCoinDiscount(0);
-      showAlert('Coin discount removed.', 'info');
-    } catch (error) {
-      console.error('Error removing coin discount:', error);
-      showAlert('Failed to remove coin discount. Please try again.', 'error');
-    }
+  const handleRemoveCoinDiscount = () => {
+    setCoinDiscount(0);
+    showAlert('Coin discount removed.', 'info');
   };
 
   const getButtonStyle = () => {
+    const base = {
+      color: '#fff',
+      border: 'none',
+      borderRadius: '25px',
+      fontWeight: 600,
+      padding: '14px 36px',
+      cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
+    };
+
     switch (formData.paymentMethod) {
       case 'apple_pay':
-        return {
-          backgroundColor: '#000',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '25px',
-          fontWeight: '600',
-          padding: '14px 36px',
-          cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
-        };
+        return { ...base, backgroundColor: '#000' };
       case 'cod':
-        return {
-          backgroundColor: '#f97316',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '25px',
-          fontWeight: '600',
-          padding: '14px 36px',
-          cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
-        };
+        return { ...base, backgroundColor: '#f97316' };
       case 'card':
-        return {
-          backgroundColor: '#2563eb',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '25px',
-          fontWeight: '600',
-          padding: '14px 36px',
-          cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
-        };
+        return { ...base, backgroundColor: '#2563eb' };
       default:
-        return {
-          backgroundColor: '#10b981',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '25px',
-          fontWeight: '600',
-          padding: '14px 36px',
-          cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
-        };
+        return { ...base, backgroundColor: '#10b981' };
     }
   };
 
@@ -283,7 +238,7 @@ export default function CheckoutRight({ cartItems, formData }) {
 
       <div
         className="summaryRow discount"
-        style={{ color: '#fe6c03', fontWeight: '600' }}
+        style={{ color: '#fe6c03', fontWeight: 600 }}
         aria-label={`Discount AED ${discount.toFixed(2)}`}
       >
         <span>Item(s) discount:</span>
@@ -297,7 +252,7 @@ export default function CheckoutRight({ cartItems, formData }) {
           className="summaryRow"
           style={{
             color: 'green',
-            fontWeight: '600',
+            fontWeight: 600,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -329,14 +284,7 @@ export default function CheckoutRight({ cartItems, formData }) {
         <span>AED {subtotal.toFixed(2)}</span>
       </div>
 
-      <p
-        style={{
-          fontSize: '0.875rem',
-          color: '#666',
-          marginTop: '1rem',
-          lineHeight: '1.4',
-        }}
-      >
+      <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '1rem', lineHeight: '1.4' }}>
         All fees and applicable taxes are included, and no additional charges will apply.
       </p>
       <p style={{ fontSize: '0.75rem', color: '#999', marginTop: '0.5rem' }}>
@@ -364,11 +312,10 @@ export default function CheckoutRight({ cartItems, formData }) {
       </button>
 
       <TrustSection />
-      <div className='mobile-only'>
-      <HelpText />
-  
-</div>
 
+      <div className="mobile-only">
+        <HelpText />
+      </div>
     </aside>
   );
 }

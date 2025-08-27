@@ -1,81 +1,90 @@
+/* =====================
+   Container & Heading
+===================== */
 .payment-methods-wrapper {
-  padding: 20px 20px 20px 5px;
-  background: #fff;
-  border-radius: 12px;
-  box-sizing: border-box;
+  padding: 25px;
+  background: #fdfdfd;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  width: 100%;
+  position: relative;
 }
 
 .payment-heading {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  text-align: left;
-  margin: 0;
-  color: #222;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #1a1a1a;
 }
 
+/* =====================
+   Payment Options & Cards
+===================== */
 .payment-options {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  width: 100%;
 }
-.proceed-btn {
-  margin-top: 20px;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 8px;
-  background: #00b894;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.proceed-btn:hover:not(:disabled) {
-  background: #019170;
-}
-
-.proceed-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
 
 .payment-card {
-  border: 2px solid #eaeaea;
-  border-radius: 12px;
-  padding: 16px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 14px;
+  padding: 18px;
   display: flex;
   gap: 16px;
   align-items: flex-start;
   cursor: pointer;
-  transition: border-color 0.3s ease, background-color 0.3s ease;
+  transition: all 0.3s ease;
   background: #fff;
   position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.payment-card:hover {
+  border-color: #00b894;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
 .payment-card.selected {
   border-color: #00b894;
-  background-color: #f9fdfa;
+  background-color: #f0fff8;
+  box-shadow: 0 6px 18px rgba(0,184,148,0.15);
 }
 
+/* Radio button styling */
 .payment-card input[type="radio"] {
-  margin-top: 5px;
+  margin-top: 4px;
   accent-color: #00b894;
   cursor: pointer;
 }
 
+/* Card Header */
 .payment-card-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 14px;
   flex-wrap: nowrap;
 }
 
+.card-logos-top-right {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 6px;
+}
+
+.card-logos-top-right img {
+  height: 22px;
+  width: auto;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
 .payment-logo {
-  height: 24px;
+  height: 26px;
   width: auto;
   object-fit: contain;
   user-select: none;
@@ -83,97 +92,162 @@
 }
 
 .payment-title {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 16px;
-  color: #222;
+  color: #1a1a1a;
   user-select: none;
 }
 
-.installment-row {
+/* Payment Description */
+.payment-desc {
+  font-size: 13px;
+  color: #666;
+  margin-top: 6px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+/* =====================
+   Card Logos Row
+===================== */
+.card-logos-row {
   display: flex;
   gap: 10px;
   margin-top: 10px;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.card-logo {
+  height: 26px;
+  width: auto;
+  flex-shrink: 0;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.card-logo:hover {
+  transform: scale(1.1);
+}
+
+/* =====================
+   Installments & Forms
+===================== */
+.installment-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .installment-box {
   flex: 1;
-  background: #f0f0f0;
-  border-radius: 8px;
-  padding: 10px;
+  background: #f7f7f7;
+  border-radius: 10px;
+  padding: 12px;
   text-align: center;
   font-size: 14px;
   color: #222;
-  box-sizing: border-box;
 }
 
 .card-details-form {
-  margin-top: 10px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .card-details-form input,
 .card-details-form select {
-  padding: 10px;
+  padding: 12px;
   border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 100%;
+  border-radius: 8px;
   font-size: 14px;
-  box-sizing: border-box;
   outline-offset: 2px;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card-details-form input:focus,
 .card-details-form select:focus {
   border-color: #00b894;
+  box-shadow: 0 0 0 2px rgba(0,184,148,0.2);
   outline: none;
 }
 
 .card-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
-.payment-desc {
-  font-size: 13px;
-  color: #888;
-  margin-top: 8px;
-  text-align: left;
+/* =====================
+   Buttons
+===================== */
+.proceed-btn {
+  margin-top: 22px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #00b894;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
-/* New styles for card logos inside Stripe payment method */
-.card-logos-row {
+.proceed-btn:hover:not(:disabled) {
+  background: #019170;
+  transform: translateY(-1px);
+}
+
+.proceed-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* =====================
+   Paymob / Stripe iframe
+===================== */
+.paymob-iframe-wrapper {
+  width: 100%;
+  min-height: 520px;
+  margin-top: 22px;
   display: flex;
-  gap: 12px;           /* spacing between logos */
-  margin-bottom: 10px;
-  align-items: center; /* vertically center logos */
-  flex-wrap: nowrap;   /* keep all logos in one line, no wrapping */
-}
-
-.card-logo {
-  height: 28px;        /* slightly bigger if you want */
-  width: auto;
-  object-fit: contain;
-  user-select: none;
-  pointer-events: none;
-  filter: grayscale(0);
-  transition: filter 0.3s ease;
-}
-@media (max-width: 768px) {
-.payment-methods-wrapper {
-  padding: 0px;
-  background: #fff;
+  justify-content: center;
+  align-items: center;
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
   border-radius: 12px;
-  box-sizing: border-box;
-}
-.payment-card {
-  padding: 10px 5px;
-  display: flex;
-  align-items: center;   /* vertical alignment */
-  justify-content: space-between; /* optional: spread items horizontally */
+  overflow: hidden;
 }
 
+.paymob-iframe-wrapper iframe {
+  width: 100%;
+  min-height: 520px;
+  border: none;
+  border-radius: 12px;
+}
 
+/* =====================
+   Responsive
+===================== */
+@media (max-width: 768px) {
+  .payment-methods-wrapper {
+    padding: 15px;
+  }
+
+  .payment-card {
+    padding: 12px 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .card-logos-row {
+    gap: 8px;
+  }
+
+  .card-logo {
+    height: 22px;
+  }
 }

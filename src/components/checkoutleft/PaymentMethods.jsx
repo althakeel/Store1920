@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../assets/styles/checkoutleft/paymentmethods.css';
+import CreditCardIcon from '../../assets/images/common/credit-card.png'
 
-const PaymentMethods = ({ onMethodSelect }) => {
+const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
   const [selectedMethod, setSelectedMethod] = useState(null);
+  const [iframeUrl, setIframeUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
 
+  // Available payment options
   const paymentOptions = [
     {
       id: 'cod',
@@ -11,24 +15,65 @@ const PaymentMethods = ({ onMethodSelect }) => {
       logo: 'https://db.store1920.com/wp-content/uploads/2025/07/ae5e15c1-ffe8-42c4-9ddb-bb9ed1fdcf6a.png.slim_.webp',
       description: '',
     },
-    // Example for adding another method
-    // {
-    //   id: 'paymob',
-    //   title: 'Paymob',
-    //   logo: 'https://your-site.com/path-to-paymob-logo.png',
-    //   description: 'Pay securely using Paymob gateway',
-    // },
+    {
+      id: 'paymob',
+      title: 'Paymob',
+      logo:CreditCardIcon, 
+      description: 'Pay securely using your credit/debit card via Paymob',
+    },
   ];
 
+  // Supported Paymob card images
+  const paymobCardImages = [
+    'https://db.store1920.com/wp-content/uploads/2025/07/058c1e09-2f89-4769-9fd9-a3cac76e13e5-1.webp',
+    'https://db.store1920.com/wp-content/uploads/2025/07/6fad9cde-cc9c-4364-8583-74bb32612cea.webp',
+    'https://db.store1920.com/wp-content/uploads/2025/07/3a626fff-bbf7-4a26-899a-92c42eef809a.png.slim_.webp',
+    'https://db.store1920.com/wp-content/uploads/2025/07/b79a2dc3-b089-4cf8-a907-015a25ca12f2.png.slim_.webp',
+
+  ];
+
+   // Handle selection of a payment method
   const handleSelection = (id, title) => {
     setSelectedMethod(id);
+    setIframeUrl(null); // reset iframe when switching
     if (onMethodSelect) onMethodSelect(id, title);
   };
 
-  const handleProceed = () => {
-    // Here you continue checkout process
-    alert(`Proceeding with ${selectedMethod}`);
-  };
+  // Initialize Paymob iframe
+  useEffect(() => {
+    if (selectedMethod !== 'paymob' || !orderId) return;
+
+    const initPaymob = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          'https://db.store1920.com/wp-json/custom/v1/paymob-init',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: Math.round(subtotal * 100), order_id: orderId }),
+          }
+        );
+        const data = await response.json();
+        console.log('Paymob Init Response:', data);
+
+      if (data.iframe_url) {
+  setIframeUrl(data.iframe_url);
+} else {
+  setIframeUrl(null);
+  console.error('Paymob Init Error:', data);
+  alert("Paymob Init Failed:\n" + JSON.stringify(data, null, 2));
+}
+
+      } catch (err) {
+        console.error('Paymob init error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initPaymob();
+  }, [selectedMethod, subtotal, orderId]);
 
   return (
     <div className="payment-methods-wrapper">
@@ -60,19 +105,40 @@ const PaymentMethods = ({ onMethodSelect }) => {
                 <img src={method.logo} alt={method.title} className="payment-logo" />
                 <span className="payment-title">{method.title}</span>
               </div>
+
+              {/* Paymob supported card logos */}
+            {method.id === 'paymob' && (
+  <div className="card-logos-top-right">
+    {paymobCardImages.map((img, index) => (
+      <img
+        key={index}
+        src={img}
+        alt={`Paymob card ${index}`}
+        className="card-logo"
+      />
+    ))}
+  </div>
+)}
+
+
               {method.description && <p className="payment-desc">{method.description}</p>}
             </div>
           </div>
         ))}
       </div>
 
-      {/* <button
-        className="proceed-btn"
-        onClick={handleProceed}
-        disabled={!selectedMethod} // 🔥 disabled until user selects
-      >
-        Continue
-      </button> */}
+      {/* Paymob iframe container */}
+      {selectedMethod === 'paymob' && (
+        <div className="paymob-iframe-wrapper">
+          {loading && <p>Loading Paymob checkout...</p>}
+          {iframeUrl && !loading && (
+            <iframe src={iframeUrl} title="Paymob Checkout" />
+          )}
+          {!iframeUrl && !loading && (
+            <p style={{ color: '#dc3545' }}>Paymob checkout not available. Please try again.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

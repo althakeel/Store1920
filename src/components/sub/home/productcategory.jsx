@@ -196,32 +196,28 @@ const ProductCategory = () => {
       })
       .catch((err) => console.error("Fetch promo error", err));
   }, []);
+useEffect(() => {
+  const recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
 
-  useEffect(() => {
-    const recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
+  if (recent.length === 0) {
+    setSortedProducts(shuffleArray(products)); // always random if no recent
+    return;
+  }
 
-    if (recent.length === 0) {
-      setSortedProducts(products);
-      return;
-    }
+  const recentSet = new Set(recent);
 
-    const recentSet = new Set(recent);
+  const recentProducts = recent
+    .map((id) => products.find((p) => p.id === id))
+    .filter(Boolean);
 
-    const recentProducts = recent
-      .map((id) => products.find((p) => p.id === id))
-      .filter(Boolean);
+  const remainingProducts = products.filter((p) => !recentSet.has(p.id));
 
-    const remainingProducts = products.filter((p) => !recentSet.has(p.id));
-    setSortedProducts([...recentProducts, ...remainingProducts]);
-  }, [products]);
+  setSortedProducts([
+    ...recentProducts,
+    ...shuffleArray(remainingProducts), // shuffle rest
+  ]);
+}, [products]);
 
-  useEffect(() => {
-    products.forEach((p) => {
-      if (p.type === "variable" && !productVariations[p.id]) {
-        fetchAllVariations(p.id);
-      }
-    });
-  }, [products]);
 
   const getProductBadges = (product) => {
     const badges = [];
@@ -601,7 +597,7 @@ const ProductCategory = () => {
         </div>
 
         {loadingProducts && products.length === 0 ? (
-          <div className="pcus-prd-grid">
+          <div className="pcus-prd-grid001">
             {Array.from({ length: 8 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
@@ -621,9 +617,9 @@ const ProductCategory = () => {
           </div>
         ) : (
           <>
-            <div className="pcus-prd-grid">
+            <div className="pcus-prd-grid001">
               {sortedProducts.map((p) => {
-                const hasMegaOffer = !!p.enable_offer; // true if enabled, false otherwise
+                const hasMegaOffer = !!p.enable_offer;
 
                 const isVariable = p.type === "variable";
                 let stockQty = 0;
@@ -745,31 +741,10 @@ const ProductCategory = () => {
                           </span>
                         </div>
                       )}
-
-                      {/* {p.images?.length > 0 && (
-    <button
-      className="quick-view-btn"
-      onClick={(e) => {
-        e.stopPropagation();
-        openQuickView(p.images, decodeHTML(p.name));
-      }}
-    >
-      Quick View
-    </button>
-  )} */}
                     </div>
                     <div className="pcus-prd-info12">
                       <h3 className="pcus-prd-title1">
                         {decodeHTML(p.name)}
-                        {/* {getProductBadges(p).map((badge, idx) => (
-    <span
-      key={idx}
-      className="pcus-badge"
-      style={{ backgroundColor: badgeColors[idx % badgeColors.length] }}
-    >
-      {badgeLabelMap[badge] || badge}
-    </span>
-  ))} */}
                       </h3>
                       <ProductCardReviews />
                       <div className="pcus-prd-price-cart1">
@@ -882,21 +857,6 @@ const ProductCategory = () => {
                           }}
                         />
                       </div>
-                      {/* {inStock ? (
-  stockQty > 0 ? (
-    <span className="pcus-bdge" style={{ backgroundColor: "green" }}>
-      Only {stockQty} left
-    </span>
-  ) : (
-    <span className="pcusadge" style={{ backgroundColor: "green" }}>
-      In stock
-    </span>
-  )
-) : (
-  <span className="pcusdge" style={{ backgroundColor: "red" }}>
-    Out of stock
-  </span>
-)} */}
                     </div>
                   </div>
                 );

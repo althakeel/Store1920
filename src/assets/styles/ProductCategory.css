@@ -330,7 +330,7 @@ img.flying-clone {
 }
 
 /* Products grid */
-.pcus-prd-grid {
+.pcus-prd-grid001 {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr)); /* allow columns to shrink */
   gap: 15px;
@@ -697,9 +697,9 @@ img.flying-clone {
     padding: 10px 10px;
   }
   /* Product grid: flexible columns */
-  .pcus-prd-grid {
+  .pcus-prd-grid001 {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px; /* reduced gap for better fit */
   }
 
@@ -790,8 +790,8 @@ img.flying-clone {
 @media (max-width: 480px) {
 
   /* Product grid: smaller columns */
-  .pcus-prd-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  .pcus-prd-grid001 {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 10px;
   }
 

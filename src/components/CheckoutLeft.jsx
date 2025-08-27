@@ -8,7 +8,6 @@ import AddressForm from '../components/checkoutleft/AddressForm';
 import ItemList from './checkoutleft/ItemList';
 import ShippingMethods from '../components/checkout/ShippingMethods';
 import emptyAddressImg from '../assets/images/adress-not-found.png';
-import DeleteIcon from '../assets/images/Delete-icon.png';
 import ProductsUnder20AED from './ProductsUnder20AED';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
@@ -24,6 +23,8 @@ const CheckoutLeft = ({
   cartItems,
   onRemoveItem,
   onPaymentMethodSelect,
+  subtotal, // ✅ added
+  orderId   // ✅ added
 }) => {
   const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -43,22 +44,17 @@ const CheckoutLeft = ({
       const saved = localStorage.getItem(getLocalStorageKey(user.uid));
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.shipping)
-          onChange({ target: { name: 'shipping', value: parsed.shipping, type: 'object' } }, 'shipping');
-        if (parsed.billing)
-          onChange({ target: { name: 'billing', value: parsed.billing, type: 'object' } }, 'billing');
-        if (typeof parsed.billingSameAsShipping === 'boolean') {
-          onChange({ target: { name: 'billingSameAsShipping', value: parsed.billingSameAsShipping, type: 'checkbox', checked: parsed.billingSameAsShipping } }, 'checkbox');
-        }
-        if (parsed.shippingMethodId)
-          onChange({ target: { name: 'shippingMethodId', value: parsed.shippingMethodId, type: 'radio' } }, 'shipping');
+        if (parsed.shipping) onChange({ target: { name: 'shipping', value: parsed.shipping, type: 'object' } }, 'shipping');
+        if (parsed.billing) onChange({ target: { name: 'billing', value: parsed.billing, type: 'object' } }, 'billing');
+        if (typeof parsed.billingSameAsShipping === 'boolean') onChange({ target: { name: 'billingSameAsShipping', value: parsed.billingSameAsShipping, type: 'checkbox', checked: parsed.billingSameAsShipping } }, 'checkbox');
+        if (parsed.shippingMethodId) onChange({ target: { name: 'shippingMethodId', value: parsed.shippingMethodId, type: 'radio' } }, 'shipping');
       }
     } catch {}
   }, [user]);
 
   // Save formData to localStorage
   useEffect(() => {
-    if (!user) return; // <--- this blocks guests
+    if (!user) return;
     try {
       localStorage.setItem(getLocalStorageKey(user.uid), JSON.stringify(formData));
     } catch {}
@@ -67,30 +63,18 @@ const CheckoutLeft = ({
   // Auto-open AddressForm if shipping address is empty
   useEffect(() => {
     if (!user) return;
-
-    const isShippingEmpty =
-      !formData?.shipping?.address1 || formData?.shipping?.address1.trim() === '';
-
-    if (isShippingEmpty) {
-      setShowForm(true);
-    }
+    const isShippingEmpty = !formData?.shipping?.address1?.trim();
+    if (isShippingEmpty) setShowForm(true);
   }, [user, formData?.shipping]);
 
+  // Filter cart items by price and stock
   const filteredCartItems = cartItems.filter((item) => {
-    const rawPrice = item.prices?.price ?? item.price ?? '';
-    const priceFloat = parseFloat(rawPrice);
-    const priceValid = !isNaN(priceFloat) && priceFloat > 0;
-    const hasStockInfo =
-      item.hasOwnProperty('stock_quantity') ||
-      item.hasOwnProperty('in_stock') ||
-      item.hasOwnProperty('is_in_stock') ||
-      item.hasOwnProperty('stock_status');
-    const stockInQuantity = typeof item.stock_quantity === 'number' ? item.stock_quantity > 0 : true;
-    const stockInFlag =
-      (typeof item.in_stock === 'boolean' ? item.in_stock : true) &&
-      (typeof item.is_in_stock === 'boolean' ? item.is_in_stock : true) &&
-      (typeof item.stock_status === 'string' ? item.stock_status.toLowerCase() === 'instock' : true);
-    return priceValid && (!hasStockInfo || (stockInQuantity && stockInFlag));
+    const price = parseFloat(item.prices?.price ?? item.price ?? 0);
+    const inStockQuantity = typeof item.stock_quantity === 'number' ? item.stock_quantity > 0 : true;
+    const inStockFlag = (typeof item.in_stock !== 'boolean' || item.in_stock) &&
+                        (typeof item.is_in_stock !== 'boolean' || item.is_in_stock) &&
+                        (typeof item.stock_status !== 'string' || item.stock_status.toLowerCase() === 'instock');
+    return price > 0 && inStockQuantity && inStockFlag;
   });
 
   const handleDeleteAddress = () => {
@@ -98,10 +82,10 @@ const CheckoutLeft = ({
     setSelectedShippingMethodId(null);
     if (user) localStorage.removeItem(getLocalStorageKey(user.uid));
     onChange({ target: { name: 'shipping', value: emptyAddress, type: 'object' } }, 'shipping');
-    if (!formData.billingSameAsShipping)
-      onChange({ target: { name: 'billing', value: emptyAddress, type: 'object' } }, 'billing');
+    if (!formData.billingSameAsShipping) onChange({ target: { name: 'billing', value: emptyAddress, type: 'object' } }, 'billing');
   };
 
+  // Firebase Auth listener
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser);
@@ -110,7 +94,7 @@ const CheckoutLeft = ({
     return () => unsubscribe();
   }, []);
 
-  const handleRemoveItem = (itemId) => { if (onRemoveItem) onRemoveItem(itemId); };
+  const handleRemoveItem = (itemId) => onRemoveItem?.(itemId);
 
   // Fetch shipping states
   useEffect(() => {
@@ -133,43 +117,45 @@ const CheckoutLeft = ({
       .catch(() => setBillingStates([]));
   }, [formData.billing.country, formData.billingSameAsShipping]);
 
+  // Track selected shipping method
   useEffect(() => {
     setSelectedShippingMethodId(formData.shippingMethodId || null);
   }, [formData.shippingMethodId]);
 
   // Fetch shipping methods
   useEffect(() => {
-    const fetchShippingMethodsByCountry = async () => {
+    const fetchShippingMethods = async () => {
       if (!formData.shipping.country) return setMethodsByZone({});
       try {
         const zonesRes = await fetch(`${API_BASE}/shipping/zones?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
         const zones = await zonesRes.json();
         const countryCode = formData.shipping.country.toUpperCase();
         const matchedZones = [];
+
         for (const zone of zones) {
           const locationsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/locations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
           const locations = await locationsRes.json();
           if (locations.some((loc) => loc.code.toUpperCase() === countryCode)) matchedZones.push(zone);
         }
-        if (matchedZones.length === 0) {
+
+        if (!matchedZones.length) {
           const defaultZoneRes = await fetch(`${API_BASE}/shipping/zones/0/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
           const defaultMethods = await defaultZoneRes.json();
           setMethodsByZone({ Default: defaultMethods || [] });
           return;
         }
+
         const groupedMethods = {};
         for (const zone of matchedZones) {
           const methodsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-          const methods = await methodsRes.json();
-          groupedMethods[zone.name] = methods;
+          groupedMethods[zone.name] = await methodsRes.json();
         }
         setMethodsByZone(groupedMethods);
-      } catch (error) {
-        console.error('Error fetching shipping methods by country:', error);
+      } catch {
         setMethodsByZone({});
       }
     };
-    fetchShippingMethodsByCountry();
+    fetchShippingMethods();
   }, [formData.shipping.country]);
 
   const handleShippingMethodChange = (id) => {
@@ -202,8 +188,8 @@ const CheckoutLeft = ({
       billing: formData.billingSameAsShipping ? formData.shipping : formData.billing,
       billingSameAsShipping: formData.billingSameAsShipping,
       shippingMethodId: formData.shippingMethodId || null,
+      ...(user && { userId: user.uid }),
     };
-    if (user) payload.userId = user.uid;
 
     try {
       const res = await fetch('https://db.store1920.com/wp-json/custom/v1/save-address', {
@@ -233,38 +219,12 @@ const CheckoutLeft = ({
           <div className="section-header">
             <h2 className="shippingadress" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>Shipping Address</span>
-              <div style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
-                <button
-                  onClick={handleAddAddressClick}
-                  className={`btn-add-address1 ${showForm ? 'cancel-btn1' : ''}`}
-                >
-                  {showForm ? 'Cancel' : formData?.shipping?.address1 ? 'Change Address' : 'Add New Address'}
-                </button>
-
-                {/* {formData?.shipping?.address1 && !showForm && (
-                  <button
-                    onClick={handleDeleteAddress}
-                    className="btn-delete-address"
-                    style={{
-                      backgroundColor: 'transparent',
-                      color: '#000',
-                      border: 'none',
-                      padding: '8px 12px',
-                      borderRadius: '5px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      fontSize: '12px',
-                      textDecoration: 'underline',
-                    }}
-                    aria-label="Delete Address"
-                    title="Delete Address"
-                  >
-                    <img src={DeleteIcon} style={{ width: '20px', height: '20px' }} />
-                  </button>
-                )} */}
-              </div>
+              <button
+                onClick={handleAddAddressClick}
+                className={`btn-add-address1 ${showForm ? 'cancel-btn1' : ''}`}
+              >
+                {showForm ? 'Cancel' : formData?.shipping?.address1 ? 'Change Address' : 'Add New Address'}
+              </button>
             </h2>
 
             {formData?.shipping?.address1 ? (
@@ -287,9 +247,7 @@ const CheckoutLeft = ({
                   <div className="saved-address-value">{formData.shipping.state}</div>
                   <div className="saved-address-label">Country</div>
                   <div className="saved-address-colon">:</div>
-                  <div className="saved-address-value">
-                    {/* {countries[formData.shipping.country]?.name || formData.shipping.country} */} United Arab Emirates
-                  </div>
+                  <div className="saved-address-value">United Arab Emirates</div>
                 </div>
               </div>
             ) : !showForm && (
@@ -322,9 +280,12 @@ const CheckoutLeft = ({
         <PaymentMethods
           selectedMethod={formData.paymentMethod || 'cod'}
           onMethodSelect={handlePaymentSelect}
+          subtotal={subtotal}
+          orderId={orderId}
         />
       </div>
 
+      {/* Sidebar Help */}
       <div className="desktop-only">
         <HelpText />
         <ProductsUnder20AED />
@@ -357,6 +318,7 @@ const CheckoutLeft = ({
         />
       )}
 
+      {/* Success Toast */}
       {saveSuccess && <div className="addrf-toast">✅ Address saved successfully!</div>}
     </div>
   );

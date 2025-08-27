@@ -44,6 +44,7 @@ import TopSellingitems from './pages/topselling';
 import CategoryPage from './pages/CategoryPage';
 import Contact from './pages/contact';
 import Search from './pages/search';
+import PaymobSuccess from './pages/PaymobSuccess';
 
 // Components
 import Topbar from './components/topbar';
@@ -60,6 +61,7 @@ import { useNetworkSpeed } from './hooks/useNetworkSpeed';
 import { ToastContainer } from 'react-toastify';
 import CookiePopup from './components/common/CookiePopup';
 import PurchasePopup from './components/common/PurchasePopup';
+
 
 
 const AppContent = () => {
@@ -191,6 +193,7 @@ const AppContent = () => {
                     <Route path="*" element={<NotFound />} />
                           <Route path="contact" element={<Contact />} />
                                 <Route path="search" element={<Search />} />
+                                <Route path="/paymob-success" element={<PaymobSuccess />} />
                   </Routes>
                 </main>
 
