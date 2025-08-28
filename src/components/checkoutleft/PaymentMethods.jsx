@@ -37,23 +37,27 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
     if (onMethodSelect) onMethodSelect(id, title);
   };
 
-  // Fetch Paymob iframe URL
+  // Fetch Paymob iframe URL from WordPress server
   const fetchPaymobIframe = useCallback(async () => {
     if (!orderId || selectedMethod !== 'paymob') return;
 
     setLoading(true);
     setError('');
     try {
-     const response = await fetch('https://db.store1920.com/wp-json/custom/v3/paymob-init', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ amount: subtotal, order_id: orderId }),
-});
-const data = await response.json();
-setIframeUrl(data.iframe_url);
+      const response = await fetch(
+        'https://db.store1920.com/wp-json/custom/v3/paymob-init',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: subtotal, order_id: orderId }),
+        }
+      );
 
+      if (!response.ok) throw new Error('Failed to fetch Paymob iframe.');
 
-   
+      const data = await response.json();
+
+      if (data.iframe_url) {
         setIframeUrl(data.iframe_url);
       } else {
         console.error('Paymob Init Error:', data);
@@ -122,6 +126,7 @@ setIframeUrl(data.iframe_url);
       {selectedMethod === 'paymob' && (
         <div className="paymob-iframe-wrapper">
           {loading && <p>Loading Paymob checkout...</p>}
+
           {iframeUrl && !loading && (
             <iframe
               src={iframeUrl}
@@ -131,7 +136,8 @@ setIframeUrl(data.iframe_url);
               style={{ border: 'none' }}
             />
           )}
-          {!iframeUrl && !loading && (
+
+          {!iframeUrl && !loading && error && (
             <div style={{ color: '#dc3545', marginTop: '10px' }}>
               {error}
               <button onClick={fetchPaymobIframe} style={{ marginLeft: '10px' }}>
