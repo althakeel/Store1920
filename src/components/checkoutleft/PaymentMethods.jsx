@@ -1,115 +1,67 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import '../../assets/styles/checkoutleft/paymentmethods.css';
 import CreditCardIcon from '../../assets/images/common/credit-card.png';
+import '../../assets/styles/checkoutleft/paymentmethods.css';
 
-const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId, createOrder }) => {
-  const [selectedMethod, setSelectedMethod] = useState('cod');
+const PaymentMethods = ({ selectedMethod, onMethodSelect, subtotal, orderId, createOrder }) => {
   const [iframeUrl, setIframeUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const paymentOptions = [
-    { id: 'cod', title: 'Cash On Delivery', logo: 'https://db.store1920.com/wp-content/uploads/2025/07/ae5e15c1-ffe8-42c4-9ddb-bb9ed1fdcf6a.png.slim_.webp', description: 'Pay with cash upon delivery' },
-    { id: 'paymob', title: 'Paymob', logo: CreditCardIcon, description: 'Pay securely using your credit/debit card via Paymob' },
+    { id: 'cod', title: 'Cash On Delivery', logo: '', description: 'Pay with cash on delivery' },
+    { id: 'paymob', title: 'Paymob', logo: CreditCardIcon, description: 'Pay with card via Paymob' }
   ];
 
-  const paymobCardImages = [
-    'https://db.store1920.com/wp-content/uploads/2025/07/058c1e09-2f89-4769-9fd9-a3cac76e13e5-1.webp',
-    'https://db.store1920.com/wp-content/uploads/2025/07/6fad9cde-cc9c-4364-8583-74bb32612cea.webp',
-    'https://db.store1920.com/wp-content/uploads/2025/07/3a626fff-bbf7-4a26-899a-92c42eef809a.png.slim_.webp',
-    'https://db.store1920.com/wp-content/uploads/2025/07/b79a2dc3-b089-4cf8-a907-015a25ca12f2.png.slim_.webp',
-  ];
-
-  const handleSelection = (id, title) => {
-    setSelectedMethod(id);
-    setIframeUrl(null);
-    setError('');
-    if (onMethodSelect) onMethodSelect(id, title);
-  };
-
-  // ✅ Fetch Paymob iframe
   const fetchPaymobIframe = useCallback(async (currentOrderId) => {
     if (!currentOrderId) return;
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('https://db.store1920.com/wp-json/custom/v3/paymob-init', {
+      const res = await fetch('/wp-json/custom/v3/paymob-init', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type':'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ amount: subtotal, order_id: currentOrderId }),
+        body: JSON.stringify({ amount: subtotal, order_id: currentOrderId })
       });
-      if (!res.ok) throw new Error(`Paymob fetch failed: ${res.status}`);
+      if(!res.ok) throw new Error('Failed to fetch Paymob iframe');
       const data = await res.json();
-      if (data.iframe_url) setIframeUrl(data.iframe_url);
-      else setError('Paymob checkout not available.');
-    } catch (err) {
+      if(data.iframe_url) setIframeUrl(data.iframe_url);
+      else setError('Paymob not available.');
+    } catch(err) {
       console.error(err);
-      setIframeUrl(null);
       setError('Failed to load Paymob checkout.');
-    } finally {
-      setLoading(false);
-    }
+      setIframeUrl(null);
+    } finally { setLoading(false); }
   }, [subtotal]);
 
-  // ⚡ Auto-create order if Paymob selected and no orderId
   useEffect(() => {
-    const handlePaymobFlow = async () => {
-      if (selectedMethod !== 'paymob') return;
-      if (!orderId && createOrder) {
-        try {
-          const newOrderId = await createOrder();
-          if (newOrderId) fetchPaymobIframe(newOrderId);
-        } catch (err) {
-          console.error('Order creation failed', err);
-          setError('Failed to create order for Paymob.');
-        }
-      } else if (orderId) {
-        fetchPaymobIframe(orderId);
-      }
+    const handlePaymob = async () => {
+      if(selectedMethod !== 'paymob') return;
+      const id = orderId || (createOrder ? await createOrder() : null);
+      if(id) fetchPaymobIframe(id);
     };
-    handlePaymobFlow();
+    handlePaymob();
   }, [selectedMethod, orderId, createOrder, fetchPaymobIframe]);
 
   return (
     <div className="payment-methods-wrapper">
-      <h2 className="payment-heading">Payment Methods</h2>
-      <div className="payment-options">
-        {paymentOptions.map((method) => (
-          <div
-            key={method.id}
-            className={`payment-card ${selectedMethod === method.id ? 'selected' : ''}`}
-            onClick={() => handleSelection(method.id, method.title)}
-          >
-            <div className="payment-card-content">
-              <div className="payment-card-header">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  checked={selectedMethod === method.id}
-                  onChange={(e) => { e.stopPropagation(); handleSelection(method.id, method.title); }}
-                />
-                <img src={method.logo} alt={method.title} className="payment-logo" />
-                <span className="payment-title">{method.title}</span>
-              </div>
-              {method.id === 'paymob' && (
-                <>
-                  <div className="card-logos-top-right">
-                    {paymobCardImages.map((img, i) => <img key={i} src={img} alt={`Paymob card ${i}`} className="card-logo" />)}
-                  </div>
-                  {method.description && <p className="payment-desc">{method.description}</p>}
-                  <div className="paymob-iframe-wrapper">
-                    {loading && <p>Loading Paymob checkout...</p>}
-                    {iframeUrl && <iframe src={iframeUrl} title="Paymob Checkout" width="100%" height="600px" style={{ border: 'none' }} />}
-                    {!iframeUrl && !loading && error && <div style={{ color: '#dc3545', marginTop: '10px' }}>{error}</div>}
-                  </div>
-                </>
-              )}
-              {method.id === 'cod' && method.description && <p className="payment-desc">{method.description}</p>}
+      {paymentOptions.map(method => (
+        <div key={method.id} className={`payment-card ${selectedMethod===method.id?'selected':''}`}
+             onClick={()=>onMethodSelect(method.id, method.title)}>
+          <input type="radio" checked={selectedMethod===method.id} readOnly />
+          <img src={method.logo} alt={method.title} />
+          <span>{method.title}</span>
+          <p>{method.description}</p>
+
+          {method.id==='paymob' && (
+            <div>
+              {loading && <p>Loading Paymob checkout...</p>}
+              {iframeUrl && <iframe src={iframeUrl} title="Paymob Checkout" width="100%" height="600" style={{border:'none'}} />}
+              {error && <p style={{color:'red'}}>{error}</p>}
             </div>
-          </div>
-        ))}
-      </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 };

@@ -80,93 +80,92 @@ export default function CheckoutRight({ cartItems, formData }) {
 
   const showAlert = (message, type = 'info') => setAlert({ message, type });
 
-  const handlePlaceOrder = async () => {
-    const populatedBilling = formData.billingSameAsShipping
-      ? { ...formData.shipping }
-      : formData.billing;
+const handlePlaceOrder = async () => {
+  const populatedBilling = formData.billingSameAsShipping
+    ? { ...formData.shipping }
+    : formData.billing;
 
-    // Basic validation
-    const [firstNameCheck] = (populatedBilling?.fullName || '').trim().split(' ');
-    if (!firstNameCheck || !populatedBilling.address1 || !formData.paymentMethod) {
-      showAlert('Please fill in all billing details and select a payment method.', 'error');
-      return;
-    }
+  const [firstNameCheck] = (populatedBilling?.fullName || '').trim().split(' ');
+  if (!firstNameCheck || !populatedBilling.address1 || !formData.paymentMethod) {
+    showAlert('Please fill in all billing details and select a payment method.', 'error');
+    return;
+  }
 
-    setIsPlacingOrder(true);
+  setIsPlacingOrder(true);
 
-    // Split names
-    const [first_name, ...lastNameParts] = populatedBilling.fullName.trim().split(' ');
-    const last_name = lastNameParts.join(' ') || '';
+  const [first_name, ...lastNameParts] = populatedBilling.fullName.trim().split(' ');
+  const last_name = lastNameParts.join('') || '';
 
-    const billing = {
-      first_name,
-      last_name,
-      address_1: populatedBilling.address1,
-      address_2: populatedBilling.address2,
-      city: populatedBilling.city || '',
-      state: populatedBilling.state || '',
-      postcode: populatedBilling.postalCode || '',
-      country: populatedBilling.country || '',
-      email: populatedBilling.email,
-      phone: populatedBilling.phone,
-    };
+  const billing = {
+    first_name,
+    last_name,
+    address_1: populatedBilling.address1,
+    address_2: populatedBilling.address2,
+    city: populatedBilling.city || '',
+    state: populatedBilling.state || '',
+    postcode: populatedBilling.postalCode || '',
+    country: populatedBilling.country || '',
+    email: populatedBilling.email,
+    phone: populatedBilling.phone,
+  };
 
-    const shipping = formData.billingSameAsShipping
-      ? { ...billing }
-      : {
-          first_name: (formData.shipping.fullName || '').split(' ')[0] || '',
-          last_name: (formData.shipping.fullName || '').split(' ').slice(1).join('') || '',
-          address_1: formData.shipping.address1,
-          address_2: formData.shipping.address2,
-          city: formData.shipping.city || '',
-          state: formData.shipping.state || '',
-          postcode: formData.shipping.postalCode || '',
-          country: formData.shipping.country || '',
-          phone: formData.shipping.phone,
-        };
-
-    const line_items = cartItems.map((item) => ({
-      product_id: item.id,
-      quantity: item.quantity,
-    }));
-
-    try {
-      const meta_data = [];
-      if (coinDiscount > 0) {
-        meta_data.push({ key: 'coin_discount', value: coinDiscount.toFixed(2) });
-      }
-
-      const userId = localStorage.getItem('userId');
-
-      const orderPayload = {
-        billing,
-        shipping,
-        line_items,
-        payment_method: formData.paymentMethod,
-        payment_method_title: formData.paymentMethodTitle,
-        set_paid: formData.paymentMethod !== 'cod',
-        meta_data,
-        ...(userId ? { customer_id: parseInt(userId, 10) } : {}),
+  const shipping = formData.billingSameAsShipping
+    ? { ...billing }
+    : {
+        first_name: (formData.shipping.fullName || '').split(' ')[0] || '',
+        last_name: (formData.shipping.fullName || '').split(' ').slice(1).join('') || '',
+        address_1: formData.shipping.address1,
+        address_2: formData.shipping.address2,
+        city: formData.shipping.city || '',
+        state: formData.shipping.state || '',
+        postcode: formData.shipping.postalCode || '',
+        country: formData.shipping.country || '',
+        phone: formData.shipping.phone,
       };
 
-      // Place WooCommerce order
-      const res = await axios.post(`${API_BASE}/orders`, orderPayload, {
-        auth: { username: CK, password: CS },
-      });
+  const line_items = cartItems.map((item) => ({
+    product_id: item.id,
+    quantity: item.quantity,
+  }));
 
-      showAlert(`Order placed successfully! Order ID: ${res.data.id}`, 'success');
-
-      // Redirect to success page for all payment methods
-      setTimeout(() => {
-        window.location.href = `/order-success?order_id=${res.data.id}`;
-      }, 1500);
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-      showAlert('Failed to place order: ' + (err.response?.data?.message || err.message), 'error');
-    } finally {
-      setIsPlacingOrder(false);
+  try {
+    const meta_data = [];
+    if (coinDiscount > 0) {
+      meta_data.push({ key: 'coin_discount', value: coinDiscount.toFixed(2) });
     }
-  };
+
+    const userId = localStorage.getItem('userId');
+
+    const orderPayload = {
+      billing,
+      shipping,
+      line_items,
+      payment_method: formData.paymentMethod,
+      payment_method_title: formData.paymentMethodTitle,
+      set_paid: formData.paymentMethod !== 'cod',
+      meta_data,
+      ...(userId ? { customer_id: parseInt(userId, 10) } : {}),
+    };
+
+    // Place WooCommerce order
+    const res = await axios.post(`${API_BASE}/orders`, orderPayload, {
+      auth: { username: CK, password: CS },
+    });
+
+    const orderId = res.data.id;
+    showAlert(`Order placed successfully! Redirecting...`, 'success');
+
+    // Redirect to iframe URL with order ID
+    const iframeUrl = `/payment-iframe?order_id=${orderId}`;
+    window.location.href = iframeUrl;
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    showAlert('Failed to place order: ' + (err.response?.data?.message || err.message), 'error');
+  } finally {
+    setIsPlacingOrder(false);
+  }
+};
+
 
   const handleCoupon = (couponData) => {
     if (!couponData) {

@@ -16,17 +16,12 @@ const fetchWithAuth = async (endpoint, options = {}) => {
   const authHeader = 'Basic ' + btoa(`${CK}:${CS}`);
   const fetchOptions = {
     ...options,
-    headers: {
-      'Authorization': authHeader,
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
+    headers: { 'Authorization': authHeader, 'Content-Type': 'application/json', ...(options.headers || {}) },
   };
   const res = await fetch(url, fetchOptions);
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    const errorMsg = errorData.message || `Request failed with status ${res.status}`;
-    throw new Error(errorMsg);
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.message || `Request failed with status ${res.status}`);
   }
   return res.json();
 };
@@ -36,206 +31,160 @@ export default function CheckoutPage() {
   const { cartItems: contextCartItems, clearCart } = useCart();
 
   const [cartItems, setCartItems] = useState([]);
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [countries, setCountries] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showSignInModal, setShowSignInModal] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [orderId, setOrderId] = useState(null);
-
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cod');
   const [formData, setFormData] = useState({
-    shipping: { fullName:'', address1:'', address2:'', city:'', state:'', postalCode:'', country:'', phone:'' },
-    billing: { fullName:'', address1:'', address2:'', city:'', state:'', postalCode:'', country:'', phone:'', email:'' },
+    shipping: { fullName:'', address1:'', city:'', state:'', postalCode:'', country:'', phone:'' },
+    billing: { fullName:'', address1:'', city:'', state:'', postalCode:'', country:'', phone:'', email:'' },
     billingSameAsShipping: true,
-    paymentMethod: '',
-    paymentMethodTitle: '',
+    paymentMethod: 'cod',
+    paymentMethodTitle: 'Cash On Delivery',
   });
+  const [orderId, setOrderId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showSignInModal, setShowSignInModal] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [error, setError] = useState('');
 
-  const handlePaymentSelect = (methodId, title) => {
-  setSelectedPaymentMethod(methodId);
-  setFormData(prev => ({
-    ...prev,
-    paymentMethod: methodId,
-    paymentMethodTitle: title
-  }));
-};
+  const subtotal = cartItems.reduce((sum, item) => sum + (parseFloat(item.price)||0) * item.quantity, 0);
 
-
-  // Fetch product details
+  // Fetch products
   useEffect(() => {
-    const fetchProductDetails = async () => {
-      if (!contextCartItems.length) { setCartItems([]); return; }
+    const fetchProducts = async () => {
+      if (!contextCartItems.length) return setCartItems([]);
       try {
         const details = await Promise.all(contextCartItems.map(async (item) => {
-          const product = await fetchWithAuth(`products/${item.id}`);
-          return {
-            ...item,
-            price: parseFloat(product.price) || 0,
-            stockQuantity: product.stock_quantity,
-            inStock: product.stock_quantity > 0,
-            name: product.name,
-          };
+          const prod = await fetchWithAuth(`products/${item.id}`);
+          return { ...item, price: parseFloat(prod.price)||0, inStock: prod.stock_quantity>0, name: prod.name };
         }));
         setCartItems(details);
       } catch {
-        setCartItems(contextCartItems.map((item) => ({ ...item, price: item.price||0, inStock:true })));
+        setCartItems(contextCartItems.map(i => ({ ...i, price:i.price||0, inStock:true })));
       }
     };
-    fetchProductDetails();
+    fetchProducts();
   }, [contextCartItems]);
 
   // Fetch countries & payment methods
   useEffect(() => {
-    const fetchCheckoutData = async () => {
+    const fetchData = async () => {
       try {
-        setLoading(true);
-        const [countriesData, paymentData] = await Promise.all([
+        const [countriesData, paymentsData] = await Promise.all([
           fetchWithAuth('data/countries'),
-          fetchWithAuth('payment_gateways'),
+          fetchWithAuth('payment_gateways')
         ]);
         setCountries(countriesData);
-        setPaymentMethods(paymentData);
-
-        const token = localStorage.getItem('userToken');
-        setIsLoggedIn(!!token);
-      } catch (err) { setError(err.message || 'Failed to load checkout data.'); }
+        setPaymentMethods(paymentsData);
+        setIsLoggedIn(!!localStorage.getItem('userToken'));
+      } catch(err) { setError(err.message || 'Failed to load checkout data.'); }
       finally { setLoading(false); }
     };
-    fetchCheckoutData();
+    fetchData();
   }, []);
 
-  // Default payment method
-  useEffect(() => {
-    if (!paymentMethods.length) return;
-    if (!selectedPaymentMethod) {
-      const defaultMethod = paymentMethods[0];
-      setSelectedPaymentMethod(defaultMethod.id);
-      setFormData((prev) => ({
-        ...prev,
-        paymentMethod: defaultMethod.id,
-        paymentMethodTitle: defaultMethod.title,
-      }));
-    }
-  }, [paymentMethods]);
-
-  const handleChange = (e, section) => {
-    const { name, value, checked, type } = e.target;
-    if (section==='checkbox') setFormData((prev)=>({...prev, billingSameAsShipping: checked}));
-    else if (section==='shipping' || section==='billing') setFormData((prev)=>({...prev, [section]: {...prev[section],[name]:value}}));
-    else if (section==='payment') setFormData((prev)=>({...prev,[name]:value}));
+  const handlePaymentSelect = (methodId, title) => {
+    setSelectedPaymentMethod(methodId);
+    setFormData(prev => ({ ...prev, paymentMethod: methodId, paymentMethodTitle: title }));
   };
 
-  const handleRemoveItem = (itemId) => setCartItems((prev)=>prev.filter((item)=>(item.id||item.product_id)!==itemId));
-  const handleShippingMethodSelect = (id) => setFormData((prev)=>({...prev, shipping:{...prev.shipping, shippingMethodId:id}}));
-  const handleRequireLogin = () => setShowSignInModal(true);
-  const handleLoginSuccess = () => { setIsLoggedIn(true); setShowSignInModal(false); };
-
-  const subtotal = cartItems.reduce((sum,item)=>sum+(parseFloat(item.price)||0)*item.quantity,0);
-  const hasOutOfStock = cartItems.some((item)=>!item.inStock);
-
-  // **PLACE ORDER BEFORE PAYMOB**
-  const handlePlaceOrder = async () => {
-    if (hasOutOfStock) { setError('Please remove out-of-stock items before placing the order.'); return; }
-    setError(''); setSubmitting(true);
-
-    const lineItems = cartItems.map((item)=>({ product_id: item.id, quantity: item.quantity }));
+  const createOrder = async () => {
     const shipping = formData.shipping;
     const billing = formData.billingSameAsShipping ? shipping : formData.billing;
+    const line_items = cartItems.map(i => ({ product_id: i.id, quantity: i.quantity }));
     const userId = localStorage.getItem('userId');
 
-    const orderPayload = {
-      payment_method: selectedPaymentMethod || formData.paymentMethod,
+    const payload = {
+      payment_method: selectedPaymentMethod,
       payment_method_title: formData.paymentMethodTitle,
-      set_paid: false,
-      ...(userId ? { customer_id: parseInt(userId, 10) } : {}),
+      set_paid: selectedPaymentMethod!=='cod',
       billing: {
-        first_name: billing.fullName,
+        first_name: billing.fullName.split(' ')[0] || '',
+        last_name: billing.fullName.split(' ').slice(1).join('') || '',
         address_1: billing.address1,
-        address_2: billing.address2,
         city: billing.city,
         state: billing.state,
         postcode: billing.postalCode,
         country: billing.country,
         phone: billing.phone,
-        email: billing.email,
+        email: billing.email
       },
       shipping: {
-        first_name: shipping.fullName,
+        first_name: shipping.fullName.split(' ')[0] || '',
+        last_name: shipping.fullName.split(' ').slice(1).join('') || '',
         address_1: shipping.address1,
-        address_2: shipping.address2,
         city: shipping.city,
         state: shipping.state,
         postcode: shipping.postalCode,
         country: shipping.country,
-        phone: shipping.phone,
+        phone: shipping.phone
       },
-      line_items: lineItems,
+      line_items,
+      ...(userId ? { customer_id: parseInt(userId,10) } : {})
     };
 
-    try {
-      const orderData = await fetchWithAuth('orders', { method:'POST', body:JSON.stringify(orderPayload) });
-      setOrderId(orderData.id); // ✅ now iframe can show
-      if (selectedPaymentMethod==='cod') {
-        clearCart();
-        navigate(`/order-success?order_id=${orderData.id}`);
-      }
-    } catch(err) { setError(err.message || 'Error placing order.'); }
-    finally { setSubmitting(false); }
+    const order = await fetchWithAuth('orders', { method:'POST', body:JSON.stringify(payload) });
+    setOrderId(order.id);
+    return order.id;
   };
 
-  if (loading) return <div className="loading">Loading checkout...</div>;
-  if (error) return <div className="error">{error}</div>;
-console.log('CheckoutPage: orderId is', orderId);
+  const handlePlaceOrder = async () => {
+    setError('');
+    try {
+      if (selectedPaymentMethod === 'cod') {
+        const id = orderId || await createOrder();
+        clearCart();
+        navigate(`/order-success?order_id=${id}`);
+      } else if (selectedPaymentMethod === 'paymob') {
+        const id = orderId || await createOrder();
+        // iframe handled in PaymentMethods
+      }
+    } catch(err) {
+      setError(err.message || 'Failed to place order.');
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div style={{ color:'red' }}>{error}</div>;
+
   return (
     <>
       <div className="checkoutGrid">
-  <div className="checkout-left-container">
-  <CheckoutLeft
-    formData={formData}
-    onChange={handleChange}
-    countries={countries}
-    cartItems={cartItems}
-    onRemoveItem={handleRemoveItem}
-    onPaymentMethodSelect={setSelectedPaymentMethod}
-    subtotal={subtotal}
-    orderId={orderId}
-  />
-  <PaymentMethods
-    selectedMethod={formData.paymentMethod || 'cod'}
-    onMethodSelect={handlePaymentSelect}
-    subtotal={subtotal}
-    orderId={orderId}
-    createOrder={async () => {
-      const lineItems = cartItems.map(item => ({ product_id: item.id, quantity: item.quantity }));
-      const shipping = formData.shipping;
-      const billing = formData.billingSameAsShipping ? shipping : formData.billing;
-      const payload = { payment_method: 'paymob', payment_method_title: 'Paymob', set_paid: false, billing, shipping, line_items: lineItems };
-      const res = await fetchWithAuth('orders', { method: 'POST', body: JSON.stringify(payload) });
-      setOrderId(res.id);
-      return res.id;
-    }}
-  />
-</div>
+        <div className="checkout-left-container">
+          <CheckoutLeft
+            formData={formData}
+            onChange={(e, section) => {
+              const { name, value } = e.target;
+              setFormData(prev => ({ ...prev, [name]: value }));
+            }}
+            countries={countries}
+            cartItems={cartItems}
+            subtotal={subtotal}
+            orderId={orderId}
+            onPaymentMethodSelect={handlePaymentSelect}
+          />
+        </div>
 
-        
         <CheckoutRight
           cartItems={cartItems}
-          subtotal={subtotal}
           formData={formData}
-          onShippingMethodSelect={handleShippingMethodSelect}
-          onFormChange={handleChange}
+          subtotal={subtotal}
           paymentMethods={paymentMethods}
           selectedPaymentMethod={selectedPaymentMethod}
-          isLoggedIn={isLoggedIn}
-          onRequireLogin={handleRequireLogin}
           onPlaceOrder={handlePlaceOrder}
-          submitting={submitting}
-          hasOutOfStock={hasOutOfStock}
+          isLoggedIn={isLoggedIn}
+          onRequireLogin={()=>setShowSignInModal(true)}
         />
-        {showSignInModal && <SignInModal onClose={()=>setShowSignInModal(false)} onLoginSuccess={handleLoginSuccess} />}
+
+        <PaymentMethods
+          selectedMethod={selectedPaymentMethod}
+          onMethodSelect={handlePaymentSelect}
+          subtotal={subtotal}
+          orderId={orderId}
+          createOrder={createOrder}
+        />
+
+        {showSignInModal && <SignInModal onClose={()=>setShowSignInModal(false)} onLoginSuccess={()=>setIsLoggedIn(true)} />}
       </div>
     </>
   );
