@@ -45,6 +45,7 @@ import CategoryPage from './pages/CategoryPage';
 import Contact from './pages/contact';
 import Search from './pages/search';
 import PaymobSuccess from './pages/PaymobSuccess';
+import PaymobCheckoutPage from './pages/PaymobCheckoutPage'; 
 
 // Components
 import Topbar from './components/topbar';
@@ -194,6 +195,7 @@ const AppContent = () => {
                           <Route path="contact" element={<Contact />} />
                                 <Route path="search" element={<Search />} />
                                 <Route path="/paymob-success" element={<PaymobSuccess />} />
+                                <Route path="/paymob-checkout" element={<PaymobCheckoutPage />} />
                   </Routes>
                 </main>
 

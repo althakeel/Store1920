@@ -1,17 +1,10 @@
 // src/components/checkout/CheckoutRight.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import '../assets/styles/checkout/CheckoutRight.css';
 import TrustSection from './checkout/TrustSection';
 import CouponDiscount from './sub/account/CouponDiscount';
 import CoinBalance from './sub/account/CoinBalace';
 import HelpText from './HelpText';
-
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CK = 'ck_680365deac11404c39d7d9b523ac5dc2e1795863';
-const CS = 'cs_adb204011230ed75ddee65df8b446d9a2ca32426';
-
-const buildUrl = (endpoint) => `${API_BASE}/${endpoint}?consumer_key=${CK}&consumer_secret=${CS}`;
 
 function Alert({ message, type = 'info', onClose }) {
   useEffect(() => {
@@ -65,7 +58,7 @@ function Alert({ message, type = 'info', onClose }) {
   );
 }
 
-export default function CheckoutRight({ cartItems, formData }) {
+export default function CheckoutRight({ cartItems, formData, createOrder, clearCart }) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discount, setDiscount] = useState(0);
@@ -80,92 +73,35 @@ export default function CheckoutRight({ cartItems, formData }) {
 
   const showAlert = (message, type = 'info') => setAlert({ message, type });
 
-const handlePlaceOrder = async () => {
-  const populatedBilling = formData.billingSameAsShipping
-    ? { ...formData.shipping }
-    : formData.billing;
+  const handlePlaceOrder = async () => {
+    const populatedBilling = formData.billingSameAsShipping
+      ? { ...formData.shipping }
+      : formData.billing;
 
-  const [firstNameCheck] = (populatedBilling?.fullName || '').trim().split(' ');
-  if (!firstNameCheck || !populatedBilling.address1 || !formData.paymentMethod) {
-    showAlert('Please fill in all billing details and select a payment method.', 'error');
-    return;
-  }
-
-  setIsPlacingOrder(true);
-
-  const [first_name, ...lastNameParts] = populatedBilling.fullName.trim().split(' ');
-  const last_name = lastNameParts.join('') || '';
-
-  const billing = {
-    first_name,
-    last_name,
-    address_1: populatedBilling.address1,
-    address_2: populatedBilling.address2,
-    city: populatedBilling.city || '',
-    state: populatedBilling.state || '',
-    postcode: populatedBilling.postalCode || '',
-    country: populatedBilling.country || '',
-    email: populatedBilling.email,
-    phone: populatedBilling.phone,
-  };
-
-  const shipping = formData.billingSameAsShipping
-    ? { ...billing }
-    : {
-        first_name: (formData.shipping.fullName || '').split(' ')[0] || '',
-        last_name: (formData.shipping.fullName || '').split(' ').slice(1).join('') || '',
-        address_1: formData.shipping.address1,
-        address_2: formData.shipping.address2,
-        city: formData.shipping.city || '',
-        state: formData.shipping.state || '',
-        postcode: formData.shipping.postalCode || '',
-        country: formData.shipping.country || '',
-        phone: formData.shipping.phone,
-      };
-
-  const line_items = cartItems.map((item) => ({
-    product_id: item.id,
-    quantity: item.quantity,
-  }));
-
-  try {
-    const meta_data = [];
-    if (coinDiscount > 0) {
-      meta_data.push({ key: 'coin_discount', value: coinDiscount.toFixed(2) });
+    const [firstNameCheck] = (populatedBilling?.fullName || '').trim().split(' ');
+    if (!firstNameCheck || !populatedBilling.address1 || !formData.paymentMethod) {
+      showAlert('Please fill in all billing details and select a payment method.', 'error');
+      return;
     }
 
-    const userId = localStorage.getItem('userId');
+    setIsPlacingOrder(true);
 
-    const orderPayload = {
-      billing,
-      shipping,
-      line_items,
-      payment_method: formData.paymentMethod,
-      payment_method_title: formData.paymentMethodTitle,
-      set_paid: formData.paymentMethod !== 'cod',
-      meta_data,
-      ...(userId ? { customer_id: parseInt(userId, 10) } : {}),
-    };
+    try {
+      const orderId = await createOrder();
 
-    // Place WooCommerce order
-    const res = await axios.post(`${API_BASE}/orders`, orderPayload, {
-      auth: { username: CK, password: CS },
-    });
-
-    const orderId = res.data.id;
-    showAlert(`Order placed successfully! Redirecting...`, 'success');
-
-    // Redirect to iframe URL with order ID
-    const iframeUrl = `/payment-iframe?order_id=${orderId}`;
-    window.location.href = iframeUrl;
-  } catch (err) {
-    console.error(err.response?.data || err.message);
-    showAlert('Failed to place order: ' + (err.response?.data?.message || err.message), 'error');
-  } finally {
-    setIsPlacingOrder(false);
-  }
-};
-
+      if (formData.paymentMethod === 'cod' || formData.paymentMethod === 'card') {
+        showAlert('Order placed successfully!', 'success');
+        clearCart();
+        window.location.href = `/order-success?order_id=${orderId}`;
+      } else if (formData.paymentMethod === 'paymob') {
+        window.location.href = `/paymob-checkout?order_id=${orderId}`;
+      }
+    } catch (err) {
+      showAlert('Failed to place order: ' + (err.message || 'Unknown error'), 'error');
+    } finally {
+      setIsPlacingOrder(false);
+    }
+  };
 
   const handleCoupon = (couponData) => {
     if (!couponData) {

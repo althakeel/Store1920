@@ -51,10 +51,10 @@ export default function CheckoutPage() {
 
   // Fetch products
   useEffect(() => {
+    if (!contextCartItems.length) return setCartItems([]);
     const fetchProducts = async () => {
-      if (!contextCartItems.length) return setCartItems([]);
       try {
-        const details = await Promise.all(contextCartItems.map(async (item) => {
+        const details = await Promise.all(contextCartItems.map(async item => {
           const prod = await fetchWithAuth(`products/${item.id}`);
           return { ...item, price: parseFloat(prod.price)||0, inStock: prod.stock_quantity>0, name: prod.name };
         }));
@@ -131,13 +131,12 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async () => {
     setError('');
     try {
+      const id = orderId || await createOrder();
+      clearCart();
       if (selectedPaymentMethod === 'cod') {
-        const id = orderId || await createOrder();
-        clearCart();
         navigate(`/order-success?order_id=${id}`);
-      } else if (selectedPaymentMethod === 'paymob') {
-        const id = orderId || await createOrder();
-        // iframe handled in PaymentMethods
+      } else {
+        navigate(`/paymob-checkout?order_id=${id}`);
       }
     } catch(err) {
       setError(err.message || 'Failed to place order.');
@@ -150,21 +149,18 @@ export default function CheckoutPage() {
   return (
     <>
       <div className="checkoutGrid">
-        <div className="checkout-left-container">
-          <CheckoutLeft
-            formData={formData}
-            onChange={(e, section) => {
-              const { name, value } = e.target;
-              setFormData(prev => ({ ...prev, [name]: value }));
-            }}
-            countries={countries}
-            cartItems={cartItems}
-            subtotal={subtotal}
-            orderId={orderId}
-            onPaymentMethodSelect={handlePaymentSelect}
-          />
-        </div>
-
+        <CheckoutLeft
+          formData={formData}
+          onChange={(e, section) => {
+            const { name, value } = e.target;
+            setFormData(prev => ({ ...prev, [name]: value }));
+          }}
+          countries={countries}
+          cartItems={cartItems}
+          subtotal={subtotal}
+          orderId={orderId}
+          onPaymentMethodSelect={handlePaymentSelect}
+        />
         <CheckoutRight
           cartItems={cartItems}
           formData={formData}
@@ -174,18 +170,11 @@ export default function CheckoutPage() {
           onPlaceOrder={handlePlaceOrder}
           isLoggedIn={isLoggedIn}
           onRequireLogin={()=>setShowSignInModal(true)}
-        />
-
-        <PaymentMethods
-          selectedMethod={selectedPaymentMethod}
-          onMethodSelect={handlePaymentSelect}
-          subtotal={subtotal}
-          orderId={orderId}
           createOrder={createOrder}
+          clearCart={clearCart}
         />
-
-        {showSignInModal && <SignInModal onClose={()=>setShowSignInModal(false)} onLoginSuccess={()=>setIsLoggedIn(true)} />}
       </div>
+      {showSignInModal && <SignInModal onClose={()=>setShowSignInModal(false)} onLoginSuccess={()=>setIsLoggedIn(true)} />}
     </>
   );
 }
