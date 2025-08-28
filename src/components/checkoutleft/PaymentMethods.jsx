@@ -44,14 +44,16 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('https://db.store1920.com/wp-json/custom/v3/paymob-init', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: subtotal, order_id: orderId }), // send decimal AED
-      });
+     const response = await fetch('https://db.store1920.com/wp-json/custom/v3/paymob-init', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ amount: subtotal, order_id: orderId }),
+});
+const data = await response.json();
+setIframeUrl(data.iframe_url);
 
-      const data = await response.json();
-      if (data.iframe_url) {
+
+   
         setIframeUrl(data.iframe_url);
       } else {
         console.error('Paymob Init Error:', data);

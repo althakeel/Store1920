@@ -24,7 +24,7 @@ const CheckoutLeft = ({
   onRemoveItem,
   onPaymentMethodSelect,
   subtotal,
-  orderId,
+  orderId
 }) => {
   const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -40,24 +40,15 @@ const CheckoutLeft = ({
   // Load saved address from localStorage
   useEffect(() => {
     if (!user) return;
-
     try {
       const saved = localStorage.getItem(getLocalStorageKey(user.uid));
-      if (!saved) return;
-
-      const parsed = JSON.parse(saved);
-
-      if (parsed.shipping)
-        onChange({ target: { name: 'shipping', value: parsed.shipping, type: 'object' } }, 'shipping');
-      if (parsed.billing)
-        onChange({ target: { name: 'billing', value: parsed.billing, type: 'object' } }, 'billing');
-      if (typeof parsed.billingSameAsShipping === 'boolean')
-        onChange(
-          { target: { name: 'billingSameAsShipping', value: parsed.billingSameAsShipping, type: 'checkbox', checked: parsed.billingSameAsShipping } },
-          'checkbox'
-        );
-      if (parsed.shippingMethodId)
-        onChange({ target: { name: 'shippingMethodId', value: parsed.shippingMethodId, type: 'radio' } }, 'shipping');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.shipping) onChange({ target: { name: 'shipping', value: parsed.shipping, type: 'object' } }, 'shipping');
+        if (parsed.billing) onChange({ target: { name: 'billing', value: parsed.billing, type: 'object' } }, 'billing');
+        if (typeof parsed.billingSameAsShipping === 'boolean') onChange({ target: { name: 'billingSameAsShipping', value: parsed.billingSameAsShipping, type: 'checkbox', checked: parsed.billingSameAsShipping } }, 'checkbox');
+        if (parsed.shippingMethodId) onChange({ target: { name: 'shippingMethodId', value: parsed.shippingMethodId, type: 'radio' } }, 'shipping');
+      }
     } catch {}
   }, [user, onChange]);
 
@@ -80,11 +71,9 @@ const CheckoutLeft = ({
   const filteredCartItems = cartItems.filter((item) => {
     const price = parseFloat(item.prices?.price ?? item.price ?? 0);
     const inStockQuantity = typeof item.stock_quantity === 'number' ? item.stock_quantity > 0 : true;
-    const inStockFlag =
-      (typeof item.in_stock !== 'boolean' || item.in_stock) &&
-      (typeof item.is_in_stock !== 'boolean' || item.is_in_stock) &&
-      (typeof item.stock_status !== 'string' || item.stock_status.toLowerCase() === 'instock');
-
+    const inStockFlag = (typeof item.in_stock !== 'boolean' || item.in_stock) &&
+                        (typeof item.is_in_stock !== 'boolean' || item.is_in_stock) &&
+                        (typeof item.stock_status !== 'string' || item.stock_status.toLowerCase() === 'instock');
     return price > 0 && inStockQuantity && inStockFlag;
   });
 
@@ -92,10 +81,8 @@ const CheckoutLeft = ({
     const emptyAddress = { fullName: '', address1: '', address2: '', city: '', state: '', postalCode: '', country: '', phone: '' };
     setSelectedShippingMethodId(null);
     if (user) localStorage.removeItem(getLocalStorageKey(user.uid));
-
     onChange({ target: { name: 'shipping', value: emptyAddress, type: 'object' } }, 'shipping');
-    if (!formData.billingSameAsShipping)
-      onChange({ target: { name: 'billing', value: emptyAddress, type: 'object' } }, 'billing');
+    if (!formData.billingSameAsShipping) onChange({ target: { name: 'billing', value: emptyAddress, type: 'object' } }, 'billing');
   };
 
   // Firebase Auth listener
@@ -113,7 +100,6 @@ const CheckoutLeft = ({
   useEffect(() => {
     const country = formData.shipping.country;
     if (!country) return setShippingStates([]);
-
     fetch(`${API_BASE}/data/states/${country}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setShippingStates)
@@ -125,7 +111,6 @@ const CheckoutLeft = ({
     if (formData.billingSameAsShipping) return setBillingStates([]);
     const country = formData.billing.country;
     if (!country) return setBillingStates([]);
-
     fetch(`${API_BASE}/data/states/${country}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setBillingStates)
@@ -141,7 +126,6 @@ const CheckoutLeft = ({
   useEffect(() => {
     const fetchShippingMethods = async () => {
       if (!formData.shipping.country) return setMethodsByZone({});
-
       try {
         const zonesRes = await fetch(`${API_BASE}/shipping/zones?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
         const zones = await zonesRes.json();
@@ -149,9 +133,7 @@ const CheckoutLeft = ({
         const matchedZones = [];
 
         for (const zone of zones) {
-          const locationsRes = await fetch(
-            `${API_BASE}/shipping/zones/${zone.id}/locations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
-          );
+          const locationsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/locations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
           const locations = await locationsRes.json();
           if (locations.some((loc) => loc.code.toUpperCase() === countryCode)) matchedZones.push(zone);
         }
@@ -165,9 +147,7 @@ const CheckoutLeft = ({
 
         const groupedMethods = {};
         for (const zone of matchedZones) {
-          const methodsRes = await fetch(
-            `${API_BASE}/shipping/zones/${zone.id}/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
-          );
+          const methodsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
           groupedMethods[zone.name] = await methodsRes.json();
         }
         setMethodsByZone(groupedMethods);
@@ -175,7 +155,6 @@ const CheckoutLeft = ({
         setMethodsByZone({});
       }
     };
-
     fetchShippingMethods();
   }, [formData.shipping.country]);
 
@@ -219,7 +198,6 @@ const CheckoutLeft = ({
         credentials: 'include',
         body: JSON.stringify(payload),
       });
-
       if (!res.ok) throw new Error('Failed to save');
       await res.json();
       setSaveSuccess(true);
@@ -239,10 +217,7 @@ const CheckoutLeft = ({
       <div className="shipping-container">
         <div className="section-block">
           <div className="section-header">
-            <h2
-              className="shippingadress"
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-            >
+            <h2 className="shippingadress" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>Shipping Address</span>
               <button
                 onClick={handleAddAddressClick}
@@ -258,23 +233,18 @@ const CheckoutLeft = ({
                   <div className="saved-address-label">Name</div>
                   <div className="saved-address-colon">:</div>
                   <div className="saved-address-value">{formData.shipping.fullName}</div>
-
                   <div className="saved-address-label">Address</div>
                   <div className="saved-address-colon">:</div>
                   <div className="saved-address-value">{formData.shipping.address1}</div>
-
                   <div className="saved-address-label">City</div>
                   <div className="saved-address-colon">:</div>
                   <div className="saved-address-value">{formData.shipping.city}</div>
-
                   <div className="saved-address-label">Phone</div>
                   <div className="saved-address-colon">:</div>
                   <div className="saved-address-value">+{formData.shipping.phone}</div>
-
                   <div className="saved-address-label">State</div>
                   <div className="saved-address-colon">:</div>
                   <div className="saved-address-value">{formData.shipping.state}</div>
-
                   <div className="saved-address-label">Country</div>
                   <div className="saved-address-colon">:</div>
                   <div className="saved-address-value">United Arab Emirates</div>
@@ -306,12 +276,14 @@ const CheckoutLeft = ({
       </div>
 
       {/* Payment Methods */}
-      <PaymentMethods
-        selectedMethod={formData.paymentMethod || 'cod'}
-        onMethodSelect={handlePaymentSelect}
-        subtotal={subtotal}
-        orderId={orderId}
-      />
+      {formData.paymentMethod === 'paymob' && orderId && (
+        <PaymentMethods
+          selectedMethod={formData.paymentMethod || 'cod'}
+          onMethodSelect={handlePaymentSelect}
+          subtotal={subtotal}
+          orderId={orderId}
+        />
+      )}
 
       {/* Sidebar Help */}
       <div className="desktop-only">
