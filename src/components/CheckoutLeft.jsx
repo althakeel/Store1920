@@ -269,14 +269,12 @@ const CheckoutLeft = ({
       </div>
 
       {/* Payment Methods */}
-      {formData.paymentMethod === 'paymob' && orderId && (
-        <PaymentMethods
-          selectedMethod={formData.paymentMethod || 'cod'}
-          onMethodSelect={handlePaymentSelect}
-          subtotal={subtotal}
-          orderId={orderId}
-        />
-      )}
+   <PaymentMethods
+  selectedMethod={formData.paymentMethod || 'cod'}
+  onMethodSelect={handlePaymentSelect}
+  subtotal={subtotal}
+  orderId={orderId}
+/>
 
       {/* Sidebar Help */}
       <div className="desktop-only">

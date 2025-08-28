@@ -1,4 +1,3 @@
-// src/pages/CheckoutPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
@@ -6,13 +5,11 @@ import CheckoutLeft from '../components/CheckoutLeft';
 import CheckoutRight from '../components/CheckoutRight';
 import SignInModal from '../components/sub/SignInModal';
 import '../assets/styles/checkout.css';
-import ProductsUnder20AED from '../components/ProductsUnder20AED';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CK = 'ck_e09e8cedfae42e5d0a37728ad6c3a6ce636695dd';
 const CS = 'cs_2d41bc796c7d410174729ffbc2c230f27d6a1eda';
 
-// Helper for authenticated fetch
 const fetchWithAuth = async (endpoint, options = {}) => {
   const url = `${API_BASE}/${endpoint}`;
   const authHeader = 'Basic ' + btoa(`${CK}:${CS}`);
@@ -49,68 +46,37 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState(null);
 
   const [formData, setFormData] = useState({
-    shipping: {
-      fullName: '',
-      address1: '',
-      address2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: '',
-      phone: '',
-    },
-    billing: {
-      fullName: '',
-      address1: '',
-      address2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: '',
-      phone: '',
-      email: '',
-    },
+    shipping: { fullName:'', address1:'', address2:'', city:'', state:'', postalCode:'', country:'', phone:'' },
+    billing: { fullName:'', address1:'', address2:'', city:'', state:'', postalCode:'', country:'', phone:'', email:'' },
     billingSameAsShipping: true,
     paymentMethod: '',
     paymentMethodTitle: '',
   });
 
-  // Fetch product details whenever cart context changes
+  // Fetch product details
   useEffect(() => {
     const fetchProductDetails = async () => {
-      if (!contextCartItems.length) {
-        setCartItems([]);
-        return;
-      }
+      if (!contextCartItems.length) { setCartItems([]); return; }
       try {
-        const details = await Promise.all(
-          contextCartItems.map(async (item) => {
-            const product = await fetchWithAuth(`products/${item.id}`);
-            return {
-              ...item,
-              price: parseFloat(product.price) || 0,
-              stockQuantity: product.stock_quantity,
-              inStock: product.stock_quantity > 0,
-              name: product.name,
-            };
-          })
-        );
-        setCartItems(details);
-      } catch (err) {
-        console.error('Error fetching product details:', err);
-        setCartItems(
-          contextCartItems.map((item) => ({
+        const details = await Promise.all(contextCartItems.map(async (item) => {
+          const product = await fetchWithAuth(`products/${item.id}`);
+          return {
             ...item,
-            price: item.price || 0,
-            inStock: true,
-          }))
-        );
+            price: parseFloat(product.price) || 0,
+            stockQuantity: product.stock_quantity,
+            inStock: product.stock_quantity > 0,
+            name: product.name,
+          };
+        }));
+        setCartItems(details);
+      } catch {
+        setCartItems(contextCartItems.map((item) => ({ ...item, price: item.price||0, inStock:true })));
       }
     };
     fetchProductDetails();
   }, [contextCartItems]);
 
-  // Fetch countries and payment methods on mount
+  // Fetch countries & payment methods
   useEffect(() => {
     const fetchCheckoutData = async () => {
       try {
@@ -124,19 +90,15 @@ export default function CheckoutPage() {
 
         const token = localStorage.getItem('userToken');
         setIsLoggedIn(!!token);
-      } catch (err) {
-        setError(err.message || 'Failed to load checkout data.');
-      } finally {
-        setLoading(false);
-      }
+      } catch (err) { setError(err.message || 'Failed to load checkout data.'); }
+      finally { setLoading(false); }
     };
     fetchCheckoutData();
   }, []);
 
-  // Set default payment method when paymentMethods load
+  // Default payment method
   useEffect(() => {
     if (!paymentMethods.length) return;
-
     if (!selectedPaymentMethod) {
       const defaultMethod = paymentMethods[0];
       setSelectedPaymentMethod(defaultMethod.id);
@@ -148,61 +110,27 @@ export default function CheckoutPage() {
     }
   }, [paymentMethods]);
 
-  // Handle input changes
   const handleChange = (e, section) => {
     const { name, value, checked, type } = e.target;
-    if (section === 'checkbox') {
-      setFormData((prev) => ({ ...prev, billingSameAsShipping: checked }));
-    } else if (section === 'shipping' || section === 'billing') {
-      setFormData((prev) => ({
-        ...prev,
-        [section]: { ...prev[section], [name]: value },
-      }));
-    } else if (section === 'payment') {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    if (section==='checkbox') setFormData((prev)=>({...prev, billingSameAsShipping: checked}));
+    else if (section==='shipping' || section==='billing') setFormData((prev)=>({...prev, [section]: {...prev[section],[name]:value}}));
+    else if (section==='payment') setFormData((prev)=>({...prev,[name]:value}));
   };
 
-  // Remove item from cart
-  const handleRemoveItem = (itemId) => {
-    setCartItems((prev) => prev.filter((item) => (item.id || item.product_id) !== itemId));
-  };
-
-  // Shipping method selection
-  const handleShippingMethodSelect = (id) => {
-    setFormData((prev) => ({
-      ...prev,
-      shipping: { ...prev.shipping, shippingMethodId: id },
-    }));
-  };
-
-  // Login modal
+  const handleRemoveItem = (itemId) => setCartItems((prev)=>prev.filter((item)=>(item.id||item.product_id)!==itemId));
+  const handleShippingMethodSelect = (id) => setFormData((prev)=>({...prev, shipping:{...prev.shipping, shippingMethodId:id}}));
   const handleRequireLogin = () => setShowSignInModal(true);
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-    setShowSignInModal(false);
-  };
+  const handleLoginSuccess = () => { setIsLoggedIn(true); setShowSignInModal(false); };
 
-  // Compute subtotal
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + (parseFloat(item.price) || 0) * item.quantity,
-    0
-  );
+  const subtotal = cartItems.reduce((sum,item)=>sum+(parseFloat(item.price)||0)*item.quantity,0);
+  const hasOutOfStock = cartItems.some((item)=>!item.inStock);
 
-  // Prevent checkout if any item is out of stock
-  const hasOutOfStock = cartItems.some((item) => !item.inStock);
-
-  // Place order
+  // **PLACE ORDER BEFORE PAYMOB**
   const handlePlaceOrder = async () => {
-    if (hasOutOfStock) {
-      setError('Please remove out-of-stock items before placing the order.');
-      return;
-    }
+    if (hasOutOfStock) { setError('Please remove out-of-stock items before placing the order.'); return; }
+    setError(''); setSubmitting(true);
 
-    setError('');
-    setSubmitting(true);
-
-    const lineItems = cartItems.map((item) => ({ product_id: item.id, quantity: item.quantity }));
+    const lineItems = cartItems.map((item)=>({ product_id: item.id, quantity: item.quantity }));
     const shipping = formData.shipping;
     const billing = formData.billingSameAsShipping ? shipping : formData.billing;
     const userId = localStorage.getItem('userId');
@@ -237,25 +165,14 @@ export default function CheckoutPage() {
     };
 
     try {
-      const orderData = await fetchWithAuth('orders', {
-        method: 'POST',
-        body: JSON.stringify(orderPayload),
-      });
-
-      // Save the Woo order ID
-      setOrderId(orderData.id);
-
-      if (selectedPaymentMethod === 'cod') {
+      const orderData = await fetchWithAuth('orders', { method:'POST', body:JSON.stringify(orderPayload) });
+      setOrderId(orderData.id); // ✅ now iframe can show
+      if (selectedPaymentMethod==='cod') {
         clearCart();
         navigate(`/order-success?order_id=${orderData.id}`);
-      } else {
-        setError('');
       }
-    } catch (err) {
-      setError(err.message || 'Error placing order.');
-    } finally {
-      setSubmitting(false);
-    }
+    } catch(err) { setError(err.message || 'Error placing order.'); }
+    finally { setSubmitting(false); }
   };
 
   if (loading) return <div className="loading">Loading checkout...</div>;
@@ -272,9 +189,8 @@ export default function CheckoutPage() {
           onRemoveItem={handleRemoveItem}
           onPaymentMethodSelect={setSelectedPaymentMethod}
           subtotal={subtotal}
-          orderId={orderId}
+          orderId={orderId} // <-- iframe triggers when this exists
         />
-
         <CheckoutRight
           cartItems={cartItems}
           subtotal={subtotal}
@@ -289,10 +205,7 @@ export default function CheckoutPage() {
           submitting={submitting}
           hasOutOfStock={hasOutOfStock}
         />
-
-        {showSignInModal && (
-          <SignInModal onClose={() => setShowSignInModal(false)} onLoginSuccess={handleLoginSuccess} />
-        )}
+        {showSignInModal && <SignInModal onClose={()=>setShowSignInModal(false)} onLoginSuccess={handleLoginSuccess} />}
       </div>
     </>
   );
