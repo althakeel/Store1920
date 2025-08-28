@@ -318,3 +318,4 @@ const CheckoutLeft = ({
 };
 
 export default CheckoutLeft;
+ 
