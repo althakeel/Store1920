@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../assets/styles/checkoutleft.css';
+import SignInModal from './sub/SignInModal';
 import HelpText from './HelpText';
 import PaymentMethods from '../components/checkoutleft/PaymentMethods';
 import AddressForm from '../components/checkoutleft/AddressForm';
@@ -8,11 +9,11 @@ import ShippingMethods from '../components/checkout/ShippingMethods';
 import emptyAddressImg from '../assets/images/adress-not-found.png';
 import ProductsUnder20AED from './ProductsUnder20AED';
 
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
-const CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
+const API_BASE = 'https://db.store1920.com/wp-json';
+const WC_CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
+const WC_CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
 
-const LOCAL_STORAGE_KEY = 'checkoutAddressData_guest';
+const getLocalStorageKey = (userId) => `checkoutAddressData_${userId || 'guest'}`;
 
 const CheckoutLeft = ({
   formData,
@@ -24,7 +25,9 @@ const CheckoutLeft = ({
   subtotal,
   orderId
 }) => {
+  const [user, setUser] = useState(null); // WordPress auth handled via cookies
   const [showForm, setShowForm] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
   const [shippingStates, setShippingStates] = useState([]);
   const [billingStates, setBillingStates] = useState([]);
   const [methodsByZone, setMethodsByZone] = useState({});
@@ -36,7 +39,7 @@ const CheckoutLeft = ({
   // Load saved address from localStorage
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const saved = localStorage.getItem(getLocalStorageKey('wp_user'));
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.shipping) onChange({ target: { name: 'shipping', value: parsed.shipping, type: 'object' } }, 'shipping');
@@ -50,7 +53,7 @@ const CheckoutLeft = ({
   // Save formData to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
+      localStorage.setItem(getLocalStorageKey('wp_user'), JSON.stringify(formData));
     } catch {}
   }, [formData]);
 
@@ -60,7 +63,6 @@ const CheckoutLeft = ({
     if (isShippingEmpty) setShowForm(true);
   }, [formData?.shipping]);
 
-  // Filter cart items by price and stock
   const filteredCartItems = cartItems.filter((item) => {
     const price = parseFloat(item.prices?.price ?? item.price ?? 0);
     const inStockQuantity = typeof item.stock_quantity === 'number' ? item.stock_quantity > 0 : true;
@@ -73,7 +75,7 @@ const CheckoutLeft = ({
   const handleDeleteAddress = () => {
     const emptyAddress = { fullName: '', address1: '', address2: '', city: '', state: '', postalCode: '', country: '', phone: '' };
     setSelectedShippingMethodId(null);
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    localStorage.removeItem(getLocalStorageKey('wp_user'));
     onChange({ target: { name: 'shipping', value: emptyAddress, type: 'object' } }, 'shipping');
     if (!formData.billingSameAsShipping) onChange({ target: { name: 'billing', value: emptyAddress, type: 'object' } }, 'billing');
   };
@@ -84,7 +86,7 @@ const CheckoutLeft = ({
   useEffect(() => {
     const country = formData.shipping.country;
     if (!country) return setShippingStates([]);
-    fetch(`${API_BASE}/data/states/${country}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`)
+    fetch(`${API_BASE}/wc/v3/data/states/${country}?consumer_key=${WC_CONSUMER_KEY}&consumer_secret=${WC_CONSUMER_SECRET}`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setShippingStates)
       .catch(() => setShippingStates([]));
@@ -95,13 +97,12 @@ const CheckoutLeft = ({
     if (formData.billingSameAsShipping) return setBillingStates([]);
     const country = formData.billing.country;
     if (!country) return setBillingStates([]);
-    fetch(`${API_BASE}/data/states/${country}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`)
+    fetch(`${API_BASE}/wc/v3/data/states/${country}?consumer_key=${WC_CONSUMER_KEY}&consumer_secret=${WC_CONSUMER_SECRET}`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setBillingStates)
       .catch(() => setBillingStates([]));
   }, [formData.billing.country, formData.billingSameAsShipping]);
 
-  // Track selected shipping method
   useEffect(() => {
     setSelectedShippingMethodId(formData.shippingMethodId || null);
   }, [formData.shippingMethodId]);
@@ -111,19 +112,19 @@ const CheckoutLeft = ({
     const fetchShippingMethods = async () => {
       if (!formData.shipping.country) return setMethodsByZone({});
       try {
-        const zonesRes = await fetch(`${API_BASE}/shipping/zones?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+        const zonesRes = await fetch(`${API_BASE}/wc/v3/shipping/zones?consumer_key=${WC_CONSUMER_KEY}&consumer_secret=${WC_CONSUMER_SECRET}`);
         const zones = await zonesRes.json();
         const countryCode = formData.shipping.country.toUpperCase();
         const matchedZones = [];
 
         for (const zone of zones) {
-          const locationsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/locations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+          const locationsRes = await fetch(`${API_BASE}/wc/v3/shipping/zones/${zone.id}/locations?consumer_key=${WC_CONSUMER_KEY}&consumer_secret=${WC_CONSUMER_SECRET}`);
           const locations = await locationsRes.json();
           if (locations.some((loc) => loc.code.toUpperCase() === countryCode)) matchedZones.push(zone);
         }
 
         if (!matchedZones.length) {
-          const defaultZoneRes = await fetch(`${API_BASE}/shipping/zones/0/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+          const defaultZoneRes = await fetch(`${API_BASE}/wc/v3/shipping/zones/0/methods?consumer_key=${WC_CONSUMER_KEY}&consumer_secret=${WC_CONSUMER_SECRET}`);
           const defaultMethods = await defaultZoneRes.json();
           setMethodsByZone({ Default: defaultMethods || [] });
           return;
@@ -131,7 +132,7 @@ const CheckoutLeft = ({
 
         const groupedMethods = {};
         for (const zone of matchedZones) {
-          const methodsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
+          const methodsRes = await fetch(`${API_BASE}/wc/v3/shipping/zones/${zone.id}/methods?consumer_key=${WC_CONSUMER_KEY}&consumer_secret=${WC_CONSUMER_SECRET}`);
           groupedMethods[zone.name] = await methodsRes.json();
         }
         setMethodsByZone(groupedMethods);
@@ -163,25 +164,38 @@ const CheckoutLeft = ({
     setError(null);
     setSaveSuccess(false);
 
+    // Transform addresses to WooCommerce expected fields
+    const formatAddress = (addr) => ({
+      first_name: addr.fullName.split(' ')[0] || '',
+      last_name: addr.fullName.split(' ')[1] || '',
+      address_1: addr.address1,
+      address_2: addr.address2,
+      city: addr.city,
+      state: addr.state,
+      postcode: addr.postalCode,
+      country: addr.country,
+      phone: addr.phone,
+    });
+
     const payload = {
-      shipping: formData.shipping,
-      billing: formData.billingSameAsShipping ? formData.shipping : formData.billing,
+      shipping: formatAddress(formData.shipping),
+      billing: formData.billingSameAsShipping ? formatAddress(formData.shipping) : formatAddress(formData.billing),
       billingSameAsShipping: formData.billingSameAsShipping,
       shippingMethodId: formData.shippingMethodId || null,
     };
 
     try {
-      const res = await fetch('https://db.store1920.com/wp-json/custom/v1/save-address', {
+      const res = await fetch(`${API_BASE}/custom/v1/save-address`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Failed to save');
+      if (!res.ok) throw new Error('Failed to save address');
       await res.json();
       setSaveSuccess(true);
       setShowForm(false);
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.removeItem(getLocalStorageKey('wp_user'));
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch {
       setError('Failed to save address. Please try again.');
@@ -255,18 +269,32 @@ const CheckoutLeft = ({
       </div>
 
       {/* Payment Methods */}
-    <PaymentMethods
-  selectedMethod={formData.paymentMethod || 'cod'}
-  onMethodSelect={handlePaymentSelect}
-  subtotal={subtotal}
-  orderId={orderId} // can be null initially
-/>
+      {formData.paymentMethod === 'paymob' && orderId && (
+        <PaymentMethods
+          selectedMethod={formData.paymentMethod || 'cod'}
+          onMethodSelect={handlePaymentSelect}
+          subtotal={subtotal}
+          orderId={orderId}
+        />
+      )}
 
       {/* Sidebar Help */}
       <div className="desktop-only">
         <HelpText />
         <ProductsUnder20AED />
       </div>
+
+      {/* Sign In Modal */}
+      <SignInModal
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+        onLogin={() => {
+          setShowSignInModal(false);
+          setShowForm(true);
+          setSaveSuccess(false);
+          setError(null);
+        }}
+      />
 
       {/* Address Form Modal */}
       {showForm && (
