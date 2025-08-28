@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../assets/styles/checkoutleft.css';
-import SignInModal from './sub/SignInModal';
 import HelpText from './HelpText';
-import { auth } from '../utils/firebase';
 import PaymentMethods from '../components/checkoutleft/PaymentMethods';
 import AddressForm from '../components/checkoutleft/AddressForm';
 import ItemList from './checkoutleft/ItemList';
@@ -14,7 +12,7 @@ const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
 const CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
 
-const getLocalStorageKey = (userId) => `checkoutAddressData_${userId || 'guest'}`;
+const LOCAL_STORAGE_KEY = 'checkoutAddressData_guest';
 
 const CheckoutLeft = ({
   formData,
@@ -26,9 +24,7 @@ const CheckoutLeft = ({
   subtotal,
   orderId
 }) => {
-  const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [showSignInModal, setShowSignInModal] = useState(false);
   const [shippingStates, setShippingStates] = useState([]);
   const [billingStates, setBillingStates] = useState([]);
   const [methodsByZone, setMethodsByZone] = useState({});
@@ -39,9 +35,8 @@ const CheckoutLeft = ({
 
   // Load saved address from localStorage
   useEffect(() => {
-    if (!user) return;
     try {
-      const saved = localStorage.getItem(getLocalStorageKey(user.uid));
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.shipping) onChange({ target: { name: 'shipping', value: parsed.shipping, type: 'object' } }, 'shipping');
@@ -50,22 +45,20 @@ const CheckoutLeft = ({
         if (parsed.shippingMethodId) onChange({ target: { name: 'shippingMethodId', value: parsed.shippingMethodId, type: 'radio' } }, 'shipping');
       }
     } catch {}
-  }, [user, onChange]);
+  }, [onChange]);
 
   // Save formData to localStorage
   useEffect(() => {
-    if (!user) return;
     try {
-      localStorage.setItem(getLocalStorageKey(user.uid), JSON.stringify(formData));
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
     } catch {}
-  }, [formData, user]);
+  }, [formData]);
 
   // Auto-open AddressForm if shipping address is empty
   useEffect(() => {
-    if (!user) return;
     const isShippingEmpty = !formData?.shipping?.address1?.trim();
     if (isShippingEmpty) setShowForm(true);
-  }, [user, formData?.shipping]);
+  }, [formData?.shipping]);
 
   // Filter cart items by price and stock
   const filteredCartItems = cartItems.filter((item) => {
@@ -80,19 +73,10 @@ const CheckoutLeft = ({
   const handleDeleteAddress = () => {
     const emptyAddress = { fullName: '', address1: '', address2: '', city: '', state: '', postalCode: '', country: '', phone: '' };
     setSelectedShippingMethodId(null);
-    if (user) localStorage.removeItem(getLocalStorageKey(user.uid));
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
     onChange({ target: { name: 'shipping', value: emptyAddress, type: 'object' } }, 'shipping');
     if (!formData.billingSameAsShipping) onChange({ target: { name: 'billing', value: emptyAddress, type: 'object' } }, 'billing');
   };
-
-  // Firebase Auth listener
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      setUser(firebaseUser);
-      if (!firebaseUser) setShowForm(false);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const handleRemoveItem = (itemId) => onRemoveItem?.(itemId);
 
@@ -163,10 +147,6 @@ const CheckoutLeft = ({
   };
 
   const handleAddAddressClick = () => {
-    if (!user) {
-      setShowSignInModal(true);
-      return;
-    }
     setShowForm((prev) => !prev);
     setSaveSuccess(false);
     setError(null);
@@ -188,7 +168,6 @@ const CheckoutLeft = ({
       billing: formData.billingSameAsShipping ? formData.shipping : formData.billing,
       billingSameAsShipping: formData.billingSameAsShipping,
       shippingMethodId: formData.shippingMethodId || null,
-      ...(user && { userId: user.uid }),
     };
 
     try {
@@ -202,7 +181,7 @@ const CheckoutLeft = ({
       await res.json();
       setSaveSuccess(true);
       setShowForm(false);
-      if (user) localStorage.removeItem(getLocalStorageKey(user.uid));
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch {
       setError('Failed to save address. Please try again.');
@@ -276,32 +255,18 @@ const CheckoutLeft = ({
       </div>
 
       {/* Payment Methods */}
-      {formData.paymentMethod === 'paymob' && orderId && (
-        <PaymentMethods
-          selectedMethod={formData.paymentMethod || 'cod'}
-          onMethodSelect={handlePaymentSelect}
-          subtotal={subtotal}
-          orderId={orderId}
-        />
-      )}
+    <PaymentMethods
+  selectedMethod={formData.paymentMethod || 'cod'}
+  onMethodSelect={handlePaymentSelect}
+  subtotal={subtotal}
+  orderId={orderId} // can be null initially
+/>
 
       {/* Sidebar Help */}
       <div className="desktop-only">
         <HelpText />
         <ProductsUnder20AED />
       </div>
-
-      {/* Sign In Modal */}
-      <SignInModal
-        isOpen={!user && showSignInModal}
-        onClose={() => setShowSignInModal(false)}
-        onLogin={() => {
-          setShowSignInModal(false);
-          setShowForm(true);
-          setSaveSuccess(false);
-          setError(null);
-        }}
-      />
 
       {/* Address Form Modal */}
       {showForm && (

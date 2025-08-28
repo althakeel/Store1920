@@ -13,7 +13,7 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
       id: 'cod',
       title: 'Cash On Delivery',
       logo: 'https://db.store1920.com/wp-content/uploads/2025/07/ae5e15c1-ffe8-42c4-9ddb-bb9ed1fdcf6a.png.slim_.webp',
-      description: '',
+      description: 'Pay with cash upon delivery',
     },
     {
       id: 'paymob',
@@ -32,50 +32,46 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
 
   const handleSelection = (id, title) => {
     setSelectedMethod(id);
-    setIframeUrl(null); // reset iframe if switching method
+    setIframeUrl(null);
     setError('');
     if (onMethodSelect) onMethodSelect(id, title);
   };
 
-  // Fetch Paymob iframe URL from WordPress server
   const fetchPaymobIframe = useCallback(async () => {
-    if (!orderId || selectedMethod !== 'paymob') return;
+    if (!orderId) return; // fetch only when orderId exists
 
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(
-        'https://db.store1920.com/wp-json/custom/v3/paymob-init',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: subtotal, order_id: orderId }),
-        }
-      );
+      const response = await fetch('https://db.store1920.com/wp-json/custom/v3/paymob-init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ amount: subtotal, order_id: orderId }),
+      });
 
-      if (!response.ok) throw new Error('Failed to fetch Paymob iframe.');
+      if (!response.ok) throw new Error(`Paymob fetch failed: ${response.status}`);
 
       const data = await response.json();
-
       if (data.iframe_url) {
         setIframeUrl(data.iframe_url);
       } else {
-        console.error('Paymob Init Error:', data);
         setIframeUrl(null);
         setError('Paymob checkout not available.');
       }
     } catch (err) {
-      console.error('Paymob fetch error:', err);
+      console.error(err);
       setIframeUrl(null);
       setError('Failed to load Paymob checkout.');
     } finally {
       setLoading(false);
     }
-  }, [subtotal, orderId, selectedMethod]);
+  }, [subtotal, orderId]);
 
-  // Auto-fetch iframe when method or orderId changes
   useEffect(() => {
-    if (selectedMethod === 'paymob') fetchPaymobIframe();
+    if (selectedMethod === 'paymob' && orderId) {
+      fetchPaymobIframe();
+    }
   }, [selectedMethod, orderId, fetchPaymobIframe]);
 
   return (
@@ -90,9 +86,7 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
             onClick={() => handleSelection(method.id, method.title)}
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') handleSelection(method.id, method.title);
-            }}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ' ? handleSelection(method.id, method.title) : null)}
           >
             <div className="payment-card-content">
               <div className="payment-card-header">
@@ -110,43 +104,43 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
               </div>
 
               {method.id === 'paymob' && (
-                <div className="card-logos-top-right">
-                  {paymobCardImages.map((img, index) => (
-                    <img key={index} src={img} alt={`Paymob card ${index}`} className="card-logo" />
-                  ))}
-                </div>
+                <>
+                  <div className="card-logos-top-right">
+                    {paymobCardImages.map((img, index) => (
+                      <img key={index} src={img} alt={`Paymob card ${index}`} className="card-logo" />
+                    ))}
+                  </div>
+                  {method.description && <p className="payment-desc">{method.description}</p>}
+                  <div className="paymob-iframe-wrapper">
+                    {loading && <p>Loading Paymob checkout...</p>}
+
+                    {iframeUrl && !loading && (
+                      <iframe
+                        src={iframeUrl}
+                        title="Paymob Checkout"
+                        width="100%"
+                        height="600px"
+                        style={{ border: 'none' }}
+                      />
+                    )}
+
+                    {!iframeUrl && !loading && error && (
+                      <div style={{ color: '#dc3545', marginTop: '10px' }}>
+                        {error}
+                        <button onClick={fetchPaymobIframe} style={{ marginLeft: '10px' }}>
+                          Retry
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
 
-              {method.description && <p className="payment-desc">{method.description}</p>}
+              {method.id === 'cod' && method.description && <p className="payment-desc">{method.description}</p>}
             </div>
           </div>
         ))}
       </div>
-
-      {selectedMethod === 'paymob' && (
-        <div className="paymob-iframe-wrapper">
-          {loading && <p>Loading Paymob checkout...</p>}
-
-          {iframeUrl && !loading && (
-            <iframe
-              src={iframeUrl}
-              title="Paymob Checkout"
-              width="100%"
-              height="600px"
-              style={{ border: 'none' }}
-            />
-          )}
-
-          {!iframeUrl && !loading && error && (
-            <div style={{ color: '#dc3545', marginTop: '10px' }}>
-              {error}
-              <button onClick={fetchPaymobIframe} style={{ marginLeft: '10px' }}>
-                Retry
-              </button>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };
