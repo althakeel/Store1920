@@ -177,7 +177,7 @@ export default function CheckoutPage() {
 
   if (loading) return <div className="loading">Loading checkout...</div>;
   if (error) return <div className="error">{error}</div>;
-
+console.log('CheckoutPage: orderId is', orderId);
   return (
     <>
       <div className="checkoutGrid">
@@ -191,6 +191,7 @@ export default function CheckoutPage() {
           subtotal={subtotal}
           orderId={orderId} // <-- iframe triggers when this exists
         />
+        
         <CheckoutRight
           cartItems={cartItems}
           subtotal={subtotal}
