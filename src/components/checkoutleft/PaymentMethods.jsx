@@ -2,9 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import '../../assets/styles/checkoutleft/paymentmethods.css';
 import CreditCardIcon from '../../assets/images/common/credit-card.png';
 
-const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
-  // ⚡ Default selected method to Paymob for testing
-  const [selectedMethod, setSelectedMethod] = useState('paymob');
+const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId, createOrder }) => {
+  const [selectedMethod, setSelectedMethod] = useState('cod');
   const [iframeUrl, setIframeUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,11 +20,6 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
     'https://db.store1920.com/wp-content/uploads/2025/07/b79a2dc3-b089-4cf8-a907-015a25ca12f2.png.slim_.webp',
   ];
 
-  // ✅ Debug: log orderId and subtotal
-  useEffect(() => {
-    console.log('PaymentMethods: orderId =', orderId, 'subtotal =', subtotal);
-  }, [orderId, subtotal]);
-
   const handleSelection = (id, title) => {
     setSelectedMethod(id);
     setIframeUrl(null);
@@ -33,12 +27,9 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
     if (onMethodSelect) onMethodSelect(id, title);
   };
 
-  const fetchPaymobIframe = useCallback(async () => {
-    if (!orderId) {
-      console.log('Paymob iframe fetch skipped: no orderId yet');
-      return;
-    }
-    console.log('Fetching Paymob iframe for orderId:', orderId);
+  // ✅ Fetch Paymob iframe
+  const fetchPaymobIframe = useCallback(async (currentOrderId) => {
+    if (!currentOrderId) return;
     setLoading(true);
     setError('');
     try {
@@ -46,12 +37,12 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ amount: subtotal, order_id: orderId })
+        body: JSON.stringify({ amount: subtotal, order_id: currentOrderId }),
       });
       if (!res.ok) throw new Error(`Paymob fetch failed: ${res.status}`);
       const data = await res.json();
       if (data.iframe_url) setIframeUrl(data.iframe_url);
-      else { setIframeUrl(null); setError('Paymob checkout not available.'); }
+      else setError('Paymob checkout not available.');
     } catch (err) {
       console.error(err);
       setIframeUrl(null);
@@ -59,18 +50,30 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
     } finally {
       setLoading(false);
     }
-  }, [subtotal, orderId]);
+  }, [subtotal]);
 
-  // ⚡ Automatically fetch iframe if Paymob selected and orderId exists
+  // ⚡ Auto-create order if Paymob selected and no orderId
   useEffect(() => {
-    if (selectedMethod === 'paymob' && orderId) {
-      fetchPaymobIframe();
-    }
-  }, [selectedMethod, orderId, fetchPaymobIframe]);
+    const handlePaymobFlow = async () => {
+      if (selectedMethod !== 'paymob') return;
+      if (!orderId && createOrder) {
+        try {
+          const newOrderId = await createOrder();
+          if (newOrderId) fetchPaymobIframe(newOrderId);
+        } catch (err) {
+          console.error('Order creation failed', err);
+          setError('Failed to create order for Paymob.');
+        }
+      } else if (orderId) {
+        fetchPaymobIframe(orderId);
+      }
+    };
+    handlePaymobFlow();
+  }, [selectedMethod, orderId, createOrder, fetchPaymobIframe]);
 
   return (
     <div className="payment-methods-wrapper">
-      <h2 className="payment-heading">Payment Methods (Testing Paymob)</h2>
+      <h2 className="payment-heading">Payment Methods</h2>
       <div className="payment-options">
         {paymentOptions.map((method) => (
           <div
@@ -89,28 +92,19 @@ const PaymentMethods = ({ onMethodSelect, subtotal = 0, orderId = null }) => {
                 <img src={method.logo} alt={method.title} className="payment-logo" />
                 <span className="payment-title">{method.title}</span>
               </div>
-
               {method.id === 'paymob' && (
                 <>
                   <div className="card-logos-top-right">
-                    {paymobCardImages.map((img, i) => (
-                      <img key={i} src={img} alt={`Paymob card ${i}`} className="card-logo" />
-                    ))}
+                    {paymobCardImages.map((img, i) => <img key={i} src={img} alt={`Paymob card ${i}`} className="card-logo" />)}
                   </div>
                   {method.description && <p className="payment-desc">{method.description}</p>}
                   <div className="paymob-iframe-wrapper">
                     {loading && <p>Loading Paymob checkout...</p>}
-                    {iframeUrl && !loading && <iframe src={iframeUrl} title="Paymob Checkout" width="100%" height="600px" style={{ border: 'none' }} />}
-                    {!iframeUrl && !loading && error && (
-                      <div style={{ color: '#dc3545', marginTop: '10px' }}>
-                        {error}
-                        <button onClick={fetchPaymobIframe} style={{ marginLeft: '10px' }}>Retry</button>
-                      </div>
-                    )}
+                    {iframeUrl && <iframe src={iframeUrl} title="Paymob Checkout" width="100%" height="600px" style={{ border: 'none' }} />}
+                    {!iframeUrl && !loading && error && <div style={{ color: '#dc3545', marginTop: '10px' }}>{error}</div>}
                   </div>
                 </>
               )}
-
               {method.id === 'cod' && method.description && <p className="payment-desc">{method.description}</p>}
             </div>
           </div>

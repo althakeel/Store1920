@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import CheckoutLeft from '../components/CheckoutLeft';
 import CheckoutRight from '../components/CheckoutRight';
 import SignInModal from '../components/sub/SignInModal';
+import PaymentMethods from '../components/checkoutleft/PaymentMethods';
 import '../assets/styles/checkout.css';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
@@ -52,6 +53,16 @@ export default function CheckoutPage() {
     paymentMethod: '',
     paymentMethodTitle: '',
   });
+
+  const handlePaymentSelect = (methodId, title) => {
+  setSelectedPaymentMethod(methodId);
+  setFormData(prev => ({
+    ...prev,
+    paymentMethod: methodId,
+    paymentMethodTitle: title
+  }));
+};
+
 
   // Fetch product details
   useEffect(() => {
@@ -181,16 +192,34 @@ console.log('CheckoutPage: orderId is', orderId);
   return (
     <>
       <div className="checkoutGrid">
-        <CheckoutLeft
-          formData={formData}
-          onChange={handleChange}
-          countries={countries}
-          cartItems={cartItems}
-          onRemoveItem={handleRemoveItem}
-          onPaymentMethodSelect={setSelectedPaymentMethod}
-          subtotal={subtotal}
-          orderId={orderId} // <-- iframe triggers when this exists
-        />
+  <div className="checkout-left-container">
+  <CheckoutLeft
+    formData={formData}
+    onChange={handleChange}
+    countries={countries}
+    cartItems={cartItems}
+    onRemoveItem={handleRemoveItem}
+    onPaymentMethodSelect={setSelectedPaymentMethod}
+    subtotal={subtotal}
+    orderId={orderId}
+  />
+  <PaymentMethods
+    selectedMethod={formData.paymentMethod || 'cod'}
+    onMethodSelect={handlePaymentSelect}
+    subtotal={subtotal}
+    orderId={orderId}
+    createOrder={async () => {
+      const lineItems = cartItems.map(item => ({ product_id: item.id, quantity: item.quantity }));
+      const shipping = formData.shipping;
+      const billing = formData.billingSameAsShipping ? shipping : formData.billing;
+      const payload = { payment_method: 'paymob', payment_method_title: 'Paymob', set_paid: false, billing, shipping, line_items: lineItems };
+      const res = await fetchWithAuth('orders', { method: 'POST', body: JSON.stringify(payload) });
+      setOrderId(res.id);
+      return res.id;
+    }}
+  />
+</div>
+
         
         <CheckoutRight
           cartItems={cartItems}
