@@ -88,60 +88,76 @@ export default function CheckoutPage() {
     setFormData(prev => ({ ...prev, paymentMethod: methodId, paymentMethodTitle: title }));
   };
 
-  const createOrder = async () => {
-    const shipping = formData.shipping;
-    const billing = formData.billingSameAsShipping ? shipping : formData.billing;
-    const line_items = cartItems.map(i => ({ product_id: i.id, quantity: i.quantity }));
-    const userId = localStorage.getItem('userId');
 
-    const payload = {
-      payment_method: selectedPaymentMethod,
-      payment_method_title: formData.paymentMethodTitle,
-      set_paid: selectedPaymentMethod!=='cod',
-      billing: {
-        first_name: billing.fullName.split(' ')[0] || '',
-        last_name: billing.fullName.split(' ').slice(1).join('') || '',
-        address_1: billing.address1,
-        city: billing.city,
-        state: billing.state,
-        postcode: billing.postalCode,
-        country: billing.country,
-        phone: billing.phone,
-        email: billing.email
-      },
-      shipping: {
-        first_name: shipping.fullName.split(' ')[0] || '',
-        last_name: shipping.fullName.split(' ').slice(1).join('') || '',
-        address_1: shipping.address1,
-        city: shipping.city,
-        state: shipping.state,
-        postcode: shipping.postalCode,
-        country: shipping.country,
-        phone: shipping.phone
-      },
-      line_items,
-      ...(userId ? { customer_id: parseInt(userId,10) } : {})
-    };
-
-    const order = await fetchWithAuth('orders', { method:'POST', body:JSON.stringify(payload) });
-    setOrderId(order.id);
-    return order.id;
-  };
-
-  const handlePlaceOrder = async () => {
-    setError('');
-    try {
-      const id = orderId || await createOrder();
-      clearCart();
-      if (selectedPaymentMethod === 'cod') {
-        navigate(`/order-success?order_id=${id}`);
-      } else {
-        navigate(`/paymob-checkout?order_id=${id}`);
-      }
-    } catch(err) {
-      setError(err.message || 'Failed to place order.');
+    useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment_failed') === '1') {
+      setError('Payment failed. Please try again.');
     }
+  }, []);
+
+const createOrder = async () => {
+  const shipping = formData.shipping;
+  const billing = formData.billingSameAsShipping ? shipping : formData.billing;
+  const line_items = cartItems.map(i => ({ product_id: i.id, quantity: i.quantity }));
+  const userId = localStorage.getItem('userId');
+
+  const payload = {
+    payment_method: selectedPaymentMethod,
+    payment_method_title: formData.paymentMethodTitle,
+    set_paid: selectedPaymentMethod !== 'cod',
+    billing: {
+      first_name: billing.fullName.split(' ')[0] || '',
+      last_name: billing.fullName.split(' ').slice(1).join('') || '',
+      address_1: billing.address1,
+      city: billing.city,
+      state: billing.state,
+      postcode: billing.postalCode,
+      country: billing.country,
+      phone: billing.phone,
+      email: billing.email
+    },
+    shipping: {
+      first_name: shipping.fullName.split(' ')[0] || '',
+      last_name: shipping.fullName.split(' ').slice(1).join('') || '',
+      address_1: shipping.address1,
+      city: shipping.city,
+      state: shipping.state,
+      postcode: shipping.postalCode,
+      country: shipping.country,
+      phone: shipping.phone
+    },
+    line_items,
+    ...(userId ? { customer_id: parseInt(userId, 10) } : { create_account: true }) // triggers WP auto user creation
   };
+
+  const order = await fetchWithAuth('orders', { method: 'POST', body: JSON.stringify(payload) });
+
+  if (!userId && order.customer_id) {
+    localStorage.setItem('userId', order.customer_id); // save new WP user
+  }
+
+  setOrderId(order.id);
+  return order.id;
+};
+
+
+const handlePlaceOrder = async () => {
+  setError('');
+  try {
+    const id = orderId || await createOrder(); // WooCommerce order created
+    clearCart();
+
+    if (selectedPaymentMethod === 'cod') {
+      navigate(`/order-success?order_id=${id}`);
+    } else if (selectedPaymentMethod === 'paymob') {
+      // Redirect to Paymob with order id
+      window.location.href = `https://uae.paymob.com/${id}`;
+    }
+  } catch(err) {
+    setError(err.message || 'Failed to place order.');
+  }
+};
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div style={{ color:'red' }}>{error}</div>;
@@ -174,6 +190,7 @@ export default function CheckoutPage() {
           clearCart={clearCart}
         />
       </div>
+        {error && <div className="error-message">{error}</div>}
       {showSignInModal && <SignInModal onClose={()=>setShowSignInModal(false)} onLoginSuccess={()=>setIsLoggedIn(true)} />}
     </>
   );

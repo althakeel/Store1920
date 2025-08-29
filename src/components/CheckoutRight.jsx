@@ -94,8 +94,9 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
         clearCart();
         window.location.href = `/order-success?order_id=${orderId}`;
       } else if (formData.paymentMethod === 'paymob') {
-        window.location.href = `/paymob-checkout?order_id=${orderId}`;
-      }
+  // Redirect to Paymob payment page with orderId
+  window.location.href = `https://uae.paymob.com/${orderId}`;
+}
     } catch (err) {
       showAlert('Failed to place order: ' + (err.message || 'Unknown error'), 'error');
     } finally {
