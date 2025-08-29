@@ -127,7 +127,11 @@ const MyAccount = () => {
         </main>
         
       </div>
-      <ProductsUnder20AED/>
+      <div style={{ maxWidth: "1400px", margin: '0 auto', textAlign: 'center' }}>
+  <ProductsUnder20AED />
+</div>
+
+     
     </div>
   );
 };

@@ -1,13 +1,27 @@
 import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
-import { useCart } from '../../../../../contexts/CartContext';
 import 'react-toastify/dist/ReactToastify.css';
+import { useCart } from '../../../../../contexts/CartContext';
 import '../../../../../assets/styles/myaccount/AllOrders.css';
 import axios from 'axios';
-import AddressForm from '../../../../checkoutleft/AddressForm'; 
+import AddressForm from '../../../../checkoutleft/AddressForm';
 import OrderTracking from './OrderTracking';
 import OrderDetailsInline from './OrderDetailsInline';
-import { generateInvoicePDF } from '../../../../../utils/generateInvoice'
+import { generateInvoicePDF } from '../../../../../utils/generateInvoice';
+
+const returnReasons = [
+  'Wrong item delivered',
+  'Item damaged or defective',
+  'Quality not as expected',
+  'Received late',
+  'Item not as described',
+  'Size or color mismatch',
+  'Product missing accessories',
+  'Better price available elsewhere',
+  'Changed mind / No longer needed',
+  'Duplicate order',
+  'Other',
+];
 
 const AllOrders = ({
   orders,
@@ -16,53 +30,19 @@ const AllOrders = ({
   handleProductClick,
   slugify,
   isCancelable,
-  onOrdersUpdated, // optional callback to refresh orders after address update
+  onOrdersUpdated,
 }) => {
   const [buyingAgainOrderId, setBuyingAgainOrderId] = useState(null);
-  const [editingOrder, setEditingOrder] = useState(null); // store order being edited
+  const [editingOrder, setEditingOrder] = useState(null);
   const [savingAddress, setSavingAddress] = useState(false);
   const [addressError, setAddressError] = useState('');
   const [trackingOrder, setTrackingOrder] = useState(null);
-  const [expandedOrderId, setExpandedOrderId] = useState(null);
-  const [detailedOrder, setDetailedOrder] = useState(null); // NEW: full order detail view
+  const [detailedOrder, setDetailedOrder] = useState(null);
+  const [returningOrder, setReturningOrder] = useState(null);
+  const [selectedReason, setSelectedReason] = useState('');
+  const [otherReason, setOtherReason] = useState('');
 
   const { addToCart } = useCart();
-
-  const getExpectedDeliveryDate = (order) => {
-    try {
-      const date = new Date(order.date_created);
-      date.setDate(date.getDate() + 7);
-      return date.toLocaleDateString();
-    } catch {
-      return 'N/A';
-    }
-  };
-
-
-const downloadInvoice = async (orderId) => {
-  try {
-    const res = await axios.get(`/wp-json/custom/v1/download-invoice/${orderId}`);
-    if (res.data.url) {
-      const link = document.createElement('a');
-      link.href = res.data.url;
-      link.download = `Invoice_PO-${orderId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      toast.success('Invoice downloaded!');
-    } else {
-      toast.error('Invoice not found');
-    }
-  } catch (err) {
-    console.error(err);
-    toast.error('Failed to download invoice');
-  }
-};
-
-
-  const toggleOrderDetails = (orderId) => {
-    setExpandedOrderId((prev) => (prev === orderId ? null : orderId));
-  };
 
   const orderStatusLabels = {
     pending: 'Pending',
@@ -75,38 +55,50 @@ const downloadInvoice = async (orderId) => {
   };
 
   const orderStatusColors = {
-    pending: '#ff4800ff',     // orange
-    confirmed: '#28a745',     // green
-    processing: '#007bff',    // blue
-    completed: '#007bff',     // blue
-    cancelled: '#6c757d',     // gray
-    refunded: '#17a2b8',      // teal
-    failed: '#dc3545',        // red
+    pending: '#ff4800ff',
+    confirmed: '#28a745',
+    processing: '#007bff',
+    completed: '#007bff',
+    cancelled: '#6c757d',
+    refunded: '#17a2b8',
+    failed: '#dc3545',
+  };
+
+  const getExpectedDeliveryDate = (order) => {
+    try {
+      const date = new Date(order.date_created);
+      date.setDate(date.getDate() + 7);
+      return date.toLocaleDateString();
+    } catch {
+      return 'N/A';
+    }
   };
 
   const handleBuyAgain = async (lineItems, orderId) => {
     try {
       setBuyingAgainOrderId(orderId);
       for (const item of lineItems) {
-        addToCart({
-          id: item.product_id,
-          name: item.name,
-          quantity: item.quantity,
-          variation: item.variation || [],
-          price: item.price,
-          image: item.image?.src,
-        }, false);
+        addToCart(
+          {
+            id: item.product_id,
+            name: item.name,
+            quantity: item.quantity,
+            variation: item.variation || [],
+            price: item.price,
+            image: item.image?.src,
+          },
+          false
+        );
       }
       toast.success('Items added to cart!');
     } catch (err) {
-      console.error('Error adding items:', err);
+      console.error(err);
       toast.error('Failed to add items to cart');
     } finally {
       setBuyingAgainOrderId(null);
     }
   };
 
-  // Prepare initial form data for AddressForm based on order
   const prepareFormData = (order) => ({
     shipping: {
       fullName: `${order.shipping.first_name} ${order.shipping.last_name}`.trim(),
@@ -131,7 +123,6 @@ const downloadInvoice = async (orderId) => {
     billingSameAsShipping: false,
   });
 
-  // On clicking Change Address
   const openEditAddress = (order) => {
     setEditingOrder({
       order,
@@ -140,72 +131,35 @@ const downloadInvoice = async (orderId) => {
     setAddressError('');
   };
 
-  // Handle changes inside the AddressForm
   const handleAddressChange = (e, section) => {
-    const { name, value, checked, type } = e.target;
+    const { name, value, checked } = e.target;
     setEditingOrder((prev) => {
       if (!prev) return prev;
       if (section === 'checkbox') {
         return {
           ...prev,
-          formData: {
-            ...prev.formData,
-            billingSameAsShipping: checked,
-          },
+          formData: { ...prev.formData, billingSameAsShipping: checked },
         };
       }
       return {
         ...prev,
         formData: {
           ...prev.formData,
-          [section]: {
-            ...prev.formData[section],
-            [name]: value,
-          },
+          [section]: { ...prev.formData[section], [name]: value },
         },
       };
     });
   };
 
-  // Show order tracking view if trackingOrder set
-  if (trackingOrder) {
-    return (
-      <OrderTracking 
-        order={trackingOrder} 
-        onBack={() => setTrackingOrder(null)} 
-      />
-    );
-  }
-
-  // Show full order details only when detailedOrder is set
-  if (detailedOrder) {
-    return (
-      <div className="order-details-full-view">
-        <button 
-          className="btn-outline back-to-list-btn"
-          onClick={() => setDetailedOrder(null)}
-        >
-          ← Back to all orders
-        </button>
-        <OrderDetailsInline order={detailedOrder} />
-      </div>
-    );
-  }
-
-  // Submit updated address to backend
   const handleAddressSubmit = async (e) => {
     e.preventDefault();
     if (!editingOrder) return;
     setSavingAddress(true);
     setAddressError('');
 
-    // Split fullName into first and last names helper
     const splitName = (fullName) => {
       const parts = fullName.trim().split(' ');
-      return {
-        first_name: parts[0] || '',
-        last_name: parts.slice(1).join(' ') || '',
-      };
+      return { first_name: parts[0] || '', last_name: parts.slice(1).join(' ') || '' };
     };
 
     const { order, formData } = editingOrder;
@@ -245,16 +199,46 @@ const downloadInvoice = async (orderId) => {
       if (res.data.success) {
         toast.success('Address updated successfully!');
         setEditingOrder(null);
-        onOrdersUpdated && onOrdersUpdated(); // refresh orders
-      } else {
-        setAddressError('Failed to update address.');
-      }
+        onOrdersUpdated && onOrdersUpdated();
+      } else setAddressError('Failed to update address.');
     } catch (err) {
       setAddressError('Error updating address.');
       console.error(err);
     } finally {
       setSavingAddress(false);
     }
+  };
+
+  const handleReturnProduct = async () => {
+    if (!returningOrder) return;
+    const reason = selectedReason === 'Other' ? otherReason : selectedReason;
+    if (!reason) return toast.error('Please select or enter a reason');
+    try {
+      const res = await axios.post('/wp-json/custom/v1/return-order/', {
+        order_id: returningOrder.id,
+        reason,
+      });
+      if (res.data.success) {
+        toast.success('Return request submitted!');
+        setReturningOrder(null);
+        setSelectedReason('');
+        setOtherReason('');
+      } else {
+        toast.error('Failed to submit return request');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Error submitting return request');
+    }
+  };
+
+  const canReturn = (order) => {
+    if (order.status !== 'completed') return false;
+    const deliveredDate = new Date(order.date_created);
+    deliveredDate.setDate(deliveredDate.getDate() + 7);
+    const now = new Date();
+    const diffDays = Math.floor((now - deliveredDate) / (1000 * 60 * 60 * 24));
+    return diffDays <= 10;
   };
 
   return (
@@ -264,9 +248,9 @@ const downloadInvoice = async (orderId) => {
       {editingOrder && (
         <AddressForm
           formData={editingOrder.formData}
-          shippingStates={[]} // pass your states data if any
-          billingStates={[]}  // same here
-          countries={{ AE: { name: 'United Arab Emirates' } }} // your countries list
+          shippingStates={[]}
+          billingStates={[]}
+          countries={{ AE: { name: 'United Arab Emirates' } }}
           onChange={handleAddressChange}
           onSubmit={handleAddressSubmit}
           onClose={() => setEditingOrder(null)}
@@ -275,15 +259,86 @@ const downloadInvoice = async (orderId) => {
         />
       )}
 
+      {trackingOrder && (
+        <OrderTracking order={trackingOrder} onClose={() => setTrackingOrder(null)} />
+      )}
+
+      {detailedOrder && (
+        <OrderDetailsInline order={detailedOrder} onClose={() => setDetailedOrder(null)} />
+      )}
+
+      {returningOrder && (
+        <div className="return-modal-overlay">
+          <div className="return-modal">
+            <h2>Return Product - PO-{returningOrder.id}</h2>
+            <p>Please select a reason for returning this product:</p>
+
+            <div className="return-reasons">
+              <select
+                value={selectedReason}
+                onChange={(e) => setSelectedReason(e.target.value)}
+              >
+                <option value="">-- Select a reason --</option>
+                {returnReasons.map((r, i) => (
+                  <option key={i} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+
+              {selectedReason === 'Other' && (
+                <input
+                  type="text"
+                  placeholder="Enter your reason"
+                  value={otherReason}
+                  onChange={(e) => setOtherReason(e.target.value)}
+                />
+              )}
+            </div>
+
+            <div className="return-modal-actions">
+              <button className="btn-primary" onClick={handleReturnProduct}>
+                Submit Return
+              </button>
+              <button
+                className="btn-secondary"
+                onClick={() => setReturningOrder(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {orders.map((order) => (
-        <div key={order.id} className="order-card-simple">
-          {/* Header */}
+        <div key={order.id} 
+          className={`order-card-simple ${order.status === 'cancelled' ? 'order-cancelled' : ''}`}>
+          
+          {order.status === 'cancelled' && (
+            <div className="cancelled-overlay">
+                  <div className="cancel-text-box">
+              <div className="cancel-info-title">Order Cancelled</div>
+              <div>
+                <strong>Cancelled by:</strong> {order.cancelled_by?.toLowerCase() === 'customer' ? 'Customer' : 'Seller'}
+              </div>
+              <div>
+                <strong>Order Date:</strong> {new Date(order.date_created).toLocaleDateString()}
+              </div>
+              {order.date_cancelled && (
+                <div>
+                  <strong>Cancelled Date:</strong> {new Date(order.date_cancelled).toLocaleDateString()}
+                </div>
+              )}
+                  </div>
+            </div>
+          )}
+
           <div className="order-header-simple">
             <div>
               <strong style={{ color: orderStatusColors[order.status] || '#000' }}>
                 Order {orderStatusLabels[order.status] || order.status}
-              </strong> | Email sent to{' '}
-              <span>{order.billing.email}</span> on{' '}
+              </strong> | Email sent to <span>{order.billing.email}</span> on{' '}
               {new Date(order.date_created).toLocaleDateString()}
             </div>
             <button
@@ -293,10 +348,8 @@ const downloadInvoice = async (orderId) => {
                 background: 'none',
                 border: 'none',
                 padding: 0,
-                margin: 0,
                 color: '#FF8C00',
                 cursor: 'pointer',
-                textDecoration: 'none',
                 fontSize: 'inherit',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -307,7 +360,6 @@ const downloadInvoice = async (orderId) => {
             </button>
           </div>
 
-          {/* Delivery */}
           <div className="order-delivery-simple">
             <div>
               <span className="fastest-arrival">Fastest arrival within 4 business days.</span>
@@ -316,7 +368,6 @@ const downloadInvoice = async (orderId) => {
             <div className="credit-badge">AED20 credit if delay</div>
           </div>
 
-          {/* Products */}
           <div className="order-items-grid-simple">
             {order.line_items.map((item) => (
               <div
@@ -325,23 +376,16 @@ const downloadInvoice = async (orderId) => {
                 onClick={() => handleProductClick(slugify(item.name))}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleProductClick(slugify(item.name));
-                }}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleProductClick(slugify(item.name)); }}
               >
                 <img src={item.image?.src || 'https://via.placeholder.com/100'} alt={item.name} />
-                <div className="product-price">
-                  {order.currency} {item.price}
-                </div>
+                <div className="product-price">{order.currency} {item.price}</div>
               </div>
             ))}
           </div>
 
-          {/* Summary */}
           <div className="order-summary-simple">
-            <div>
-              {order.line_items.length} item{order.line_items.length > 1 ? 's' : ''}
-            </div>
+            <div>{order.line_items.length} item{order.line_items.length > 1 ? 's' : ''}</div>
             <div>
               <del>{order.currency} {order.total}</del>&nbsp;
               <strong>{order.currency} {order.total}</strong>
@@ -363,41 +407,25 @@ const downloadInvoice = async (orderId) => {
             <div>Payment method: {order.payment_method_title || order.payment_method}</div>
           </div>
 
-          {/* Actions */}
           <div className="order-actions-simple">
-            <button className="btn-outline" onClick={() => openEditAddress(order)}>
-              Change address
-            </button>
-            <button
-              className="btn-secondary"
-              onClick={() => handleBuyAgain(order.line_items, order.id)}
-              disabled={buyingAgainOrderId === order.id}
-            >
+            <button className="btn-outline" onClick={() => openEditAddress(order)}>Change address</button>
+            <button className="btn-secondary" onClick={() => handleBuyAgain(order.line_items, order.id)} disabled={buyingAgainOrderId === order.id}>
               {buyingAgainOrderId === order.id ? 'Adding...' : 'Buy this again'}
             </button>
-            <button className="btn-secondary" onClick={() => setTrackingOrder(order)}>
-              Track
-            </button>
+            <button className="btn-secondary" onClick={() => setTrackingOrder(order)}>Track</button>
             {isCancelable(order.status) && (
-              <button
-                className="btn-secondary"
-                onClick={() => cancelOrder(order.id)}
-                disabled={cancellingOrderId === order.id}
-              >
+              <button className="btn-secondary" onClick={() => cancelOrder(order.id)} disabled={cancellingOrderId === order.id}>
                 {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel items'}
               </button>
             )}
-
-   {/* Show only if order is completed */}
-{order.status === 'completed' && (
-<button
-  className="btn-outline"
-  onClick={() => generateInvoicePDF(order)}
->
-  Download Invoice
-</button>
-)}
-
+            {order.status === 'completed' && (
+              <>
+                <button className="btn-outline" onClick={() => generateInvoicePDF(order)}>Download Invoice</button>
+                {canReturn(order) && (
+                  <button className="btn-outline" onClick={() => setReturningOrder(order)}>Return Product</button>
+                )}
+              </>
+            )}
           </div>
         </div>
       ))}

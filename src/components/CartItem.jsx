@@ -10,6 +10,12 @@ function CartItem({ item, isUnavailable = false }) {
   const price = parseFloat(item.price);
   const originalPrice = parseFloat(item.originalPrice);
 
+
+  function decodeHtml(html) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
   // Check discount eligibility
   const hasDiscount =
     !isNaN(originalPrice) && !isNaN(price) && originalPrice > price;
@@ -39,7 +45,7 @@ function CartItem({ item, isUnavailable = false }) {
         {/* Title + Remove button */}
         <div className="item-top-row">
           <div className="item-title" title={item.name}>
-            {shortTitle}
+          {decodeHtml(shortTitle)}
           </div>
           {!isUnavailable && (
             <button

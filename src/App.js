@@ -20,7 +20,7 @@ import Wishlist from './pages/Whislist';
 import Lightningdeal from './pages/lightningdeal';
 import ComparePage from './pages/compare';
 import Categories from './pages/Categories';
-import CategoryProducts from './pages/CategoryProducts';
+// import CategoryProducts from './pages/Categoryproducts';
 import AllProducts from './pages/allproducts';
 import New from './pages/New';
 import Rated from './pages/rated';
@@ -44,6 +44,8 @@ import TopSellingitems from './pages/topselling';
 import CategoryPage from './pages/CategoryPage';
 import Contact from './pages/contact';
 import Search from './pages/search';
+import PaymobSuccess from './pages/PaymobSuccess';
+import PaymobCheckoutPage from './pages/PaymobCheckoutPage'; 
 
 // Components
 import Topbar from './components/topbar';
@@ -59,6 +61,8 @@ import ChatBot from './components/sub/Chatbot';
 import { useNetworkSpeed } from './hooks/useNetworkSpeed';
 import { ToastContainer } from 'react-toastify';
 import CookiePopup from './components/common/CookiePopup';
+import PurchasePopup from './components/common/PurchasePopup';
+
 
 
 const AppContent = () => {
@@ -164,8 +168,8 @@ const AppContent = () => {
                     <Route path="/wishlist" element={<Wishlist />} />
                     <Route path="/lightningdeal" element={<Lightningdeal />} />
                     <Route path="/compare" element={<ComparePage />} />
-                    <Route path="/categories" element={<Categories />} />
-                    <Route path="/category/:slug" element={<CategoryProducts />} />
+                    <Route path="/category" element={<Categories />} />
+                    <Route path="/category/:id" element={<CategoryPage/>} />
                     <Route path="/allproducts" element={<AllProducts />} />
                     <Route path="/new" element={<New />} />
                     <Route path="/rated" element={<Rated />} />
@@ -186,10 +190,12 @@ const AppContent = () => {
                     <Route path="/lost-password" element={<LostPassword />} />
                     <Route path="/my-coins" element={<MyCoins />} />
                     <Route path="/top-selling-item" element={<TopSellingitems />} />
-                    <Route path="/categorypage/:id" element={<CategoryPage />} />
+                    {/* <Route path="/categorypage/:slug" element={<CategoryPage />} /> */}
                     <Route path="*" element={<NotFound />} />
                           <Route path="contact" element={<Contact />} />
                                 <Route path="search" element={<Search />} />
+                                <Route path="/paymob-success" element={<PaymobSuccess />} />
+                                <Route path="/paymob-checkout" element={<PaymobCheckoutPage />} />
                   </Routes>
                 </main>
 
@@ -197,6 +203,7 @@ const AppContent = () => {
                   <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
                 )}
               </div>
+            {!isMobile && <PurchasePopup />}
            <CookiePopup/>
               <ChatBot />
               {/* <ToastContainer /> */}

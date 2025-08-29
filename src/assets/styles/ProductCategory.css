@@ -330,7 +330,7 @@ img.flying-clone {
 }
 
 /* Products grid */
-.pcus-prd-grid {
+.pcus-prd-grid001 {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr)); /* allow columns to shrink */
   gap: 15px;
@@ -485,8 +485,8 @@ img.flying-clone {
 }
 
 /* Product info container */
-.pcus-prd-info1 {
-  padding: 5px 14px 14px;
+.pcus-prd-info12 {
+  padding: 5px 5px 14px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -553,8 +553,8 @@ img.flying-clone {
 }
 
 /* Regular price when on sale */
-.pcus-prd-regular-price1 {
-  font-size: 12px;
+.pcus-prd-regular-price12 {
+  font-size: 10px;
   color: #727272;
   text-decoration: line-through;
   display: flex;
@@ -632,7 +632,7 @@ img.flying-clone {
   border-top-right-radius: 12px;
 }
 
-.pcus-prd-info1-skel {
+.pcus-prd-info12-skel {
   padding: 14px 16px 16px;
   display: flex;
   flex-direction: column;
@@ -697,9 +697,9 @@ img.flying-clone {
     padding: 10px 10px;
   }
   /* Product grid: flexible columns */
-  .pcus-prd-grid {
+  .pcus-prd-grid001 {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px; /* reduced gap for better fit */
   }
 
@@ -714,7 +714,7 @@ img.flying-clone {
     display: none !important;
   }
 
-  .pcus-prd-info1 {
+  .pcus-prd-info12 {
     padding: 5px 2px 5px;
   }
 
@@ -750,7 +750,7 @@ img.flying-clone {
   }
 
   /* Price font sizes */
-  .pcus-prd-regular-price1 {
+  .pcus-prd-regular-price12 {
     font-size: 12px;
     color: #666666;
     text-decoration: line-through;
@@ -758,6 +758,8 @@ img.flying-clone {
     align-items: center;
     gap: 2px;
   }
+
+  .
 
   .pcus-prd-sale-price1 {
     font-size: 14px;
@@ -788,8 +790,8 @@ img.flying-clone {
 @media (max-width: 480px) {
 
   /* Product grid: smaller columns */
-  .pcus-prd-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  .pcus-prd-grid001 {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 2fr));
     gap: 10px;
   }
 
@@ -832,7 +834,7 @@ img.flying-clone {
   }
 
   /* Price font sizes */
-  .pcus-prd-regular-price1 {
+  .pcus-prd-regular-price12 {
     font-size: 10px;
     color: #888;
     text-decoration: line-through;

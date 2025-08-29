@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const BADGE_MAP = {
   below_price: {
@@ -23,10 +23,24 @@ const BADGE_MAP = {
   },
 };
 
-export default function SellerBadges({ badges }) {
-  if (!Array.isArray(badges) || badges.length === 0) return null;
+// List of badges to cycle through
+const BADGES_TO_SHOW = ['below_price', 'almost_sold', 'limited_time', 'lower_than_usual', 'best_recommended'];
 
+export default function SellerBadges() {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 480;
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % BADGES_TO_SHOW.length);
+    }, 600000); // 600000 ms = 10 minutes
+
+    return () => clearInterval(timer); // cleanup on unmount
+  }, []);
+
+  const badge = BADGE_MAP[BADGES_TO_SHOW[currentIndex]];
+
+  if (!badge) return null;
 
   return (
     <div
@@ -38,28 +52,20 @@ export default function SellerBadges({ badges }) {
         justifyContent: 'flex-start',
       }}
     >
-      {badges.map((badge) => {
-        const badgeData = BADGE_MAP[badge];
-        if (!badgeData) return null;
-
-        return (
-          <span
-            key={badge}
-            style={{
-              padding: isMobile ? '4px 6px' : '4px 8px',
-              borderRadius: '5px',
-              fontSize: isMobile ? '10px' : '11px',
-              fontWeight: 600,
-              lineHeight: 1.2,
-              whiteSpace: 'nowrap',
-              maxWidth: '100%',
-              ...badgeData.style,
-            }}
-          >
-            {badgeData.label}
-          </span>
-        );
-      })}
+      <span
+        style={{
+          padding: isMobile ? '4px 6px' : '4px 8px',
+          borderRadius: '5px',
+          fontSize: isMobile ? '10px' : '11px',
+          fontWeight: 600,
+          lineHeight: 1.2,
+          whiteSpace: 'nowrap',
+          maxWidth: '100%',
+          ...badge.style,
+        }}
+      >
+        {badge.label}
+      </span>
     </div>
   );
 }

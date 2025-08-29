@@ -1,6 +1,7 @@
 // ProductGallery.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../assets/styles/ProductGallery.css';
+import PlaceHolderImage from '../assets/images/common/Placeholder.png'
 
 export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, activeModal, openModal, closeModal }) {
   const [mainIndex, setMainIndex] = useState(0);
@@ -146,9 +147,20 @@ const handleModalNext = (e) => {
     }
   }, [activeModal]);
 
-  if (!images || images.length === 0) {
-    return <div className="product-gallery no-images"><p>No images available</p></div>;
-  }
+if (!images || images.length === 0) {
+  return (
+    <div className="product-gallery no-images">
+      <img
+        src={PlaceHolderImage}
+        alt="Placeholder"
+        className="main-image"
+        loading="lazy"
+        draggable={false}
+      />
+    </div>
+  );
+}
+
 
   const isZoomModalOpen = activeModal === 'zoom';
 
@@ -180,36 +192,38 @@ const handleModalNext = (e) => {
         </div>
 
         {/* Main image area */}
-        <div className="main-image-wrapper">
-          {mainLoading && <div className="main-skeleton" />}
-          <img
-            src={images[mainIndex].src}
-            alt={images[mainIndex].alt || 'Product Image'}
-            className="main-image"
-            loading="lazy"
-            onLoad={() => setMainLoading(false)}
-            onClick={() => openModal('zoom')}
-            draggable={false}
-          />
+   <div className="main-image-wrapper">
+  {mainLoading && <div className="main-skeleton" />}
+  <img
+    src={images[mainIndex]?.src || PlaceHolderImage}
+    alt={images[mainIndex]?.alt || 'Product Image'}
+    className="main-image"
+    loading="lazy"
+    onLoad={() => setMainLoading(false)}
+    onClick={() => openModal('zoom')}
+    draggable={false}
+    style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+  />
 
-          <button
-            className="arrow-btn arrow-left"
-            onClick={handlePrev}
-            aria-label="Previous Image"
-            type="button"
-          >
-            ‹
-          </button>
+  <button
+    className="arrow-btn arrow-left"
+    onClick={handlePrev}
+    aria-label="Previous Image"
+    type="button"
+  >
+    ‹
+  </button>
 
-          <button
-            className="arrow-btn arrow-right"
-            onClick={handleNext}
-            aria-label="Next Image"
-            type="button"
-          >
-            ›
-          </button>
-        </div>
+  <button
+    className="arrow-btn arrow-right"
+    onClick={handleNext}
+    aria-label="Next Image"
+    type="button"
+  >
+    ›
+  </button>
+</div>
+
       </div>
 
       {/* Zoom modal */}
@@ -228,7 +242,7 @@ const handleModalNext = (e) => {
             onTouchEnd={onDragEnd}
           >
             <img
-              src={images[mainIndex].src}
+               src={images[mainIndex]?.src || PlaceHolderImage}
               alt={images[mainIndex].alt || 'Zoomed Product Image'}
               className="zoomed-image"
               draggable={false}
@@ -283,13 +297,13 @@ const handleModalNext = (e) => {
                   type="button"
                   aria-label={`Thumbnail ${idx + 1}`}
                 >
-                  <img
-                    src={img.src}
-                    alt={img.alt || `Thumbnail ${idx + 1}`}
-                    className="thumbnail-image"
-                    loading="lazy"
-                    draggable={false}
-                  />
+                 <img
+  src={img.src || PlaceHolderImage}
+  alt={img.alt || `Thumbnail ${idx + 1}`}
+  className="thumbnail-image"
+  loading="lazy"
+  draggable={false}
+/>
                 </button>
               ))}
             </div>

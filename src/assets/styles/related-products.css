@@ -3,20 +3,19 @@
     box-sizing: border-box;
   }
   
-  /* Wrapper centered max-width 1400px */
+  
   .horizontal-related-wrapper {
     max-width: 1400px;
     width: 100%;
     margin: 0 auto;
     padding: 16px 0;
     background: #fff;
-    overflow: visible; /* no scrollbars */
+    overflow: visible;
   }
-  
-  /* Grid container: max 5 columns per row */
+
   .horizontal-related-list {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 columns max */
+    grid-template-columns: repeat(5, 1fr); 
     gap: 20px;
     width: 100%;
     max-width: 1400px;
@@ -227,4 +226,34 @@
       background-color: #ddd;
     }
   }
-  
+/* Responsive Breakpoints */
+@media (max-width: 1280px) {
+  .horizontal-related-list {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 1120px;
+  }
+}
+
+@media (max-width: 992px) {
+  .horizontal-related-list {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 840px;
+  }
+}
+
+@media (max-width: 768px) {
+  .horizontal-related-list {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns below 768px */
+    max-width: 100%;
+    gap: 16px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .horizontal-related-list {
+    grid-template-columns: repeat(2, 1fr); /* Keep 2 columns even on very small screens */
+    max-width: 100%;
+    padding: 0 5px;
+  }
+}

@@ -22,10 +22,11 @@ import '../assets/styles/Navbar.css';
 
 // Icons
 import Newicon from '../assets/images/webicons/Header/White/Asset 34@6x.png';
-import Star from '../assets/images/webicons/Header/White/Asset 33@6x.png';
+import Star from '../assets/images/webicons/Common/Asset 117@6x.png';
 import SupportIcon from '../assets/images/webicons/Header/White/Asset 32@6x.png';
 import CartIcon from '../assets/images/webicons/Header/White/Asset 30@6x.png';
 import UserIcon from '../assets/images/webicons/Header/White/Asset 21@6x.png';
+import TopSellicon from '../assets/images/webicons/Header/White/Asset 24@6x.png'
 
 // Import the external mega menu component
 import MegaMenu from '../components/sub/megamenu';
@@ -77,6 +78,35 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
+
+
+  // ================= AUTO LOGOUT AFTER 30 MIN =
+useEffect(() => {
+  const AUTO_LOGOUT_MINUTES = 30;
+  const MS_PER_MINUTE = 60 * 1000;
+
+  // 1️⃣ When user closes tab/window, save timestamp
+  const handleBeforeUnload = () => {
+    const now = new Date().getTime();
+    localStorage.setItem('lastClosed', now);
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
+  // 2️⃣ On load, check if 30 min has passed since last close
+  const lastClosed = localStorage.getItem('lastClosed');
+  if (lastClosed) {
+    const now = new Date().getTime();
+    if (now - Number(lastClosed) >= 30 * MS_PER_MINUTE) {
+      localStorage.removeItem('userId');
+      localStorage.removeItem('user'); // optional: also remove user object
+      console.log('User auto-signed out after 30 minutes of inactivity.');
+    }
+  }
+
+  return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+}, []);
+
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -223,7 +253,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
           <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
             <div className="nav-left-links">
               <div className="nav-icon-with-text star-rating" onClick={() => navigate('/top-selling-item')}>
-                <img src={Star} alt="5 Star rated" className="icon-star" />
+                <img src={TopSellicon} alt="5 Star rated" className="icon-star" />
                 <span>Top Selling Items</span>
               </div>
               <div className="nav-icon-with-text" onClick={() => navigate('/new')}>
@@ -247,7 +277,10 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
     onMouseEnter={handleMouseEnter}
     onMouseLeave={handleMouseLeave}
   >
-    <MegaMenu categories={categories} />
+    <MegaMenu 
+      categories={categories} 
+      onClose={() => setHovering(false)}  // <-- closes MegaMenu
+    />
   </div>
 )}
 

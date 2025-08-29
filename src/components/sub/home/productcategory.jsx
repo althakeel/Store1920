@@ -10,13 +10,14 @@ import IconAED from "../../../assets/images/Dirham 2.png";
 import { throttle } from "lodash";
 import ProductCardReviews from "../../temp/productcardreviews";
 import TitleImage from '../../../assets/images//bACK TO SCHOOL BANNER.webp'
+import PlaceholderImage from '../../../assets/images/common/Placeholder.png'
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
 const CONSUMER_SECRET = "cs_92458ba6ab5458347082acc6681560911a9e993d";
 
 const PAGE_SIZE = 10;
-const PRODUCTS_PER_PAGE = 40;
+const PRODUCTS_PER_PAGE = 42;
 const TITLE_LIMIT = 35;
 
 const badgeLabelMap = {
@@ -195,32 +196,28 @@ const ProductCategory = () => {
       })
       .catch((err) => console.error("Fetch promo error", err));
   }, []);
+useEffect(() => {
+  const recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
 
-  useEffect(() => {
-    const recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
+  if (recent.length === 0) {
+    setSortedProducts(shuffleArray(products)); // always random if no recent
+    return;
+  }
 
-    if (recent.length === 0) {
-      setSortedProducts(products);
-      return;
-    }
+  const recentSet = new Set(recent);
 
-    const recentSet = new Set(recent);
+  const recentProducts = recent
+    .map((id) => products.find((p) => p.id === id))
+    .filter(Boolean);
 
-    const recentProducts = recent
-      .map((id) => products.find((p) => p.id === id))
-      .filter(Boolean);
+  const remainingProducts = products.filter((p) => !recentSet.has(p.id));
 
-    const remainingProducts = products.filter((p) => !recentSet.has(p.id));
-    setSortedProducts([...recentProducts, ...remainingProducts]);
-  }, [products]);
+  setSortedProducts([
+    ...recentProducts,
+    ...shuffleArray(remainingProducts), // shuffle rest
+  ]);
+}, [products]);
 
-  useEffect(() => {
-    products.forEach((p) => {
-      if (p.type === "variable" && !productVariations[p.id]) {
-        fetchAllVariations(p.id);
-      }
-    });
-  }, [products]);
 
   const getProductBadges = (product) => {
     const badges = [];
@@ -284,8 +281,13 @@ const ProductCategory = () => {
           `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc` +
           (categoryId !== "all" ? `&category=${categoryId}` : "");
         const res = await fetch(url);
-        const data = await res.json();
+        let data = await res.json();
 
+
+        if (categoryId === "all") {
+          data = shuffleArray(data);
+        }
+  
         if (page === 1) {
           setProducts(data);
         } else {
@@ -303,6 +305,13 @@ const ProductCategory = () => {
     },
     [selectedCategoryId]
   );
+
+  function shuffleArray(arr) {
+    return arr
+      .map((item) => ({ item, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ item }) => item);
+  }
 
   useEffect(() => {
     fetchCategories(1);
@@ -331,6 +340,23 @@ const ProductCategory = () => {
       }
     });
   }, [products]);
+
+
+  const fetchAllVariationsForProducts = async (products) => {
+  const variableProducts = products.filter(p => p.type === "variable");
+  const promises = variableProducts.map(p =>
+    fetch(`${API_BASE}/products/${p.id}/variations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100`)
+      .then(res => res.json())
+      .then(data => ({ id: p.id, data }))
+  );
+  const results = await Promise.all(promises);
+  const variationsMap = {};
+  results.forEach(res => {
+    variationsMap[res.id] = res.data;
+  });
+  setProductVariations(variationsMap);
+};
+
 
   const fetchFirstVariation = async (productId) => {
     if (variationPrices[productId]) return;
@@ -464,17 +490,23 @@ const ProductCategory = () => {
       el.scrollBy({ left: dir === "left" ? -200 : 200, behavior: "smooth" });
   };
 
-  const onProductClick = useCallback((slug, id) => {
-    let recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
+const onProductClick = useCallback((slug, id) => {
+  setSortedProducts(prevProducts => {
+    const clicked = prevProducts.find(p => p.id === id);
+    const rest = prevProducts.filter(p => p.id !== id);
+    return clicked ? [clicked, ...shuffleArray(rest)] : shuffleArray(rest);
+  });
 
-    recent = recent.filter((rid) => rid !== id);
-    recent.unshift(id);
-    localStorage.setItem("recentProducts", JSON.stringify(recent.slice(0, 5)));
+  // Store recent products if needed
+  const recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
+  const updated = [id, ...recent.filter(rid => rid !== id)].slice(0, 5);
+  localStorage.setItem("recentProducts", JSON.stringify(updated));
 
-    const url = `/product/${slug}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  // Open product page
+  const url = `/product/${slug}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}, []);
+
 
   useEffect(() => {
     const throttledHandleScroll = throttle(() => {
@@ -588,7 +620,7 @@ const ProductCategory = () => {
         </div>
 
         {loadingProducts && products.length === 0 ? (
-          <div className="pcus-prd-grid">
+          <div className="pcus-prd-grid001">
             {Array.from({ length: 8 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
@@ -608,9 +640,9 @@ const ProductCategory = () => {
           </div>
         ) : (
           <>
-            <div className="pcus-prd-grid">
+            <div className="pcus-prd-grid001">
               {sortedProducts.map((p) => {
-                const hasMegaOffer = !!p.enable_offer; // true if enabled, false otherwise
+                const hasMegaOffer = !!p.enable_offer;
 
                 const isVariable = p.type === "variable";
                 let stockQty = 0;
@@ -695,21 +727,27 @@ const ProductCategory = () => {
                   >
                     <div className="pcus-image-wrapper1">
                       <img
-                        src={p.images?.[0]?.src || ""}
+                          src={p.images?.[0]?.src || PlaceholderImage}
                         alt={decodeHTML(p.name)}
                         className="pcus-prd-image1 primary-img"
                         loading="lazy"
                         decoding="async"
                       />
-                      {p.images?.[1] && (
-                        <img
-                          src={p.images[1].src}
-                          alt={decodeHTML(p.name)}
-                          className="pcus-prd-image1 secondary-img"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      )}
+                      {p.images?.[1] ? (
+  <img
+    src={p.images[1].src}
+    alt={decodeHTML(p.name)}
+    className="pcus-prd-image1 secondary-img"
+    loading="lazy"
+    decoding="async"
+/>
+) : (
+  <img
+    src={PlaceholderImage}
+    alt={decodeHTML(p.name)}
+    className="pcus-prd-image1 secondary-img"
+  />
+)}
                       {hasMegaOffer && (
                         <div className="mega-offer-badge">
                           <span
@@ -726,33 +764,15 @@ const ProductCategory = () => {
                           </span>
                         </div>
                       )}
-
-                      {/* {p.images?.length > 0 && (
-    <button
-      className="quick-view-btn"
-      onClick={(e) => {
-        e.stopPropagation();
-        openQuickView(p.images, decodeHTML(p.name));
-      }}
-    >
-      Quick View
-    </button>
-  )} */}
                     </div>
-                    <div className="pcus-prd-info1">
+                    <div className="pcus-prd-info12">
                       <h3 className="pcus-prd-title1">
                         {decodeHTML(p.name)}
-                        {/* {getProductBadges(p).map((badge, idx) => (
-    <span
-      key={idx}
-      className="pcus-badge"
-      style={{ backgroundColor: badgeColors[idx % badgeColors.length] }}
-    >
-      {badgeLabelMap[badge] || badge}
-    </span>
-  ))} */}
                       </h3>
-                      <ProductCardReviews />
+<ProductCardReviews 
+    productId={p.id} 
+    soldCount={p.total_sales || 0} 
+/>
                       <div className="pcus-prd-price-cart1">
                         <div className="pcus-prd-prices1">
                           <img
@@ -769,11 +789,11 @@ const ProductCategory = () => {
                             <>
                               <Price
                                 value={displaySalePrice}
-                                className="pcus-prd-sale-price1"
+                                className="pcus-prd-sale-price12"
                               />
                               <Price
                                 value={displayRegularPrice}
-                                className="pcus-prd-regular-price1"
+                                className="pcus-prd-regular-price12"
                               />
                               {displayRegularPrice && displaySalePrice && (
                                 <span className="pcus-prd-discount-box1">
@@ -863,21 +883,6 @@ const ProductCategory = () => {
                           }}
                         />
                       </div>
-                      {/* {inStock ? (
-  stockQty > 0 ? (
-    <span className="pcus-bdge" style={{ backgroundColor: "green" }}>
-      Only {stockQty} left
-    </span>
-  ) : (
-    <span className="pcusadge" style={{ backgroundColor: "green" }}>
-      In stock
-    </span>
-  )
-) : (
-  <span className="pcusdge" style={{ backgroundColor: "red" }}>
-    Out of stock
-  </span>
-)} */}
                     </div>
                   </div>
                 );

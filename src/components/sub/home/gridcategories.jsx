@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "../../../assets/styles/home/GridCategories.css";
 import { useCart } from "../../../contexts/CartContext";
 import MiniCart from "../../MiniCart";
+import PlaceHolderImage from '../../../assets/images/common/Placeholder.png'
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const AUTH = {
@@ -90,10 +91,10 @@ useEffect(() => {
             <div
               key={cat?.id}
               className="gcx-category-card"
-              onClick={() => navigate(`/category/${cat.slug}`)} // redirect on click
+             onClick={() => navigate(`/category/${cat.id}`)} // redirect on click
             >
               <img
-                src={cat?.image?.src || "https://via.placeholder.com/200"}
+          src={cat?.image?.src || PlaceHolderImage}
                 alt={cat?.name || "Category"}
                 style={{objectFit:'fill'}}
               />
@@ -121,7 +122,7 @@ useEffect(() => {
             return (
               <div key={prod?.id} className="gcx-product-card">
                 <img
-                  src={prod?.images?.[0]?.src || "https://via.placeholder.com/200"}
+ src={prod?.images?.[0]?.src || PlaceHolderImage}
                   alt={prod?.name || "Product"}
                 />
                 <div className="gcx-price-wrap">

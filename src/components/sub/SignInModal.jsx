@@ -18,16 +18,24 @@ const Alert = ({ children, onClose }) => (
 // ===================== Error Parser =====================
 const parseErrorMsg = (rawMsg) => {
   if (!rawMsg) return null;
-  const linkMatch = rawMsg.match(/<a href="([^"]+)">([^<]+)<\/a>/);
+
+  // Match any <a> tag
+  const linkMatch = rawMsg.match(/<a [^>]*>([^<]+)<\/a>/);
 
   if (linkMatch) {
-    const url = linkMatch[1];
-    const linkText = linkMatch[2];
+    const linkText = linkMatch[1]; // keep the text
     const textOnly = rawMsg.replace(/<a[^>]*>[^<]*<\/a>/, "").replace(/<[^>]+>/g, "").trim();
+
+    // Always point to frontend lost-password page
     return (
       <>
         <strong>Error:</strong> {textOnly}{" "}
-        <a href={url} target="_blank" rel="noopener noreferrer" className="signin-lost-password-link">
+        <a
+          href="https://store1920.com/lost-password"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="signin-lost-password-link"
+        >
           {linkText}
         </a>
       </>
@@ -45,6 +53,12 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  // add state
+const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+
+  const FRONTEND_URL = "https://store1920.com";
 
   // ===================== Handlers =====================
   const handleChange = (e) => {
@@ -54,7 +68,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
 
   const handleForgotPassword = () => {
     onClose();
-    window.location.href = "/lost-password";
+    window.location.href = `${FRONTEND_URL}/lost-password`;
   };
 
   // ===================== Validation =====================
@@ -103,6 +117,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
           user: res.data,
         };
         login(userInfo);
+        localStorage.setItem("userId", userInfo.id); // save user ID
         onLogin?.(userInfo);
         onClose();
       } else {
@@ -140,6 +155,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         };
 
         login(userInfo);
+        localStorage.setItem("userId", userInfo.id); // save user ID
         onLogin?.(userInfo);
         onClose();
       } else {
@@ -173,6 +189,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
           id: res.data.user_id,
         };
         login(userInfo);
+        localStorage.setItem("userId", userInfo.id); // save user ID
         onLogin?.(userInfo);
         onClose();
       } else {
@@ -202,16 +219,18 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         </button>
 
         <div className="signin-modal-header">
-  <h2 className="signin-modal-title">Sign in / Register</h2>
-  <div className="signin-security">🔒 All data will be encrypted</div>
+          <h2 className="signin-modal-title">Sign in / Register</h2>
+          <div className="signin-security">🔒 All data will be encrypted</div>
 
-  {/* Benefit strip */}
-  <div className="signin-benefits">
-    <div className="benefit-item">🚚 Free shipping <span className="benefit-subtext">Special for you</span></div>
-    <div className="benefit-item">↩ Free returns <span className="benefit-subtext">Up to 90 days</span></div>
-  </div>
-</div>
-
+          <div className="signin-benefits">
+            <div className="benefit-item">
+              🚚 Free shipping <span className="benefit-subtext">Special for you</span>
+            </div>
+            <div className="benefit-item">
+              ↩ Free returns <span className="benefit-subtext">Up to 90 days</span>
+            </div>
+          </div>
+        </div>
 
         <form className="signin-modal-form" onSubmit={handleSubmit} noValidate>
           {errorMsg && <Alert onClose={() => setErrorMsg(null)}>{errorMsg}</Alert>}
@@ -225,59 +244,72 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
             className="signin-modal-input"
             required
           />
+{!isRegister && (
+  <>
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      placeholder="Password"
+      value={formData.password}
+      onChange={handleChange}
+      className="signin-modal-input"
+      required
+    />
+    <div className="signin-show-password">
+      <label>
+        <input
+          type="checkbox"
+          checked={showPassword}
+          onChange={() => setShowPassword(!showPassword)}
+        />
+        Show password
+      </label>
+    </div>
+  </>
+)}
 
-          {!isRegister && (
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="signin-modal-input"
-              required
-            />
-          )}
+         {isRegister && (
+  <>
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      placeholder="Password"
+      value={formData.password}
+      onChange={handleChange}
+      className="signin-modal-input"
+      required
+    />
+    <input
+      type={showConfirmPassword ? "text" : "password"}
+      name="confirmPassword"
+      placeholder="Confirm Password"
+      value={formData.confirmPassword}
+      onChange={handleChange}
+      className="signin-modal-input"
+      required
+    />
 
-          {isRegister && (
-            <>
-              <input
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="signin-modal-input"
-                required
-              />
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={handleChange}
-                className="signin-modal-input"
-                required
-              />
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-                className="signin-modal-input"
-                required
-              />
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="signin-modal-input"
-                required
-              />
-            </>
-          )}
+    <div className="signin-show-password">
+      <label>
+        <input
+          type="checkbox"
+          checked={showPassword}
+          onChange={() => setShowPassword(!showPassword)}
+        />
+        Show password
+      </label>
+      <br />
+      <label>
+        <input
+          type="checkbox"
+          checked={showConfirmPassword}
+          onChange={() => setShowConfirmPassword(!showConfirmPassword)}
+        />
+        Show confirm password
+      </label>
+    </div>
+  </>
+)}
 
           <button type="submit" className="signin-submit-btn" disabled={loading}>
             {loading ? "Please wait..." : isRegister ? "Register" : "Continue"}
@@ -302,7 +334,11 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
             <img src="https://db.store1920.com/wp-content/uploads/2025/07/facebook.png" alt="Facebook" />
           </button>
           <button disabled>
-          <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple" width="40px" />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
+              alt="Apple"
+              width="40px"
+            />
           </button>
         </div>
 

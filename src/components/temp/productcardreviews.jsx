@@ -6,11 +6,17 @@ export default function ProductCardReviews({ productId, soldCount = 0 }) {
   const [averageRating, setAverageRating] = useState(0);
   const [loading, setLoading] = useState(true);
 
- useEffect(() => {
+useEffect(() => {
   async function fetchReviews() {
-    if (!productId) return;
+    console.log('Starting fetchReviews...', productId);
+    if (!productId) {
+      console.warn('No productId provided');
+      setLoading(false);
+      return;
+    }
 
     const id = parseInt(productId, 10);
+    console.log('Parsed product ID:', id);
     if (isNaN(id)) {
       console.error('Invalid productId:', productId);
       setLoading(false);
@@ -18,13 +24,13 @@ export default function ProductCardReviews({ productId, soldCount = 0 }) {
     }
 
     try {
-      console.log('Fetching reviews for product ID:', id);
+      console.log('Calling getProductReviewsWoo...');
       const data = await getProductReviewsWoo(id);
-      console.log('Fetched reviews:', data);
+      console.log('Data received:', data);
       setReviews(data || []);
-      
+
       if (data && data.length > 0) {
-        const avg = data.reduce((sum, r) => sum + r.rating, 0) / data.length;
+        const avg = data.reduce((sum, r) => sum + Number(r.rating), 0) / data.length;
         setAverageRating(avg);
       } else {
         setAverageRating(0);
@@ -34,12 +40,14 @@ export default function ProductCardReviews({ productId, soldCount = 0 }) {
       setReviews([]);
       setAverageRating(0);
     } finally {
+      console.log('Setting loading false');
       setLoading(false);
     }
   }
 
   fetchReviews();
 }, [productId]);
+
 
   // Star logic
   const renderStars = (rating) => {

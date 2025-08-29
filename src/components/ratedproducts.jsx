@@ -123,7 +123,7 @@ const [showPriceFilterOnly, setShowPriceFilterOnly] = useState(false);
 
 const dropdownRef = useRef(null);
   const BEST_RATED_TAG_SLUG = 'bestrated';
-
+const [bestRatedTagId, setBestRatedTagId] = useState(null);
 
 
   // Rotate badge color every 10 minutes
@@ -236,7 +236,7 @@ const fetchProducts = useCallback(
     try {
       let url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&tag=${festSaleTagId}`;
 
-      if (categoryId !== 'all') url += `&category=${categoryId}`;
+      // if (categoryId !== 'all') url += `&category=${categoryId}`;
 
       // Add price filter params
       if (minPrice) url += `&min_price=${minPrice}`;

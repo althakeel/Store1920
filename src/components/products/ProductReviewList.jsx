@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import SignInModal from '../sub/SignInModal';
 import '../../assets/styles/ProductReviewList.css';
+import  { getProductReviewsWoo } from '../../data/wooReviews'
 
 // Star rating component
 const ReviewStars = ({ rating, onRate }) => (

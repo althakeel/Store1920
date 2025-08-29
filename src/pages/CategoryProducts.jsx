@@ -1,92 +1,123 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import { throttle } from "lodash";
-import AddCarticon from "../assets/images/addtocart.png";
+import { useCart } from "../contexts/CartContext";
+import MiniCart from "../components/MiniCart";
+import AddCartIcon from "../assets/images/addtocart.png";
 import AddedToCartIcon from "../assets/images/added-cart.png";
-import Adsicon from "../assets/images/summer-saving-coloured.png";
 import IconAED from "../assets/images/Dirham 2.png";
+import "../assets/styles/Category.css";
 import ProductCardReviews from "../components/temp/productcardreviews";
-import "../assets/styles/CategoryProducts.css";
+import FilterButton from "../components/sub/FilterButton";
 
-const TITLE_LIMIT = 35;
+const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
+const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
+const CONSUMER_SECRET = "cs_92458ba6ab5458347082acc6681560911a9e993d";
+const PRODUCTS_PER_PAGE = 42;
+const TITLE_LIMIT = 22;
 
-const CategoryProducts = () => {
-  const { slug } = useParams();
-  const [categories, setCategories] = useState([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState("all");
+const decodeHTML = (html) => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+};
+
+const UniqueProductCategory = () => {
+  const { id } = useParams();
+  const categoryId = Number(id);
+  const { addToCart, cartItems } = useCart();
+
+  const [categoryName, setCategoryName] = useState("");
+  const [childCategoryIds, setChildCategoryIds] = useState([]);
   const [products, setProducts] = useState([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
-  const [hasMoreProducts, setHasMoreProducts] = useState(true);
-  const [productsPage, setProductsPage] = useState(1);
-  const [promoImage, setPromoImage] = useState(Adsicon);
-  const [promoSubtitle, setPromoSubtitle] = useState("BROWSE WHAT EXCITES YOU");
-  const [cartItems, setCartItems] = useState([]);
-
-  const categoriesRef = useRef(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hoveredProduct, setHoveredProduct] = useState(null);
   const cartIconRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
-  const AUTH = {
-    username: "ck_c4e35c0d93df1f96cae81fccae967b8969a1eb85",
-    password: "cs_b2b2ab3b1cdbc7db01cd718dc52b8f5a5711a6e5",
-  };
-
-  const decodeHTML = (html) => {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = html;
-    return txt.value;
-  };
-
-  const truncate = (str) =>
-    str.length <= TITLE_LIMIT ? str : `${str.slice(0, TITLE_LIMIT)}…`;
-
-  const fetchCategories = useCallback(async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/products/categories`, { auth: AUTH });
-      setCategories(res.data.filter((c) => c.parent === 0));
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-    }
-  }, []);
-
-  const fetchProducts = useCallback(
-    async (categoryId = selectedCategoryId, page = productsPage) => {
-      setLoadingProducts(true);
+  // Fetch category info
+  useEffect(() => {
+    if (!categoryId) return;
+    const fetchCategoryInfo = async () => {
       try {
-        const params = { per_page: 20, page };
-        if (categoryId !== "all") params.category = categoryId;
+        const res = await fetch(
+          `${API_BASE}/products/categories/${categoryId}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+        );
+        const cat = await res.json();
+        setCategoryName(decodeHTML(cat.name));
 
-        const res = await axios.get(`${API_BASE}/products`, { auth: AUTH, params });
-        if (page === 1) setProducts(res.data);
-        else setProducts((prev) => [...prev, ...res.data]);
+        const allRes = await fetch(
+          `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100`
+        );
+        const allCats = await allRes.json();
+        const children = allCats.filter((c) => c.parent === categoryId).map((c) => c.id);
+        setChildCategoryIds([categoryId, ...children]);
+        setPage(1);
+        setProducts([]);
+      } catch (err) {
+        console.error("Error fetching category info:", err);
+      }
+    };
+    fetchCategoryInfo();
+  }, [categoryId]);
 
-        if (res.data.length < 20) setHasMoreProducts(false);
+  // Fetch products
+  useEffect(() => {
+    if (!childCategoryIds.length) return;
+
+    const cacheKey = `unique_category_${categoryId}_page_${page}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      const data = JSON.parse(cached);
+      setProducts((prev) => (page === 1 ? data : [...prev, ...data]));
+      setHasMore(data.length >= PRODUCTS_PER_PAGE);
+      return;
+    }
+
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const categoryQuery = childCategoryIds.join(",");
+        const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${categoryQuery}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc&fields=id,name,images,price,total_sales`;
+        const res = await fetch(url);
+        const data = await res.json();
+        setProducts((prev) => (page === 1 ? data : [...prev, ...data]));
+        setHasMore(data.length >= PRODUCTS_PER_PAGE);
+        localStorage.setItem(cacheKey, JSON.stringify(data));
       } catch (err) {
         console.error("Error fetching products:", err);
+        setProducts([]);
+        setHasMore(false);
       } finally {
-        setLoadingProducts(false);
+        setLoading(false);
       }
-    },
-    [selectedCategoryId, productsPage]
-  );
+    };
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
-
-  useEffect(() => {
     fetchProducts();
-  }, [selectedCategoryId, fetchProducts]);
+  }, [childCategoryIds, page, categoryId]);
+
+  const loadMore = () => {
+    if (!hasMore || loading) return;
+    setPage((prev) => prev + 1);
+  };
+
+  const truncate = (str) => (str.length <= TITLE_LIMIT ? str : `${str.slice(0, TITLE_LIMIT)}…`);
+
+  const Price = ({ value }) => {
+    const price = parseFloat(value || 0).toFixed(2);
+    const [integer, decimal] = price.split(".");
+    return (
+      <span className="upc-price">
+        <span>{integer}</span>
+        <span>.{decimal}</span>
+      </span>
+    );
+  };
 
   const flyToCart = (e, imgSrc) => {
     if (!cartIconRef.current || !imgSrc) return;
-
     const cartRect = cartIconRef.current.getBoundingClientRect();
     const startRect = e.currentTarget.getBoundingClientRect();
-
     const clone = document.createElement("img");
     clone.src = imgSrc;
     clone.style.position = "fixed";
@@ -99,164 +130,102 @@ const CategoryProducts = () => {
     clone.style.borderRadius = "50%";
     clone.style.pointerEvents = "none";
     document.body.appendChild(clone);
-
     requestAnimationFrame(() => {
       clone.style.top = `${cartRect.top}px`;
       clone.style.left = `${cartRect.left}px`;
       clone.style.opacity = "0";
       clone.style.transform = "scale(0.2)";
     });
-
     setTimeout(() => clone.remove(), 800);
   };
 
-  const addToCart = (product) => {
-    setCartItems((prev) => {
-      if (prev.find((item) => item.id === product.id)) return prev;
-      return [...prev, product];
-    });
-  };
-
-  const scrollCats = (dir) => {
-    const el = categoriesRef.current;
-    if (el) el.scrollBy({ left: dir === "left" ? -200 : 200, behavior: "smooth" });
-  };
-
-  const updateArrowVisibility = useCallback(() => {
-    const el = categoriesRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(el.scrollWidth - el.scrollLeft > el.clientWidth + 10);
-  }, []);
-
-  useEffect(() => {
-    const el = categoriesRef.current;
-    if (!el) return;
-
-    const throttledUpdate = throttle(updateArrowVisibility, 100);
-    el.addEventListener("scroll", throttledUpdate);
-    updateArrowVisibility();
-
-    return () => el.removeEventListener("scroll", throttledUpdate);
-  }, [categories, updateArrowVisibility]);
-
-  const onProductClick = (slug, id) => {
-    let recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
-    recent = recent.filter((rid) => rid !== id);
-    recent.unshift(id);
-    localStorage.setItem("recentProducts", JSON.stringify(recent.slice(0, 5)));
-    window.open(`/product/${slug}`, "_blank", "noopener,noreferrer");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
-    <div className="pcus-wrapper3">
-      {/* Promo Section */}
-      <div className="pcus-title-section">
-        <h2 className="pcus-main-title">
-          <img src={promoImage} alt="Promo icon" style={{ maxWidth: "18px" }} />{" "}
-          SUMMER SAVINGS{" "}
-          <img src={promoImage} alt="Promo icon" style={{ maxWidth: "18px" }} />
-        </h2>
-        <p className="pcus-sub-title">{promoSubtitle}</p>
+    <div className="upc-wrapper">
+      <div className="upc-header">
+        <h2 className="upc-title">{categoryName}</h2>
+        <FilterButton />
       </div>
 
-      {/* Categories Scroll */}
-      <div className="pcus-categories-wrapper1 pcus-categories-wrapper3">
-        {canScrollLeft && <button className="pcus-arrow-btn" onClick={() => scrollCats("left")}>‹</button>}
-        <div className="pcus-categories-scroll" ref={categoriesRef}>
-          <button
-            className={`pcus-category-btn ${selectedCategoryId === "all" ? "active" : ""}`}
-            onClick={() => setSelectedCategoryId("all")}
-          >
-            Recommended
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              className={`pcus-category-btn ${selectedCategoryId === cat.id ? "active" : ""}`}
-              onClick={() => setSelectedCategoryId(cat.id)}
-            >
-              {decodeHTML(cat.name)}
-            </button>
-          ))}
-        </div>
-        {canScrollRight && <button className="pcus-arrow-btn" onClick={() => scrollCats("right")}>›</button>}
-      </div>
+      <div className="upc-products">
+        {loading && !products.length ? (
+          <div className="upc-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="upc-card-skeleton" />
+            ))}
+          </div>
+        ) : !products.length ? (
+          <div className="upc-no-products">No products found in this category.</div>
+        ) : (
+          <>
+            <div className="upc-grid">
+              {products.map((p) => {
+                const mainImage = p.images?.[0]?.src || "";
+                const hoverImage = p.images?.[1]?.src || mainImage;
 
-      {/* Products Grid */}
-      <div className="pcus-prd-grid">
-        {loadingProducts
-          ? Array.from({ length: 8 }).map((_, i) => <div key={i} className="pcus-prd-skeleton" />)
-          : products.map((p) => {
-              const onSale = p.sale_price && p.sale_price !== p.regular_price;
-
-              return (
-                <div
-                  key={p.id}
-                  className="pcus-prd-card"
-                  onClick={() => onProductClick(p.slug, p.id)}
-                >
-                  <div className="pcus-image-wrapper1">
-                    <img src={p.images?.[0]?.src || ""} alt={decodeHTML(p.name)} className="pcus-prd-image1 primary-img" />
-                    {p.images?.[1] && <img src={p.images[1].src} alt={decodeHTML(p.name)} className="pcus-prd-image1 secondary-img" />}
-                  </div>
-
-                  <div className="pcus-prd-info1">
-                    <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>
-                    <ProductCardReviews reviews={p.reviews_count || 0} rating={p.average_rating || 0} sold={p.total_sales || 0} />
-
-                    <div className="pcus-prd-price-cart1">
-                      <div className="pcus-prd-prices1">
-                        <img src={IconAED} alt="AED" style={{ width: "auto", height: "13px", marginRight: "2px" }} />
-                        {onSale ? (
-                          <>
-                            <span className="pcus-prd-sale-price1">{p.sale_price}</span>
-                            <span className="pcus-prd-regular-price1">{p.regular_price}</span>
-                            <span className="pcus-prd-discount-box1">
-                              -{Math.round(((p.regular_price - p.sale_price) / p.regular_price) * 100)}% OFF
-                            </span>
-                          </>
-                        ) : (
-                          <span className="price1">{p.price || p.regular_price}</span>
-                        )}
+                return (
+                  <div
+                    key={p.id}
+                    className="upc-card"
+                    onMouseEnter={() => setHoveredProduct(p.id)}
+                    onMouseLeave={() => setHoveredProduct(null)}
+                  >
+                    <img
+                      src={hoveredProduct === p.id ? hoverImage : mainImage}
+                      alt={decodeHTML(p.name)}
+                      className="upc-card-image"
+                      loading="lazy"
+                    />
+                    <div className="upc-card-info">
+                      <h3 className="upc-card-title">{truncate(decodeHTML(p.name))}</h3>
+                      <div className="upc-card-divider" />
+                      <ProductCardReviews productId={p.id} soldCount={p.total_sales || 0} />
+                    </div>
+                    <div className="upc-card-footer">
+                      <div className="upc-price-wrapper">
+                        <img src={IconAED} alt="AED" className="upc-aed-icon" />
+                        <Price value={p.price} />
                       </div>
-
                       <button
-                        className={`pcus-prd-add-cart-btn ${cartItems.some(item => item.id === p.id) ? "added-to-cart" : ""}`}
-                        onClick={(e) => { e.stopPropagation(); flyToCart(e, p.images?.[0]?.src); addToCart(p); }}
+                        className={`upc-add-btn ${
+                          cartItems.some((item) => item.id === p.id) ? "upc-added" : ""
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          flyToCart(e, p.images?.[0]?.src);
+                          addToCart(p, true);
+                        }}
                       >
                         <img
-                          src={cartItems.some(item => item.id === p.id) ? AddedToCartIcon : AddCarticon}
-                          alt={cartItems.some(item => item.id === p.id) ? "Added to cart" : "Add to cart"}
+                          src={
+                            cartItems.some((item) => item.id === p.id)
+                              ? AddedToCartIcon
+                              : AddCartIcon
+                          }
+                          alt="Add to cart"
+                          className="upc-add-icon"
                         />
                       </button>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+
+            {hasMore && (
+              <div className="upc-load-more-wrapper">
+                <button className="upc-load-more-btn" onClick={loadMore}>
+                  {loading ? "Loading…" : "Load More"}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
-      {/* Load More */}
-      {hasMoreProducts && !loadingProducts && (
-  <div style={{ textAlign: "center", margin: "20px 0" }}>
-    <button
-      onClick={() => {
-        const nextPage = productsPage + 1;
-        setProductsPage(nextPage);
-        fetchProducts(selectedCategoryId, nextPage);
-      }}
-      className="load-more-btn"
-    >
-      Load More
-    </button>
-  </div>
-)}
-
-      <div ref={cartIconRef} style={{ position: "fixed", top: 20, right: 20, zIndex: 1000 }} />
+      <div id="upc-cart-icon" ref={cartIconRef} />
+      <MiniCart />
     </div>
   );
 };
 
-export default CategoryProducts;
+export default UniqueProductCategory;

@@ -4,38 +4,41 @@ import 'react-phone-input-2/lib/style.css';
 
 const LOCAL_STORAGE_KEY = 'checkoutAddressData';
 
-const AddressForm = ({
-  formData,
-  shippingStates,
-  billingStates,
-  countries,
-  onChange,
-  onSubmit,
-  onClose,
-  saving,
-  error,
-}) => {
+const UAE_EMIRATES = [
+  { code: 'ABU', name: 'Abu Dhabi' },
+  { code: 'DXB', name: 'Dubai' },
+  { code: 'SHJ', name: 'Sharjah' },
+  { code: 'AJM', name: 'Ajman' },
+  { code: 'UAQ', name: 'Umm Al Quwain' },
+  { code: 'RAK', name: 'Ras Al Khaimah' },
+  { code: 'FSH', name: 'Fujairah' },
+];
+
+const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) => {
   const [formErrors, setFormErrors] = useState({});
 
-  // Save formData to localStorage whenever it changes
   useEffect(() => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
-    } catch {
-      // ignore localStorage errors
-    }
+    } catch {}
   }, [formData]);
 
-  const validateField = (section, name, value) => {
-    let error = '';
+  useEffect(() => {
+    if (!formData.shipping.country) {
+      onChange({ target: { name: 'country', value: 'AE' } }, 'shipping');
+    }
+    if (!formData.shipping.phone) {
+      onChange({ target: { name: 'phone', value: '971' } }, 'shipping');
+    }
+  }, []);
 
+  const validateField = (name, value) => {
+    let error = '';
     switch (name) {
       case 'fullName':
       case 'address1':
       case 'city':
       case 'state':
-      case 'country':
-      case 'postalCode':
         if (!value || value.trim() === '') error = 'This field is required';
         break;
       case 'phone':
@@ -44,207 +47,250 @@ const AddressForm = ({
       default:
         break;
     }
-
-    setFormErrors((prev) => ({
-      ...prev,
-      [section]: { ...prev[section], [name]: error },
-    }));
-
+    setFormErrors((prev) => ({ ...prev, [name]: error }));
     return error === '';
   };
 
   const validateForm = () => {
-    const sections = ['shipping'];
-    if (!formData.billingSameAsShipping) sections.push('billing');
     let isValid = true;
-
-    sections.forEach((section) => {
-      const data = formData[section];
-      Object.keys(data).forEach((field) => {
-        const valid = validateField(section, field, data[field]);
-        if (!valid) isValid = false;
-      });
+    Object.keys(formData.shipping).forEach((field) => {
+      const valid = validateField(field, formData.shipping[field]);
+      if (!valid) isValid = false;
     });
-
     return isValid;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      onSubmit(e);
-    }
+    if (validateForm()) onSubmit(e);
   };
 
-  const handlePhoneChange = (phone, section) => {
-    onChange({ target: { name: 'phone', value: phone } }, section);
-    validateField(section, 'phone', phone);
+  const handlePhoneChange = (phone) => {
+    const normalizedPhone = phone.replace(/^0+/, '');
+    onChange({ target: { name: 'phone', value: normalizedPhone } }, 'shipping');
+    validateField('phone', normalizedPhone);
   };
 
-  const handleFieldChange = (e, section) => {
-    onChange(e, section);
-    validateField(section, e.target.name, e.target.value);
-  };
-
-  const renderAddressSection = (section, states) => {
-    const title = section.charAt(0).toUpperCase() + section.slice(1);
-    return (
-      <>
-        <h3 style={{ marginBottom: '10px', fontSize: '1.25rem', fontWeight: 600 }}>
-          {title} Address
-        </h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '15px',
-          }}
-        >
-          {['fullName', 'address1', 'address2', 'city', 'postalCode', 'phone', 'state', 'country'].map((field) => {
-            if (field === 'phone') {
-              return (
-                <label key={field} style={{ display: 'flex', flexDirection: 'column', fontSize: '0.9rem', fontWeight: 500 }}>
-                  Phone
-                  <PhoneInput
-                    country={'ae'}
-                    value={formData[section].phone}
-                    onChange={(phone) => handlePhoneChange(phone, section)}
-                    containerStyle={{
-                      marginTop: '6px',
-                      width: '100%',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '0 8px',
-                      boxSizing: 'border-box',
-                    }}
-                    inputStyle={{
-                      border: 'none',
-                      width: '100%',
-                      fontSize: '1rem',
-                      height: '40px',
-                      boxShadow: 'none',
-                      marginLeft: '25px',
-                    }}
-                    buttonStyle={{ border: 'none', backgroundColor: '#fff' }}
-                    dropdownStyle={{ width: '280px', maxHeight: '200px', overflowY: 'auto' }}
-                    enableSearch
-                    countryCodeEditable
-                  />
-                  {formErrors[section]?.phone && (
-                    <span style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors[section].phone}</span>
-                  )}
-                </label>
-              );
-            }
-
-            if (field === 'state') {
-              return (
-                <label key={field} style={{ display: 'flex', flexDirection: 'column', fontSize: '0.9rem', fontWeight: 500 }}>
-                  State / Province
-                  {states.length > 0 ? (
-                    <select
-                      name="state"
-                      value={formData[section].state}
-                      onChange={(e) => handleFieldChange(e, section)}
-                      style={{ marginTop: '6px', padding: '8px', fontSize: '1rem', borderRadius: '4px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box', appearance: 'none' }}
-                    >
-                      <option value="">Select state</option>
-                      {states.map((state) => (
-                        <option key={state.code} value={state.code}>
-                          {state.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type="text"
-                      name="state"
-                      value={formData[section].state}
-                      onChange={(e) => handleFieldChange(e, section)}
-                      style={{ marginTop: '6px', padding: '8px', fontSize: '1rem', borderRadius: '4px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box' }}
-                    />
-                  )}
-                  {formErrors[section]?.state && (
-                    <span style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors[section].state}</span>
-                  )}
-                </label>
-              );
-            }
-
-            if (field === 'country') {
-              return (
-                <label key={field} style={{ display: 'flex', flexDirection: 'column', fontSize: '0.9rem', fontWeight: 500 }}>
-                  Country
-                  <select
-                    name="country"
-                    value={formData[section].country}
-                    onChange={(e) => handleFieldChange(e, section)}
-                    style={{ marginTop: '6px', padding: '8px', fontSize: '1rem', borderRadius: '4px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box', appearance: 'none' }}
-                  >
-                    <option value="">Select country</option>
-                    {Object.entries(countries).map(([code, countryData]) => (
-                      <option key={code} value={code}>
-                        {countryData.name}
-                      </option>
-                    ))}
-                  </select>
-                  {formErrors[section]?.country && (
-                    <span style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors[section].country}</span>
-                  )}
-                </label>
-              );
-            }
-
-            // All other input fields
-            return (
-              <label key={field} style={{ display: 'flex', flexDirection: 'column', fontSize: '0.9rem', fontWeight: 500 }}>
-                {field.charAt(0).toUpperCase() + field.slice(1)}
-                <input
-                  type="text"
-                  name={field}
-                  value={formData[section][field]}
-                  onChange={(e) => handleFieldChange(e, section)}
-                  style={{ marginTop: '6px', padding: '8px', fontSize: '1rem', borderRadius: '4px', border: '1px solid #ccc', width: '100%', boxSizing: 'border-box' }}
-                />
-                {formErrors[section]?.[field] && (
-                  <span style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors[section][field]}</span>
-                )}
-              </label>
-            );
-          })}
-        </div>
-      </>
-    );
+  const handleFieldChange = (e) => {
+    onChange(e, 'shipping');
+    validateField(e.target.name, e.target.value);
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '10px' }}>
-      <div style={{ position: 'relative', backgroundColor: '#fff', padding: '20px 15px', borderRadius: '8px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-        <button type="button" style={{ background: 'transparent', border: 'none', fontSize: '24px', fontWeight: 'bold', cursor: 'pointer', position: 'absolute', top: '10px', right: '15px' }} onClick={onClose} aria-label="Close">
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+        padding: '12px',
+      }}
+    >
+      <div
+        style={{
+          position: 'relative',
+          background: '#ffffff',
+          borderRadius: '12px',
+          width: '100%',
+          maxWidth: '650px',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          padding: '25px 30px',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+        }}
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '15px',
+            right: '20px',
+            background: 'none',
+            border: 'none',
+            fontSize: '22px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            color: '#555',
+          }}
+          aria-label="Close"
+        >
           ✕
         </button>
 
+        <h2 style={{ marginBottom: '15px', fontSize: '1.5rem', fontWeight: 700, color: '#333' }}>
+          Shipping Address
+        </h2>
+
         <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {renderAddressSection('shipping', shippingStates)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '18px' }}>
+            {/* Full Name */}
+            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              Full Name
+              <input
+                type="text"
+                name="fullName"
+                value={formData.shipping.fullName}
+                onChange={handleFieldChange}
+                style={{
+                  marginTop: '6px',
+                  padding: '10px',
+                  fontSize: '1rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  width: '100%',
+                  transition: '0.2s',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = '#ff5100')}
+                onBlur={(e) => (e.target.style.borderColor = '#ccc')}
+              />
+              {formErrors.fullName && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.fullName}</span>}
+            </label>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem' }}>
-            <input
-              type="checkbox"
-              name="billingSameAsShipping"
-              checked={formData.billingSameAsShipping}
-              onChange={(e) => onChange(e, 'checkbox')}
-              style={{ cursor: 'pointer' }}
-            />
-            Same address for billing
-          </label>
+            {/* Address */}
+            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              Address
+              <input
+                type="text"
+                name="address1"
+                value={formData.shipping.address1}
+                onChange={handleFieldChange}
+                style={{
+                  marginTop: '6px',
+                  padding: '10px',
+                  fontSize: '1rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  width: '100%',
+                  transition: '0.2s',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = '#ff5100')}
+                onBlur={(e) => (e.target.style.borderColor = '#ccc')}
+              />
+              {formErrors.address1 && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.address1}</span>}
+            </label>
 
-          {!formData.billingSameAsShipping && renderAddressSection('billing', billingStates)}
+            {/* City / Area */}
+            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              Area
+              <input
+                type="text"
+                name="city"
+                value={formData.shipping.city}
+                onChange={handleFieldChange}
+                style={{
+                  marginTop: '6px',
+                  padding: '10px',
+                  fontSize: '1rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  width: '100%',
+                  transition: '0.2s',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = '#ff5100')}
+                onBlur={(e) => (e.target.style.borderColor = '#ccc')}
+              />
+              {formErrors.city && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.city}</span>}
+            </label>
 
-          {error && <div style={{ color: 'red', fontWeight: 600, marginTop: '10px' }}>{error}</div>}
+            {/* State */}
+            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              State / Province
+              <select
+                name="state"
+                value={formData.shipping.state}
+                onChange={handleFieldChange}
+                style={{
+                  marginTop: '6px',
+                  padding: '10px',
+                  fontSize: '1rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  width: '100%',
+                  transition: '0.2s',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = '#ff5100')}
+                onBlur={(e) => (e.target.style.borderColor = '#ccc')}
+              >
+                <option value="">Select state</option>
+                {UAE_EMIRATES.map((state) => (
+                  <option key={state.code} value={state.code}>{state.name}</option>
+                ))}
+              </select>
+              {formErrors.state && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.state}</span>}
+            </label>
 
-          <button type="submit" disabled={saving} style={{ backgroundColor: '#ff5100ff', color: '#fff', padding: '10px 18px', fontSize: '1rem', border: 'none', borderRadius: '5px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1, alignSelf: 'flex-start' }}>
+            {/* Phone */}
+            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              Phone
+              <PhoneInput
+                country="ae"
+                value={formData.shipping.phone || '971'}
+                onChange={handlePhoneChange}
+                containerStyle={{ width: '100%' }}
+                inputStyle={{
+                  width: '100%',
+                  height: '42px',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  paddingLeft: '48px',
+                  transition: '0.2s',
+                }}
+                buttonStyle={{ pointerEvents: 'none', backgroundColor: '#fff' }}
+                enableSearch={false}
+                countryCodeEditable={false}
+                onFocus={() => {}}
+              />
+              {formErrors.phone && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.phone}</span>}
+            </label>
+
+            {/* Country (fixed) */}
+            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              Country
+              <input
+                type="text"
+                value="United Arab Emirates"
+                readOnly
+                style={{
+                  marginTop: '6px',
+                  padding: '10px',
+                  fontSize: '1rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  width: '100%',
+                  backgroundColor: '#f9f9f9',
+                  cursor: 'not-allowed',
+                }}
+              />
+            </label>
+          </div>
+
+          {error && <div style={{ color: 'red', fontWeight: 600 }}>{error}</div>}
+
+          <button
+            type="submit"
+            disabled={saving}
+            style={{
+              backgroundColor: '#ff5100',
+              color: '#fff',
+              padding: '12px 22px',
+              fontSize: '1.1rem',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: saving ? 'not-allowed' : 'pointer',
+              opacity: saving ? 0.7 : 1,
+              alignSelf: 'flex-start',
+              transition: '0.2s',
+            }}
+            onMouseOver={(e) => !saving && (e.target.style.backgroundColor = '#e04a00')}
+            onMouseOut={(e) => !saving && (e.target.style.backgroundColor = '#ff5100')}
+          >
             {saving ? 'Saving...' : 'Save Address'}
           </button>
         </form>

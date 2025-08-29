@@ -5,10 +5,10 @@ const CookiePopup = () => {
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("cookiePopupClosed");
+    const skipPopup = sessionStorage.getItem("skipCookiePopup");
     const now = new Date().getTime();
 
-    // Show popup if not closed before or 30 min passed
-    if (!lastClosed || now - lastClosed > 30 * 60 * 1000) {
+    if (!skipPopup && (!lastClosed || now - lastClosed > 30 * 60 * 1000)) {
       setShowPopup(true);
     }
   }, []);
@@ -19,23 +19,41 @@ const CookiePopup = () => {
   };
 
   const handleClearCookies = () => {
-    // Close popup immediately
     setShowPopup(false);
+    sessionStorage.setItem("skipCookiePopup", "true");
 
-    // Save current timestamp to prevent reopening
-    localStorage.setItem("cookiePopupClosed", new Date().getTime());
+    setTimeout(() => {
+      // --- Keys we want to preserve ---
+      const preservedKeys = [
+        "userToken",          // login/session
+        "userId",             // login/session
+        "isLoggedIn",         // login/session
+        "lastClickedProduct", // last clicked product
+        "categories"          // stored categories
+      ];
 
-    // Clear cookies and storage
-    document.cookie.split(";").forEach((c) => {
-      document.cookie = c
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
-    localStorage.clear();
-    sessionStorage.clear();
+      let preservedData = {};
+      preservedKeys.forEach((key) => {
+        const value = localStorage.getItem(key);
+        if (value !== null) preservedData[key] = value;
+      });
 
-    // Reload page after clearing
-    window.location.reload();
+      // --- Clear cookies ---
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+
+      // --- Clear localStorage, then restore preserved data ---
+      localStorage.clear();
+      Object.keys(preservedData).forEach((key) => {
+        localStorage.setItem(key, preservedData[key]);
+      });
+
+      // --- Reload ---
+      window.location.reload();
+    }, 50);
   };
 
   if (!showPopup) return null;
@@ -44,67 +62,98 @@ const CookiePopup = () => {
     <div
       style={{
         position: "fixed",
-        bottom: "25px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: "90%",
-        maxWidth: "600px",
-        backgroundColor: "rgba(0,0,0,0.9)",
+        bottom: 0,
+        left: 0,
+        width: "100%",
+        background: "linear-gradient(90deg, #111, #222)",
         color: "#fff",
-        padding: "20px 25px",
-        borderRadius: "14px",
-        boxShadow: "0 12px 24px rgba(0,0,0,0.4)",
+        padding: "18px 20px",
         display: "flex",
         flexDirection: "column",
-        gap: "15px",
+        gap: "12px",
         fontFamily: "Arial, sans-serif",
         fontSize: "15px",
-        backdropFilter: "blur(5px)",
         zIndex: 9999,
-        transition: "all 0.3s ease-in-out",
+        boxShadow: "0 -4px 15px rgba(0,0,0,0.4)",
+        animation: "slideUp 0.4s ease",
       }}
     >
       <span style={{ fontWeight: "600", textAlign: "center" }}>
-        We use cookies to improve your experience. Would you like to keep them or clear?
+        We use cookies to improve your experience. Do you want to keep them or clear?
       </span>
-      <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "14px",
+          flexWrap: "wrap",
+        }}
+      >
         <button
           onClick={handleContinue}
           style={{
-            padding: "10px 18px",
-            border: "none",
-            borderRadius: "8px",
-            backgroundColor: "#fff",
-            color: "#000",
+            padding: "10px 20px",
+            borderRadius: "6px",
+            border: "2px solid #fff",
+            background: "transparent",
+            color: "#fff",
             cursor: "pointer",
             fontWeight: "600",
             minWidth: "120px",
-            transition: "0.3s",
+            transition: "all 0.3s",
           }}
-          onMouseEnter={(e) => (e.target.style.backgroundColor = "#e0e0e0")}
-          onMouseLeave={(e) => (e.target.style.backgroundColor = "#fff")}
+          onMouseEnter={(e) => {
+            e.target.style.background = "#fff";
+            e.target.style.color = "#000";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = "transparent";
+            e.target.style.color = "#fff";
+          }}
         >
           Continue
         </button>
         <button
           onClick={handleClearCookies}
           style={{
-            padding: "10px 18px",
+            padding: "10px 20px",
+            borderRadius: "6px",
             border: "none",
-            borderRadius: "8px",
-            backgroundColor: "#fff",
-            color: "#000",
+            background: "#ff4d4d",
+            color: "#fff",
             cursor: "pointer",
             fontWeight: "600",
             minWidth: "120px",
-            transition: "0.3s",
+            transition: "all 0.3s",
           }}
-          onMouseEnter={(e) => (e.target.style.backgroundColor = "#e0e0e0")}
-          onMouseLeave={(e) => (e.target.style.backgroundColor = "#fff")}
+          onMouseEnter={(e) => (e.target.style.opacity = "0.8")}
+          onMouseLeave={(e) => (e.target.style.opacity = "1")}
         >
           Clear Cookies
         </button>
       </div>
+
+      {/* Slide up animation */}
+      <style>
+        {`
+          @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+
+          @media (max-width: 480px) {
+            div[style*="position: fixed"] {
+              font-size: 14px !important;
+              padding: 15px !important;
+            }
+            button {
+              min-width: 100px !important;
+              padding: 8px 14px !important;
+            }
+          }
+        `}
+      </style>
     </div>
   );
 };
