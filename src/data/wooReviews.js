@@ -8,27 +8,40 @@ const AUTH = {
 const axiosInstance = axios.create({ auth: AUTH });
 
 export async function getProductReviewsWoo(productId) {
-  const id = parseInt(productId, 10); // convert to integer
+  const id = parseInt(productId, 10);
   if (isNaN(id)) {
     console.error('Invalid productId:', productId);
     return [];
   }
 
-  try {
-    const res = await axiosInstance.get(`${API_BASE}/products/reviews`, {
-      params: { product: id, per_page: 100 }, // must be integer
-    });
+  let allReviews = [];
+  let page = 1;
+  let keepFetching = true;
 
-    return res.data.map(r => ({
-      id: r.id,
-      reviewer: r.reviewer,
-      rating: r.rating,
-      comment: r.review,
-      date: r.date_created,
-      image_url: null,
-    }));
+  try {
+    while (keepFetching) {
+      const res = await axiosInstance.get(`${API_BASE}/products/reviews`, {
+        params: { product: id, per_page: 100, page }, // integer per_page and page
+      });
+
+      const reviews = res.data.map(r => ({
+        id: r.id,
+        reviewer: r.reviewer,
+        rating: r.rating,
+        comment: r.review,
+        date: r.date_created,
+        image_url: null,
+      }));
+
+      allReviews = [...allReviews, ...reviews];
+
+      if (res.data.length < 100) keepFetching = false;
+      else page++;
+    }
+
+    return allReviews;
   } catch (err) {
-    console.error('WooCommerce reviews fetch error:', err);
+    console.error('WooCommerce reviews fetch error:', err.response?.data || err.message);
     return [];
   }
 }
