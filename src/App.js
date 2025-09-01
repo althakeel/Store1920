@@ -41,7 +41,7 @@ import CookiesSettings from './pages/CookiesSettingsPage';
 import LostPassword from './pages/lost-password';
 import MyCoins from './pages/my-coins';
 import TopSellingitems from './pages/topselling';
-import CategoryPage from './pages/CategoryPage';
+import CategoryPageid from './pages/CategoryPage';
 import Contact from './pages/contact';
 import Search from './pages/search';
 import PaymobSuccess from './pages/PaymobSuccess';
@@ -170,7 +170,7 @@ const AppContent = () => {
                     <Route path="/lightningdeal" element={<Lightningdeal />} />
                     <Route path="/compare" element={<ComparePage />} />
                     <Route path="/category" element={<Categories />} />
-                    <Route path="/category/:id" element={<CategoryPage/>} />
+                    <Route path="/category/:id" element={<CategoryPageid/>} />
                     <Route path="/allproducts" element={<AllProducts />} />
                     <Route path="/new" element={<New />} />
                     <Route path="/rated" element={<Rated />} />
