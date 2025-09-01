@@ -253,7 +253,8 @@
   .gcx-container {
     grid-template-columns: 1fr;
     padding: 0 15px;
-    height: auto;            /* full flow on mobile */
+    height: auto;   
+    margin: 20px auto 20px;         /* full flow on mobile */
   }
   .gcx-left { display: none; }
  

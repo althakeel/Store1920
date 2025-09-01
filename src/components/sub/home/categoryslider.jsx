@@ -1,19 +1,22 @@
-import React, { useEffect, useState, useRef } from 'react';
-import Slider from 'react-slick';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-import '../../../assets/styles/CategorySlider.css';
-import placeholderImg from '../../../assets/images/Skelton.png';
-import { FaClock } from 'react-icons/fa'; // black clock icon
+// src/components/home/CategorySlider.jsx
+import React, { useEffect, useState, useRef } from "react";
+import Slider from "react-slick";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import "../../../assets/styles/CategorySlider.css";
+import placeholderImg from "../../../assets/images/Skelton.png";
+import { FaClock } from "react-icons/fa"; // black clock icon
 
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
-const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
+// WooCommerce API credentials
+const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
+const CK = "ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8";
+const CS = "cs_c65538cff741bd9910071c7584b3d070609fec24";
 
+// Decode WooCommerce HTML entities in names
 const decodeHTML = (html) => {
-  const txt = document.createElement('textarea');
+  const txt = document.createElement("textarea");
   txt.innerHTML = html;
   return txt.value;
 };
@@ -22,43 +25,42 @@ const CategorySlider = () => {
   const [categories, setCategories] = useState(null);
   const sliderRef = useRef(null);
 
+  // Load categories from WooCommerce
   useEffect(() => {
-  let isMounted = true;
+    let isMounted = true;
 
-  const loadCategories = async () => {
-    // Clear old cache to avoid 1-minute timers
-    localStorage.removeItem('categories');
+    const loadCategories = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/products/categories`, {
+          auth: { username: CK, password: CS },
+        });
 
-    try {
-      const res = await axios.get(`${API_BASE}/products/categories`, {
-        auth: { username: CK, password: CS },
-      });
+        if (!isMounted) return;
 
-      if (!isMounted) return;
+        const filtered = res.data.filter((cat) => cat.image);
 
-      const filtered = res.data.filter((cat) => cat.image);
+        // Attach custom deal info
+        const categoriesWithDeals = filtered.map((cat) => ({
+          ...cat,
+          isDeal:
+            cat.name.toLowerCase() === "electronics" ||
+            cat.name.toLowerCase() === "fashion",
+          megaSale: cat.enable_offer === true,
+          dealTime: 172800, // 2 days
+        }));
 
-      const categoriesWithDeals = filtered.map((cat) => ({
-        ...cat,
-        isDeal: cat.name.toLowerCase() === 'electronics' || cat.name.toLowerCase() === 'fashion',
-        megaSale: cat.enable_offer === true,
-        dealTime: 172800, // 2 days
-        slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-'),
-      }));
+        setCategories(categoriesWithDeals);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+        if (isMounted) setCategories([]);
+      }
+    };
 
-      setCategories(categoriesWithDeals);
-      localStorage.setItem('categories', JSON.stringify(categoriesWithDeals));
-    } catch (err) {
-      console.error('Failed to fetch categories:', err);
-      if (isMounted) setCategories([]);
-    }
-  };
-
-  loadCategories();
-
-  return () => { isMounted = false; };
-}, []);
-
+    loadCategories();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const settings = {
     dots: false,
@@ -70,7 +72,7 @@ const CategorySlider = () => {
     autoplaySpeed: 3500,
     swipeToSlide: true,
     arrows: false,
-    lazyLoad: 'ondemand',
+    lazyLoad: "ondemand",
     responsive: [
       { breakpoint: 1536, settings: { slidesToShow: 7 } },
       { breakpoint: 1280, settings: { slidesToShow: 6.5 } },
@@ -93,9 +95,16 @@ const CategorySlider = () => {
     ));
 
   return (
-    <section className="category-slider-container" style={{ position: 'relative' }}>
-      <button className="custom-prev-arrow" onClick={goPrev}>{"<"}</button>
-      <button className="custom-next-arrow" onClick={goNext}>{">"}</button>
+    <section
+      className="category-slider-container"
+      style={{ position: "relative" }}
+    >
+      <button className="custom-prev-arrow" onClick={goPrev}>
+        {"<"}
+      </button>
+      <button className="custom-next-arrow" onClick={goNext}>
+        {">"}
+      </button>
 
       {categories === null ? (
         <div className="skeleton-wrapper">{renderSkeletons()}</div>
@@ -105,9 +114,15 @@ const CategorySlider = () => {
             const decodedName = decodeHTML(cat.name);
             let isDragging = false;
 
-            const handleMouseDown = () => { isDragging = false; };
-            const handleMouseMove = () => { isDragging = true; };
-            const handleClick = (e) => { if (isDragging) e.preventDefault(); };
+            const handleMouseDown = () => {
+              isDragging = false;
+            };
+            const handleMouseMove = () => {
+              isDragging = true;
+            };
+            const handleClick = (e) => {
+              if (isDragging) e.preventDefault();
+            };
 
             return (
               <div
@@ -117,19 +132,21 @@ const CategorySlider = () => {
                 onMouseMove={handleMouseMove}
               >
                 <Link
-                  to={`/category/${cat.slug}`}
+                  to={`/category/${cat.id}`}
                   onClick={handleClick}
                   className="category-link"
-                  style={{ textDecoration: 'none', color: '#333' }}
+                  style={{ textDecoration: "none", color: "#333" }}
                 >
-                  <div style={{ position: 'relative', width: '100%' }}>
+                  <div style={{ position: "relative", width: "100%" }}>
                     <img
                       src={cat.image?.src || placeholderImg}
                       alt={decodedName}
                       className="category-image"
                     />
-                    {cat.megaSale && <div className="mega-sale-badge">Mega Sale</div>}
-                    {cat.isDeal && <ProgressBar duration={cat.dealTime} />}
+                    {cat.megaSale && (
+                      <div className="mega-sale-badge">Mega Sale</div>
+                    )}
+                    {cat.isDeal && <ProgressBar totalDuration={cat.dealTime} />}
                   </div>
                   <div className="category-title">{decodedName}</div>
                 </Link>
@@ -142,14 +159,11 @@ const CategorySlider = () => {
   );
 };
 
-// ✅ Countdown + progress bar with black clock
-// ProgressBar with real 2-day persistent countdown
 const ProgressBar = ({ totalDuration = 172800 }) => {
   const [timeLeft, setTimeLeft] = useState(totalDuration);
   const endTimeRef = useRef(null);
 
   useEffect(() => {
-    // Save or retrieve a persistent end time from localStorage
     let storedEnd = localStorage.getItem("dealEndTime");
     if (storedEnd) {
       endTimeRef.current = parseInt(storedEnd, 10);
@@ -164,7 +178,7 @@ const ProgressBar = ({ totalDuration = 172800 }) => {
       setTimeLeft(diff);
     };
 
-    tick(); // run immediately
+    tick(); 
     const interval = setInterval(tick, 1000);
 
     return () => clearInterval(interval);
@@ -188,7 +202,8 @@ const ProgressBar = ({ totalDuration = 172800 }) => {
     <div className="deal-overlay">
       <div className="deal-hurry">🔥 Hurry Up!</div>
       <div className="deal-timer-text">
-        <FaClock color="black" style={{ marginRight: "6px" }} /> {formatTime(timeLeft)}
+        <FaClock color="black" style={{ marginRight: "6px" }} />{" "}
+        {formatTime(timeLeft)}
       </div>
       <div className="deal-progress-bar">
         <div className="deal-progress" style={{ width: `${percent}%` }} />
@@ -196,7 +211,5 @@ const ProgressBar = ({ totalDuration = 172800 }) => {
     </div>
   );
 };
-
-
 
 export default CategorySlider;

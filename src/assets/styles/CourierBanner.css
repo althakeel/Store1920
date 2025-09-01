@@ -1,34 +1,26 @@
 .courier-banner-section {
-  max-width: 1400px;            /* cap the whole bar at 1400px */
-  width: 100%;                  /* let it shrink on smaller screens */
-  margin: 20px auto;            /* center horizontally */
+  max-width: 1400px;
+  width: 100%;
+  margin: 20px auto;
   background-color: #FF0100;
-  padding: 0;                    /* no extra gap around bar */
-  box-sizing: border-box;
   display: flex;
-  justify-content: flex-start;   /* align content left inside */
+  justify-content: flex-start;
 }
 
 .banner-content {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-start;   /* keep yellow block at start */
   width: 100%;
-  box-sizing: border-box;
 }
-
-
 
 .banner-image {
   height: 50px;
-  max-height: 50px;
   width: auto;
-  object-fit: contain;            /* keeps proportions */
+  object-fit: contain;
   object-position: left center;
   flex-shrink: 0;
-  margin: 0;
-  z-index: 3;                     /* sits above overlay */
+  z-index: 3;
 }
 
 .banner-overlay {
@@ -39,184 +31,53 @@
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;        /* center text/icons */
   gap: 20px;
-  padding-left: 70px;             /* reserve space for image */
+  padding-left: 70px;
   box-sizing: border-box;
   z-index: 2;
-  background-color: transparent;  /* no overlay background */
 }
 
-.banner-text {
+.marquee-wrapper {
+  overflow: hidden;
+  white-space: nowrap;
+  flex-grow: 1;
+}
+
+.marquee {
+  display: inline-block;
+  animation: marquee 15s linear infinite;
+}
+
+.marquee-item {
+  display: inline-block;
+  margin-right: 100px; /* space between messages */
   font-family: 'Montserrat', sans-serif;
   font-weight: 600;
   font-size: 18px;
-  color: #ffffff;
-  text-align: center;
-  flex-grow: 1;
+  color: #fff;
 }
 
 .banner-arrow {
   font-size: 24px;
-  color: #ffffff;
+  color: #fff;
   cursor: pointer;
-  user-select: none;
   flex-shrink: 0;
-  margin-right: 20px;             /* small offset */
+  margin-right: 20px;
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); } /* adjust for seamless scroll */
 }
 
 /* Responsive tweaks */
 @media (max-width: 768px) {
-  .courier-banner-section {
-    max-width: 100%;
-    padding: 0 15px;
-  }
-
-  .banner-image {
-    height: 40px;
-    max-height: 40px;
-  }
-
-  .banner-overlay {
-    height: 40px;
-    gap: 10px;
-    padding-left: 55px;           /* reserve smaller space for image */
-  }
-
-  .banner-text {
-    font-size: 16px;
-  }
-
-  .banner-arrow {
-    font-size: 20px;
-  }
+  .banner-image { height: 40px; }
+  .marquee-item { font-size: 16px; margin-right: 50px; }
+  .banner-arrow { font-size: 20px; }
 }
 
-/* Mobile devices */
 @media (max-width: 480px) {
-  .courier-banner-section {
-    display: none; /* Hide desktop banner on mobile */
-  }
-  /* You can add a separate mobile banner component */
+  .courier-banner-section { display: none; }
 }
-
-
-
-/* ===========================
-   Popup (New Modern Design)
-   =========================== */
-   .popup-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    z-index: 1000;
-  }
-  
-  .popup-box {
-    background: #fff;
-    border-radius: 16px;
-    max-width: 480px;
-    width: 100%;
-    overflow: hidden;
-    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
-    animation: fadeUp 0.35s ease;
-    display: flex;
-    flex-direction: column;
-    max-height: 90vh;     /* prevent overflow */
-  }
-  
-  .popup-header {
-    background: linear-gradient(135deg, #ff0100, #ff5100);
-    padding: 18px;
-    text-align: center;
-    color: #fff;
-  }
-  
-  .popup-header img {
-    max-width: 120px;
-    display: block;
-    margin: 0 auto 8px auto;
-  }
-  
-  .popup-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0;
-  }
-  
-  .popup-body {
-    padding: 20px;
-    text-align: left;
-    flex: 1;
-    overflow-y: auto;
-  }
-  
-  .popup-message {
-    font-size: 15px;
-    line-height: 1.6;
-    color: #444;
-    margin-bottom: 12px;
-  }
-  
-  .popup-features {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0;
-  }
-  
-  .popup-features li {
-    margin-bottom: 8px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #333;
-  }
-  
-  .popup-footer {
-    padding: 15px 20px;
-    border-top: 1px solid #eee;
-    text-align: right;
-  }
-  
-  .popup-close-btn {
-    background: #ff0100;
-    color: #fff;
-    padding: 10px 22px;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  
-  .popup-close-btn:hover {
-    background: #d60000;
-  }
-  
-  /* Animation */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(25px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  /* Responsive */
-  @media (max-width: 480px) {
-    .popup-title {
-      font-size: 16px;
-    }
-    .popup-message,
-    .popup-features li {
-      font-size: 13px;
-    }
-    .popup-close-btn {
-      width: 100%;
-      text-align: center;
-    }
-  }
-  

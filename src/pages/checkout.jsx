@@ -4,7 +4,6 @@ import { useCart } from '../contexts/CartContext';
 import CheckoutLeft from '../components/CheckoutLeft';
 import CheckoutRight from '../components/CheckoutRight';
 import SignInModal from '../components/sub/SignInModal';
-import PaymentMethods from '../components/checkoutleft/PaymentMethods';
 import '../assets/styles/checkout.css';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
@@ -32,6 +31,7 @@ export default function CheckoutPage() {
 
   const [cartItems, setCartItems] = useState([]);
   const [countries, setCountries] = useState([]);
+  const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cod');
   const [formData, setFormData] = useState({
@@ -40,6 +40,7 @@ export default function CheckoutPage() {
     billingSameAsShipping: true,
     paymentMethod: 'cod',
     paymentMethodTitle: 'Cash On Delivery',
+    shippingMethodId: null,
   });
   const [orderId, setOrderId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -49,7 +50,13 @@ export default function CheckoutPage() {
 
   const subtotal = cartItems.reduce((sum, item) => sum + (parseFloat(item.price)||0) * item.quantity, 0);
 
-  // Fetch products
+  // --- Alert helper ---
+  const showAlert = (message, type = 'info') => {
+    setAlert({ message, type });
+    setTimeout(() => setAlert({ message: '', type: 'info' }), 4000); // auto-clear after 4s
+  };
+
+  // Fetch cart products
   useEffect(() => {
     if (!contextCartItems.length) return setCartItems([]);
     const fetchProducts = async () => {
@@ -77,121 +84,145 @@ export default function CheckoutPage() {
         setCountries(countriesData);
         setPaymentMethods(paymentsData);
         setIsLoggedIn(!!localStorage.getItem('userToken'));
-      } catch(err) { setError(err.message || 'Failed to load checkout data.'); }
-      finally { setLoading(false); }
+      } catch(err) {
+        setError(err.message || 'Failed to load checkout data.');
+      } finally { setLoading(false); }
     };
     fetchData();
   }, []);
 
+  // Check for payment success/failure redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get('payment_success');
+    const failed = params.get('payment_failed');
+    const orderIdFromUrl = params.get('order_id');
+
+    if (success && orderIdFromUrl) {
+      fetchWithAuth(`orders/${orderIdFromUrl}`, {
+        method: 'PUT',
+        body: JSON.stringify({ set_paid: true })
+      }).then(() => {
+        clearCart();
+        navigate(`/order-success?order_id=${orderIdFromUrl}`);
+      });
+    }
+
+    if (failed && orderIdFromUrl) {
+      fetchWithAuth(`orders/${orderIdFromUrl}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'cancelled' })
+      }).then(() => {
+        showAlert('Payment failed. Order was cancelled.', 'error');
+      });
+    }
+  }, []);
+
+  // Handle payment method selection
   const handlePaymentSelect = (methodId, title) => {
     setSelectedPaymentMethod(methodId);
     setFormData(prev => ({ ...prev, paymentMethod: methodId, paymentMethodTitle: title }));
   };
 
+  // Create WooCommerce order
+  const createOrder = async () => {
+    const shipping = formData.shipping;
+    const billing = formData.billingSameAsShipping ? shipping : formData.billing;
+    const line_items = cartItems.map(i => ({ product_id: i.id, quantity: i.quantity }));
+    const userId = localStorage.getItem('userId');
 
-    useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('payment_failed') === '1') {
-      setError('Payment failed. Please try again.');
-    }
-  }, []);
+    const payload = {
+      payment_method: formData.paymentMethod,
+      payment_method_title: formData.paymentMethodTitle,
+      set_paid: formData.paymentMethod !== 'cod',
+      billing: {
+        first_name: billing.fullName.split(' ')[0] || '',
+        last_name: billing.fullName.split(' ').slice(1).join('') || '',
+        address_1: billing.address1,
+        city: billing.city,
+        state: billing.state,
+        postcode: billing.postalCode,
+        country: billing.country,
+        phone: billing.phone,
+        email: billing.email
+      },
+      shipping: {
+        first_name: shipping.fullName.split(' ')[0] || '',
+        last_name: shipping.fullName.split(' ').slice(1).join('') || '',
+        address_1: shipping.address1,
+        city: shipping.city,
+        state: shipping.state,
+        postcode: shipping.postalCode,
+        country: shipping.country,
+        phone: shipping.phone
+      },
+      line_items,
+      shipping_lines: formData.shippingMethodId ? [{ method_id: formData.shippingMethodId }] : [],
+      ...(userId ? { customer_id: parseInt(userId, 10) } : { create_account: true })
+    };
 
-const createOrder = async () => {
-  const shipping = formData.shipping;
-  const billing = formData.billingSameAsShipping ? shipping : formData.billing;
-  const line_items = cartItems.map(i => ({ product_id: i.id, quantity: i.quantity }));
-  const userId = localStorage.getItem('userId');
+    const order = await fetchWithAuth('orders', { method: 'POST', body: JSON.stringify(payload) });
 
-  const payload = {
-    payment_method: selectedPaymentMethod,
-    payment_method_title: formData.paymentMethodTitle,
-    set_paid: selectedPaymentMethod !== 'cod',
-    billing: {
-      first_name: billing.fullName.split(' ')[0] || '',
-      last_name: billing.fullName.split(' ').slice(1).join('') || '',
-      address_1: billing.address1,
-      city: billing.city,
-      state: billing.state,
-      postcode: billing.postalCode,
-      country: billing.country,
-      phone: billing.phone,
-      email: billing.email
-    },
-    shipping: {
-      first_name: shipping.fullName.split(' ')[0] || '',
-      last_name: shipping.fullName.split(' ').slice(1).join('') || '',
-      address_1: shipping.address1,
-      city: shipping.city,
-      state: shipping.state,
-      postcode: shipping.postalCode,
-      country: shipping.country,
-      phone: shipping.phone
-    },
-    line_items,
-    ...(userId ? { customer_id: parseInt(userId, 10) } : { create_account: true }) // triggers WP auto user creation
+    if (!userId && order.customer_id) localStorage.setItem('userId', order.customer_id);
+
+    setOrderId(order.id);
+    return order.id;
   };
 
-  const order = await fetchWithAuth('orders', { method: 'POST', body: JSON.stringify(payload) });
+  // Place order (COD or Paymob)
+  const handlePlaceOrder = async () => {
+    setError('');
+    try {
+      const id = orderId || await createOrder();
+      clearCart();
 
-  if (!userId && order.customer_id) {
-    localStorage.setItem('userId', order.customer_id); // save new WP user
-  }
-
-  setOrderId(order.id);
-  return order.id;
-};
-
-
-const handlePlaceOrder = async () => {
-  setError('');
-  try {
-    const id = orderId || await createOrder(); // WooCommerce order created
-    clearCart();
-
-    if (selectedPaymentMethod === 'cod') {
-      navigate(`/order-success?order_id=${id}`);
-    } else if (selectedPaymentMethod === 'paymob') {
-      // Redirect to Paymob with order id
-      window.location.href = `https://uae.paymob.com/${id}`;
+      if (selectedPaymentMethod === 'cod') {
+        navigate(`/order-success?order_id=${id}`);
+      } else if (selectedPaymentMethod === 'paymob') {
+        const paymentUrlRes = await fetch(`/api/paymob-session?orderId=${id}`);
+        const { paymentUrl } = await paymentUrlRes.json();
+        window.location.href = paymentUrl;
+      }
+    } catch(err) {
+      setError(err.message || 'Failed to place order.');
     }
-  } catch(err) {
-    setError(err.message || 'Failed to place order.');
-  }
-};
+  };
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div style={{ color:'red' }}>{error}</div>;
 
   return (
     <>
       <div className="checkoutGrid">
         <CheckoutLeft
-          formData={formData}
-          onChange={(e, section) => {
-            const { name, value } = e.target;
-            setFormData(prev => ({ ...prev, [name]: value }));
-          }}
           countries={countries}
           cartItems={cartItems}
           subtotal={subtotal}
           orderId={orderId}
-          onPaymentMethodSelect={handlePaymentSelect}
+          formData={formData}
+          setFormData={setFormData}
+          handlePlaceOrder={handlePlaceOrder}
+          createOrder={createOrder}
+          showSignInModal={showSignInModal}
+          setShowSignInModal={setShowSignInModal}
         />
         <CheckoutRight
           cartItems={cartItems}
           formData={formData}
-          subtotal={subtotal}
-          paymentMethods={paymentMethods}
-          selectedPaymentMethod={selectedPaymentMethod}
-          onPlaceOrder={handlePlaceOrder}
-          isLoggedIn={isLoggedIn}
-          onRequireLogin={()=>setShowSignInModal(true)}
+          orderId={orderId}
           createOrder={createOrder}
-          clearCart={clearCart}
+          clearCart={() => setCartItems([])}
+          handlePlaceOrder={handlePlaceOrder}
         />
       </div>
-        {error && <div className="error-message">{error}</div>}
+
+      {alert.message && (
+        <div style={{ padding: 10, backgroundColor: alert.type === 'error' ? '#dc3545' : '#28a745', color: 'white' }}>
+          {alert.message}
+        </div>
+      )}
+
       {showSignInModal && <SignInModal onClose={()=>setShowSignInModal(false)} onLoginSuccess={()=>setIsLoggedIn(true)} />}
+      {error && <div className="error-message">{error}</div>}
     </>
   );
 }

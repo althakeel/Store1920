@@ -59,8 +59,9 @@ const PurchasePopup = () => {
 
   if (!product || !visible) return null;
 
-  const truncate = (text, length) =>
-    text.length > length ? text.substring(0, length) + "..." : text;
+const truncate = (text = "", length) =>
+  text.length > length ? text.substring(0, length) + "..." : text;
+
 
   return (
     <div

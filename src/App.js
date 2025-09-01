@@ -62,6 +62,7 @@ import { useNetworkSpeed } from './hooks/useNetworkSpeed';
 import { ToastContainer } from 'react-toastify';
 import CookiePopup from './components/common/CookiePopup';
 import PurchasePopup from './components/common/PurchasePopup';
+// import SpinWheel from './components/offer/SpinWheel';
 
 
 
@@ -198,6 +199,7 @@ const AppContent = () => {
                                 <Route path="/paymob-checkout" element={<PaymobCheckoutPage />} />
                   </Routes>
                 </main>
+     
 
                 {shouldShowMiniCart && (
                   <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
@@ -208,10 +210,15 @@ const AppContent = () => {
               <ChatBot />
               {/* <ToastContainer /> */}
               <Footer />
+
               {isMobile &&
-                !excludeMiniCartPaths.includes(path) && (
-                  <MobileBottomNav />
-                )}
+  !excludeMiniCartPaths.some(
+    (excludedPath) => path === excludedPath || path.startsWith(`${excludedPath}/`)
+  ) &&
+  !path.startsWith('/product/') && (
+    <MobileBottomNav />
+  )}
+
             </>
           </AuthProvider>
         </QueryClientProvider>

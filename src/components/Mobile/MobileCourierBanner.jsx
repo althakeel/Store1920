@@ -1,53 +1,62 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+
+const messages = [
+  'Fast & Reliable Courier Service',
+  'Track Your Orders in Real-Time',
+  'Eco-Friendly & Sustainable Delivery',
+  'Safe & Secure Handling of Packages',
+];
 
 const MobileCourierBanner = () => {
   const [bannerUrl, setBannerUrl] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 480);
+  const marqueeRef = useRef(null);
 
   useEffect(() => {
     fetch('https://db.store1920.com/wp-json/store1920/v1/banner')
-      .then((response) => response.json())
+      .then((res) => res.json())
       .then((data) => {
-        if (data.banner_url) {
-          setBannerUrl(data.banner_url);
-        }
+        if (data.banner_url) setBannerUrl(data.banner_url);
       })
-      .catch((error) => {
-        console.error('Error fetching banner image:', error);
-      });
+      .catch((err) => console.error(err));
   }, []);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 480);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth <= 480);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   if (!bannerUrl || !isMobile) return null;
 
+  // Keyframes for marquee animation
+  const keyframes = `
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+  `;
+
   return (
     <section
       style={{
         width: '100%',
-        margin: '0 auto',
-        boxSizing: 'border-box',
+        margin: 0,
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'stretch',
-        padding: '0',
+        boxSizing: 'border-box',
       }}
     >
+      <style>{keyframes}</style>
+
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           width: '100%',
-          height: '40px', // Ensures image and background are same height
+          height: '40px',
           backgroundColor: '#3b73ee',
-          borderRadius: '0',
           overflow: 'hidden',
           cursor: 'pointer',
         }}
@@ -60,43 +69,55 @@ const MobileCourierBanner = () => {
             height: '100%',
             width: 'auto',
             objectFit: 'cover',
-            objectPosition: 'left center',
             flexShrink: 0,
             marginRight: '10px',
           }}
         />
+
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
             flexGrow: 1,
-            paddingRight: '12px',
+            overflow: 'hidden',
+            position: 'relative',
             height: '100%',
           }}
         >
-          <span
+          <div
+            ref={marqueeRef}
             style={{
-              color: '#ffffff',
-              fontSize: '14px',
-              fontWeight: 600,
-              fontFamily: 'Montserrat, sans-serif',
-              flexGrow: 1,
+              display: 'inline-flex',
+              position: 'absolute',
+              whiteSpace: 'nowrap',
+              animation: 'marquee 15s linear infinite',
             }}
           >
-            Fast & Reliable Courier
-          </span>
-          <span
-            style={{
-              fontSize: '18px',
-              color: '#ffffff',
-              marginLeft: '10px',
-              userSelect: 'none',
-            }}
-          >
-            ➔
-          </span>
+            {[...messages, ...messages].map((msg, idx) => (
+              <span
+                key={idx}
+                style={{
+                  marginRight: '80px',
+                  color: '#fff',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  fontFamily: 'Montserrat, sans-serif',
+                }}
+              >
+                {msg}
+              </span>
+            ))}
+          </div>
         </div>
+
+        <span
+          style={{
+            fontSize: '18px',
+            color: '#fff',
+            marginLeft: '10px',
+            userSelect: 'none',
+          }}
+        >
+          ➔
+        </span>
       </div>
 
       {showPopup && (
@@ -104,7 +125,7 @@ const MobileCourierBanner = () => {
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backgroundColor: 'rgba(0,0,0,0.5)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -115,13 +136,13 @@ const MobileCourierBanner = () => {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: '#fff',
               padding: '20px',
               borderRadius: '10px',
               maxWidth: '90%',
               width: '100%',
               textAlign: 'center',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             }}
           >
             <p
@@ -138,7 +159,7 @@ const MobileCourierBanner = () => {
               onClick={() => setShowPopup(false)}
               style={{
                 backgroundColor: '#ff5100',
-                color: '#ffffff',
+                color: '#fff',
                 padding: '10px 20px',
                 border: 'none',
                 borderRadius: '6px',

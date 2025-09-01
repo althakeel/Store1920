@@ -4,7 +4,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom"; 
 import "../../../assets/styles/home/GridCategories.css";
 import { useCart } from "../../../contexts/CartContext";
-import MiniCart from "../../MiniCart";
 import PlaceHolderImage from '../../../assets/images/common/Placeholder.png'
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
@@ -47,10 +46,30 @@ const GridCategories = () => {
   const [banners, setBanners] = useState([]);
   const [targetDate] = useState(new Date().getTime() + 24 * 60 * 60 * 1000);
 
+  const [currentBanner, setCurrentBanner] = useState(0);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
   const { addToCart, cartItems } = useCart();
   const featuredCountdown = useCountdown(targetDate);
   const navigate = useNavigate();
 
+  // Detect mobile resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Auto-slide banners on mobile
+  useEffect(() => {
+    if (!isMobile) return;
+    const interval = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isMobile, banners.length]);
+
+  // Fetch categories
   useEffect(() => {
     axios
       .get(`${API_BASE}/products/categories?per_page=10`, { auth: AUTH })
@@ -58,6 +77,7 @@ const GridCategories = () => {
       .catch((err) => console.error("Category fetch error:", err));
   }, []);
 
+  // Fetch products
   useEffect(() => {
     axios
       .get(`${API_BASE}/products?per_page=10`, { auth: AUTH })
@@ -65,19 +85,13 @@ const GridCategories = () => {
       .catch((err) => console.error("Product fetch error:", err));
   }, []);
 
-useEffect(() => {
+  // Set banners
+  useEffect(() => {
     setBanners([
-      {
-        id: 1,
-        image: "https://db.store1920.com/wp-content/uploads/2025/08/3-6.webp",
-      },
-      {
-        id: 2,
-        image: "https://db.store1920.com/wp-content/uploads/2025/08/4-4.webp",
-      },
+      { id: 1, image: "https://db.store1920.com/wp-content/uploads/2025/08/3-6.webp" },
+      { id: 2, image: "https://db.store1920.com/wp-content/uploads/2025/08/4-4.webp" },
     ]);
   }, []);
-
 
   const isInCart = (id) => cartItems.some((item) => item.id === id);
 
@@ -87,23 +101,15 @@ useEffect(() => {
       <div className="gcx-left">
         <h3 className="gcx-section-title">More Reasons to Shop</h3>
         <div className="gcx-left-grid">
-          {categories.slice(0, 4).map((cat, i) => (
-            <div
-              key={cat?.id}
-              className="gcx-category-card"
-             onClick={() => navigate(`/category/${cat.id}`)} // redirect on click
-            >
-              <img
-          src={cat?.image?.src || PlaceHolderImage}
-                alt={cat?.name || "Category"}
-                style={{objectFit:'fill'}}
-              />
-              <div className="gcx-cat-info">
-                <h4 dangerouslySetInnerHTML={{ __html: cat?.name }} />
-             
-              </div>
-            </div>
-          ))}
+       {Array.isArray(categories) && categories.map((cat) => (
+  <div key={cat?.id} className="gcx-category-card" onClick={() => navigate(`/category/${cat.id}`)}>
+    <img src={cat?.image?.src || PlaceHolderImage} alt={cat?.name || "Category"} style={{ objectFit: "fill" }} />
+    <div className="gcx-cat-info">
+      <h4 dangerouslySetInnerHTML={{ __html: cat?.name }} />
+    </div>
+  </div>
+))}
+
         </div>
       </div>
 
@@ -117,12 +123,12 @@ useEffect(() => {
         </div>
 
         <div className="gcx-middle-grid">
-          {products.slice(0, 4).map((prod) => {
+          {products.map((prod) => {
             const inCart = isInCart(prod.id);
             return (
               <div key={prod?.id} className="gcx-product-card">
                 <img
- src={prod?.images?.[0]?.src || PlaceHolderImage}
+                  src={prod?.images?.[0]?.src || PlaceHolderImage}
                   alt={prod?.name || "Product"}
                 />
                 <div className="gcx-price-wrap">
@@ -130,16 +136,13 @@ useEffect(() => {
                     <span className="gcx-old-price">AED {prod.regular_price}</span>
                   )}
                   <span className="gcx-product-price">AED {prod?.price || "N/A"}</span>
-
-                  {/* Updated Add to Cart Button */}
-                  
                 </div>
                 <button
-                    className="gcx-cart-btn"
-                    onClick={() => !inCart && addToCart(prod)}
-                  >
-                    {inCart ? "Added" : "Add to Cart"}
-                  </button>
+                  className="gcx-cart-btn"
+                  onClick={() => !inCart && addToCart(prod)}
+                >
+                  {inCart ? "Added" : "Add to Cart"}
+                </button>
               </div>
             );
           })}
@@ -148,11 +151,21 @@ useEffect(() => {
 
       {/* RIGHT - Banners */}
       <div className="gcx-right">
-        {banners.map((ban) => (
-          <div key={ban.id} className="gcx-banner">
-            <img src={ban.image} alt={`Banner ${ban.id}`} />
+        {isMobile ? (
+          <div className="gcx-banner">
+            <img
+              src={banners[currentBanner]?.image}
+              alt={`Banner ${banners[currentBanner]?.id}`}
+              style={{ transition: "opacity 0.5s ease-in-out" }}
+            />
           </div>
-        ))}
+        ) : (
+          banners.map((ban) => (
+            <div key={ban.id} className="gcx-banner">
+              <img src={ban.image} alt={`Banner ${ban.id}`} />
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

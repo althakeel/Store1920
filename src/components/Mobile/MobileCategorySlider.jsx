@@ -48,7 +48,7 @@ const CategorySlider = () => {
   }, []);
 
   return (
-    <div style={{ overflowX: 'auto', padding: '10px', WebkitOverflowScrolling: 'touch' }}>
+    <div style={{ overflowX: 'auto', padding: '10px', marginBottom:'10px', WebkitOverflowScrolling: 'touch' }}>
       <div
         style={{
           display: 'flex',

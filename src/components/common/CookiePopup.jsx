@@ -23,13 +23,12 @@ const CookiePopup = () => {
     sessionStorage.setItem("skipCookiePopup", "true");
 
     setTimeout(() => {
-      // --- Keys we want to preserve ---
       const preservedKeys = [
-        "userToken",          // login/session
-        "userId",             // login/session
-        "isLoggedIn",         // login/session
-        "lastClickedProduct", // last clicked product
-        "categories"          // stored categories
+        "userToken",
+        "userId",
+        "isLoggedIn",
+        "lastClickedProduct",
+        "categories",
       ];
 
       let preservedData = {};
@@ -38,20 +37,20 @@ const CookiePopup = () => {
         if (value !== null) preservedData[key] = value;
       });
 
-      // --- Clear cookies ---
       document.cookie.split(";").forEach((c) => {
         document.cookie = c
           .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+          .replace(
+            /=.*/,
+            "=;expires=" + new Date().toUTCString() + ";path=/"
+          );
       });
 
-      // --- Clear localStorage, then restore preserved data ---
       localStorage.clear();
       Object.keys(preservedData).forEach((key) => {
         localStorage.setItem(key, preservedData[key]);
       });
 
-      // --- Reload ---
       window.location.reload();
     }, 50);
   };
@@ -59,95 +58,96 @@ const CookiePopup = () => {
   if (!showPopup) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        width: "100%",
-        background: "linear-gradient(90deg, #111, #222)",
-        color: "#fff",
-        padding: "18px 20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px",
-        fontFamily: "Arial, sans-serif",
-        fontSize: "15px",
-        zIndex: 9999,
-        boxShadow: "0 -4px 15px rgba(0,0,0,0.4)",
-        animation: "slideUp 0.4s ease",
-      }}
-    >
-      <span style={{ fontWeight: "600", textAlign: "center" }}>
-        We use cookies to improve your experience. Do you want to keep them or clear?
+    <div className="cookie-popup">
+      <span className="cookie-text">
+        We use cookies to improve your experience. Do you want to keep them or
+        clear?
       </span>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "14px",
-          flexWrap: "wrap",
-        }}
-      >
-        <button
-          onClick={handleContinue}
-          style={{
-            padding: "10px 20px",
-            borderRadius: "6px",
-            border: "2px solid #fff",
-            background: "transparent",
-            color: "#fff",
-            cursor: "pointer",
-            fontWeight: "600",
-            minWidth: "120px",
-            transition: "all 0.3s",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.background = "#fff";
-            e.target.style.color = "#000";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = "transparent";
-            e.target.style.color = "#fff";
-          }}
-        >
+      <div className="cookie-buttons">
+        <button className="btn-continue" onClick={handleContinue}>
           Continue
         </button>
-        <button
-          onClick={handleClearCookies}
-          style={{
-            padding: "10px 20px",
-            borderRadius: "6px",
-            border: "none",
-            background: "#ff4d4d",
-            color: "#fff",
-            cursor: "pointer",
-            fontWeight: "600",
-            minWidth: "120px",
-            transition: "all 0.3s",
-          }}
-          onMouseEnter={(e) => (e.target.style.opacity = "0.8")}
-          onMouseLeave={(e) => (e.target.style.opacity = "1")}
-        >
+        <button className="btn-clear" onClick={handleClearCookies}>
           Clear Cookies
         </button>
       </div>
 
-      {/* Slide up animation */}
       <style>
         {`
+          .cookie-popup {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(90deg, #111, #222);
+            color: #fff;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+            z-index: 9999;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.4);
+            animation: slideUp 0.4s ease;
+          }
+
+          .cookie-text {
+            font-weight: 600;
+            text-align: center;
+          }
+
+          .cookie-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+          }
+
+          .btn-continue {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 2px solid #fff;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 120px;
+            transition: all 0.3s;
+          }
+          .btn-continue:hover {
+            background: #fff;
+            color: #000;
+          }
+
+          .btn-clear {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            background: #ff4d4d;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 120px;
+            transition: all 0.3s;
+          }
+          .btn-clear:hover {
+            opacity: 0.8;
+          }
+
           @keyframes slideUp {
             from { transform: translateY(100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
           }
 
           @media (max-width: 480px) {
-            div[style*="position: fixed"] {
+            .cookie-popup {
               font-size: 14px !important;
               padding: 15px !important;
             }
-            button {
+            .btn-continue,
+            .btn-clear {
               min-width: 100px !important;
               padding: 8px 14px !important;
             }

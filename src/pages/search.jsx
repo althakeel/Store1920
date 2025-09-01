@@ -15,36 +15,38 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!searchTerm) return;
+useEffect(() => {
+  if (!searchTerm) return;
 
-    const fetchResults = async () => {
-      setLoading(true);
-      try {
-        let response;
-        if (!isNaN(searchTerm)) {
-          response = await axios.get(
-            `${API_BASE}/products/${searchTerm}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
-          );
-          setResults(Array.isArray(response.data) ? response.data : [response.data]);
-        } else {
-          response = await axios.get(
-            `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&search=${encodeURIComponent(
-              searchTerm
-            )}`
-          );
-          setResults(response.data);
-        }
-      } catch (error) {
-        console.error("Search error:", error);
-        setResults([]);
-      } finally {
-        setLoading(false);
+  const fetchResults = async () => {
+    setLoading(true);
+    try {
+      let response;
+      if (!isNaN(searchTerm)) {
+        response = await axios.get(
+          `${API_BASE}/products/${searchTerm}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+        );
+        // Force wrap in array
+        setResults(Array.isArray(response.data) ? response.data : [response.data]);
+      } else {
+        response = await axios.get(
+          `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&search=${encodeURIComponent(
+            searchTerm
+          )}`
+        );
+        // Ensure always array
+        setResults(Array.isArray(response.data) ? response.data : []);
       }
-    };
+    } catch (error) {
+      console.error("Search error:", error);
+      setResults([]); // fallback empty array
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchResults();
-  }, [searchTerm]);
+  fetchResults();
+}, [searchTerm]);
 
   const handleRedirect = (slug) => {
     navigate(`/product/${slug}`);

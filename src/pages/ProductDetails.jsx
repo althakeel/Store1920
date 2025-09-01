@@ -8,7 +8,7 @@ import ProductGallery from '../components/ProductGallery';
 import ProductInfo from '../components/ProductInfo';
 import ProductDescription from '../components/products/ProductDescription';
 import SkeletonLoader from '../components/SkeletonLoader';
-import Whislistreport from '../components/products/Whislist-report';
+// import Whislistreport from '../components/products/Whislist-report';
 import ProductReviewList from '../components/products/ProductReviewList';
 import { getProductReviewsWoo } from '../data/wooReviews';
 
@@ -246,12 +246,12 @@ export default function ProductDetails() {
 
       {/* Mobile sections */}
       <div className="product-review mobile-only">
-        <Whislistreport
+        {/* <Whislistreport
           onAddToWishlist={handleAddToWishlist}
           onReportProduct={handleReportProduct}
           isLoggedIn={isLoggedIn}
           onOpenLoginPopup={() => setShowLoginModal(true)}
-        />
+        /> */}
       </div>
       <div className="product-description mobile-only">
         <ProductDescription

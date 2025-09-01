@@ -58,11 +58,18 @@ function Alert({ message, type = 'info', onClose }) {
   );
 }
 
-export default function CheckoutRight({ cartItems, formData, createOrder, clearCart }) {
+export default function CheckoutRight({
+  cartItems,
+  formData,
+  createOrder,
+  clearCart,
+  orderId,
+}) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [coinDiscount, setCoinDiscount] = useState(0);
+  const [error, setError] = useState('');
 
   const itemsTotal = cartItems.reduce(
     (acc, item) => acc + parseFloat(item.price) * item.quantity,
@@ -73,36 +80,45 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 
   const showAlert = (message, type = 'info') => setAlert({ message, type });
 
-  const handlePlaceOrder = async () => {
-    const populatedBilling = formData.billingSameAsShipping
-      ? { ...formData.shipping }
-      : formData.billing;
+const handlePlaceOrder = async () => {
+  setError('');
+  setIsPlacingOrder(true);
 
-    const [firstNameCheck] = (populatedBilling?.fullName || '').trim().split(' ');
-    if (!firstNameCheck || !populatedBilling.address1 || !formData.paymentMethod) {
-      showAlert('Please fill in all billing details and select a payment method.', 'error');
-      return;
+  try {
+    const id = orderId || (await createOrder());
+
+    if (formData.paymentMethod === 'cod') {
+      clearCart();
+      window.location.href = `/order-success?order_id=${id}`;
+    } 
+    else if (formData.paymentMethod === 'paymob') {
+      // Ask backend for Paymob iframe URL
+      const res = await fetch('/wp-json/custom/v1/paymob-init', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: id, amount: subtotal })
+      });
+      if (!res.ok) throw new Error('Failed to start Paymob session');
+
+      const { iframe_url } = await res.json();
+
+      // Show iframe instead of redirecting
+      const iframe = document.createElement('iframe');
+      iframe.src = iframe_url;
+      iframe.width = '100%';
+      iframe.height = '600px';
+      iframe.style.border = 'none';
+      document.body.appendChild(iframe);
+
+      // TODO: handle postMessage or webhook redirect when payment success/fail
     }
-
-    setIsPlacingOrder(true);
-
-    try {
-      const orderId = await createOrder();
-
-      if (formData.paymentMethod === 'cod' || formData.paymentMethod === 'card') {
-        showAlert('Order placed successfully!', 'success');
-        clearCart();
-        window.location.href = `/order-success?order_id=${orderId}`;
-      } else if (formData.paymentMethod === 'paymob') {
-  // Redirect to Paymob payment page with orderId
-  window.location.href = `https://uae.paymob.com/${orderId}`;
-}
-    } catch (err) {
-      showAlert('Failed to place order: ' + (err.message || 'Unknown error'), 'error');
-    } finally {
-      setIsPlacingOrder(false);
-    }
-  };
+  } catch (err) {
+    setError(err.message || 'Failed to place order.');
+    showAlert(err.message || 'Failed to place order.', 'error');
+  } finally {
+    setIsPlacingOrder(false);
+  }
+};
 
   const handleCoupon = (couponData) => {
     if (!couponData) {

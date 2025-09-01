@@ -17,6 +17,7 @@ import OrderPerks from './products/OrderPerks';
 import ProductShortDescription from './products/ProductShortDescription';
 import ItemDetailsTable from './products/ItemDetailsTable';
 import ProductCardReviews from '../components/temp/productcardreviews';
+import MobileStickyCart from '../components/MobileStickyCart';
 
 export default function ProductInfo({ product, variations, selectedVariation, onVariationChange }) {
   const [quantity, setQuantity] = useState(1);
@@ -145,6 +146,16 @@ export default function ProductInfo({ product, variations, selectedVariation, on
           />
         </>
       )}
+
+<MobileStickyCart
+  quantity={quantity}
+  setQuantity={setQuantity}
+  maxQuantity={maxQuantity}
+  product={product}
+  selectedVariation={selectedVariation}
+  showClearance={showClearance}
+  handleAddToCart={handleAddToCart}
+/>
 
       <ButtonSection
         product={product}

@@ -15,7 +15,15 @@ const WC_CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
 
 const getLocalStorageKey = (userId) => `checkoutAddressData_${userId || 'guest'}`;
 
-const CheckoutLeft = ({ countries, cartItems, subtotal, orderId, initialFormData }) => {
+const CheckoutLeft = ({
+  countries,
+  cartItems,
+  subtotal,
+  orderId,
+  initialFormData,
+  handlePlaceOrder,   // <- added
+  createOrder         // <- added
+}) => {
   const [formData, setFormData] = useState(initialFormData || {
     shipping: { fullName: '', address1: '', address2: '', city: '', state: '', postalCode: '', country: '', phone: '' },
     billing: { fullName: '', address1: '', address2: '', city: '', state: '', postalCode: '', country: '', phone: '' },
@@ -193,13 +201,16 @@ const CheckoutLeft = ({ countries, cartItems, subtotal, orderId, initialFormData
     setError(null);
   };
 
-  const handlePaymentSelect = (id, title) => {
-    setFormData(prev => ({
-      ...prev,
-      paymentMethod: id,
-      paymentMethodTitle: title
-    }));
-  };
+const handlePaymentSelect = (id, title) => {
+  setFormData(prev => ({
+    ...prev,
+    paymentMethod: id,
+    paymentMethodTitle: title
+  }));
+
+};
+
+
 
   // -------------------------------
   // Submit Address

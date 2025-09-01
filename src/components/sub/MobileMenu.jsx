@@ -72,26 +72,27 @@ const MobileMenu = ({
             Categories
           </li>
 
-          {categories.map((cat) => (
-            <li
-              key={cat.id}
-              className="mobile-menu-unique__item mobile-menu-unique__category-item"
-              role="menuitem"
-              tabIndex={0}
-              onClick={() => {
-                handleCategoryHover(cat.id);
-                closeMobileMenu();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleCategoryHover(cat.id);
-                  closeMobileMenu();
-                }
-              }}
-            >
-              {decodeHtml(cat.name)}
-            </li>
-          ))}
+         {Array.isArray(categories) && categories.map((cat) => (
+  <li
+    key={cat.id}
+    className="mobile-menu-unique__item mobile-menu-unique__category-item"
+    role="menuitem"
+    tabIndex={0}
+    onClick={() => {
+      handleCategoryHover(cat.id);
+      closeMobileMenu();
+    }}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        handleCategoryHover(cat.id);
+        closeMobileMenu();
+      }
+    }}
+  >
+    {decodeHtml(cat.name)}
+  </li>
+))}
+
         </ul>
 
         <div className="mobile-menu-unique__bottom-section">
