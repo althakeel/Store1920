@@ -10,6 +10,7 @@ import { CookieConsentProvider } from './contexts/CookieConsentContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from './contexts/ThemeContext';
 
+// Pages
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import CartPage from './pages/CartPage';
@@ -20,7 +21,6 @@ import Wishlist from './pages/Whislist';
 import Lightningdeal from './pages/lightningdeal';
 import ComparePage from './pages/compare';
 import Categories from './pages/Categories';
-// import CategoryProducts from './pages/Categoryproducts';
 import AllProducts from './pages/allproducts';
 import New from './pages/New';
 import Rated from './pages/rated';
@@ -45,7 +45,7 @@ import CategoryPageid from './pages/CategoryPage';
 import Contact from './pages/contact';
 import Search from './pages/search';
 import PaymobSuccess from './pages/PaymobSuccess';
-import PaymobCheckoutPage from './pages/PaymobCheckoutPage'; 
+import PaymobCheckoutPage from './pages/PaymobCheckoutPage';
 
 // Components
 import Topbar from './components/topbar';
@@ -58,21 +58,16 @@ import CheckoutNavbar from './components/checkout/CheckoutNavbar';
 import MobileBottomNav from './components/MobileBottomNav';
 import MobileNavbar from './components/Mobile/MobileNavbar';
 import ChatBot from './components/sub/Chatbot';
-import { useNetworkSpeed } from './hooks/useNetworkSpeed';
-import { ToastContainer } from 'react-toastify';
 import CookiePopup from './components/common/CookiePopup';
 import PurchasePopup from './components/common/PurchasePopup';
-// import SpinWheel from './components/offer/SpinWheel';
-
-
+import SoundAlert from './assets/sound/alertsound.mp3';
+import LogoIcon from './assets/images/logo.webp';
 
 const AppContent = () => {
-
-  const { isCartOpen, setIsCartOpen } = useCart();
+  const { isCartOpen, setIsCartOpen, cartItems } = useCart();
   const location = useLocation();
   const path = location.pathname;
   const cartIconRef = useRef(null);
-
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Update mobile flag on resize
@@ -82,13 +77,66 @@ const AppContent = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // ✅ Paths where MiniCart should NOT appear
-  const excludeMiniCartPaths = [
-    '/cart',
-    '/checkout',
-    '/lost-password',
-    '/order-success',
-  ];
+  // Cart notification logic
+// Cart notification logic
+useEffect(() => {
+  if (!("Notification" in window)) return; // Browser doesn't support notifications
+
+  let notificationTimeout;
+  let notificationInterval;
+
+  const showCartNotification = () => {
+    if (Notification.permission === 'granted' && cartItems?.length > 0) {
+      const notification = new Notification('Cart Reminder', {
+        body: `You have ${cartItems.length} pending item(s) in your cart!`,
+        icon: `${window.location.origin}/logo.webp`,
+        image: cartItems[0]?.image,
+      });
+      const audio = new Audio(SoundAlert);
+      audio.play().catch(() => console.log('Audio blocked until user interacts'));
+
+      notification.onclick = () => {
+        window.focus();
+        window.location.href = '/cart';
+      };
+    }
+  };
+
+  const handleVisibilityChange = () => {
+    if (document.hidden && cartItems?.length > 0) {
+      // Start timer 30 sec after tab hidden
+      notificationTimeout = setTimeout(() => {
+        showCartNotification();
+        // Repeat every 15 min
+        notificationInterval = setInterval(showCartNotification, 15 * 60 * 1000);
+      }, 30 * 1000);
+    } else {
+      // Tab is active: clear timers
+      clearTimeout(notificationTimeout);
+      clearInterval(notificationInterval);
+    }
+  };
+
+  // Request permission on first user interaction if not granted
+  const requestPermission = () => {
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+    window.removeEventListener('click', requestPermission);
+  };
+  window.addEventListener('click', requestPermission);
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  return () => {
+    clearTimeout(notificationTimeout);
+    clearInterval(notificationInterval);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    window.removeEventListener('click', requestPermission);
+  };
+}, [cartItems]);
+
+
+  const excludeMiniCartPaths = ['/cart', '/checkout', '/lost-password', '/order-success'];
 
   const shouldShowMiniCart =
     !isMobile &&
@@ -156,7 +204,6 @@ const AppContent = () => {
                     <Route path="/product/:slug" element={<ProductDetails />} />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
-
                     <Route
                       path="/myaccount/*"
                       element={
@@ -165,12 +212,11 @@ const AppContent = () => {
                         </ProtectedRoute>
                       }
                     />
-
                     <Route path="/wishlist" element={<Wishlist />} />
                     <Route path="/lightningdeal" element={<Lightningdeal />} />
                     <Route path="/compare" element={<ComparePage />} />
                     <Route path="/category" element={<Categories />} />
-                    <Route path="/category/:id" element={<CategoryPageid/>} />
+                    <Route path="/category/:id" element={<CategoryPageid />} />
                     <Route path="/allproducts" element={<AllProducts />} />
                     <Route path="/new" element={<New />} />
                     <Route path="/rated" element={<Rated />} />
@@ -191,34 +237,29 @@ const AppContent = () => {
                     <Route path="/lost-password" element={<LostPassword />} />
                     <Route path="/my-coins" element={<MyCoins />} />
                     <Route path="/top-selling-item" element={<TopSellingitems />} />
-                    {/* <Route path="/categorypage/:slug" element={<CategoryPage />} /> */}
                     <Route path="*" element={<NotFound />} />
-                          <Route path="contact" element={<Contact />} />
-                                <Route path="search" element={<Search />} />
-                                <Route path="/paymob-success" element={<PaymobSuccess />} />
-                                <Route path="/paymob-checkout" element={<PaymobCheckoutPage />} />
+                    <Route path="contact" element={<Contact />} />
+                    <Route path="search" element={<Search />} />
+                    <Route path="/paymob-success" element={<PaymobSuccess />} />
+                    <Route path="/paymob-checkout" element={<PaymobCheckoutPage />} />
                   </Routes>
                 </main>
-     
 
                 {shouldShowMiniCart && (
                   <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
                 )}
               </div>
-            {!isMobile && <PurchasePopup />}
-           <CookiePopup/>
+
+              {!isMobile && <PurchasePopup />}
+              <CookiePopup />
               <ChatBot />
-              {/* <ToastContainer /> */}
               <Footer />
 
               {isMobile &&
-  !excludeMiniCartPaths.some(
-    (excludedPath) => path === excludedPath || path.startsWith(`${excludedPath}/`)
-  ) &&
-  !path.startsWith('/product/') && (
-    <MobileBottomNav />
-  )}
-
+                !excludeMiniCartPaths.some(
+                  (excludedPath) => path === excludedPath || path.startsWith(`${excludedPath}/`)
+                ) &&
+                !path.startsWith('/product/') && <MobileBottomNav />}
             </>
           </AuthProvider>
         </QueryClientProvider>

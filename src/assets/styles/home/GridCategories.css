@@ -74,14 +74,16 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
+/* LEFT - CATEGORIES IMAGE FIX */
 .gcx-category-card img {
   width: 100%;
-  flex: 1 1 auto;           /* fill remaining card height */
-  object-fit: contain;      /* keep proportion */
+  height: 100%;            /* fill the grid cell properly */
+  object-fit: cover;       /* maintain aspect ratio, fill cell without distortion */
   border-radius: 12px 12px 0 0;
   background-color: #f5f5f5;
-  min-height: 0;            /* avoid overflow in some browsers */
+  min-height: 0;
 }
+
 
 .gcx-cat-info {
   padding: 8px 10px;

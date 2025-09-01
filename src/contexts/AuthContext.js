@@ -1,66 +1,55 @@
 // src/contexts/AuthContext.js
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    // Load from localStorage on initial render
+    const id = localStorage.getItem("userId");
+    const email = localStorage.getItem("email");
+    const token = localStorage.getItem("token");
+    return id && email && token ? { id, email, token } : null;
+  });
+
   const [loading, setLoading] = useState(true);
 
-  // Load initial user from localStorage or sessionStorage
   useEffect(() => {
-    const loadUser = () => {
-      const saved = sessionStorage.getItem('user');
-      if (saved) {
-        setUser(JSON.parse(saved));
-      } else {
-        const id = localStorage.getItem('userId');
-        const email = localStorage.getItem('email');
-        const token = localStorage.getItem('token');
-        if (id && email && token) {
-          setUser({ id, email, token });
-        }
-      }
-      setLoading(false);
-    };
+    setLoading(false); // Loading complete after initial check
 
-    loadUser();
-
-    // Listen to storage events from other tabs
+    // Sync user across tabs
     const handleStorageChange = (e) => {
-      if (e.key === 'userId' || e.key === 'email' || e.key === 'token') {
-        loadUser();
+      if (["userId", "email", "token"].includes(e.key)) {
+        const id = localStorage.getItem("userId");
+        const email = localStorage.getItem("email");
+        const token = localStorage.getItem("token");
+        setUser(id && email && token ? { id, email, token } : null);
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // Persist user to sessionStorage
+  // Keep localStorage in sync with state
   useEffect(() => {
     if (user) {
-      sessionStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("email", user.email);
+      localStorage.setItem("token", user.token);
     } else {
-      sessionStorage.removeItem('user');
+      localStorage.removeItem("userId");
+      localStorage.removeItem("email");
+      localStorage.removeItem("token");
     }
   }, [user]);
 
   const login = (userData) => {
-    setUser(userData);
-
-    if (userData?.id) localStorage.setItem('userId', userData.id);
-    if (userData?.email) localStorage.setItem('email', userData.email);
-    if (userData?.token) localStorage.setItem('token', userData.token);
+    setUser(userData); // Triggers localStorage update
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('userId');
-    localStorage.removeItem('email');
-    localStorage.removeItem('token');
+    setUser(null); // Clears state and localStorage
   };
 
   return (

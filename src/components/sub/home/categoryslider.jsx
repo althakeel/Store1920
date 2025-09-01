@@ -8,6 +8,7 @@ import "slick-carousel/slick/slick-theme.css";
 import "../../../assets/styles/CategorySlider.css";
 import placeholderImg from "../../../assets/images/Skelton.png";
 import { FaClock } from "react-icons/fa"; // black clock icon
+import { useLocation } from 'react-router-dom';
 
 // WooCommerce API credentials
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
@@ -24,10 +25,14 @@ const decodeHTML = (html) => {
 const CategorySlider = () => {
   const [categories, setCategories] = useState(null);
   const sliderRef = useRef(null);
+    const location = useLocation();
+  const isHomePage = location.pathname === '/'; // ✅ Only fetch on Home
 
   // Load categories from WooCommerce
   useEffect(() => {
+      if (!isHomePage) return; 
     let isMounted = true;
+
 
     const loadCategories = async () => {
       try {

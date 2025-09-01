@@ -7,7 +7,7 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
   const [mainIndex, setMainIndex] = useState(0);
   const [mainLoading, setMainLoading] = useState(true);
   const modalThumbListRef = useRef(null);
-
+const [thumbsLoaded, setThumbsLoaded] = useState(false);
   // Zoom and pan state for modal
   const [zoomScale, setZoomScale] = useState(1);
   const [zoomTranslate, setZoomTranslate] = useState({ x: 0, y: 0 });
@@ -32,6 +32,14 @@ export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, 
     }
   }, [mainIndex]);
 
+
+
+  useEffect(() => {
+  if (!mainLoading) {
+    const timer = setTimeout(() => setThumbsLoaded(true), 300); 
+    return () => clearTimeout(timer);
+  }
+}, [mainLoading]);
   // Thumbnail scrolling inside modal to keep active thumb visible
   const scrollModalThumbnails = (index) => {
     if (!modalThumbListRef.current) return;
@@ -168,28 +176,30 @@ if (!images || images.length === 0) {
     <>
       <div className="product-gallery-wrapper">
         {/* Thumbnail strip */}
-        <div className="thumbnail-list" role="list">
-          {images.map((img, idx) => (
-            <button
-              key={img.id || idx}
-              className={`thumbnail-btn ${idx === mainIndex ? 'active' : ''}`}
-              onClick={() => {
-                setMainImageUrl(img.src);
-                setMainIndex(idx);
-              }}
-              type="button"
-              aria-label={`Thumbnail ${idx + 1}`}
-            >
-              <img
-                src={img.src}
-                alt={img.alt || `Thumbnail ${idx + 1}`}
-                className="thumbnail-image"
-                loading="lazy"
-                draggable={false}
-              />
-            </button>
-          ))}
-        </div>
+       {thumbsLoaded && (
+  <div className="thumbnail-list" role="list">
+    {images.map((img, idx) => (
+      <button
+        key={img.id || idx}
+        className={`thumbnail-btn ${idx === mainIndex ? 'active' : ''}`}
+        onClick={() => {
+          setMainImageUrl(img.src);
+          setMainIndex(idx);
+        }}
+        type="button"
+        aria-label={`Thumbnail ${idx + 1}`}
+      >
+        <img
+          src={img.src}
+          alt={img.alt || `Thumbnail ${idx + 1}`}
+          className="thumbnail-image"
+          loading="lazy"
+          draggable={false}
+        />
+      </button>
+    ))}
+  </div>
+)}
 
         {/* Main image area */}
    <div className="main-image-wrapper">

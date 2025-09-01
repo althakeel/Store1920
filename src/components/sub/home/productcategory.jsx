@@ -11,13 +11,14 @@ import { throttle } from "lodash";
 import ProductCardReviews from "../../temp/productcardreviews";
 import TitleImage from '../../../assets/images//bACK TO SCHOOL BANNER.webp'
 import PlaceholderImage from '../../../assets/images/common/Placeholder.png'
+import { useLocation } from "react-router-dom";
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
 const CONSUMER_SECRET = "cs_92458ba6ab5458347082acc6681560911a9e993d";
 
 const PAGE_SIZE = 10;
-const PRODUCTS_PER_PAGE = 42;
+const PRODUCTS_PER_PAGE = 30;
 const TITLE_LIMIT = 35;
 
 const badgeLabelMap = {
@@ -119,6 +120,9 @@ const ProductCategory = () => {
   const [quickViewImages, setQuickViewImages] = useState([]);
   const [quickViewTitle, setQuickViewTitle] = useState("");
   const [showQuickView, setShowQuickView] = useState(false);
+
+    const location = useLocation();
+  const isHomePage = location.pathname === "/"; 
 
   const openQuickView = (images, title) => {
     setQuickViewImages(images);
@@ -318,6 +322,7 @@ useEffect(() => {
   }, [fetchCategories]);
 
   useEffect(() => {
+     if (!isHomePage) return;
     setProductsPage(1);
     setHasMoreProducts(true);
     fetchProducts(1, selectedCategoryId);

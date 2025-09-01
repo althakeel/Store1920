@@ -1,28 +1,25 @@
-// components/ProtectedRoute.jsx
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import SignInModal from './sub/SignInModal';
- 
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  const [showLoginModal, setShowLoginModal] = useState(false);
+// ProtectedRoute.jsx
+import React from "react";
+import { useAuth } from "../contexts/AuthContext";
+import SignInModal from "./sub/SignInModal";
 
-  // If auth is still loading, show loader
+const ProtectedRoute = ({ children }) => {
+  const { user, loading, login } = useAuth();
+
   if (loading) {
     return <div className="loading">Checking authentication...</div>;
   }
 
-  // If no user, show the login modal
   if (!user) {
     return (
       <SignInModal
         isOpen={true}
-        onClose={() => setShowLoginModal(false)}
+        onClose={() => {}}
+        onLogin={(userData) => login(userData)} // this updates AuthContext
       />
     );
   }
 
-  // If authenticated, render the protected children
   return children;
 };
 

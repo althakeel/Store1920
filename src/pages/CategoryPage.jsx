@@ -7,6 +7,7 @@ import AddedToCartIcon from "../assets/images/added-cart.png";
 import IconAED from "../assets/images/Dirham 2.png";
 import "../assets/styles/categorypageid.css";
 import ProductCardReviews from "../components/temp/productcardreviews";
+import { useNavigate } from "react-router-dom"; 
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
@@ -32,6 +33,7 @@ const ProductCategory = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const cartIconRef = useRef(null);
+  const navigate = useNavigate(); 
 
   // Fetch category info + products together
   useEffect(() => {
@@ -161,7 +163,7 @@ const ProductCategory = () => {
           <>
             <div className="pc-grid">
 {products.map((p) => (
-  <div key={p.id} className="pc-card">
+  <div key={p.id} className="pc-card" onClick={() => navigate(`/product/${p.slug}`)}   style={{ cursor: "pointer" }} >
     <img
       src={p.images?.[0]?.src || ""}
       alt={decodeHTML(p.name)}
@@ -177,7 +179,7 @@ const ProductCategory = () => {
           />
             </div>
                   <div className="pc-card-divider" />
-    <div className="pc-card-footer">
+    <div className="pc-card-footer"  onClick={(e) => e.stopPropagation()} >
       <img src={IconAED} alt="AED" className="pc-aed-icon" />
       <Price value={p.price} />
       <button

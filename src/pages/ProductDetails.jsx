@@ -8,7 +8,6 @@ import ProductGallery from '../components/ProductGallery';
 import ProductInfo from '../components/ProductInfo';
 import ProductDescription from '../components/products/ProductDescription';
 import SkeletonLoader from '../components/SkeletonLoader';
-// import Whislistreport from '../components/products/Whislist-report';
 import ProductReviewList from '../components/products/ProductReviewList';
 import { getProductReviewsWoo } from '../data/wooReviews';
 
@@ -52,40 +51,65 @@ export default function ProductDetails() {
     if (storedUser && !user) login(JSON.parse(storedUser));
   }, [user, login]);
 
-  // Fetch product data
-  const { data: product, isLoading: loadingProduct, error } = useQuery({
-    queryKey: ['product', id || slug],
+  // Fetch minimal product first (for fast display)
+  const { data: productMin, isLoading: loadingMin } = useQuery({
+    queryKey: ['product-min', id || slug],
     queryFn: async () => {
+      const fields = ['id', 'name', 'price', 'images'].join(',');
       const endpoint = id
-        ? `${API_BASE}/${id}?_fields=id,name,images,variations,description,categories,tags`
-        : `${API_BASE}?slug=${slug}&_fields=id,name,images,variations,description,categories,tags`;
+        ? `${API_BASE}/${id}?_fields=${fields}`
+        : `${API_BASE}?slug=${slug}&_fields=${fields}`;
       const res = await axiosInstance.get(endpoint);
       return id ? res.data : res.data[0] || null;
     },
     staleTime: 1000 * 60 * 5,
-    retry: 1,
   });
 
-  // Fetch variations
+  // Fetch full product only after minimal is loaded
+  const { data: productFull, isLoading: loadingFull, error } = useQuery({
+    queryKey: ['product-full', productMin?.id],
+    queryFn: async () => {
+      if (!productMin) return null;
+      const fields = [
+        'id',
+        'name',
+        'price',
+        'images',
+        'variations',
+        'description',
+        'categories',
+        'tags',
+        'stock_status',
+        'short_description',
+      ].join(',');
+      const endpoint = `${API_BASE}/${productMin.id}?_fields=${fields}`;
+      const res = await axiosInstance.get(endpoint);
+      return res.data;
+    },
+    enabled: !!productMin,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const product = productFull || productMin; // For rendering minimal first
+
+  // Fetch variations after full product loads
   useEffect(() => {
-    if (!product?.variations?.length) {
+    if (!productFull?.variations?.length) {
       setVariations([]);
       return;
     }
-
     async function fetchVariations() {
       try {
         const res = await axiosInstance.get(
-          `${API_BASE}/${product.id}/variations?per_page=100&_fields=id,attributes,price,image`
+          `${API_BASE}/${productFull.id}/variations?per_page=100&_fields=id,attributes,price,image`
         );
         setVariations(res.data || []);
       } catch {
         setVariations([]);
       }
     }
-
     fetchVariations();
-  }, [product]);
+  }, [productFull]);
 
   // Auto-select first variation
   useEffect(() => {
@@ -96,15 +120,15 @@ export default function ProductDetails() {
 
   // Show main image immediately (product first), then switch if variation chosen
   useEffect(() => {
-    if (product?.images?.[0]?.src) {
-      setMainImageUrl(product.images[0].src);
+    if (productMin?.images?.[0]?.src) {
+      setMainImageUrl(productMin.images[0].src);
     }
     if (selectedVariation?.image?.src) {
       setMainImageUrl(selectedVariation.image.src);
     }
-  }, [product, selectedVariation]);
+  }, [productMin, selectedVariation]);
 
-  // Collect extra variation images after fetch
+  // Collect extra variation images
   useEffect(() => {
     if (variations.length > 0) {
       const variantImgs = variations
@@ -115,29 +139,27 @@ export default function ProductDetails() {
     }
   }, [variations]);
 
-  // Combined images (product first, then variations)
+  // Combined images
   const combinedImages = useMemo(() => {
-    if (!product) return [];
-    return [
-      ...(product.images || []),
-      ...extraImages,
-    ].filter((img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx);
-  }, [product, extraImages]);
+    if (!productFull) return [];
+    return [...(productFull.images || []), ...extraImages].filter(
+      (img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx
+    );
+  }, [productFull, extraImages]);
 
   // Fetch reviews
   useEffect(() => {
-    if (!product) return;
+    if (!productFull) return;
     async function fetchReviews() {
       try {
-        const reviewsFromWoo = await getProductReviewsWoo(product.id);
+        const reviewsFromWoo = await getProductReviewsWoo(productFull.id);
         setReviews(reviewsFromWoo);
-      } catch (err) {
-        console.error('Failed to fetch WooCommerce reviews:', err);
+      } catch {
         setReviews([]);
       }
     }
     fetchReviews();
-  }, [product]);
+  }, [productFull]);
 
   const reviewSummary = getReviewSummary(reviews);
 
@@ -170,7 +192,8 @@ export default function ProductDetails() {
     showToast('✅ Logged in successfully!');
   };
 
-  if (loadingProduct) return <SkeletonLoader />;
+  // Loading states
+  if (loadingMin) return <SkeletonLoader />;
   if (error) return <div>Error loading product.</div>;
   if (!product) return <div>Product not found.</div>;
 
@@ -199,88 +222,94 @@ export default function ProductDetails() {
       <div className="product-details-container">
         <div className="left">
           <div className="gallery-and-description">
-            <ProductGallery
-              images={combinedImages}
-              mainImageUrl={mainImageUrl}
-              setMainImageUrl={setMainImageUrl}
-              activeModal={activeModal}
-              openModal={openModal}
-              closeModal={closeModal}
-            />
+            {/* Show minimal image/title/price immediately */}
+            {!productFull && (
+              <div className="product-minimal">
+                <img src={productMin.images?.[0]?.src} alt={productMin.name} className="main-product-image" />
+                <h1>{productMin.name}</h1>
+                <p>{productMin.price} AED</p>
+              </div>
+            )}
 
-            <div className="product-review desktop-only">
-              {/* Wishlist/report can be enabled here */}
-            </div>
-
-            <div className="product-review desktop-only">
-              <Suspense fallback={<div>Loading reviews...</div>}>
-                <ProductReviewList
-                  productId={product.id}
-                  user={user}
-                  onLogin={login}
-                  reviews={reviews}
-                  setReviews={setReviews}
+            {/* Full gallery & description */}
+            {productFull && (
+              <>
+                <ProductGallery
+                  images={combinedImages}
+                  mainImageUrl={mainImageUrl}
+                  setMainImageUrl={setMainImageUrl}
+                  activeModal={activeModal}
+                  openModal={openModal}
+                  closeModal={closeModal}
                 />
-              </Suspense>
-            </div>
-          </div>
 
-          <div className="product-description desktop-only">
-            <ProductDescription
-              product={product}
-              selectedVariation={selectedVariation}
-            />
+                <div className="product-review desktop-only">
+                  {/* Wishlist/report can be enabled here */}
+                </div>
+
+                <div className="product-review desktop-only">
+                  <Suspense fallback={<div>Loading reviews...</div>}>
+                    <ProductReviewList
+                      productId={productFull.id}
+                      user={user}
+                      onLogin={login}
+                      reviews={reviews}
+                      setReviews={setReviews}
+                    />
+                  </Suspense>
+                </div>
+
+                <div className="product-description desktop-only">
+                  <ProductDescription product={productFull} selectedVariation={selectedVariation} />
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         <div className="right sticky-sidebar">
-          <ProductInfo
-            product={product}
-            variations={variations}
-            selectedVariation={selectedVariation}
-            onVariationChange={handleVariationChange}
-            loadingVariations={variations.length === 0 && !!product?.variations?.length}
-          />
+          {productFull && (
+            <ProductInfo
+              product={productFull}
+              variations={variations}
+              selectedVariation={selectedVariation}
+              onVariationChange={handleVariationChange}
+              loadingVariations={variations.length === 0 && !!productFull.variations?.length}
+            />
+          )}
         </div>
       </div>
 
       {/* Mobile sections */}
-      <div className="product-review mobile-only">
-        {/* <Whislistreport
-          onAddToWishlist={handleAddToWishlist}
-          onReportProduct={handleReportProduct}
-          isLoggedIn={isLoggedIn}
-          onOpenLoginPopup={() => setShowLoginModal(true)}
-        /> */}
-      </div>
-      <div className="product-description mobile-only">
-        <ProductDescription
-          product={product}
-          selectedVariation={selectedVariation}
-        />
-      </div>
-      <div className="product-review mobile-only">
-        <Suspense fallback={<div>Loading reviews...</div>}>
-          <ProductReviewList
-            productId={product.id}
-            user={user}
-            onLogin={login}
-            reviews={reviews}
-            setReviews={setReviews}
-          />
-        </Suspense>
-      </div>
+      {productFull && (
+        <>
+          <div className="product-description mobile-only">
+            <ProductDescription product={productFull} selectedVariation={selectedVariation} />
+          </div>
+          <div className="product-review mobile-only">
+            <Suspense fallback={<div>Loading reviews...</div>}>
+              <ProductReviewList
+                productId={productFull.id}
+                user={user}
+                onLogin={login}
+                reviews={reviews}
+                setReviews={setReviews}
+              />
+            </Suspense>
+          </div>
+          <div className="related-products-section">
+            <Suspense fallback={<div>Loading related products...</div>}>
+              <RelatedProducts
+                productId={productFull.id}
+                categories={productFull.categories || []}
+                tags={productFull.tags || []}
+              />
+            </Suspense>
+          </div>
+        </>
+      )}
 
-      <div className="related-products-section">
-        <Suspense fallback={<div>Loading related products...</div>}>
-          <RelatedProducts
-            productId={product.id}
-            categories={product.categories || []}
-            tags={product.tags || []}
-          />
-        </Suspense>
-      </div>
-
+      {/* Login modal */}
       {showLoginModal && (
         <div
           className="login-modal"

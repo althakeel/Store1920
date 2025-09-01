@@ -5,12 +5,46 @@ import { useNavigate } from "react-router-dom";
 import "../../../assets/styles/home/GridCategories.css";
 import { useCart } from "../../../contexts/CartContext";
 import PlaceHolderImage from '../../../assets/images/common/Placeholder.png'
+import grid1 from '../../../assets/images/gridhome/1 (1).png'
+import grid2 from '../../../assets/images/gridhome/2.png'
+import grid3 from '../../../assets/images/gridhome/3.png'
+import grid4 from '../../../assets/images/gridhome/4.png'
+
+
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const AUTH = {
   username: "ck_c4e35c0d93df1f96cae81fccae967b8969a1eb85",
   password: "cs_b2b2ab3b1cdbc7db01cd718dc52b8f5a5711a6e5",
 };
+
+
+const staticCategories = [
+  {
+    id: 1,
+    name: "Mobiles & Tablets",
+    image: grid2,
+    link: "/category/mobiles",
+  },
+  {
+    id: 2,
+    name: "Laptops & Gadgets",
+    image: grid4,
+    link: "/category/laptops",
+  },
+  {
+    id: 3,
+    name: "Fashion Deals",
+    image: grid1,
+    link: "/category/fashion",
+  },
+  {
+    id: 4,
+    name: "Home & Kitchen",
+    image: grid3,
+    link: "/category/home-kitchen",
+  },
+];
 
 // Countdown Hook
 const useCountdown = (targetDate) => {
@@ -98,20 +132,29 @@ const GridCategories = () => {
   return (
     <div className="gcx-container">
       {/* LEFT - Categories */}
-      <div className="gcx-left">
-        <h3 className="gcx-section-title">More Reasons to Shop</h3>
-        <div className="gcx-left-grid">
-       {Array.isArray(categories) && categories.map((cat) => (
-  <div key={cat?.id} className="gcx-category-card" onClick={() => navigate(`/category/${cat.id}`)}>
-    <img src={cat?.image?.src || PlaceHolderImage} alt={cat?.name || "Category"} style={{ objectFit: "fill" }} />
-    <div className="gcx-cat-info">
-      <h4 dangerouslySetInnerHTML={{ __html: cat?.name }} />
-    </div>
-  </div>
-))}
-
+ {/* LEFT - Static Categories */}
+<div className="gcx-left">
+  <h3 className="gcx-section-title">More Reasons to Shop</h3>
+  <div className="gcx-left-grid">
+    {staticCategories.map((cat) => (
+      <div
+        key={cat.id}
+        className="gcx-category-card"
+        onClick={() => navigate(cat.link)}
+      >
+        <img
+          src={cat.image || PlaceHolderImage}
+          alt={cat.name}
+          style={{ objectFit: "fill" }}
+        />
+        <div className="gcx-cat-info">
+          <h4>{cat.name}</h4>
         </div>
       </div>
+    ))}
+  </div>
+</div>
+
 
       {/* CENTER - Products */}
       <div className="gcx-middle">

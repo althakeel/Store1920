@@ -16,7 +16,7 @@
    Title Row
 ======================= */
 .pi-product-title-row {
-  display: flex;
+  /* display: flex; */
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;

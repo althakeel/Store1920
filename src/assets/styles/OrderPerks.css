@@ -29,6 +29,7 @@
 }
 
 .scroll-arrow {
+  padding: 7px;
   background: #fff;
   border: 1px solid green;
   color: green;
