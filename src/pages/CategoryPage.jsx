@@ -5,13 +5,14 @@ import MiniCart from "../components/MiniCart";
 import AddCartIcon from "../assets/images/addtocart.png";
 import AddedToCartIcon from "../assets/images/added-cart.png";
 import IconAED from "../assets/images/Dirham 2.png";
-import "../assets/styles/category.css";
+import "../assets/styles/categorypageid.css";
+import ProductCardReviews from "../components/temp/productcardreviews";
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
 const CONSUMER_SECRET = "cs_92458ba6ab5458347082acc6681560911a9e993d";
 const PRODUCTS_PER_PAGE = 42;
-const TITLE_LIMIT = 35;
+const TITLE_LIMIT = 25;
 
 const decodeHTML = (html) => {
   const txt = document.createElement("textarea");
@@ -36,47 +37,42 @@ const ProductCategory = () => {
   useEffect(() => {
     if (!categoryId) return;
 
-    const fetchCategoryData = async () => {
+    const fetchCategoryAndProducts = async () => {
       setInitialLoading(true);
       try {
-        const [catRes, allCatsRes] = await Promise.all([
+        const [catRes, allCatsRes, prodRes] = await Promise.all([
           fetch(
             `${API_BASE}/products/categories/${categoryId}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
           ),
           fetch(
             `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100`
           ),
+          fetch(
+            `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${categoryId}&per_page=${PRODUCTS_PER_PAGE}&page=1&orderby=date&order=desc`
+          ),
         ]);
 
         const cat = await catRes.json();
-        const allCats = await allCatsRes.json();
         setCategoryName(decodeHTML(cat.name));
 
+        const allCats = await allCatsRes.json();
         const children = allCats
           .filter((c) => c.parent === categoryId)
           .map((c) => c.id);
-
         const ids = [categoryId, ...children];
         setChildCategoryIds(ids);
-        setPage(1);
 
-        // Fetch first products immediately
-        const categoryQuery = ids.join(",");
-        const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${categoryQuery}&per_page=${PRODUCTS_PER_PAGE}&page=1&orderby=date&order=desc`;
-        const productRes = await fetch(url);
-        const data = await productRes.json();
-        setProducts(data);
-        setHasMore(data.length >= PRODUCTS_PER_PAGE);
+        const productsData = await prodRes.json();
+        setProducts(productsData);
+        setHasMore(productsData.length >= PRODUCTS_PER_PAGE);
       } catch (err) {
-        console.error("Error fetching category info:", err);
-        setProducts([]);
-        setHasMore(false);
+        console.error(err);
       } finally {
         setInitialLoading(false);
       }
     };
 
-    fetchCategoryData();
+    fetchCategoryAndProducts();
   }, [categoryId]);
 
   // Pagination products
@@ -112,9 +108,9 @@ const ProductCategory = () => {
     const price = parseFloat(value || 0).toFixed(2);
     const [integer, decimal] = price.split(".");
     return (
-      <span className="price">
-        <span style={{ fontSize: "18px", fontWeight: "bold" }}>{integer}</span>
-        <span style={{ fontSize: "12px" }}>.{decimal}</span>
+      <span className="pc-price">
+        <span className="pc-price-int">{integer}</span>
+        <span className="pc-price-dec">.{decimal}</span>
       </span>
     );
   };
@@ -145,13 +141,14 @@ const ProductCategory = () => {
   };
 
   return (
-    <div className="pcus-wrapper3" style={{ minHeight: "40vh" }}>
-      <h2 className="category-page-title">{categoryName}</h2>
-      <div className="pcus-categories-products1">
+    <div className="pc-wrapper" style={{ minHeight: "40vh" }}>
+      <h2 className="pc-category-title">{categoryName}</h2>
+
+      <div className="pc-products-container">
         {initialLoading ? (
-          <div className="pcus-prd-grid">
+          <div className="pc-grid">
             {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="pcus-prd-card pcus-skeleton">
+              <div key={i} className="pc-card-skeleton">
                 <div className="skeleton-img shimmer" />
                 <div className="skeleton-text shimmer" />
                 <div className="skeleton-price shimmer" />
@@ -159,71 +156,59 @@ const ProductCategory = () => {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div
-            style={{
-              minHeight: "300px",
-              textAlign: "center",
-              paddingTop: "40px",
-              fontSize: "18px",
-              color: "#666",
-            }}
-          >
-            No products found in this category.
-          </div>
+          <div className="pc-no-products">No products found in this category.</div>
         ) : (
           <>
-            <div className="pcus-prd-grid">
-              {products.map((p) => (
-                <div key={p.id} className="pcus-prd-card">
-                  <img
-                    src={p.images?.[0]?.src || ""}
-                    alt={decodeHTML(p.name)}
-                    className="pcus-prd-image1 primary-img"
-                  />
-                  <h3 className="pcus-prd-title1">
-                    {truncate(decodeHTML(p.name))}
-                  </h3>
-                  <div className="pcus-prd-price-cart1">
-                    <img
-                      src={IconAED}
-                      alt="AED"
-                      style={{
-                        width: "auto",
-                        height: "12px",
-                        verticalAlign: "middle",
-                      }}
-                    />
-                    <Price value={p.price} />
-                    <button
-                      className={`pcus-prd-add-cart-btn ${
-                        cartItems.some((item) => item.id === p.id)
-                          ? "added-to-cart"
-                          : ""
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        flyToCart(e, p.images?.[0]?.src);
-                        addToCart(p, true);
-                      }}
-                    >
-                      <img
-                        src={
-                          cartItems.some((item) => item.id === p.id)
-                            ? AddedToCartIcon
-                            : AddCartIcon
-                        }
-                        alt="Add to cart"
-                        className="pcus-prd-add-cart-icon-img"
-                      />
-                    </button>
-                  </div>
-                </div>
-              ))}
+            <div className="pc-grid">
+{products.map((p) => (
+  <div key={p.id} className="pc-card">
+    <img
+      src={p.images?.[0]?.src || ""}
+      alt={decodeHTML(p.name)}
+      className="pc-card-image"
+      loading="lazy"
+    />
+    <h3 className="pc-card-title">{truncate(decodeHTML(p.name))}</h3>
+     
+          <div style={{padding:'0 5px'}}>
+               <ProductCardReviews 
+              productId={p.id} 
+              soldCount={p.total_sales || 0} 
+          />
+            </div>
+                  <div className="pc-card-divider" />
+    <div className="pc-card-footer">
+      <img src={IconAED} alt="AED" className="pc-aed-icon" />
+      <Price value={p.price} />
+      <button
+        className={`pc-add-btn ${
+          cartItems.some((item) => item.id === p.id) ? "pc-added" : ""
+        }`}
+        onClick={(e) => {
+          e.stopPropagation();
+          flyToCart(e, p.images?.[0]?.src);
+          addToCart(p, true);
+        }}
+      >
+        <img
+          src={
+            cartItems.some((item) => item.id === p.id)
+              ? AddedToCartIcon
+              : AddCartIcon
+          }
+          alt="Add to cart"
+          className="pc-add-icon"
+        />
+      </button>
+    </div>
+  </div>
+))}
+
             </div>
             {hasMore && (
-              <div style={{ textAlign: "center", margin: "20px 0" }}>
+              <div className="pc-load-more-wrapper">
                 <button
-                  className="pcus-load-more-btn"
+                  className="pc-load-more-btn"
                   onClick={loadMore}
                   disabled={loading}
                 >
@@ -234,11 +219,8 @@ const ProductCategory = () => {
           </>
         )}
       </div>
-      <div
-        id="cart-icon"
-        ref={cartIconRef}
-        style={{ position: "fixed", top: 20, right: 20, zIndex: 1000 }}
-      />
+
+      <div id="pc-cart-icon" ref={cartIconRef} />
       <MiniCart />
     </div>
   );
