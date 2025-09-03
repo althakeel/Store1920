@@ -2,10 +2,9 @@
   background-color: #0d0d0d; /* full width background */
   color: #ccc;
   padding: 40px 20px 20px;
-  width: 100%;  /* full viewport width */
+  width: 100%; /* full viewport width */
   box-sizing: border-box;
 }
-
 
 .footer-container {
   max-width: 1400px; /* limit content width */
@@ -14,11 +13,10 @@
   box-sizing: border-box;
 }
 
-
 .footer-top {
   display: flex;
   flex-wrap: wrap;
-  gap: px;
+  gap: 20px;
   justify-content: space-between;
   padding-bottom: 30px;
   border-bottom: 1px solid #333;
@@ -85,7 +83,7 @@
   color: #fff;
 }
 
-/* ✅ Fix: Keep row layout on tablet to avoid huge space */
+/* Middle footer section */
 .footer-middle {
   display: flex;
   flex-wrap: wrap;
@@ -93,30 +91,35 @@
   margin-top: 30px;
   border-bottom: 1px solid #333;
   padding-bottom: 20px;
-  gap: 20px; /* smaller gap */
+  gap: 20px;
 }
 
-.security, .payments {
+.security,
+.payments {
   flex: 1 1 300px;
 }
 
-.security h5, .payments h5 {
+.security h5,
+.payments h5 {
   margin-bottom: 10px;
   font-size: 15px;
   color: #eee;
 }
 
-.certs, .methods {
+.certs,
+.methods {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-.certs img, .methods img {
+.certs img,
+.methods img {
   height: 30px;
   object-fit: contain;
 }
 
+/* Bottom footer */
 .footer-bottom {
   display: flex;
   flex-wrap: wrap;
@@ -167,18 +170,18 @@
   background-color: #444;
 }
 
-/* ✅ Tablet: Only tweak minor gaps, do NOT stack footer-middle */
+/* ---------- Responsive ---------- */
+
+/* Tablet */
 @media (max-width: 1024px) {
   .footer-top {
     gap: 20px;
-    flex-wrap: wrap;
   }
 
   .footer-section {
     flex: 1 1 45%;
   }
 
-  /* ✅ keep row layout on tablet */
   .footer-middle {
     gap: 15px;
   }
@@ -194,21 +197,25 @@
   }
 }
 
-/* ✅ Mobile: Stack footer-middle on small screens only */
-@media (max-width: 600px) {
+/* Mobile (≤768px) → Always 2 columns */
+@media (max-width: 768px) {
   .footer-container {
     padding: 0 10px;
   }
 
-  .footer-top,
-  .footer-middle {
-    flex-direction: column;
-    gap: 16px;
+  .footer-top {
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
   .footer-section {
-    flex: 1 1 100%;
-    margin-bottom: 12px;
+    flex: 1 1 calc(50% - 12px); /* 2 columns */
+    min-width: 120px;
+  }
+
+  .footer-middle {
+    flex-direction: column;
+    gap: 16px;
   }
 
   .footer-section h4,
@@ -221,10 +228,6 @@
   .footer-section ul li {
     font-size: 13px;
     margin: 4px 0;
-  }
-
-  .footer-section ul {
-    padding-left: 0;
   }
 
   .app-links li {
@@ -253,7 +256,6 @@
 
   .legal-links {
     justify-content: center;
-    flex-wrap: wrap;
     gap: 12px;
     margin: 0;
   }
@@ -279,25 +281,5 @@
   .payments {
     flex: 1 1 100%;
     width: 100%;
-  }
-}
-
-/* Mobile: 2 columns below 768px */
-@media (max-width: 768px) {
-  .footer-top {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .footer-section {
-    flex: 1 1 calc(50% - 12px); /* 2 columns */
-    min-width: 120px; /* optional, prevents too small columns */
-  }
-}
-
-/* Optional: below 480px, keep single column if you want */
-@media (max-width: 480px) {
-  .footer-section {
-    flex: 1 1 100%; /* stack for very small screens */
   }
 }

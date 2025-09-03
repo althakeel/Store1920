@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback, Suspense, lazy, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, Suspense, lazy, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 
 import ProductGallery from '../components/ProductGallery';
 import ProductInfo from '../components/ProductInfo';
@@ -11,7 +11,6 @@ import SkeletonLoader from '../components/SkeletonLoader';
 import ProductReviewList from '../components/products/ProductReviewList';
 import { getProductReviewsWoo } from '../data/wooReviews';
 
-import '../assets/styles/product-details.css';
 
 const RelatedProducts = lazy(() => import('../components/RelatedProducts'));
 
@@ -42,16 +41,27 @@ export default function ProductDetails() {
   const [extraImages, setExtraImages] = useState([]);
   const [toast, setToast] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
+  const leftColumnRef = useRef(null);
   const isLoggedIn = !!user;
 
-  // Restore user on mount
+  // Restore user from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser && !user) login(JSON.parse(storedUser));
   }, [user, login]);
 
-  // Fetch minimal product first (for fast display)
+  // Update window width
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth <= 768;
+
+  // Fetch Minimal Product
   const { data: productMin, isLoading: loadingMin } = useQuery({
     queryKey: ['product-min', id || slug],
     queryFn: async () => {
@@ -65,7 +75,7 @@ export default function ProductDetails() {
     staleTime: 1000 * 60 * 5,
   });
 
-  // Fetch full product only after minimal is loaded
+  // Fetch Full Product
   const { data: productFull, isLoading: loadingFull, error } = useQuery({
     queryKey: ['product-full', productMin?.id],
     queryFn: async () => {
@@ -90,14 +100,11 @@ export default function ProductDetails() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const product = productFull || productMin; // For rendering minimal first
+  const product = productFull || productMin;
 
-  // Fetch variations after full product loads
+  // Fetch Variations
   useEffect(() => {
-    if (!productFull?.variations?.length) {
-      setVariations([]);
-      return;
-    }
+    if (!productFull?.variations?.length) return setVariations([]);
     async function fetchVariations() {
       try {
         const res = await axiosInstance.get(
@@ -111,43 +118,47 @@ export default function ProductDetails() {
     fetchVariations();
   }, [productFull]);
 
-  // Auto-select first variation
   useEffect(() => {
-    if (variations.length > 0 && !selectedVariation) {
-      setSelectedVariation(variations[0]);
-    }
+    if (variations.length > 0 && !selectedVariation) setSelectedVariation(variations[0]);
   }, [variations, selectedVariation]);
 
-  // Show main image immediately (product first), then switch if variation chosen
+  // Set main image
   useEffect(() => {
-    if (productMin?.images?.[0]?.src) {
+    if (!productMin?.images?.length) return;
+    const firstValidImage = productMin.images.find(img => img?.src) || null;
+    if (firstValidImage && mainImageUrl !== firstValidImage.src) {
+      setMainImageUrl(firstValidImage.src);
+    }
+  }, [productMin, mainImageUrl]);
+
+  useEffect(() => {
+    if (!selectedVariation) return;
+    if (selectedVariation.image?.src) {
+      setMainImageUrl(selectedVariation.image.src);
+    } else if (productMin?.images?.[0]?.src) {
       setMainImageUrl(productMin.images[0].src);
     }
-    if (selectedVariation?.image?.src) {
-      setMainImageUrl(selectedVariation.image.src);
-    }
-  }, [productMin, selectedVariation]);
+  }, [selectedVariation, productMin]);
 
-  // Collect extra variation images
+  // Gather variation images
   useEffect(() => {
     if (variations.length > 0) {
-      const variantImgs = variations
-        .map((v) => v.image)
-        .filter((img) => img?.src)
-        .filter((img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx);
-      setExtraImages(variantImgs);
+      const imgs = variations
+        .map(v => v.image)
+        .filter(img => img?.src)
+        .filter((img, i, arr) => arr.findIndex(x => x.src === img.src) === i);
+      setExtraImages(imgs);
     }
   }, [variations]);
 
-  // Combined images
   const combinedImages = useMemo(() => {
     if (!productFull) return [];
     return [...(productFull.images || []), ...extraImages].filter(
-      (img, idx, arr) => arr.findIndex((i) => i.src === img.src) === idx
+      (img, idx, arr) => arr.findIndex(i => i.src === img.src) === idx
     );
   }, [productFull, extraImages]);
 
-  // Fetch reviews
+  // Fetch Reviews
   useEffect(() => {
     if (!productFull) return;
     async function fetchReviews() {
@@ -161,28 +172,24 @@ export default function ProductDetails() {
     fetchReviews();
   }, [productFull]);
 
+
+  
+
   const reviewSummary = getReviewSummary(reviews);
 
   // Handlers
-  const handleVariationChange = useCallback((variation) => setSelectedVariation(variation), []);
-  const openModal = useCallback((type) => setActiveModal(type), []);
+  const handleVariationChange = useCallback(v => setSelectedVariation(v), []);
+  const openModal = useCallback(type => setActiveModal(type), []);
   const closeModal = useCallback(() => setActiveModal(null), []);
-  const showToast = (message) => {
+  const showToast = message => {
     setToast(message);
     setTimeout(() => setToast(null), 3000);
   };
-  const handleAddToWishlist = () => {
-    if (!isLoggedIn) {
-      setShowLoginModal(true);
-      return;
-    }
-    showToast('✅ Product added to wishlist!');
-  };
+  const handleAddToWishlist = () =>
+    !isLoggedIn ? setShowLoginModal(true) : showToast('✅ Product added to wishlist!');
   const handleReportProduct = () => showToast('⚠️ Product reported!');
-  const handleAddReview = () => {
-    if (!isLoggedIn) setShowLoginModal(true);
-    else setActiveModal('review');
-  };
+  const handleAddReview = () =>
+    !isLoggedIn ? setShowLoginModal(true) : setActiveModal('review');
   const closeLoginModal = () => setShowLoginModal(false);
   const mockLogin = () => {
     const mockUser = { id: '123', name: 'Test User', token: 'mock-token' };
@@ -192,8 +199,7 @@ export default function ProductDetails() {
     showToast('✅ Logged in successfully!');
   };
 
-  // Loading states
-  if (loadingMin) return <SkeletonLoader />;
+  if (loadingMin || loadingFull) return <SkeletonLoader />;
   if (error) return <div>Error loading product.</div>;
   if (!product) return <div>Product not found.</div>;
 
@@ -211,7 +217,6 @@ export default function ProductDetails() {
             padding: '10px 20px',
             borderRadius: 5,
             zIndex: 9999,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
             fontWeight: 'bold',
           }}
         >
@@ -219,100 +224,126 @@ export default function ProductDetails() {
         </div>
       )}
 
-      <div className="product-details-container">
-        <div className="left">
-          <div className="gallery-and-description">
-            {/* Show minimal image/title/price immediately */}
-            {!productFull && (
-              <div className="product-minimal">
-                <img src={productMin.images?.[0]?.src} alt={productMin.name} className="main-product-image" />
-                <h1>{productMin.name}</h1>
-                <p>{productMin.price} AED</p>
-              </div>
-            )}
+      {/* Main container */}
+      <div
+        style={{
+          display: isMobile ? 'block' : 'flex',
+          maxWidth: 1400,
+          margin: '0 auto',
+          padding: '20px',
+          gap: isMobile ? 0 : 5,
+        }}
+      >
+        {/* Left Column */}
+      <div
+  ref={leftColumnRef}
+  style={{
+    flex: isMobile ? 'auto' : '1',
+    boxSizing: 'border-box',
+    maxHeight: isMobile ? 'auto' : '80vh', // fixed height on desktop
+    overflowY: isMobile ? 'visible' : 'auto', // scrollable on desktop
+    paddingRight: isMobile ? 0 : 10,
+    /* Thin scrollbar for desktop only */
+    scrollbarWidth: isMobile ? 'auto' : 'none', // Firefox
+    msOverflowStyle: isMobile ? 'auto' : 'auto', // IE 10+
+  }}
+  className={isMobile ? '' : 'thin-scrollbar'}
+>
+          <ProductGallery
+            images={combinedImages.length > 0 ? combinedImages : productMin?.images || []}
+            mainImageUrl={mainImageUrl || productMin?.images?.[0]?.src}
+            setMainImageUrl={setMainImageUrl}
+            activeModal={activeModal}
+            openModal={openModal}
+            closeModal={closeModal}
+          />
 
-            {/* Full gallery & description */}
-            {productFull && (
-              <>
-                <ProductGallery
-                  images={combinedImages}
-                  mainImageUrl={mainImageUrl}
-                  setMainImageUrl={setMainImageUrl}
-                  activeModal={activeModal}
-                  openModal={openModal}
-                  closeModal={closeModal}
-                />
-
-                <div className="product-review desktop-only">
-                  {/* Wishlist/report can be enabled here */}
-                </div>
-
-                <div className="product-review desktop-only">
-                  <Suspense fallback={<div>Loading reviews...</div>}>
-                    <ProductReviewList
-                      productId={productFull.id}
-                      user={user}
-                      onLogin={login}
-                      reviews={reviews}
-                      setReviews={setReviews}
-                    />
-                  </Suspense>
-                </div>
-
-                <div className="product-description desktop-only">
-                  <ProductDescription product={productFull} selectedVariation={selectedVariation} />
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="right sticky-sidebar">
-          {productFull && (
-            <ProductInfo
-              product={productFull}
-              variations={variations}
-              selectedVariation={selectedVariation}
-              onVariationChange={handleVariationChange}
-              loadingVariations={variations.length === 0 && !!productFull.variations?.length}
-            />
+          {isMobile && productFull && (
+            <div style={{ marginTop: 20 }}>
+              <ProductInfo
+                product={productFull}
+                variations={variations}
+                selectedVariation={selectedVariation}
+                onVariationChange={handleVariationChange}
+                loadingVariations={variations.length === 0 && !!productFull.variations?.length}
+              />
+            </div>
           )}
-        </div>
-      </div>
 
-      {/* Mobile sections */}
-      {productFull && (
-        <>
-          <div className="product-description mobile-only">
+
+{!isMobile && productFull && (
+  <div style={{ marginTop: 20 }}>
+    <Suspense fallback={<div>Loading reviews...</div>}>
+      <ProductReviewList
+        productId={productFull.id}
+        user={user}
+        onLogin={login}
+        reviews={reviews}
+        setReviews={setReviews}
+      />
+    </Suspense>
+  </div>
+)}
+
+
+          <div style={{ marginTop: 20 }}>
             <ProductDescription product={productFull} selectedVariation={selectedVariation} />
           </div>
-          <div className="product-review mobile-only">
-            <Suspense fallback={<div>Loading reviews...</div>}>
-              <ProductReviewList
-                productId={productFull.id}
-                user={user}
-                onLogin={login}
-                reviews={reviews}
-                setReviews={setReviews}
+
+ {isMobile && productFull && (
+  <div style={{ marginTop: 20 }}>
+    <Suspense fallback={<div>Loading reviews...</div>}>
+      <ProductReviewList
+        productId={productFull.id}
+        user={user}
+        onLogin={login}
+        reviews={reviews}
+        setReviews={setReviews}
+      />
+    </Suspense>
+  </div>
+)}
+        </div>
+
+        {/* Right Column (Desktop only) */}
+        {!isMobile && (
+          <div
+            style={{
+              flex: 1,
+              position: 'sticky',
+              top: 20,
+              alignSelf: 'flex-start',
+            }}
+          >
+            {productFull && (
+              <ProductInfo
+                product={productFull}
+                variations={variations}
+                selectedVariation={selectedVariation}
+                onVariationChange={handleVariationChange}
+                loadingVariations={variations.length === 0 && !!productFull.variations?.length}
               />
-            </Suspense>
+            )}
           </div>
-          <div className="related-products-section">
-            <Suspense fallback={<div>Loading related products...</div>}>
-              <RelatedProducts
-                productId={productFull.id}
-                categories={productFull.categories || []}
-                tags={productFull.tags || []}
-              />
-            </Suspense>
-          </div>
-        </>
+        )}
+      </div>
+
+      {/* Related Products */}
+      {productFull && (
+        <div style={{ maxWidth: 1400, margin: '40px auto', padding: '0 10px' }}>
+          <Suspense fallback={<div>Loading related products...</div>}>
+            <RelatedProducts
+              productId={productFull.id}
+              categories={productFull.categories || []}
+              tags={productFull.tags || []}
+            />
+          </Suspense>
+        </div>
       )}
 
-      {/* Login modal */}
+      {/* Login Modal */}
       {showLoginModal && (
         <div
-          className="login-modal"
           style={{
             position: 'fixed',
             inset: 0,
@@ -323,14 +354,7 @@ export default function ProductDetails() {
             zIndex: 9999,
           }}
         >
-          <div
-            style={{
-              background: '#fff',
-              padding: 20,
-              borderRadius: 8,
-              minWidth: 300,
-            }}
-          >
+          <div style={{ background: '#fff', padding: 20, borderRadius: 8, minWidth: 300 }}>
             <h3>Login Required</h3>
             <button onClick={mockLogin} style={{ marginRight: 10 }}>
               Mock Login

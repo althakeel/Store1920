@@ -1,3 +1,4 @@
+// src/pages/CheckoutPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
@@ -15,13 +16,19 @@ const fetchWithAuth = async (endpoint, options = {}) => {
   const authHeader = 'Basic ' + btoa(`${CK}:${CS}`);
   const fetchOptions = {
     ...options,
-    headers: { 'Authorization': authHeader, 'Content-Type': 'application/json', ...(options.headers || {}) },
+    headers: {
+      'Authorization': authHeader,
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    },
   };
+
   const res = await fetch(url, fetchOptions);
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
     throw new Error(errData.message || `Request failed with status ${res.status}`);
   }
+
   return res.json();
 };
 
@@ -31,49 +38,86 @@ export default function CheckoutPage() {
 
   const [cartItems, setCartItems] = useState([]);
   const [countries, setCountries] = useState([]);
-  const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [paymentMethods, setPaymentMethods] = useState([]);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cod');
+
+  // ✅ Unified formData structure
   const [formData, setFormData] = useState({
-    shipping: { fullName:'', address1:'', city:'', state:'', postalCode:'', country:'', phone:'' },
-    billing: { fullName:'', address1:'', city:'', state:'', postalCode:'', country:'', phone:'', email:'' },
+    shipping: {
+      first_name: '',
+      last_name: '',
+      email: '',
+      street: '',
+      apartment: '',
+      city: '',
+      state: '',
+      postal_code: '',
+      country: 'AE',
+      phone_number: '971'
+    },
+    billing: {
+      first_name: '',
+      last_name: '',
+      email: '',
+      street: '',
+      apartment: '',
+      city: '',
+      state: '',
+      postal_code: '',
+      country: 'AE',
+      phone_number: '971'
+    },
     billingSameAsShipping: true,
     paymentMethod: 'cod',
     paymentMethodTitle: 'Cash On Delivery',
     shippingMethodId: null,
   });
+
   const [orderId, setOrderId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [error, setError] = useState('');
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (parseFloat(item.price)||0) * item.quantity, 0);
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + (parseFloat(item.price) || 0) * item.quantity,
+    0
+  );
 
-  // --- Alert helper ---
   const showAlert = (message, type = 'info') => {
     setAlert({ message, type });
-    setTimeout(() => setAlert({ message: '', type: 'info' }), 4000); // auto-clear after 4s
+    setTimeout(() => setAlert({ message: '', type: 'info' }), 4000);
   };
 
-  // Fetch cart products
+  // Fetch cart product details
   useEffect(() => {
     if (!contextCartItems.length) return setCartItems([]);
+
     const fetchProducts = async () => {
       try {
-        const details = await Promise.all(contextCartItems.map(async item => {
-          const prod = await fetchWithAuth(`products/${item.id}`);
-          return { ...item, price: parseFloat(prod.price)||0, inStock: prod.stock_quantity>0, name: prod.name };
-        }));
+        const details = await Promise.all(
+          contextCartItems.map(async item => {
+            const prod = await fetchWithAuth(`products/${item.id}`);
+            return {
+              ...item,
+              price: parseFloat(prod.price) || 0,
+              inStock: prod.stock_quantity > 0,
+              name: prod.name
+            };
+          })
+        );
         setCartItems(details);
       } catch {
-        setCartItems(contextCartItems.map(i => ({ ...i, price:i.price||0, inStock:true })));
+        setCartItems(
+          contextCartItems.map(i => ({ ...i, price: i.price || 0, inStock: true }))
+        );
       }
     };
+
     fetchProducts();
   }, [contextCartItems]);
 
-  // Fetch countries & payment methods
+  // Fetch countries and payment methods
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -86,12 +130,15 @@ export default function CheckoutPage() {
         setIsLoggedIn(!!localStorage.getItem('userToken'));
       } catch(err) {
         setError(err.message || 'Failed to load checkout data.');
-      } finally { setLoading(false); }
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchData();
   }, []);
 
-  // Check for payment success/failure redirect
+  // Handle payment redirects (success/failure)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const success = params.get('payment_success');
@@ -99,32 +146,25 @@ export default function CheckoutPage() {
     const orderIdFromUrl = params.get('order_id');
 
     if (success && orderIdFromUrl) {
-      fetchWithAuth(`orders/${orderIdFromUrl}`, {
-        method: 'PUT',
-        body: JSON.stringify({ set_paid: true })
-      }).then(() => {
-        clearCart();
-        navigate(`/order-success?order_id=${orderIdFromUrl}`);
-      });
+      fetchWithAuth(`orders/${orderIdFromUrl}`, { method: 'PUT', body: JSON.stringify({ set_paid: true }) })
+        .then(() => { 
+          clearCart(); 
+          navigate(`/order-success?order_id=${orderIdFromUrl}`); 
+        });
     }
 
     if (failed && orderIdFromUrl) {
-      fetchWithAuth(`orders/${orderIdFromUrl}`, {
-        method: 'PUT',
-        body: JSON.stringify({ status: 'cancelled' })
-      }).then(() => {
-        showAlert('Payment failed. Order was cancelled.', 'error');
-      });
+      fetchWithAuth(`orders/${orderIdFromUrl}`, { method: 'PUT', body: JSON.stringify({ status: 'cancelled' }) })
+        .then(() => showAlert('Payment failed. Order was cancelled.', 'error'));
     }
   }, []);
 
-  // Handle payment method selection
-  const handlePaymentSelect = (methodId, title) => {
-    setSelectedPaymentMethod(methodId);
-    setFormData(prev => ({ ...prev, paymentMethod: methodId, paymentMethodTitle: title }));
+  // Payment method select
+  const handlePaymentSelect = (id, title) => {
+    setFormData(prev => ({ ...prev, paymentMethod: id, paymentMethodTitle: title }));
   };
 
-  // Create WooCommerce order
+  // ✅ Create WooCommerce order with unified fields
   const createOrder = async () => {
     const shipping = formData.shipping;
     const billing = formData.billingSameAsShipping ? shipping : formData.billing;
@@ -134,27 +174,30 @@ export default function CheckoutPage() {
     const payload = {
       payment_method: formData.paymentMethod,
       payment_method_title: formData.paymentMethodTitle,
-      set_paid: formData.paymentMethod !== 'cod',
+      set_paid: false,
       billing: {
-        first_name: billing.fullName.split(' ')[0] || '',
-        last_name: billing.fullName.split(' ').slice(1).join('') || '',
-        address_1: billing.address1,
+        first_name: billing.first_name,
+        last_name: billing.last_name,
+        address_1: billing.street,
+        address_2: billing.apartment || '',
         city: billing.city,
         state: billing.state,
-        postcode: billing.postalCode,
+        postcode: billing.postal_code,
         country: billing.country,
-        phone: billing.phone,
+        phone: billing.phone_number,
         email: billing.email
       },
       shipping: {
-        first_name: shipping.fullName.split(' ')[0] || '',
-        last_name: shipping.fullName.split(' ').slice(1).join('') || '',
-        address_1: shipping.address1,
+        first_name: shipping.first_name,
+        last_name: shipping.last_name,
+        address_1: shipping.street,
+        address_2: shipping.apartment || '',
         city: shipping.city,
         state: shipping.state,
-        postcode: shipping.postalCode,
+        postcode: shipping.postal_code,
         country: shipping.country,
-        phone: shipping.phone
+        phone: shipping.phone_number,
+        email: shipping.email
       },
       line_items,
       shipping_lines: formData.shippingMethodId ? [{ method_id: formData.shippingMethodId }] : [],
@@ -162,28 +205,30 @@ export default function CheckoutPage() {
     };
 
     const order = await fetchWithAuth('orders', { method: 'POST', body: JSON.stringify(payload) });
-
     if (!userId && order.customer_id) localStorage.setItem('userId', order.customer_id);
-
     setOrderId(order.id);
-    return order.id;
+    return order;
   };
 
-  // Place order (COD or Paymob)
+  // Place order
   const handlePlaceOrder = async () => {
     setError('');
     try {
-      const id = orderId || await createOrder();
-      clearCart();
+      const order = orderId ? await fetchWithAuth(`orders/${orderId}`) : await createOrder();
+      setOrderId(order.id);
 
-      if (selectedPaymentMethod === 'cod') {
-        navigate(`/order-success?order_id=${id}`);
-      } else if (selectedPaymentMethod === 'paymob') {
-        const paymentUrlRes = await fetch(`/api/paymob-session?orderId=${id}`);
-        const { paymentUrl } = await paymentUrlRes.json();
-        window.location.href = paymentUrl;
+      if (formData.paymentMethod === 'cod') {
+        clearCart();
+        navigate(`/order-success?order_id=${order.id}`);
+      } 
+      else if (formData.paymentMethod === 'paymob_accept') {
+        if (order.payment_url) window.location.href = order.payment_url;
+        else throw new Error('Paymob payment URL not found. Check plugin setup.');
       }
-    } catch(err) {
+      else {
+        throw new Error('Unsupported payment method selected.');
+      }
+    } catch (err) {
       setError(err.message || 'Failed to place order.');
     }
   };
@@ -202,8 +247,6 @@ export default function CheckoutPage() {
           setFormData={setFormData}
           handlePlaceOrder={handlePlaceOrder}
           createOrder={createOrder}
-          showSignInModal={showSignInModal}
-          setShowSignInModal={setShowSignInModal}
         />
         <CheckoutRight
           cartItems={cartItems}
@@ -212,16 +255,23 @@ export default function CheckoutPage() {
           createOrder={createOrder}
           clearCart={() => setCartItems([])}
           handlePlaceOrder={handlePlaceOrder}
+          subtotal={subtotal}
         />
       </div>
 
       {alert.message && (
-        <div style={{ padding: 10, backgroundColor: alert.type === 'error' ? '#dc3545' : '#28a745', color: 'white' }}>
+        <div className={`checkout-alert ${alert.type}`}>
           {alert.message}
         </div>
       )}
 
-      {showSignInModal && <SignInModal onClose={()=>setShowSignInModal(false)} onLoginSuccess={()=>setIsLoggedIn(true)} />}
+      {showSignInModal && (
+        <SignInModal
+          onClose={() => setShowSignInModal(false)}
+          onLoginSuccess={() => setIsLoggedIn(true)}
+        />
+      )}
+
       {error && <div className="error-message">{error}</div>}
     </>
   );

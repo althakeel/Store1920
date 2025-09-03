@@ -1,101 +1,62 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import '../../assets/styles/checkout/ShippingMethods.css';
 
-const ShippingMethods = ({ countryCode, selectedMethodId, onSelect }) => {
-  const [methods, setMethods] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const ShippingMethods = ({ selectedMethodId, onSelect, subtotal }) => {
+  const FIXED_AMOUNT = 10;
 
-  const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-  const CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
-  const CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
+  const methods = [
+    {
+      id: 'free_shipping',
+      title: 'Free Shipping',
+      cost: 0,
+      description: 'Free for orders above AED 100',
+      eligible: subtotal >= 100,
+    },
+    {
+      id: 'fixed_shipping',
+      title: 'Standard Shipping',
+      cost: FIXED_AMOUNT,
+      description: 'Delivered within 5-7 business days',
+      eligible: true,
+    },
+  ];
 
-useEffect(() => {
-  if (!countryCode) {
-    setMethods([]);
-    setLoading(false);
-    console.log('No countryCode provided');
-    return;
-  }
-
-  const fetchShippingMethods = async () => {
-    setLoading(true);
-    setError(null);
-    console.log('Fetching zones for countryCode:', countryCode);
-
-    try {
-      const zonesRes = await fetch(`${API_BASE}/shipping/zones?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-      const zones = await zonesRes.json();
-      console.log('Zones:', zones);
-
-      let matchedZone = null;
-
-      for (const zone of zones) {
-        const locationsRes = await fetch(`${API_BASE}/shipping/zones/${zone.id}/locations?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-        const locations = await locationsRes.json();
-        console.log(`Zone ${zone.id} locations:`, locations);
-
-        const found = locations.some(loc => loc.code.toUpperCase() === countryCode.toUpperCase());
-        if (found) {
-          matchedZone = zone;
-          break;
-        }
-      }
-
-      console.log('Matched zone:', matchedZone);
-
-      if (!matchedZone) {
-        const defaultZoneRes = await fetch(`${API_BASE}/shipping/zones/0?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-        matchedZone = await defaultZoneRes.json();
-        console.log('Default zone:', matchedZone);
-      }
-
-      const methodsRes = await fetch(`${API_BASE}/shipping/zones/${matchedZone.id}/methods?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-      const methodsData = await methodsRes.json();
-      console.log('Shipping methods:', methodsData);
-
-      setMethods(methodsData);
-    } catch (err) {
-      setError(err.message || 'Failed to fetch shipping methods');
-      setMethods([]);
-      console.error(err);
-    } finally {
-      setLoading(false);
+  // Auto-select default method
+  useEffect(() => {
+    if (!selectedMethodId || (subtotal >= 100 && selectedMethodId !== 'free_shipping')) {
+      const defaultMethod = methods.find(m => m.id === 'free_shipping' && m.eligible) || methods[1];
+      onSelect(defaultMethod.id);
     }
-  };
-
-  fetchShippingMethods();
-}, [countryCode]);
-
-  if (loading) return <p>Loading shipping methods...</p>;
-  if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
-  if (!methods.length) return <p>No shipping methods available.</p>;
+  }, [selectedMethodId, subtotal, onSelect, methods]);
 
   return (
-    <div className="unique-shipping-container">
-      <h3 className="unique-shipping-title">Shipping Methods</h3>
+    <div className="shipping-container-full">
+      <h3 className="shipping-title-full">Choose Shipping Method</h3>
       <form>
         {methods.map(method => {
           const isSelected = selectedMethodId === method.id;
-          const cost = parseFloat(method.settings?.cost?.value || 0);
-          const price = cost > 0 ? `AED ${cost.toFixed(2)}` : 'Free';
+          const price = method.cost > 0 ? `AED ${method.cost.toFixed(2)}` : 'Free';
 
           return (
             <label
               key={method.id}
-              className={`unique-shipping-label ${isSelected ? 'unique-shipping-selected' : ''}`}
+              className={`shipping-full-card ${isSelected ? 'shipping-full-selected' : ''} ${!method.eligible ? 'shipping-disabled' : ''}`}
             >
               <input
                 type="radio"
                 name="shippingMethod"
                 value={method.id}
                 checked={isSelected}
-                onChange={() => onSelect(method.id)}
-                className="unique-shipping-radio"
+                onChange={() => method.eligible && onSelect(method.id)}
+                className="shipping-full-radio"
+                disabled={!method.eligible}
               />
-              <div className="unique-shipping-row">
-                <span className="unique-shipping-method-title">{method.title}</span>
-                <span className="unique-shipping-method-price">{price}</span>
+              <div className="shipping-full-content">
+                <div className="shipping-full-text">
+                  <span className="shipping-full-title">{method.title}</span>
+                  <div className="shipping-full-desc">{method.description}</div>
+                </div>
+                <span className="shipping-full-price">{price}</span>
               </div>
             </label>
           );

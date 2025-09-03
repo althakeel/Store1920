@@ -8,6 +8,11 @@
   cursor: pointer;
   background: #fff;
   transition: all 0.3s ease;
+
+}
+.payment-section-title{
+  padding-bottom: 3px;
+    margin-top: 10px;
 }
 
 .payment-card:hover {

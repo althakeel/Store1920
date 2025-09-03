@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import MiniCart from '../components/MiniCart';
 import FilterButton from '../components/sub/FilterButton';
 import '../assets/styles/allproducts.css';
+import ProductsUnder20AED from '../components/ProductsUnder20AED';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
 const CONSUMER_KEY = 'ck_be7e3163c85f7be7ca616ab4d660d65117ae5ac5';
@@ -126,36 +127,40 @@ const AllProducts = () => {
     return params.toString();
   };
 
-  const fetchProducts = useCallback(
-    async (pageNum = 1, appliedFilters = null, replace = false) => {
-      setLoading(true);
-      try {
-        const queryParams = buildQueryParams(pageNum, appliedFilters);
-        const url = `${API_BASE}/products?${queryParams}`;
+const fetchProducts = useCallback(
+  async (pageNum = 1, appliedFilters = null, replace = false) => {
+    setLoading(true);
+    try {
+      const queryParams = buildQueryParams(pageNum, appliedFilters);
+      const url = `${API_BASE}/products?${queryParams}`;
 
-        const res = await fetch(url);
-        const data = await res.json();
+      const res = await fetch(url);
+      const data = await res.json();
 
-        if (replace) {
-          setProducts(data);
-        } else {
-          setProducts((prev) => [...prev, ...data]);
-        }
+      // Ensure data is an array
+      const productArray = Array.isArray(data) ? data : [];
 
-        if (data.length < PRODUCTS_PER_PAGE || pageNum * PRODUCTS_PER_PAGE >= MAX_PRODUCTS) {
-          setHasMore(false);
-        } else {
-          setHasMore(true);
-        }
-      } catch (e) {
-        console.error(e);
-        setHasMore(false);
-      } finally {
-        setLoading(false);
+      if (replace) {
+        setProducts(productArray);
+      } else {
+        setProducts((prev) => [...prev, ...productArray]);
       }
-    },
-    []
-  );
+
+      if (productArray.length < PRODUCTS_PER_PAGE || pageNum * PRODUCTS_PER_PAGE >= MAX_PRODUCTS) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+    } catch (e) {
+      console.error(e);
+      setHasMore(false);
+      setProducts([]); // fallback
+    } finally {
+      setLoading(false);
+    }
+  },
+  []
+);
 
   useEffect(() => {
     setPage(1);
@@ -199,27 +204,30 @@ const AllProducts = () => {
     return true;
   });
 
-  const NoProductsFound = () => (
-    <div className="pcus-no-products" style={{ textAlign: 'center', marginTop: '20px' }}>
-      <p>No products found.</p>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '10px' }}>
-        <button
-          className="pcus-btn pcus-btn-secondary"
-          onClick={() => window.history.back()}
-          aria-label="Go back"
-        >
-          Go Back
-        </button>
-        <button
-          className="pcus-btn pcus-btn-primary"
-          onClick={() => navigate('/products')}
-          aria-label="Go to all products"
-        >
-          Go to All Products
-        </button>
-      </div>
-    </div>
-  );
+const NoProductsFound = () => (
+<div className="pcus-no-products" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
+  <p style={{ textAlign: 'center', fontWeight: 500 }}>No products found.</p>
+  <div className="pcus-no-products-buttons" style={{ display: 'flex', gap: '15px' }}>
+    <button
+      className="pcus-btn-secondary"
+      onClick={() => window.history.back()}
+      aria-label="Go back"
+    >
+      Go Back
+    </button>
+    <button
+      className="pcus-btn-primary"
+      onClick={() => navigate('/products')}
+      aria-label="Go to all products"
+    >
+      Go to All Products
+    </button>
+  </div>
+
+</div>
+
+
+);
 
   return (
     <div className="pcus-wrapper1" style={{ display: 'flex', flexDirection: 'column', minHeight: '70vh' }}>
@@ -351,8 +359,10 @@ const AllProducts = () => {
 
           {loading && Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={`skeleton-${i}`} />)}
 
-          {!loading && filteredProducts.length === 0 && <NoProductsFound />}
+   
         </div>
+        {!loading && filteredProducts.length === 0 && <NoProductsFound />}
+        <ProductsUnder20AED/>
 
         {hasMore && (
           <div style={{ textAlign: 'center', margin: '20px 0' }}>

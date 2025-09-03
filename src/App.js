@@ -62,6 +62,7 @@ import CookiePopup from './components/common/CookiePopup';
 import PurchasePopup from './components/common/PurchasePopup';
 import SoundAlert from './assets/sound/alertsound.mp3';
 import LogoIcon from './assets/images/logo.webp';
+import AdsImage from './assets/images/ads/ads.webp'
 
 const AppContent = () => {
   const { isCartOpen, setIsCartOpen, cartItems } = useCart();
@@ -76,6 +77,79 @@ const AppContent = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+
+// Notification effect in AppContent
+useEffect(() => {
+  if (!("Notification" in window)) return; // Browser doesn't support notifications
+
+  let promoInterval;
+  let promoIndex = 0;
+
+  // Array of promotional items
+  const promotions = [
+    {
+      title: "🔥 Limited Offer!",
+      body: "Buy now – 80% off on this product!",
+      image: `${window.location.origin}/promo-product1.jpg`,
+    },
+    {
+      title: "🎁 Special Deal!",
+      body: "Grab 50% off on our best-seller!",
+      image: AdsImage,
+    },
+    {
+      title: "💥 Flash Sale!",
+      body: "Hurry! 50% off on selected items!",
+      image: AdsImage,
+    },
+  ];
+
+  const showPromoNotification = () => {
+    if (Notification.permission === "granted") {
+      const promo = promotions[promoIndex];
+
+      const notification = new Notification(promo.title, {
+        body: promo.body,
+        icon: `${window.location.origin}/logo.webp`,
+        image: promo.image,
+        requireInteraction: true,
+      });
+
+      // Auto-close after 10 seconds
+      setTimeout(() => notification.close(), 10000);
+
+      notification.onclick = () => {
+        window.focus();
+        window.location.href = "/allproducts"; // Redirect to promo page
+      };
+
+      // Cycle to the next promotion for next notification
+      promoIndex = (promoIndex + 1) % promotions.length;
+    }
+  };
+
+  // Request permission on first user interaction
+  const requestPermission = () => {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+    window.removeEventListener("click", requestPermission);
+  };
+  window.addEventListener("click", requestPermission);
+
+  // Show immediately on first load
+  showPromoNotification();
+
+  // Repeat every 10 minutes
+  promoInterval = setInterval(showPromoNotification, 10 * 60 * 1000);
+
+  return () => {
+    clearInterval(promoInterval);
+    window.removeEventListener("click", requestPermission);
+  };
+}, []);
+
 
   // Cart notification logic
 // Cart notification logic

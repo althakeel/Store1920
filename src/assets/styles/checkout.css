@@ -10,6 +10,7 @@
   padding: 0 16px;
   font-family: 'Segoe UI', Tahoma, sans-serif;
   min-height: 500px;
+  min-height: 40vh;
 }
 
 /* Left & Right Panels */

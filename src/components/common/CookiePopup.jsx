@@ -141,17 +141,29 @@ const CookiePopup = () => {
             to { transform: translateY(0); opacity: 1; }
           }
 
-          @media (max-width: 480px) {
-            .cookie-popup {
-              font-size: 14px !important;
-              padding: 15px !important;
-            }
-            .btn-continue,
-            .btn-clear {
-              min-width: 100px !important;
-              padding: 8px 14px !important;
-            }
-          }
+         @media (max-width: 480px) {
+  .cookie-popup {
+    font-size: 14px !important;
+    padding: 15px !important;
+    height: 200px;   /* take 50% of screen height */
+    bottom:50px;
+    left: 0;
+    right: 0;
+    overflow-y: auto;          /* scroll if content overflows */
+  }
+
+  .cookie-buttons {
+    flex-direction: column; /* stack vertically */
+    gap: 10px;
+  }
+
+  .btn-continue,
+  .btn-clear {
+    width: 100% !important;
+    height: 50px !important;
+    font-size: 15px !important;
+  }
+}
         `}
       </style>
     </div>

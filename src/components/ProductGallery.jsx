@@ -1,113 +1,99 @@
 // ProductGallery.jsx
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../assets/styles/ProductGallery.css';
-import PlaceHolderImage from '../assets/images/common/Placeholder.png'
+import PlaceHolderImage from '../assets/images/common/Placeholder.png';
 
-export default function ProductGallery({ images, mainImageUrl, setMainImageUrl, activeModal, openModal, closeModal }) {
+export default function ProductGallery({
+  images,
+  mainImageUrl,
+  setMainImageUrl,
+  activeModal,
+  openModal,
+  closeModal,
+}) {
   const [mainIndex, setMainIndex] = useState(0);
   const [mainLoading, setMainLoading] = useState(true);
   const modalThumbListRef = useRef(null);
-const [thumbsLoaded, setThumbsLoaded] = useState(false);
+  const [thumbsLoaded, setThumbsLoaded] = useState(false);
+
   // Zoom and pan state for modal
   const [zoomScale, setZoomScale] = useState(1);
   const [zoomTranslate, setZoomTranslate] = useState({ x: 0, y: 0 });
   const zoomedImageRef = useRef(null);
   const containerRef = useRef(null);
   const lastDragPosition = useRef(null);
- 
 
   // Sync mainIndex when mainImageUrl changes
-  useEffect(() => {
-    const idx = images.findIndex(img => img.src === mainImageUrl);
-    if (idx !== -1) setMainIndex(idx);
-  }, [mainImageUrl, images]);
+// Initialize main image when images change
+
 
   // Reset loading and zoom state when mainIndex changes
   useEffect(() => {
     setMainLoading(true);
     setZoomScale(1);
     setZoomTranslate({ x: 0, y: 0 });
-    if (modalThumbListRef.current) {
-      scrollModalThumbnails(mainIndex);
-    }
+    if (modalThumbListRef.current) scrollModalThumbnails(mainIndex);
   }, [mainIndex]);
 
-
-
+  // Delay thumbnails appearance for smoother effect
   useEffect(() => {
-  if (!mainLoading) {
-    const timer = setTimeout(() => setThumbsLoaded(true), 300); 
-    return () => clearTimeout(timer);
-  }
-}, [mainLoading]);
-  // Thumbnail scrolling inside modal to keep active thumb visible
-  const scrollModalThumbnails = (index) => {
+    if (!mainLoading) {
+      const timer = setTimeout(() => setThumbsLoaded(true), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [mainLoading]);
+
+  // Scroll modal thumbnails
+  const scrollModalThumbnails = index => {
     if (!modalThumbListRef.current) return;
-    const thumbWidth = 108; // 100px width + 8px gap approx
-    const scrollPos = Math.max(0, (index * thumbWidth) - (thumbWidth * 2));
-    modalThumbListRef.current.scrollTo({
-      left: scrollPos,
-      behavior: 'smooth',
-    });
+    const thumbWidth = 108; // approx
+    const scrollPos = Math.max(0, index * thumbWidth - thumbWidth * 2);
+    modalThumbListRef.current.scrollTo({ left: scrollPos, behavior: 'smooth' });
   };
 
-  // Handlers for previous/next image in gallery
+  // Navigation handlers
   const handlePrev = () => {
     const newIndex = mainIndex === 0 ? images.length - 1 : mainIndex - 1;
     setMainIndex(newIndex);
     setMainImageUrl(images[newIndex].src);
   };
-
   const handleNext = () => {
     const newIndex = mainIndex === images.length - 1 ? 0 : mainIndex + 1;
     setMainIndex(newIndex);
     setMainImageUrl(images[newIndex].src);
   };
 
-  // Modal prev/next buttons with thumbnail scroll
-const handleModalPrev = (e) => {
-  e.stopPropagation();
-  const newIndex = mainIndex === 0 ? images.length - 1 : mainIndex - 1;
-  setMainIndex(newIndex);
-  setMainImageUrl(images[newIndex].src);
-  scrollModalThumbnails(newIndex);
-};
+  const handleModalPrev = e => {
+    e.stopPropagation();
+    handlePrev();
+    scrollModalThumbnails(mainIndex === 0 ? images.length - 1 : mainIndex - 1);
+  };
+  const handleModalNext = e => {
+    e.stopPropagation();
+    handleNext();
+    scrollModalThumbnails(mainIndex === images.length - 1 ? 0 : mainIndex + 1);
+  };
 
-const handleModalNext = (e) => {
-  e.stopPropagation();
-  const newIndex = mainIndex === images.length - 1 ? 0 : mainIndex + 1;
-  setMainIndex(newIndex);
-  setMainImageUrl(images[newIndex].src);
-  scrollModalThumbnails(newIndex);
-};
-
-  // Modal thumbnail scroll buttons
-  const scrollModalThumbsLeft = (e) => {
+  const scrollModalThumbsLeft = e => {
     e.stopPropagation();
     modalThumbListRef.current?.scrollBy({ left: -100, behavior: 'smooth' });
   };
-
-  const scrollModalThumbsRight = (e) => {
+  const scrollModalThumbsRight = e => {
     e.stopPropagation();
     modalThumbListRef.current?.scrollBy({ left: 100, behavior: 'smooth' });
   };
 
-  // Zoom and pan logic inside modal
-
-  // Handle wheel zoom on modal image container
-  const onWheel = (e) => {
+  // Zoom/pan logic
+  const onWheel = e => {
     e.preventDefault();
     if (e.deltaY === 0) return;
     let newScale = zoomScale - e.deltaY * 0.001;
-    newScale = Math.min(Math.max(newScale, 1), 4); // clamp between 1 and 4
+    newScale = Math.min(Math.max(newScale, 1), 4);
     setZoomScale(newScale);
-    if (newScale === 1) {
-      setZoomTranslate({ x: 0, y: 0 });
-    }
+    if (newScale === 1) setZoomTranslate({ x: 0, y: 0 });
   };
 
-  // Handle drag start on zoomed image
-  const onDragStart = (e) => {
+  const onDragStart = e => {
     e.preventDefault();
     lastDragPosition.current = {
       x: e.clientX || e.touches?.[0]?.clientX,
@@ -115,9 +101,7 @@ const handleModalNext = (e) => {
     };
     containerRef.current.style.cursor = 'grabbing';
   };
-
-  // Handle drag move on zoomed image
-  const onDragMove = (e) => {
+  const onDragMove = e => {
     if (!lastDragPosition.current) return;
     const x = e.clientX || e.touches?.[0]?.clientX;
     const y = e.clientY || e.touches?.[0]?.clientY;
@@ -126,49 +110,32 @@ const handleModalNext = (e) => {
     const dy = y - lastDragPosition.current.y;
     lastDragPosition.current = { x, y };
 
-    // Calculate new translate but limit it to avoid empty spaces (basic clamp)
     const maxTranslateX = (zoomScale - 1) * containerRef.current.clientWidth / 2;
     const maxTranslateY = (zoomScale - 1) * containerRef.current.clientHeight / 2;
 
-    setZoomTranslate(prev => {
-      let newX = prev.x + dx;
-      let newY = prev.y + dy;
-      newX = Math.min(Math.max(newX, -maxTranslateX), maxTranslateX);
-      newY = Math.min(Math.max(newY, -maxTranslateY), maxTranslateY);
-      return { x: newX, y: newY };
-    });
+    setZoomTranslate(prev => ({
+      x: Math.min(Math.max(prev.x + dx, -maxTranslateX), maxTranslateX),
+      y: Math.min(Math.max(prev.y + dy, -maxTranslateY), maxTranslateY),
+    }));
   };
-
-  // Handle drag end
-  const onDragEnd = (e) => {
+  const onDragEnd = e => {
     e.preventDefault();
     lastDragPosition.current = null;
     if (containerRef.current) containerRef.current.style.cursor = zoomScale > 1 ? 'grab' : 'default';
   };
 
-  // Prevent scrolling the background when modal is open
+  // Prevent background scroll when modal open
   useEffect(() => {
-    if (activeModal === 'zoom') {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = activeModal === 'zoom' ? 'hidden' : '';
   }, [activeModal]);
 
-if (!images || images.length === 0) {
-  return (
-    <div className="product-gallery no-images">
-      <img
-        src={PlaceHolderImage}
-        alt="Placeholder"
-        className="main-image"
-        loading="lazy"
-        draggable={false}
-      />
-    </div>
-  );
-}
-
+  if (!images || images.length === 0) {
+    return (
+      <div className="product-gallery no-images">
+        <img src={PlaceHolderImage} alt="Placeholder" draggable={false} />
+      </div>
+    );
+  }
 
   const isZoomModalOpen = activeModal === 'zoom';
 
@@ -176,64 +143,76 @@ if (!images || images.length === 0) {
     <>
       <div className="product-gallery-wrapper">
         {/* Thumbnail strip */}
-       {thumbsLoaded && (
-  <div className="thumbnail-list" role="list">
-    {images.map((img, idx) => (
-      <button
-        key={img.id || idx}
-        className={`thumbnail-btn ${idx === mainIndex ? 'active' : ''}`}
-        onClick={() => {
-          setMainImageUrl(img.src);
-          setMainIndex(idx);
-        }}
-        type="button"
-        aria-label={`Thumbnail ${idx + 1}`}
-      >
-        <img
-          src={img.src}
-          alt={img.alt || `Thumbnail ${idx + 1}`}
-          className="thumbnail-image"
-          loading="lazy"
-          draggable={false}
-        />
-      </button>
-    ))}
-  </div>
-)}
+        {thumbsLoaded && (
+          <div className="thumbnail-list" role="list">
+            {images.map((img, idx) => (
+              <button
+                key={img.id || idx}
+                className={`thumbnail-btn ${idx === mainIndex ? 'active' : ''}`}
+                onClick={() => {
+                  setMainImageUrl(img.src);
+                  setMainIndex(idx);
+                }}
+                type="button"
+                aria-label={`Thumbnail ${idx + 1}`}
+              >
+                <img
+                  src={img.src}
+                  alt={img.alt || `Thumbnail ${idx + 1}`}
+                  className="thumbnail-image"
+                  loading="lazy"
+                  draggable={false}
+                />
+              </button>
+            ))}
+          </div>
+        )}
 
-        {/* Main image area */}
-   <div className="main-image-wrapper">
-  {mainLoading && <div className="main-skeleton" />}
-  <img
-    src={images[mainIndex]?.src || PlaceHolderImage}
-    alt={images[mainIndex]?.alt || 'Product Image'}
-    className="main-image"
-    loading="lazy"
-    onLoad={() => setMainLoading(false)}
-    onClick={() => openModal('zoom')}
-    draggable={false}
-    style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
-  />
-
-  <button
-    className="arrow-btn arrow-left"
-    onClick={handlePrev}
-    aria-label="Previous Image"
-    type="button"
-  >
-    ‹
-  </button>
-
-  <button
-    className="arrow-btn arrow-right"
-    onClick={handleNext}
-    aria-label="Next Image"
-    type="button"
-  >
-    ›
-  </button>
-</div>
-
+        {/* Main image wrapper with inline skeleton */}
+        <div
+          style={{
+            position: 'relative',
+            flexGrow: 1,
+            height: '560px',
+            borderRadius: '10px',
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: mainLoading ? '#f0f0f0' : '#fff',
+          }}
+        >
+          <img
+            src={images[mainIndex]?.src || PlaceHolderImage}
+            alt={images[mainIndex]?.alt || 'Product Image'}
+            draggable={false}
+            onLoad={() => setMainLoading(false)}
+            onClick={() => openModal('zoom')}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'fill',
+              transition: 'opacity 0.3s ease',
+              opacity: mainLoading ? 0 : 1,
+            }}
+          />
+          <button
+            className="arrow-btn arrow-left"
+            onClick={handlePrev}
+            aria-label="Previous Image"
+            type="button"
+          >
+            ‹
+          </button>
+          <button
+            className="arrow-btn arrow-right"
+            onClick={handleNext}
+            aria-label="Next Image"
+            type="button"
+          >
+            ›
+          </button>
+        </div>
       </div>
 
       {/* Zoom modal */}
@@ -252,47 +231,27 @@ if (!images || images.length === 0) {
             onTouchEnd={onDragEnd}
           >
             <img
-               src={images[mainIndex]?.src || PlaceHolderImage}
-              alt={images[mainIndex].alt || 'Zoomed Product Image'}
-              className="zoomed-image"
+              src={images[mainIndex]?.src || PlaceHolderImage}
+              alt={images[mainIndex]?.alt || 'Zoomed Product Image'}
               draggable={false}
               ref={zoomedImageRef}
               style={{
                 transform: `translate(calc(-50% + ${zoomTranslate.x}px), calc(-50% + ${zoomTranslate.y}px)) scale(${zoomScale})`,
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transformOrigin: 'center center',
               }}
             />
           </div>
 
-          {/* Modal navigation arrows */}
-          <button
-            className="modal-arrow-btn modal-arrow-left"
-            onClick={handleModalPrev}
-            aria-label="Previous Image"
-            type="button"
-          >
-            ‹
-          </button>
-
-          <button
-            className="modal-arrow-btn modal-arrow-right"
-            onClick={handleModalNext}
-            aria-label="Next Image"
-            type="button"
-          >
-            ›
-          </button>
+          {/* Modal arrows */}
+          <button className="modal-arrow-btn modal-arrow-left" onClick={handleModalPrev} aria-label="Previous Image" type="button">‹</button>
+          <button className="modal-arrow-btn modal-arrow-right" onClick={handleModalNext} aria-label="Next Image" type="button">›</button>
 
           {/* Modal thumbnail strip */}
           <div className="modal-thumbnail-container" onClick={e => e.stopPropagation()}>
-            <button
-              className="modal-thumb-scroll arrow-left"
-              onClick={scrollModalThumbsLeft}
-              aria-label="Scroll thumbnails left"
-              type="button"
-            >
-              ‹
-            </button>
-
+            <button className="modal-thumb-scroll arrow-left" onClick={scrollModalThumbsLeft} aria-label="Scroll thumbnails left" type="button">‹</button>
             <div className="modal-thumbnail-list" ref={modalThumbListRef}>
               {images.map((img, idx) => (
                 <button
@@ -307,25 +266,17 @@ if (!images || images.length === 0) {
                   type="button"
                   aria-label={`Thumbnail ${idx + 1}`}
                 >
-                 <img
-  src={img.src || PlaceHolderImage}
-  alt={img.alt || `Thumbnail ${idx + 1}`}
-  className="thumbnail-image"
-  loading="lazy"
-  draggable={false}
-/>
+                  <img
+                    src={img.src || PlaceHolderImage}
+                    alt={img.alt || `Thumbnail ${idx + 1}`}
+                    className="thumbnail-image"
+                    loading="lazy"
+                    draggable={false}
+                  />
                 </button>
               ))}
             </div>
-
-            <button
-              className="modal-thumb-scroll arrow-right"
-              onClick={scrollModalThumbsRight}
-              aria-label="Scroll thumbnails right"
-              type="button"
-            >
-              ›
-            </button>
+            <button className="modal-thumb-scroll arrow-right" onClick={scrollModalThumbsRight} aria-label="Scroll thumbnails right" type="button">›</button>
           </div>
         </ModalWrapper>
       )}
@@ -335,9 +286,7 @@ if (!images || images.length === 0) {
 
 function ModalWrapper({ onClose, titleId, label, children }) {
   useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
+    const onKeyDown = e => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onClose]);

@@ -1,71 +1,71 @@
-.unique-shipping-container {
-  max-width: 700px;
+/* Full-width container */
+.shipping-container-full {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
   font-family: 'Montserrat', sans-serif;
-  font-size: 14px;
   color: #333;
-  margin: 0px !important;
-  
+  margin-bottom: 1rem;
 }
 
-.unique-shipping-title {
-  margin-bottom: 10px;
+.shipping-title-full {
   font-weight: 600;
-  font-size: 15px;
+  font-size: 18px;
+  margin-bottom: 5px;
 }
 
-.unique-shipping-loading,
-.unique-shipping-no-methods {
-  font-style: italic;
-  color: #666;
-  padding: 0;
-  margin: 10px 0;
+/* Full-width card */
+.shipping-full-card {
+  display: block;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #fff;
 }
 
-.unique-shipping-label {
+.shipping-full-card:hover {
+  border-color: #aaa;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.shipping-full-selected {
+  border-color: #4caf50;
+  background-color: #e6f4ea;
+}
+
+/* Hide radio visually but still accessible */
+.shipping-full-radio {
+  display: none;
+}
+
+.shipping-full-content {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  cursor: pointer;
-  user-select: none;
-  padding: 0;
-  border-radius: 0;
-  transition: background-color 0.15s ease;
-  justify-content: flex-start;
-    padding: 5px 10px;
-    border-radius: 25px;
 }
 
-.unique-shipping-label:hover {
-  background-color: #f9f9f9;
+.shipping-full-text {
+  display: flex;
+  flex-direction: column;
 }
 
-.unique-shipping-radio {
-  margin-right: 10px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.unique-shipping-method-title {
-  font-weight: normal;
-}
-
-.unique-shipping-method-desc {
-  font-style: italic;
-  color: #555;
-  margin-left: 6px;
-  flex-grow: 1;
-}
-
-.unique-shipping-free .unique-shipping-method-title {
-  color: green;
+.shipping-full-title {
+  font-size: 16px;
   font-weight: 600;
-  
 }
 
-.unique-shipping-selected .unique-shipping-method-title {
+.shipping-full-desc {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.shipping-full-price {
+  font-size: 16px;
   font-weight: 700;
-}
-
-.unique-shipping-selected {
-  background-color: #e6f4ea; /* subtle highlight for selected */
+  color: #333;
 }

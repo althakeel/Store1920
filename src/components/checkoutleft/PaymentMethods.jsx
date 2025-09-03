@@ -9,6 +9,9 @@ const PaymentMethods = ({ selectedMethod, onMethodSelect }) => {
 
   return (
     <div className="payment-methods-wrapper">
+
+            <h3 className="payment-section-title">Payment Method</h3>
+
       {paymentOptions.map(method => (
         <div
           key={method.id}

@@ -6,6 +6,9 @@ import CouponDiscount from './sub/account/CouponDiscount';
 import CoinBalance from './sub/account/CoinBalace';
 import HelpText from './HelpText';
 
+// -------------------------------
+// Reusable Alert Component
+// -------------------------------
 function Alert({ message, type = 'info', onClose }) {
   useEffect(() => {
     if (!message) return;
@@ -27,7 +30,7 @@ function Alert({ message, type = 'info', onClose }) {
         padding: '12px 20px',
         marginBottom: '20px',
         backgroundColor: colors[type] || colors.info,
-        color: 'white',
+        color: '#fff',
         borderRadius: '4px',
         position: 'relative',
         boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
@@ -44,7 +47,7 @@ function Alert({ message, type = 'info', onClose }) {
           top: '12px',
           background: 'transparent',
           border: 'none',
-          color: 'white',
+          color: '#fff',
           fontWeight: 'bold',
           fontSize: '16px',
           cursor: 'pointer',
@@ -58,68 +61,138 @@ function Alert({ message, type = 'info', onClose }) {
   );
 }
 
-export default function CheckoutRight({
-  cartItems,
-  formData,
-  createOrder,
-  clearCart,
-  orderId,
-}) {
+// -------------------------------
+// CheckoutRight Component
+// -------------------------------
+export default function CheckoutRight({ cartItems, formData, createOrder, clearCart, orderId }) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [coinDiscount, setCoinDiscount] = useState(0);
-  const [error, setError] = useState('');
 
+  // -------------------------------
+  // Calculate totals
+  // -------------------------------
   const itemsTotal = cartItems.reduce(
     (acc, item) => acc + parseFloat(item.price) * item.quantity,
     0
   );
 
+  // Subtotal after discounts and coins
   const subtotal = Math.max(0, itemsTotal - discount - coinDiscount);
+
+  // Shipping: AED 10 if subtotal < 100
+  const shippingFee = subtotal > 0 && subtotal < 100 ? 10 : 0;
+
+  // Total including shipping
+  const totalWithShipping = subtotal + shippingFee;
 
   const showAlert = (message, type = 'info') => setAlert({ message, type });
 
-const handlePlaceOrder = async () => {
-  setError('');
-  setIsPlacingOrder(true);
+  // -------------------------------
+  // Place Order Handler
+  // -------------------------------
+  const handlePlaceOrder = async () => {
+    console.log('--- Place Order Start ---');
+    console.log('Form Data:', formData);
+    console.log('Cart Items:', cartItems);
+    console.log('Items total:', itemsTotal);
+    console.log('Discount:', discount, 'Coin Discount:', coinDiscount);
+    console.log('Subtotal:', subtotal);
+    console.log('Shipping Fee:', shippingFee);
+    console.log('Total With Shipping:', totalWithShipping);
 
-  try {
-    const id = orderId || (await createOrder());
-
-    if (formData.paymentMethod === 'cod') {
-      clearCart();
-      window.location.href = `/order-success?order_id=${id}`;
-    } 
-    else if (formData.paymentMethod === 'paymob') {
-      // Ask backend for Paymob iframe URL
-      const res = await fetch('/wp-json/custom/v1/paymob-init', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: id, amount: subtotal })
-      });
-      if (!res.ok) throw new Error('Failed to start Paymob session');
-
-      const { iframe_url } = await res.json();
-
-      // Show iframe instead of redirecting
-      const iframe = document.createElement('iframe');
-      iframe.src = iframe_url;
-      iframe.width = '100%';
-      iframe.height = '600px';
-      iframe.style.border = 'none';
-      document.body.appendChild(iframe);
-
-      // TODO: handle postMessage or webhook redirect when payment success/fail
+    if (!formData.paymentMethod) {
+      console.error('No payment method selected.');
+      return showAlert('Select a payment method', 'error');
     }
-  } catch (err) {
-    setError(err.message || 'Failed to place order.');
-    showAlert(err.message || 'Failed to place order.', 'error');
-  } finally {
-    setIsPlacingOrder(false);
-  }
-};
 
+    setIsPlacingOrder(true);
+    try {
+      const id = orderId || (await createOrder());
+      console.log('Order created:', id);
+
+      if (formData.paymentMethod === 'cod') {
+        console.log('Cash on Delivery selected. Clearing cart...');
+        clearCart();
+        window.location.href = `/order-success?order_id=${id.id || id}`;
+        return;
+      }
+
+      if (['paymob', 'card'].includes(formData.paymentMethod)) {
+        console.log('Paymob/Card payment selected. Preparing billing/shipping...');
+
+        const fullName = formData.shipping.fullName || 'First Last';
+        const nameParts = fullName.split(' ');
+
+        const normalized = {
+          first_name: nameParts[0] || 'First',
+          last_name: nameParts[1] || 'Last',
+          email: formData.billing?.email || 'customer@example.com',
+          phone_number: formData.shipping.phone || '+971501234567',
+          street: formData.shipping.address1 || 'NA',
+          apartment: formData.shipping.address2 || '',
+          floor: '',
+          city: formData.shipping.city || 'Dubai',
+          state: formData.shipping.state || 'DXB',
+          country: 'AE',
+          postal_code: '00000',
+        };
+
+        console.log('Normalized Billing/Shipping:', normalized);
+
+        try {
+          const res = await fetch(
+            'https://db.store1920.com/wp-json/custom/v1/paymob-intent',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                amount: totalWithShipping, // <-- use total including shipping
+                order_id: id.id || id,
+                billing: normalized,
+                shipping: normalized,
+                billingSameAsShipping: true,
+              }),
+            }
+          );
+
+          const data = await res.json();
+          console.log('Paymob API response status:', res.status);
+          console.log('Paymob API response body:', data);
+
+          if (!res.ok) {
+            console.error('Paymob API returned an error:', data);
+            throw new Error(data.message || 'Failed to initiate Paymob payment.');
+          }
+
+          if (!data.checkout_url) {
+            console.error('Checkout URL missing in Paymob response:', data);
+            throw new Error('Paymob checkout URL not returned.');
+          }
+
+          console.log('Redirecting to Paymob checkout:', data.checkout_url);
+          window.location.href = data.checkout_url;
+        } catch (err) {
+          console.error('Paymob API call failed:', err);
+          showAlert(err.message || 'Failed to initiate Paymob payment.', 'error');
+        }
+      } else {
+        console.error('Unsupported payment method:', formData.paymentMethod);
+        showAlert('Selected payment method not supported yet.', 'error');
+      }
+    } catch (err) {
+      console.error('Place order error:', err);
+      showAlert(err.message || 'Failed to place order.', 'error');
+    } finally {
+      setIsPlacingOrder(false);
+      console.log('--- Place Order End ---');
+    }
+  };
+
+  // -------------------------------
+  // Coupon Handlers
+  // -------------------------------
   const handleCoupon = (couponData) => {
     if (!couponData) {
       setDiscount(0);
@@ -127,12 +200,10 @@ const handlePlaceOrder = async () => {
       return;
     }
 
-    let discountAmount = 0;
-    if (couponData.discount_type === 'percent') {
-      discountAmount = (itemsTotal * parseFloat(couponData.amount)) / 100;
-    } else {
-      discountAmount = parseFloat(couponData.amount);
-    }
+    let discountAmount =
+      couponData.discount_type === 'percent'
+        ? (itemsTotal * parseFloat(couponData.amount)) / 100
+        : parseFloat(couponData.amount);
 
     discountAmount = Math.min(discountAmount, itemsTotal);
 
@@ -140,6 +211,9 @@ const handlePlaceOrder = async () => {
     showAlert(`Coupon applied! You saved AED ${discountAmount.toFixed(2)}`, 'success');
   };
 
+  // -------------------------------
+  // Coin Handlers
+  // -------------------------------
   const handleCoinRedemption = ({ coinsUsed, discountAED }) => {
     setCoinDiscount(discountAED);
     showAlert(`You redeemed ${coinsUsed} coins for AED ${discountAED}`, 'success');
@@ -150,6 +224,9 @@ const handlePlaceOrder = async () => {
     showAlert('Coin discount removed.', 'info');
   };
 
+  // -------------------------------
+  // Button Styling
+  // -------------------------------
   const getButtonStyle = () => {
     const base = {
       color: '#fff',
@@ -165,6 +242,8 @@ const handlePlaceOrder = async () => {
         return { ...base, backgroundColor: '#000' };
       case 'cod':
         return { ...base, backgroundColor: '#f97316' };
+      case 'paymob':
+        return { ...base, backgroundColor: '#22c55e' };
       case 'card':
         return { ...base, backgroundColor: '#2563eb' };
       default:
@@ -172,6 +251,20 @@ const handlePlaceOrder = async () => {
     }
   };
 
+  const getButtonLabel = () => {
+    const labels = {
+      cod: 'Cash on Delivery',
+      card: 'Card',
+      apple_pay: 'Apple Pay',
+      paymob: 'Paymob',
+    };
+    const label = labels[formData.paymentMethod] || 'Order';
+    return isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with ${label}`;
+  };
+
+  // -------------------------------
+  // JSX Rendering
+  // -------------------------------
   return (
     <aside className="checkoutRightContainer">
       <Alert
@@ -188,11 +281,14 @@ const handlePlaceOrder = async () => {
         <span>AED {itemsTotal.toFixed(2)}</span>
       </div>
 
-      <div
-        className="summaryRow discount"
-        style={{ color: '#fe6c03', fontWeight: 600 }}
-        aria-label={`Discount AED ${discount.toFixed(2)}`}
-      >
+      {shippingFee > 0 && (
+        <div className="summaryRowCR" style={{ color: '#fe6c03', fontWeight: 600 }}>
+          <span>Shipping Fee:</span>
+          <span>AED {shippingFee.toFixed(2)}</span>
+        </div>
+      )}
+
+      <div className="summaryRow discount" style={{ color: '#fe6c03', fontWeight: 600 }}>
         <span>Item(s) discount:</span>
         <span>-AED {discount.toFixed(2)}</span>
       </div>
@@ -220,7 +316,7 @@ const handlePlaceOrder = async () => {
               background: 'transparent',
               border: 'none',
               color: '#dc3545',
-              fontSize: '9px',
+              fontSize: '12px',
               fontWeight: 'bold',
               cursor: 'pointer',
             }}
@@ -236,10 +332,16 @@ const handlePlaceOrder = async () => {
         <span>AED {subtotal.toFixed(2)}</span>
       </div>
 
-      <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '1rem', lineHeight: '1.4' }}>
+      <div className="summaryRowCR" style={{ fontWeight: 700 }}>
+        <span>Total:</span>
+        <span>AED {totalWithShipping.toFixed(2)}</span>
+      </div>
+
+      <p className="checkoutNote">
         All fees and applicable taxes are included, and no additional charges will apply.
       </p>
-      <p style={{ fontSize: '0.75rem', color: '#999', marginTop: '0.5rem' }}>
+
+      <p className="checkoutTerms">
         By submitting your order, you agree to our{' '}
         <a href="/terms-0f-use" target="_blank" rel="noopener noreferrer">
           Terms of Use
@@ -258,9 +360,7 @@ const handlePlaceOrder = async () => {
         style={getButtonStyle()}
         aria-disabled={isPlacingOrder}
       >
-        {isPlacingOrder
-          ? `Placing Order${formData.paymentMethodTitle ? ` with ${formData.paymentMethodTitle}` : ''}...`
-          : `Place Order${formData.paymentMethodTitle ? ` with ${formData.paymentMethodTitle}` : ''}`}
+        {getButtonLabel()}
       </button>
 
       <TrustSection />

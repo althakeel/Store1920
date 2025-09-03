@@ -29,16 +29,16 @@
 
 /* Variant buttons */
 .variant-btn {
-  flex: 1 1 105px; /* grow, shrink, base width */
-  min-width: 70px;
-  max-width: 120px;
+  flex: 1 1 55px; /* grow, shrink, base width */
+  min-width: 50px;
+  max-width: 80px;
   padding: 5px 2px;
   border: 0.5px solid #cfcfcf;
   border-radius: 4px;
   background: #fff;
   cursor: pointer;
   text-align: center;
-  font-size: 0.55rem;
+  font-size: 0.15rem;
   color: #333;
   transition: all 0.2s ease-in-out;
   display: flex;
@@ -51,7 +51,9 @@
 }
 
 .variant-btn.selected {
-  border-color: #000;
+  border-color: #000000;
+  font-weight: bold;
+    border: 2.5px solid #ff6309d7;
 }
 
 .variant-btn.out-of-stock {
@@ -93,10 +95,14 @@
 
 /* Label */
 .variant-label {
-  font-weight: 500;
-  text-transform: capitalize;
-  font-size: 0.75rem;
+  display: block;
+  max-width: 80px; /* adjust as needed */
   text-align: center;
+  font-size: 10px;
+  line-height: 1.2;
+  word-break: break-word; /* breaks long words */
+  white-space: normal; /* allows wrapping */
+  overflow-wrap: break-word; /* ensures wrapping works */
 }
 
 /* ----------------------

@@ -103,18 +103,20 @@ const ItemList = ({ items, onRemove }) => {
                 AED {price || 'N/A'} × {item.quantity ?? 1}
               </div>
 
-              {onRemove && (
-                <button
-                  className="cart-item-remove-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemove(key);
-                  }}
-                  aria-label={`Remove ${item.name || 'item'} from cart`}
-                >
-                  ×
-                </button>
-              )}
+            {onRemove && (
+ <button
+  className="cart-item-remove-btn"
+  onClick={(e) => {
+    e.stopPropagation();
+    const itemId = item.id ?? item.product_id ?? item.sku ?? index;
+    onRemove(itemId);
+  }}
+  aria-label={`Remove ${item.name || 'item'} from cart`}
+>
+  ×
+</button>
+
+)}
             </div>
           );
         })}

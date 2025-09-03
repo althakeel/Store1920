@@ -18,6 +18,56 @@
   vertical-align: middle;
 }
 
+.pcus-no-products-wrapper {
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center;     /* vertical center */
+  flex-direction: column;
+  width: 100%;
+  min-height: 300px;       /* adjust as needed, or use 60vh */
+}
+
+.pcus-no-products-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center; /* horizontally center buttons */
+  flex-wrap: wrap;         /* responsive wrap */
+  margin-top: 10px;
+}
+
+.pcus-btn-primary,
+.pcus-btn-secondary {
+  padding: 12px 20px;
+  border-radius: 25px;
+  border: none;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+  min-width: 120px;
+  text-align: center;
+}
+
+.pcus-btn-primary {
+  background-color: #fb7701;
+  color: #ffffff;
+}
+
+.pcus-btn-primary:hover {
+  background-color: #e06600;
+}
+
+.pcus-btn-secondary {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  color: #333;
+}
+
+.pcus-btn-secondary:hover {
+  background-color: #f0f0f0;
+}
+
+
 .pcus-badges-inline {
   margin-top: 0px;
 }

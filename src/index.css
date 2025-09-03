@@ -32,3 +32,21 @@ body{
   margin-top: 0px !important;
   margin-bottom: 0px !important;
 }
+
+/* //product details */
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 1px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.3);
+  border-radius: 0.5px;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0,0,0,0.5);
+}
+
+/* end */

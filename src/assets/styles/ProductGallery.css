@@ -6,9 +6,9 @@
   flex-direction: row;
   align-items: flex-start;
   width: 100%;
-  max-width: 720px;
+  max-width: 680px;
   height: 560px; /* fixed height to match main image */
-  gap: 5px;
+  gap: 10px;
   position: relative;
   z-index: 1;
 }
@@ -324,7 +324,7 @@
   }
 
   .main-image-wrapper img.main-image {
-    object-fit: contain;
+    object-fit: fill;
   }
 
   .arrow-btn {
@@ -365,8 +365,9 @@
     gap: 12px;
     width: 100%;
     margin: 0;
-    height: auto;
+    height: 430px;
   }
+
 
   .main-image-wrapper {
     order: 1;
