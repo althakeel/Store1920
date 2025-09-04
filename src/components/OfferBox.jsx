@@ -1,29 +1,34 @@
 import React, { useEffect, useState } from 'react';
+import Imageicon1 from '../assets/images/minibanners/1.png'
+import Imageicon2 from '../assets/images/minibanners/2.png'
+import Imageicon3 from '../assets/images/minibanners/3.png'
+import Imageicon4 from '../assets/images/minibanners/4.png'
+import Imageicon5 from '../assets/images/minibanners/5.png'
 
 // Offer data
 const offers = [
   {
-    image: 'https://db.store1920.com/wp-content/uploads/2025/07/42-1-scaled.webp',
+    image: Imageicon4,  // ← remove the curly braces
     text: 'Top picks at lower prices.',
     bg: '#49aec0',
   },
   {
-    image: 'https://db.store1920.com/wp-content/uploads/2025/07/5-5-scaled.webp',
+    image: Imageicon5,
     text: 'Limited-time offer inside.',
     bg: '#ffc300',
   },
   {
-    image: 'https://db.store1920.com/wp-content/uploads/2025/07/3-10-scaled.webp',
+    image: Imageicon3,
     text: 'Save big on last items now.',
     bg: '#49aec0',
   },
   {
-    image: 'https://db.store1920.com/wp-content/uploads/2025/07/2-5-scaled.webp',
+    image: Imageicon2,
     text: 'Grab the best deal today.',
     bg: '#131723',
   },
   {
-    image: 'https://db.store1920.com/wp-content/uploads/2025/07/1-4-scaled.webp',
+    image: Imageicon1,
     text: 'New drops for this season.',
     bg: '#cf0101',
   },

@@ -206,8 +206,8 @@ export default function OrderPerks() {
                 <td>
                   <strong>Price adjustment within 30 days of payment</strong>
                   <p>
-                    Items purchased from Temu are eligible for our price adjustment policy. Temu will provide the price difference in the currency that the order was paid in if the selling price of the item purchased was reduced within 30 days of payment in the same country or region. The shipment of your order will not be affected by applying for a price adjustment before you receive your item(s). You can request a price adjustment refund by selecting the relevant order in 'Your Orders' and clicking on the 'Price adjustment' button.<br /><br />
-                    Items that are promotional or no longer available may not be eligible for our price adjustment policy. Fees, including but not limited to shipping fees, will be excluded for any price adjustment calculation. Temu reserves the right to the final interpretation of our price adjustment policy, the right to modify the terms of this policy at any time, and the right to deny any price adjustment at our sole discretion.
+                    Items purchased from Store1920 are eligible for our price adjustment policy. Store1920 will provide the price difference in the currency that the order was paid in if the selling price of the item purchased was reduced within 30 days of payment in the same country or region. The shipment of your order will not be affected by applying for a price adjustment before you receive your item(s). You can request a price adjustment refund by selecting the relevant order in 'Your Orders' and clicking on the 'Price adjustment' button.<br /><br />
+                    Items that are promotional or no longer available may not be eligible for our price adjustment policy. Fees, including but not limited to shipping fees, will be excluded for any price adjustment calculation. Store1920 reserves the right to the final interpretation of our price adjustment policy, the right to modify the terms of this policy at any time, and the right to deny any price adjustment at our sole discretion.
                   </p>
                 </td>
               </tr>
@@ -219,7 +219,7 @@ export default function OrderPerks() {
       {activeModal === 'cod' && (
         <ModalWrapper onClose={() => setActiveModal(null)} titleId="codPopupTitle" label="COD fees 30% OFF" extraClass="cod-popup">
           <h2 id="codPopupTitle">COD fees 30% OFF</h2>
-          <p>COD fees 30% OFF when shipping from Temu. Limited-time offer!</p>
+          <p>COD fees 30% OFF when shipping from Store1920. Limited-time offer!</p>
           <p>
             Cash on Delivery is a payment option supported by merchandise partners for customers in Saudi Arabia, Kuwait, United Arab Emirates, Qatar, Oman, Bahrain and Jordan, where customers can pay in cash upon delivery of the parcel.
           </p>
