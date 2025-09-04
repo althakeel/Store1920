@@ -2,20 +2,19 @@
 import React, { useEffect, useState, useRef } from "react";
 import Slider from "react-slick";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "../../../assets/styles/CategorySlider.css";
 import placeholderImg from "../../../assets/images/Skelton.png";
-import { FaClock } from "react-icons/fa"; // black clock icon
-import { useLocation } from 'react-router-dom';
+import { FaClock } from "react-icons/fa";
 
 // WooCommerce API credentials
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CK = "ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8";
 const CS = "cs_c65538cff741bd9910071c7584b3d070609fec24";
 
-// Decode WooCommerce HTML entities in names
+// Decode WooCommerce HTML entities
 const decodeHTML = (html) => {
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
@@ -25,14 +24,12 @@ const decodeHTML = (html) => {
 const CategorySlider = () => {
   const [categories, setCategories] = useState(null);
   const sliderRef = useRef(null);
-    const location = useLocation();
-  const isHomePage = location.pathname === '/'; // ✅ Only fetch on Home
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
-  // Load categories from WooCommerce
   useEffect(() => {
-      if (!isHomePage) return; 
+    if (!isHomePage) return;
     let isMounted = true;
-
 
     const loadCategories = async () => {
       try {
@@ -44,17 +41,21 @@ const CategorySlider = () => {
 
         const filtered = res.data.filter((cat) => cat.image);
 
-        // Attach custom deal info
         const categoriesWithDeals = filtered.map((cat) => ({
           ...cat,
           isDeal:
             cat.name.toLowerCase() === "electronics" ||
             cat.name.toLowerCase() === "fashion",
           megaSale: cat.enable_offer === true,
-          dealTime: 172800, // 2 days
+          dealTime: 172800,
         }));
 
-        setCategories(categoriesWithDeals);
+        // Deduplicate categories by ID
+        const uniqueCategories = Array.from(
+          new Map(categoriesWithDeals.map((cat) => [cat.id, cat])).values()
+        );
+
+        setCategories(uniqueCategories);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
         if (isMounted) setCategories([]);
@@ -65,13 +66,13 @@ const CategorySlider = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isHomePage]);
 
   const settings = {
     dots: false,
-    infinite: true,
+    infinite: categories && categories.length > 7, // only infinite if enough slides
     speed: 600,
-    slidesToShow: 7,
+    slidesToShow: categories ? Math.min(7, categories.length) : 1,
     slidesToScroll: 1,
     autoplay: categories && categories.length > 0,
     autoplaySpeed: 3500,
@@ -79,12 +80,12 @@ const CategorySlider = () => {
     arrows: false,
     lazyLoad: "ondemand",
     responsive: [
-      { breakpoint: 1536, settings: { slidesToShow: 7 } },
-      { breakpoint: 1280, settings: { slidesToShow: 6.5 } },
-      { breakpoint: 1024, settings: { slidesToShow: 4 } },
-      { breakpoint: 768, settings: { slidesToShow: 3 } },
-      { breakpoint: 480, settings: { slidesToShow: 2 } },
-      { breakpoint: 375, settings: { slidesToShow: 1.5 } },
+      { breakpoint: 1536, settings: { slidesToShow: Math.min(7, categories?.length || 1) } },
+      { breakpoint: 1280, settings: { slidesToShow: Math.min(6, categories?.length || 1) } },
+      { breakpoint: 1024, settings: { slidesToShow: Math.min(4, categories?.length || 1) } },
+      { breakpoint: 768, settings: { slidesToShow: Math.min(3, categories?.length || 1) } },
+      { breakpoint: 480, settings: { slidesToShow: Math.min(2, categories?.length || 1) } },
+      { breakpoint: 375, settings: { slidesToShow: Math.min(1, categories?.length || 1) } },
     ],
   };
 
@@ -100,10 +101,7 @@ const CategorySlider = () => {
     ));
 
   return (
-    <section
-      className="category-slider-container"
-      style={{ position: "relative" }}
-    >
+    <section className="category-slider-container" style={{ position: "relative" }}>
       <button className="custom-prev-arrow" onClick={goPrev}>
         {"<"}
       </button>
@@ -130,12 +128,7 @@ const CategorySlider = () => {
             };
 
             return (
-              <div
-                key={cat.id}
-                className="category-slide"
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-              >
+              <div key={cat.id} className="category-slide" onMouseDown={handleMouseDown} onMouseMove={handleMouseMove}>
                 <Link
                   to={`/category/${cat.id}`}
                   onClick={handleClick}
@@ -143,14 +136,8 @@ const CategorySlider = () => {
                   style={{ textDecoration: "none", color: "#333" }}
                 >
                   <div style={{ position: "relative", width: "100%" }}>
-                    <img
-                      src={cat.image?.src || placeholderImg}
-                      alt={decodedName}
-                      className="category-image"
-                    />
-                    {cat.megaSale && (
-                      <div className="mega-sale-badge">Mega Sale</div>
-                    )}
+                    <img src={cat.image?.src || placeholderImg} alt={decodedName} className="category-image" />
+                    {cat.megaSale && <div className="mega-sale-badge">Mega Sale</div>}
                     {cat.isDeal && <ProgressBar totalDuration={cat.dealTime} />}
                   </div>
                   <div className="category-title">{decodedName}</div>
@@ -183,9 +170,8 @@ const ProgressBar = ({ totalDuration = 172800 }) => {
       setTimeLeft(diff);
     };
 
-    tick(); 
+    tick();
     const interval = setInterval(tick, 1000);
-
     return () => clearInterval(interval);
   }, [totalDuration]);
 
@@ -207,8 +193,7 @@ const ProgressBar = ({ totalDuration = 172800 }) => {
     <div className="deal-overlay">
       <div className="deal-hurry">🔥 Hurry Up!</div>
       <div className="deal-timer-text">
-        <FaClock color="black" style={{ marginRight: "6px" }} />{" "}
-        {formatTime(timeLeft)}
+        <FaClock color="black" style={{ marginRight: "6px" }} /> {formatTime(timeLeft)}
       </div>
       <div className="deal-progress-bar">
         <div className="deal-progress" style={{ width: `${percent}%` }} />
