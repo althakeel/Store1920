@@ -6,9 +6,6 @@ import CouponDiscount from './sub/account/CouponDiscount';
 import CoinBalance from './sub/account/CoinBalace';
 import HelpText from './HelpText';
 
-// -------------------------------
-// Reusable Alert Component
-// -------------------------------
 function Alert({ message, type = 'info', onClose }) {
   useEffect(() => {
     if (!message) return;
@@ -61,37 +58,33 @@ function Alert({ message, type = 'info', onClose }) {
   );
 }
 
-// -------------------------------
-// CheckoutRight Component
-// -------------------------------
 export default function CheckoutRight({ cartItems, formData, createOrder, clearCart, orderId }) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [coinDiscount, setCoinDiscount] = useState(0);
 
-  // -------------------------------
-  // Calculate totals
-  // -------------------------------
-  const itemsTotal = cartItems.reduce(
-    (acc, item) => acc + parseFloat(item.price) * item.quantity,
-    0
-  );
+  // -----------------------------
+  // Robust price calculation
+  // -----------------------------
+const itemsTotal = cartItems.reduce((acc, item) => {
+  const rawPrice = item.prices?.price ?? item.price ?? 0;
+  const cleanPrice = String(rawPrice).replace(/[^0-9.]/g, '');
+  const priceFloat = parseFloat(cleanPrice) || 0;
+  const quantity = parseInt(item.quantity, 10) || 1;
 
-  // Subtotal after discounts and coins
+  return acc + priceFloat * quantity;
+}, 0);
+
+
   const subtotal = Math.max(0, itemsTotal - discount - coinDiscount);
-
-  // Shipping: AED 10 if subtotal < 100
-  const shippingFee = subtotal > 0 && subtotal < 100 ? 10 : 0;
-
-  // Total including shipping
-  const totalWithShipping = subtotal + shippingFee;
+  const totalWithShipping = subtotal; // shipping removed
 
   const showAlert = (message, type = 'info') => setAlert({ message, type });
 
-  // -------------------------------
-  // Place Order Handler
-  // -------------------------------
+  // -----------------------------
+  // Place order handler
+  // -----------------------------
   const handlePlaceOrder = async () => {
     console.log('--- Place Order Start ---');
     console.log('Form Data:', formData);
@@ -99,8 +92,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     console.log('Items total:', itemsTotal);
     console.log('Discount:', discount, 'Coin Discount:', coinDiscount);
     console.log('Subtotal:', subtotal);
-    console.log('Shipping Fee:', shippingFee);
-    console.log('Total With Shipping:', totalWithShipping);
+    console.log('Total With Shipping (no shipping):', totalWithShipping);
 
     if (!formData.paymentMethod) {
       console.error('No payment method selected.');
@@ -113,15 +105,12 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       console.log('Order created:', id);
 
       if (formData.paymentMethod === 'cod') {
-        console.log('Cash on Delivery selected. Clearing cart...');
         clearCart();
         window.location.href = `/order-success?order_id=${id.id || id}`;
         return;
       }
 
       if (['paymob', 'card'].includes(formData.paymentMethod)) {
-        console.log('Paymob/Card payment selected. Preparing billing/shipping...');
-
         const fullName = formData.shipping.fullName || 'First Last';
         const nameParts = fullName.split(' ');
 
@@ -139,60 +128,44 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
           postal_code: '00000',
         };
 
-        console.log('Normalized Billing/Shipping:', normalized);
-
         try {
           const res = await fetch(
             'https://db.store1920.com/wp-json/custom/v1/paymob-intent',
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                amount: totalWithShipping, // <-- use total including shipping
-                order_id: id.id || id,
-                billing: normalized,
-                shipping: normalized,
-                billingSameAsShipping: true,
-              }),
+             body: JSON.stringify({
+  amount: Number(totalWithShipping), // ensure it's a number
+  order_id: id.id || id,
+  billing: normalized,
+  shipping: normalized,
+  billingSameAsShipping: true,
+}),
             }
           );
 
           const data = await res.json();
-          console.log('Paymob API response status:', res.status);
-          console.log('Paymob API response body:', data);
 
-          if (!res.ok) {
-            console.error('Paymob API returned an error:', data);
-            throw new Error(data.message || 'Failed to initiate Paymob payment.');
-          }
+          if (!res.ok) throw new Error(data.message || 'Failed to initiate Paymob payment.');
+          if (!data.checkout_url) throw new Error('Paymob checkout URL not returned.');
 
-          if (!data.checkout_url) {
-            console.error('Checkout URL missing in Paymob response:', data);
-            throw new Error('Paymob checkout URL not returned.');
-          }
-
-          console.log('Redirecting to Paymob checkout:', data.checkout_url);
           window.location.href = data.checkout_url;
         } catch (err) {
-          console.error('Paymob API call failed:', err);
           showAlert(err.message || 'Failed to initiate Paymob payment.', 'error');
         }
       } else {
-        console.error('Unsupported payment method:', formData.paymentMethod);
         showAlert('Selected payment method not supported yet.', 'error');
       }
     } catch (err) {
-      console.error('Place order error:', err);
       showAlert(err.message || 'Failed to place order.', 'error');
     } finally {
       setIsPlacingOrder(false);
-      console.log('--- Place Order End ---');
     }
   };
 
-  // -------------------------------
-  // Coupon Handlers
-  // -------------------------------
+  // -----------------------------
+  // Coupon handling
+  // -----------------------------
   const handleCoupon = (couponData) => {
     if (!couponData) {
       setDiscount(0);
@@ -211,9 +184,9 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     showAlert(`Coupon applied! You saved AED ${discountAmount.toFixed(2)}`, 'success');
   };
 
-  // -------------------------------
-  // Coin Handlers
-  // -------------------------------
+  // -----------------------------
+  // Coin handling
+  // -----------------------------
   const handleCoinRedemption = ({ coinsUsed, discountAED }) => {
     setCoinDiscount(discountAED);
     showAlert(`You redeemed ${coinsUsed} coins for AED ${discountAED}`, 'success');
@@ -224,9 +197,9 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     showAlert('Coin discount removed.', 'info');
   };
 
-  // -------------------------------
-  // Button Styling
-  // -------------------------------
+  // -----------------------------
+  // Button style & label
+  // -----------------------------
   const getButtonStyle = () => {
     const base = {
       color: '#fff',
@@ -262,9 +235,9 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     return isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with ${label}`;
   };
 
-  // -------------------------------
+  // -----------------------------
   // JSX Rendering
-  // -------------------------------
+  // -----------------------------
   return (
     <aside className="checkoutRightContainer">
       <Alert
@@ -280,13 +253,6 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
         <span>Item(s) total:</span>
         <span>AED {itemsTotal.toFixed(2)}</span>
       </div>
-
-      {shippingFee > 0 && (
-        <div className="summaryRowCR" style={{ color: '#fe6c03', fontWeight: 600 }}>
-          <span>Shipping Fee:</span>
-          <span>AED {shippingFee.toFixed(2)}</span>
-        </div>
-      )}
 
       <div className="summaryRow discount" style={{ color: '#fe6c03', fontWeight: 600 }}>
         <span>Item(s) discount:</span>

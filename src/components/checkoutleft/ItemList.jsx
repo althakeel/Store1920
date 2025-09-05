@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/styles/checkoutleft/itemlist.css';
+import { useCart } from '../../contexts/CartContext';
 
 const slugify = (text) =>
   text
@@ -13,6 +14,7 @@ const slugify = (text) =>
 
 const ItemList = ({ items, onRemove }) => {
   const navigate = useNavigate();
+const { removeFromCart } = useCart(); // optional fallback to context
 
   if (!items || items.length === 0) {
     return <p>Your cart is empty.</p>;
@@ -22,6 +24,14 @@ const ItemList = ({ items, onRemove }) => {
     if (product.name) {
       const slug = slugify(product.name);
       navigate(`/product/${slug}`);
+    }
+  };
+
+  const handleRemove = (itemId) => {
+    if (onRemove) {
+      onRemove(itemId);
+    } else {
+      removeFromCart?.(itemId);
     }
   };
 
@@ -38,17 +48,14 @@ const ItemList = ({ items, onRemove }) => {
 
           const rawPrice = item.prices?.price ?? item.price ?? '';
           const priceFloat = parseFloat(rawPrice);
-          // Format price if valid number, else empty string
           const price = !isNaN(priceFloat) ? priceFloat.toFixed(3) : '';
 
-          // Check if stock info exists
           const hasStockInfo =
             item.hasOwnProperty('stock_quantity') ||
             item.hasOwnProperty('in_stock') ||
             item.hasOwnProperty('is_in_stock') ||
             item.hasOwnProperty('stock_status');
 
-          // Determine stock status by quantity or flags (only if stock info present)
           const stockOutByQuantity =
             typeof item.stock_quantity === 'number' && item.stock_quantity <= 0;
 
@@ -57,13 +64,8 @@ const ItemList = ({ items, onRemove }) => {
             (typeof item.is_in_stock === 'boolean' && !item.is_in_stock) ||
             (typeof item.stock_status === 'string' && item.stock_status.toLowerCase() !== 'instock');
 
-          // Out of stock conditions:
-          // - Price missing or zero (including 0.00, 0.000)
-          // OR
-          // - Stock info present and indicates out of stock
           const isOutOfStock =
-            (!price || priceFloat === 0) || // price missing or zero
-            (hasStockInfo && (stockOutByQuantity || stockOutByFlag));
+            (!price || priceFloat === 0) || (hasStockInfo && (stockOutByQuantity || stockOutByFlag));
 
           const key = item.id || item.product_id || index;
 
@@ -103,20 +105,17 @@ const ItemList = ({ items, onRemove }) => {
                 AED {price || 'N/A'} × {item.quantity ?? 1}
               </div>
 
-            {onRemove && (
- <button
-  className="cart-item-remove-btn"
-  onClick={(e) => {
-    e.stopPropagation();
-    const itemId = item.id ?? item.product_id ?? item.sku ?? index;
-    onRemove(itemId);
-  }}
-  aria-label={`Remove ${item.name || 'item'} from cart`}
->
-  ×
-</button>
-
-)}
+              <button
+                className="cart-item-remove-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const itemId = item.id ?? item.product_id ?? item.sku ?? index;
+                  handleRemove(itemId);
+                }}
+                aria-label={`Remove ${item.name || 'item'} from cart`}
+              >
+                ×
+              </button>
             </div>
           );
         })}

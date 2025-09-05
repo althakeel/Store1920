@@ -5,6 +5,26 @@ import { FaApple, FaGooglePlay } from "react-icons/fa";
 import { IoIosArrowUp } from "react-icons/io";
 import { useCart } from "../contexts/CartContext";
 import { Link } from "react-router-dom";
+import Image1 from '../assets/images/Footer icons/1.webp'
+import Image2 from '../assets/images/Footer icons/4.webp'
+import Image3 from '../assets/images/Footer icons/7.webp'
+import Image4 from '../assets/images/Footer icons/8.webp'
+import Image5 from '../assets/images/Footer icons/9.webp'
+import Image6 from '../assets/images/Footer icons/10.webp'
+import Image7 from '../assets/images/Footer icons/21.webp'
+import Image8 from '../assets/images/Footer icons/2.webp'
+import Image9 from '../assets/images/Footer icons/3.webp'
+import Image10 from '../assets/images/Footer icons/6.webp'
+import Image11 from '../assets/images/Footer icons/11.webp'
+import Image12 from '../assets/images/Footer icons/12.webp'
+import Image13 from '../assets/images/Footer icons/13.webp'
+import Image14 from '../assets/images/Footer icons/16.webp'
+import Image15 from '../assets/images/Footer icons/17.webp'
+import Image16 from '../assets/images/Footer icons/18.webp'
+import Image17 from '../assets/images/Footer icons/19.webp'
+import Image18 from '../assets/images/Footer icons/20.webp'
+import Image19 from '../assets/images/Footer icons/21.webp'
+
 
 const Footer = () => {
    const { isCartOpen } = useCart();
@@ -120,30 +140,30 @@ const Footer = () => {
           <div className="security">
             <h5>Security Certifications</h5>
             <div className="certs">
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/219cc18d-0462-47ae-bf84-128d38206065.png.slim_.webp" alt="SSL" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/96e8ab9b-d0dc-40ac-ad88-5513379c5ab3.png.slim_.webp" alt="ID Check" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/80d57653-6e89-4bd5-82c4-ac1e8e2489fd.png.slim_.webp" alt="SafeKey" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/65e96f45-9ff5-435a-afbf-0785934809ef.png.slim-1.webp" alt="PCI" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/058c1e09-2f89-4769-9fd9-a3cac76e13e5-1.webp" alt="APWG" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/28a227c9-37e6-4a82-b23b-0ad7814feed1.png.slim_.webp" alt="PCI" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/1f29a857-fe21-444e-8617-f57f5aa064f4.png.slim_.webp" alt="APWG" />
+              <img src={Image1} alt="SSL" />
+              <img src={Image2} alt="ID Check" />
+              <img src={Image3} alt="SafeKey" />
+              <img src={Image4} alt="PCI" />
+              <img src={Image5} alt="APWG" />
+              <img src={Image6} alt="PCI" />
+              <img src={Image7} alt="APWG" />
             </div>
           </div>
 
           <div className="payments">
             <h5>We Accept</h5>
             <div className="methods">
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/058c1e09-2f89-4769-9fd9-a3cac76e13e5-1.webp" alt="Visa" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/6fad9cde-cc9c-4364-8583-74bb32612cea.webp" alt="MasterCard" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/3a626fff-bbf7-4a26-899a-92c42eef809a.png.slim_.webp" alt="AmEx" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/ec0c5d69-1717-4571-a193-9950ec73c8af.png.slim_.webp" alt="PayPal" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/da7f463a-916f-4d91-bcbb-047317a1c35e.png.slim_.webp" alt="Cash" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/c3e5eb19-1b60-4c2b-87e1-4528fb390cbf.png.slim_.webp" alt="Apple Pay" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/bcb8bf23-78c9-45ab-b480-f7020d1a5f66.png.slim_.webp" alt="Apple Pay" />   
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/b79a2dc3-b089-4cf8-a907-015a25ca12f2.png.slim_.webp" alt="Apple Pay" />   
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/ae5e15c1-ffe8-42c4-9ddb-bb9ed1fdcf6a.png.slim_.webp" alt="Apple Pay" />   
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/936bf9dc-9bb2-4935-9c5a-a70b800d4cf1.png.slim_.webp" alt="Apple Pay" />   
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/ac293ffc-9957-4588-a4df-f3397b4a54e0.png.slim_.webp" alt="Apple Pay" />   
+              <img src={Image8} alt="Visa" />
+              <img src={Image9} alt="MasterCard" />
+              <img src={Image10} alt="AmEx" />
+              <img src={Image11} alt="PayPal" />
+              <img src={Image12} alt="Cash" />
+              <img src={Image13} alt="Apple Pay" />
+              <img src={Image14} alt="Apple Pay" />   
+              <img src={Image15} alt="Apple Pay" />   
+              <img src={Image16} alt="Apple Pay" />   
+              <img src={Image17} alt="Apple Pay" />   
+              <img src={Image18} alt="Apple Pay" />    
 
 
 

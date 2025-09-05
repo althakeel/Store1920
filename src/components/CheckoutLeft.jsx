@@ -42,13 +42,9 @@ export default function CheckoutLeft({
   // -------------------------------
   // Initialize cart items once on mount
   // -------------------------------
-  useEffect(() => {
-    if (!formData.cartItems || formData.cartItems.length === 0) {
-      setFormData(prev => ({ ...prev, cartItems: cartItems || [] }));
-    }
-    // run only once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+ useEffect(() => {
+  setFormData(prev => ({ ...prev, cartItems: cartItems || [] }));
+}, [cartItems]);
 
   // -------------------------------
   // Handle form field changes

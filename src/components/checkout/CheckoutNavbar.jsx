@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../assets/styles/checkout/CheckoutNavbar.css';
+import LogoMain from '../../assets/images/Logo/3.webp'
+
 
 const messages = [
   '✅ 30-day no delivery refund',
@@ -27,17 +29,17 @@ const CheckoutNavbar = () => {
       <div className="checkout-navbar-inner">
         <div className="checkout-logo" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
           <img
-            src="https://db.store1920.com/wp-content/uploads/2025/07/cropped-1.webp"
-            alt="TEMU"
+            src={LogoMain}
+            alt="Store1920"
             style={{ height: 40, borderRadius: 10 }}
           />
         </div>
         <div className="checkout-message fade-in-out">
-          <img
+          {/* <img
             src="https://db.store1920.com/wp-content/uploads/2025/07/notification.png"
             alt="Notification"
             style={{ width: 18, marginRight: 6 }}
-          />
+          /> */}
           <span>{messages[currentIndex]}</span>
         </div>
       </div>

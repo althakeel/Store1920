@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../assets/styles/MegaMenu.css";
-const API_V3 = "https://db.store1920.com/wp-json/wc/v1";
+const API_V3 = "https://db.store1920.com/wp-json/wc/v3";
 const CK = "ck_2e4ba96dde422ed59388a09a139cfee591d98263";
 const CS = "cs_43b449072b8d7d63345af1b027f2c8026fd15428";
 const MegaMenu = ({ onClose }) => {

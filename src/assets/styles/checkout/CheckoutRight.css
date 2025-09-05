@@ -17,6 +17,9 @@
   margin-bottom: 16px;
   color: #111827;
 }
+.mobile-only{
+  display: none;
+}
 
 .summaryRowCR {
   display: flex;
@@ -170,6 +173,10 @@
     padding: 14px;
     border-radius: 6px;
   }
+  .mobile-only{
+  display: block;
+}
+
 
   .checkoutRightContainer h2 {
     font-size: 1.05rem;
