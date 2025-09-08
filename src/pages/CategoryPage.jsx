@@ -169,10 +169,15 @@ const ProductCategory = () => {
 
   return (
     <div className="pc-wrapper" style={{ minHeight: "40vh" }}>
-      <h2 className="pc-category-title">
-        {category ? decodeHTML(category.name) : "Category Not Found"}
-      </h2>
-
+<h2 className="pc-category-title">
+  {initialLoading ? (
+  <div className="pc-title-skeleton shimmer" />
+) : category ? (
+  decodeHTML(category.name)
+) : (
+  "Category Not Found"
+)}
+</h2>
       <div className="pc-products-container">
         {initialLoading ? (
           <div className="pc-grid">
