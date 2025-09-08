@@ -52,7 +52,7 @@ import MeasurementTools from '../../assets/images/megamenu/Sub catogory Webp/Mea
 import WeldingIndustrial from '../../assets/images/megamenu/Sub catogory Webp/Welding & Industrial Equipment copy.webp';
 import GardeningTools from '../../assets/images/megamenu/Sub catogory Webp/Gardening Tools & Supplies copy.webp';
 
-// ------------------ Men’s Clothing ------------------
+// ------------------ Men's Clothing ------------------
 import MensTShirtsShirts from '../../assets/images/megamenu/Sub catogory Webp/T-Shirts & Shirts copy.webp';
 import MensPantsJeans from '../../assets/images/megamenu/Sub catogory Webp/Pants & Jeans copy.webp';
 import MensJacketsOuterwear from '../../assets/images/megamenu/Sub catogory Webp/Jackets & Outerwear copy.webp';
@@ -63,7 +63,7 @@ import MensShorts from '../../assets/images/megamenu/Sub catogory Webp/Shorts-1 
 import MensClothingSets from '../../assets/images/megamenu/Sub catogory Webp/Clothing Sets copy.webp';
 import MensNewArrivals from '../../assets/images/megamenu/Sub catogory Webp/New Arrivals copy.webp';
 
-// ------------------ Women’s Clothing ------------------
+// ------------------ Women's Clothing ------------------
 import WomensDressesGowns from '../../assets/images/megamenu/Sub catogory Webp/Dresses & Gowns copy.webp';
 import WomensTopsBlouses from '../../assets/images/megamenu/Sub catogory Webp/Tops & Blouses copy.webp';
 import WomensBottoms from '../../assets/images/megamenu/Sub catogory Webp/Bottoms (Skirts, Pants) copy.webp';
@@ -196,18 +196,18 @@ const categories = [
     id: 1,
     name: "Electronics & Smart Devices",
     subCategories: [
-      { id: 6522, name: "Mobile Phones", image: MobilePhones, path: "/category/6535", metaTitle: "Buy Electronics & Smart Devices Online | Store1920", metaDescription: "Shop the latest smartphones, laptops, cameras, and smart home devices at Store1920. Great prices, fast delivery, and trusted quality." },
-      { id: 102, name: "Phone Accessories", image: PhoneAccessories, path: "/category/6536" },
-      { id: 103, name: "Phone Parts & Repair", image: PhonePartsRepair, path: "/category/6537" },
-      { id: 104, name: "Smart Electronics & Smart Home", image: SmartHome, path: "/category/6538" },
-      { id: 105, name: "Home Audio & Video", image: HomeAudioVideo, path: "/category/6539" },
-      { id: 106, name: "Portable Audio & Video", image: PortableAudioVideo, path: "/category/6540" },
-      { id: 107, name: "Cameras & Photography", image: CamerasPhotography, path: "/category/6541" },
-      { id: 108, name: "Games & Gaming Accessories", image: GamesGaming, path: "/category/6542" },
-      { id: 109, name: "Computer Components & Desktops", image: ComputerComponents, path: "/category/6543" },
-      { id: 110, name: "Laptops & Tablets", image: LaptopsTablets, path: "/category/6544" },
-      { id: 111, name: "Networking & Communication", image: Networking, path: "/category/6545" },
-      { id: 112, name: "Wearable Tech", image: WearableTech, path: "/category/6546" }
+      { id: 6535, name: "Mobile Phones", image: MobilePhones, path: "/category/6535", metaTitle: "Buy Electronics & Smart Devices Online | Store1920", metaDescription: "Shop the latest smartphones, laptops, cameras, and smart home devices at Store1920. Great prices, fast delivery, and trusted quality." },
+      { id: 6536, name: "Phone Accessories", image: PhoneAccessories, path: "/category/6536" },
+      { id: 6536, name: "Phone Parts & Repair", image: PhonePartsRepair, path: "/category/6536" },
+      { id: 6538, name: "Smart Electronics & Smart Home", image: SmartHome, path: "/category/6538" },
+      { id: 6539, name: "Home Audio & Video", image: HomeAudioVideo, path: "/category/6539" },
+      { id: 6540, name: "Portable Audio & Video", image: PortableAudioVideo, path: "/category/6540" },
+      { id: 6541, name: "Cameras & Photography", image: CamerasPhotography, path: "/category/6541" },
+      { id: 6542, name: "Games & Gaming Accessories", image: GamesGaming, path: "/category/6542" },
+      { id: 6543, name: "Computer Components & Desktops", image: ComputerComponents, path: "/category/6543" },
+      { id: 6543, name: "Laptops & Tablets", image: LaptopsTablets, path: "/category/6543" },
+      { id: 6545, name: "Networking & Communication", image: Networking, path: "/category/6545" },
+      { id: 6546, name: "Wearable Tech", image: WearableTech, path: "/category/6546" }
     ]
   },
   
@@ -266,9 +266,9 @@ const categories = [
 
     {
       id: 5,
-      name: "Men’s Clothing",
+      name: "Men's Clothing",
       subCategories: [
-        { id: 501, name: "T-Shirts & Shirts", image: MensTShirtsShirts, path: "/category/6574", metaTitle: "Men’s Clothing Online – Shirts, Jackets & Suits | Store1920", metaDescription: "Upgrade your wardrobe with men’s fashion at Store1920. Shop shirts, jeans, jackets, suits, and more at great prices." },
+        { id: 501, name: "T-Shirts & Shirts", image: MensTShirtsShirts, path: "/category/6574", metaTitle: "Men's Clothing Online – Shirts, Jackets & Suits | Store1920", metaDescription: "Upgrade your wardrobe with men's fashion at Store1920. Shop shirts, jeans, jackets, suits, and more at great prices." },
         { id: 502, name: "Pants & Jeans", image: MensPantsJeans, path: "/category/6575" },
         { id: 503, name: "Jackets & Outerwear", image: MensJacketsOuterwear, path: "/category/6576	" },
         { id: 504, name: "Sweaters & Hoodies", image: MensSweatersHoodies, path: "/category/6577" },
@@ -281,12 +281,12 @@ const categories = [
     },
     
   
-    // Women’s Clothing
+    // Women's Clothing
     {
       id: 6,
-      name: "Women’s Clothing",
+      name: "Women's Clothing",
       subCategories: [
-        { id: 601, name: "Dresses & Gowns", image: WomensDressesGowns, path: "/category/6584", metaTitle: "Women’s Clothing Online – Dresses, Tops & Outerwear | Store1920", metaDescription: "Discover stylish women’s fashion at Store1920. Shop dresses, blouses, skirts, and outerwear with trendy new arrivals." },
+        { id: 601, name: "Dresses & Gowns", image: WomensDressesGowns, path: "/category/6584", metaTitle: "Women's Clothing Online – Dresses, Tops & Outerwear | Store1920", metaDescription: "Discover stylish women's fashion at Store1920. Shop dresses, blouses, skirts, and outerwear with trendy new arrivals." },
         { id: 602, name: "Tops & Blouses", image: WomensTopsBlouses, path: "/category/6585" },
         { id: 603, name: "Bottoms (Skirts, Pants)", image: WomensBottoms, path: "/category/6586" },
         { id: 604, name: "Outerwear & Jackets", image: WomensOuterwearJackets, path: "/category/6587	" },
@@ -307,7 +307,7 @@ const categories = [
         { id: 702, name: "Shapewear", image: Shapewear, path: "/category/6595" },
         { id: 703, name: "Sleep & Lounge", image: SleepLounge, path: "/category/6596" },
         { id: 704, name: "Socks & Hosiery", image: SocksHosiery, path: "/category/6597" },
-        { id: 705, name: "Men’s Underwear", image: MensUnderwear, path: "/category/6598" },
+        { id: 705, name: "Men's Underwear", image: MensUnderwear, path: "/category/6598" },
         { id: 706, name: "New Arrivals", image: LingerieNewArrivals, path: "/category/6599" }
       ]
     },
@@ -325,8 +325,8 @@ const categories = [
         { id: 807, name: "Necklaces", image: Necklaces, path: "/category/6606" },
         { id: 808, name: "Earrings", image: Earrings, path: "/category/6607" },
         { id: 809, name: "Bracelets & Bangles", image: BraceletsBangles, path: "/category/6608" },
-        { id: 810, name: "Men’s Watches", image: MensWatches, path: "/category/6609" },
-        { id: 811, name: "Women’s Watches", image: WomensWatches, path: "/category/6610" },
+        { id: 810, name: "Men's Watches", image: MensWatches, path: "/category/6609" },
+        { id: 811, name: "Women's Watches", image: WomensWatches, path: "/category/6610" },
         { id: 812, name: "Body Jewelry", image: BodyJewelry, path: "/category/6611" }
       ]
     },
@@ -351,13 +351,13 @@ const categories = [
       id: 10,
       name: "Shoes & Footwear",
       subCategories: [
-        { id: 1001, name: "Women’s Boots", image: WomensBoots, path: "/category/6619", metaTitle: "Shoes & Footwear – Men’s & Women’s Styles | Store1920", metaDescription: "Find sneakers, heels, boots, and sandals for men and women at Store1920. Shop trendy footwear with comfort and style." },
-        { id: 1002, name: "Women’s Sandals & Slippers", image: WomensSandalsSlippers, path: "/category/6620" },
+        { id: 1001, name: "Women's Boots", image: WomensBoots, path: "/category/6619", metaTitle: "Shoes & Footwear – Men's & Women's Styles | Store1920", metaDescription: "Find sneakers, heels, boots, and sandals for men and women at Store1920. Shop trendy footwear with comfort and style." },
+        { id: 1002, name: "Women's Sandals & Slippers", image: WomensSandalsSlippers, path: "/category/6620" },
         { id: 1003, name: "Pumps & Heels", image: PumpsHeels, path: "/category/6621" },
-        { id: 1004, name: "Women’s Casual Shoes", image: WomensCasualShoes, path: "/category/6623" },
-        { id: 1005, name: "Men’s Casual Shoes", image: MensCasualShoes, path: "/category/6624" },
-        { id: 1006, name: "Men’s Sandals & Slippers", image: MensSandalsSlippers, path: "/category/6625" },
-        { id: 1007, name: "Men’s Boots", image: MensBoots, path: "/category/6626" },
+        { id: 1004, name: "Women's Casual Shoes", image: WomensCasualShoes, path: "/category/6623" },
+        { id: 1005, name: "Men's Casual Shoes", image: MensCasualShoes, path: "/category/6624" },
+        { id: 1006, name: "Men's Sandals & Slippers", image: MensSandalsSlippers, path: "/category/6625" },
+        { id: 1007, name: "Men's Boots", image: MensBoots, path: "/category/6626" },
         { id: 1008, name: "Business Shoes", image: BusinessShoes, path: "/category/6627" },
         { id: 1009, name: "Shoe Accessories", image: ShoeAccessories, path: "/category/6628" }
       ]
@@ -367,14 +367,14 @@ const categories = [
       id: 11,
       name: "Baby, Kids & Maternity",
       subCategories: [
-        { id: 1101, name: "Baby Clothing", image: BabyClothing, path: "/category/6629	", metaTitle: "Baby, Kids & Maternity Products Online | Store1920", metaDescription: "Shop baby clothing, kids’ shoes, maternity wear, and nursery essentials at Store1920. Quality products for every stage." },
-        { id: 1102, name: "Kids’ Clothing", image: KidsClothing, path: "/category/6630" },
+        { id: 1101, name: "Baby Clothing", image: BabyClothing, path: "/category/6629	", metaTitle: "Baby, Kids & Maternity Products Online | Store1920", metaDescription: "Shop baby clothing, kids' shoes, maternity wear, and nursery essentials at Store1920. Quality products for every stage." },
+        { id: 1102, name: "Kids' Clothing", image: KidsClothing, path: "/category/6630" },
         { id: 1103, name: "Feeding & Nursing", image: FeedingNursing, path: "/category/6631" },
-        { id: 1104, name: "Baby Shoes & Kids’ Shoes", image: BabyKidsShoes, path: "/category/6632	" },
+        { id: 1104, name: "Baby Shoes & Kids' Shoes", image: BabyKidsShoes, path: "/category/6632	" },
         { id: 1105, name: "Nursery & Baby Furniture", image: NurseryFurniture, path: "/category/" },
         { id: 1106, name: "Baby Care & Hygiene", image: BabyCareHygiene, path: "/category/6634" },
         { id: 1107, name: "Activity Gear & Baby Carriers", image: ActivityGear, path: "/category/6635" },
-        { id: 1108, name: "Kids’ Accessories", image: KidsAccessories, path: "/category/6636" },
+        { id: 1108, name: "Kids' Accessories", image: KidsAccessories, path: "/category/6636" },
         { id: 1109, name: "Bed Linens", image: BedLinens, path: "/category/6637" }
       ]
     },
@@ -391,7 +391,7 @@ const categories = [
         { id: 1206, name: "Sports & Outdoor Toys", image: SportsOutdoorToys, path: "/category/6643" },
         { id: 1207, name: "Pools & Water Activities", image: PoolsWater, path: "/category/6644" },
         { id: 1208, name: "Electronic Toys", image: ElectronicToys, path: "/category/6645" },
-        { id: 1209, name: "Kids’ Gifts", image: KidsGifts, path: "/category/6646	" }
+        { id: 1209, name: "Kids' Gifts", image: KidsGifts, path: "/category/6646	" }
       ]
     },
     

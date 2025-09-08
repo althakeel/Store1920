@@ -4,6 +4,8 @@ import "../../assets/styles/SignInModal.css";
 import { auth, googleProvider, facebookProvider } from "../../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 import { useAuth } from "../../contexts/AuthContext";
+import GoogleSignIcon from '../../assets/images/search.png'
+import FacebookIcon from '../../assets/images/facebook.png'
 
 // ===================== Alert Component =====================
 const Alert = ({ children, onClose }) => (
@@ -268,8 +270,9 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   </>
 )}
 
-         {isRegister && (
+{isRegister && (
   <>
+    {/* Password field */}
     <input
       type={showPassword ? "text" : "password"}
       name="password"
@@ -279,8 +282,10 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
       className="signin-modal-input"
       required
     />
+
+    {/* Confirm Password field */}
     <input
-      type={showConfirmPassword ? "text" : "password"}
+      type={showPassword ? "text" : "password"}  // <-- use showPassword, not showConfirmPassword
       name="confirmPassword"
       placeholder="Confirm Password"
       value={formData.confirmPassword}
@@ -289,6 +294,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
       required
     />
 
+    {/* Single checkbox toggling both */}
     <div className="signin-show-password">
       <label>
         <input
@@ -298,19 +304,9 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
         />
         Show password
       </label>
-      <br />
-      <label>
-        <input
-          type="checkbox"
-          checked={showConfirmPassword}
-          onChange={() => setShowConfirmPassword(!showConfirmPassword)}
-        />
-        Show confirm password
-      </label>
     </div>
   </>
 )}
-
           <button type="submit" className="signin-submit-btn" disabled={loading}>
             {loading ? "Please wait..." : isRegister ? "Register" : "Continue"}
           </button>
@@ -328,16 +324,17 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
         <div className="signin-social-icons">
           <button onClick={() => handleSocialLogin("google")} disabled={socialLoading}>
-            <img src="https://db.store1920.com/wp-content/uploads/2025/07/google.png" alt="Google" />
+            <img src={GoogleSignIcon} alt="Google" />
           </button>
           <button onClick={() => handleSocialLogin("facebook")} disabled={socialLoading}>
-            <img src="https://db.store1920.com/wp-content/uploads/2025/07/facebook.png" alt="Facebook" />
+            <img src={FacebookIcon} alt="Facebook" />
           </button>
           <button disabled>
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
               alt="Apple"
-              width="40px"
+              width="30px"
+              height="50px"
             />
           </button>
         </div>

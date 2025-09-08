@@ -10,7 +10,9 @@ const LightningBanner = () => {
   };
 
   return (
-    <div className="lightning-banner" onClick={handleClick}>
+    <div className="lightning-banner"
+    //  onClick={handleClick}
+     >
       <div className="lightning-banner__content">
         <span className="icon">⚡</span>
         <strong className="title">Lightning deals</strong>

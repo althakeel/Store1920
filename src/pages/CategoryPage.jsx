@@ -48,17 +48,25 @@ const ProductCategory = () => {
 
         let matchedCategory;
 
-        if (id) {
-          matchedCategory = allCats.find((c) => c.id === parseInt(id));
-        } else {
-          matchedCategory = allCats.find(
-            (c) =>
-              c.slug === slug &&
-              (parentSlug
-                ? allCats.find((pc) => pc.id === c.parent)?.slug === parentSlug
-                : true)
-          );
-        }
+if (id) {
+  // Direct fetch by ID instead of filtering all categories
+  try {
+    const catRes = await fetch(
+      `${API_BASE}/products/categories/${id}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+    );
+    matchedCategory = await catRes.json();
+  } catch (err) {
+    console.error("Error fetching category by ID:", err);
+  }
+} else {
+  matchedCategory = allCats.find(
+    (c) =>
+      c.slug === slug &&
+      (parentSlug
+        ? allCats.find((pc) => pc.id === c.parent)?.slug === parentSlug
+        : true)
+  );
+}
 
         if (!matchedCategory) {
           setCategory(null);

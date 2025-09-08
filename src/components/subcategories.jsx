@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import '..//assets/styles/subCategorySlider.css';
+import '../assets/styles/subCategorySlider.css';
 import { useCart } from '../contexts/CartContext';
 import MiniCart from '../components/MiniCart';
 import { useNavigate } from 'react-router-dom';
@@ -40,10 +40,12 @@ const ReviewPills = ({ productId }) => {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
+    let isMounted = true;
     fetch(`https://db.store1920.com/wp-json/custom-reviews/v1/product/${productId}`)
       .then((res) => res.json())
-      .then((data) => setReviews(data.reviews || []))
+      .then((data) => isMounted && setReviews(data.reviews || []))
       .catch((err) => console.error('Review fetch error', err));
+    return () => { isMounted = false; };
   }, [productId]);
 
   if (reviews.length === 0) return null;
@@ -64,6 +66,9 @@ const ReviewPills = ({ productId }) => {
 
 const ProductCategory = () => {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const categoriesRef = useRef(null);
+
   const [categories, setCategories] = useState([]);
   const [categoriesPage, setCategoriesPage] = useState(1);
   const [hasMoreCategories, setHasMoreCategories] = useState(true);
@@ -76,12 +81,11 @@ const ProductCategory = () => {
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [currencySymbol, setCurrencySymbol] = useState('$');
-  const categoriesRef = useRef(null);
+  const [badgeColorIndex, setBadgeColorIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  const { addToCart } = useCart();
-  const [badgeColorIndex, setBadgeColorIndex] = useState(0);
 
+  // Badge color rotation
   useEffect(() => {
     const interval = setInterval(() => {
       setBadgeColorIndex((idx) => (idx + 1) % badgeColors.length);
@@ -89,12 +93,11 @@ const ProductCategory = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch currency symbol
   useEffect(() => {
     async function fetchCurrencySymbol() {
       try {
-        const res = await fetch(
-          `${API_BASE}/settings/general?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
-        );
+        const res = await fetch(`${API_BASE}/settings/general?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
         const data = await res.json();
         const currencyCode = data.find((item) => item.id === 'woocommerce_currency')?.value || 'USD';
         const map = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', INR: '₹' };
@@ -106,19 +109,30 @@ const ProductCategory = () => {
     fetchCurrencySymbol();
   }, []);
 
+  // Fetch categories
+// Fetch categories under "lighting"
 const fetchCategories = useCallback(async (page = 1) => {
   setLoadingCategories(true);
   try {
+    // First fetch all top-level categories
     const res = await fetch(
-      `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PAGE_SIZE}&page=${page}&hide_empty=false&orderby=name&parent=0`
+      `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100&page=${page}&hide_empty=false`
     );
     const data = await res.json();
+    if (!Array.isArray(data)) return;
 
-    if (data.length < PAGE_SIZE) setHasMoreCategories(false);
+    // Find the "lighting" category ID
+    const lightingCat = data.find(cat => cat.slug === 'lighting'); // replace with exact slug
+    if (!lightingCat) return;
+
+    // Filter categories whose parent is lighting
+    const lightingChildren = data.filter(cat => cat.parent === lightingCat.id);
+
+    if (lightingChildren.length < PAGE_SIZE) setHasMoreCategories(false);
 
     setCategories((prev) => {
       const existingIds = new Set(prev.map((cat) => cat.id));
-      const newUnique = data.filter((cat) => !existingIds.has(cat.id));
+      const newUnique = lightingChildren.filter((cat) => !existingIds.has(cat.id));
       return [...prev, ...newUnique];
     });
   } catch (e) {
@@ -129,47 +143,35 @@ const fetchCategories = useCallback(async (page = 1) => {
 }, []);
 
 
+  // Fetch products
+  const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategoryId) => {
+    setLoadingProducts(true);
+    try {
+      const tagFilter = 'lightingdeals';
+      const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc&tag=${tagFilter}` + (categoryId !== 'all' ? `&category=${categoryId}` : '');
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!Array.isArray(data)) return; // safety
 
-const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategoryId) => {
-  setLoadingProducts(true);
-  try {
-    // Append tag=lightingdeals to filter products by tag
-    const tagFilter = 'lightingdeals';
-    
-    const url =
-      `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}` +
-      `&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc&tag=${tagFilter}` +
-      (categoryId !== 'all' ? `&category=${categoryId}` : '');
+      if (page === 1) {
+        setProducts(data);
+      } else {
+        setProducts((prev) => [...prev, ...data]);
+      }
 
-    const res = await fetch(url);
-    let data = await res.json();
-
-    if (page === 1) {
-      setProducts(data);
-    } else {
-      setProducts((prev) => [...prev, ...data]);
+      setHasMoreProducts(data.length >= PRODUCTS_PER_PAGE);
+    } catch (e) {
+      console.error(e);
+      if (page === 1) setProducts([]);
+      setHasMoreProducts(false);
+    } finally {
+      setLoadingProducts(false);
     }
+  }, [selectedCategoryId]);
 
-    setHasMoreProducts(data.length >= PRODUCTS_PER_PAGE);
-  } catch (e) {
-    console.error(e);
-    if (page === 1) setProducts([]);
-    setHasMoreProducts(false);
-  } finally {
-    setLoadingProducts(false);
-  }
-}, [selectedCategoryId]);
-
-
-  useEffect(() => {
-    fetchCategories(1);
-  }, [fetchCategories]);
-
-  useEffect(() => {
-    setProductsPage(1);
-    setHasMoreProducts(true);
-    fetchProducts(1, selectedCategoryId);
-  }, [selectedCategoryId, fetchProducts]);
+  // Initial fetch
+  useEffect(() => { fetchCategories(1); }, [fetchCategories]);
+  useEffect(() => { setProductsPage(1); setHasMoreProducts(true); fetchProducts(1, selectedCategoryId); }, [selectedCategoryId, fetchProducts]);
 
   const loadMoreProducts = () => {
     if (loadingProducts || !hasMoreProducts) return;
@@ -185,6 +187,7 @@ const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategory
     setCanScrollRight(el.scrollWidth - el.scrollLeft > el.clientWidth + 10);
   };
 
+  // Category scroll arrows
   useEffect(() => {
     const el = categoriesRef.current;
     if (!el) return;
@@ -193,46 +196,35 @@ const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategory
     return () => el.removeEventListener('scroll', updateArrowVisibility);
   }, [categories]);
 
+  // Drag scroll
   useEffect(() => {
     const el = categoriesRef.current;
     if (!el) return;
     let isDown = false, startX, scrollLeft;
-    const start = (e) => {
-      isDown = true;
-      startX = e.pageX - el.offsetLeft;
-      scrollLeft = el.scrollLeft;
-    };
-    const move = (e) => {
-      if (!isDown) return;
-      e.preventDefault();
-      const x = e.pageX - el.offsetLeft;
-      const walk = (x - startX);
-      el.scrollLeft = scrollLeft - walk;
-    };
+
+    const start = (e) => { isDown = true; startX = e.pageX - el.offsetLeft; scrollLeft = el.scrollLeft; };
+    const move = (e) => { if (!isDown) return; e.preventDefault(); const x = e.pageX - el.offsetLeft; el.scrollLeft = scrollLeft - (x - startX); };
     const stop = () => { isDown = false; };
+
     el.addEventListener('mousedown', start);
     el.addEventListener('mousemove', move);
-    el.addEventListener('mouseleave', stop);
     el.addEventListener('mouseup', stop);
+    el.addEventListener('mouseleave', stop);
+
     return () => {
       el.removeEventListener('mousedown', start);
       el.removeEventListener('mousemove', move);
-      el.removeEventListener('mouseleave', stop);
       el.removeEventListener('mouseup', stop);
+      el.removeEventListener('mouseleave', stop);
     };
   }, []);
 
   const truncate = (str) => (str.length <= TITLE_LIMIT ? str : `${str.slice(0, TITLE_LIMIT)}…`);
-
   const renderStars = (ratingStr) => {
-    const rating = parseFloat(ratingStr);
+    const rating = parseFloat(ratingStr) || 0;
     return (
       <span className="pcus-stars">
-        {[...Array(5)].map((_, i) => (
-          <span key={i} className={i < rating ? 'pcus-star filled' : 'pcus-star'}>
-            ★
-          </span>
-        ))}
+        {[...Array(5)].map((_, i) => <span key={i} className={i < rating ? 'pcus-star filled' : 'pcus-star'}>★</span>)}
       </span>
     );
   };
@@ -245,11 +237,6 @@ const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategory
   return (
     <div className="pcus-wrapper1" style={{ display: 'flex' }}>
       <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
-        <div className="pcus-title-section1">
-          {/* <h2 className="pcus-main-title1">🏷️ SUMMER SAVINGS 🏷️</h2>
-          <p className="pcus-sub-title1">BROWSE WHAT EXCITES YOU</p> */}
-        </div>
-
         <div className="pcus-categories-wrapper">
           {canScrollLeft && <button className="pcus-arrow-btn1 left" onClick={() => scrollCats('left')} aria-label="Prev">‹</button>}
           <div className="pcus-categories-scroll" ref={categoriesRef}>
@@ -282,19 +269,14 @@ const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategory
                   <img src={p.images?.[0]?.src || ''} alt={decodeHTML(p.name)} className="pcus-prd-image" loading="lazy" decoding="async" />
                 </div>
                 <div className="pcus-prd-info">
-              <h3 className="pcus-prd-title">
-  {badges.length > 0 && (
-    <div className={`pcus-badges-inline pcus-badges-color-${badgeColors[badgeColorIndex]}`}>
-      {badges.map((badge, i) => (
-        <span key={i} className={`pcus-badge pcus-badge-${badge}`}>
-          {badgeLabelMap[badge]}
-        </span>
-      ))}
-    </div>
-  )}
-  <span className="pcus-title-text">{truncate(decodeHTML(p.name))}</span>
-</h3>
-
+                  <h3 className="pcus-prd-title">
+                    {badges.length > 0 && (
+                      <div className={`pcus-badges-inline pcus-badges-color-${badgeColors[badgeColorIndex]}`}>
+                        {badges.map((badge, i) => <span key={i} className={`pcus-badge pcus-badge-${badge}`}>{badgeLabelMap[badge]}</span>)}
+                      </div>
+                    )}
+                    <span className="pcus-title-text">{truncate(decodeHTML(p.name))}</span>
+                  </h3>
                   <div className="pcus-prd-review" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     {renderStars(p.average_rating)}
                     <div className="pcus-sold-badge" style={{ position: 'static' }}>Sold: {soldCount}</div>
@@ -315,23 +297,12 @@ const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategory
             );
           })}
           {loadingProducts && Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={`skeleton-${i}`} />)}
-{!loadingProducts && products.length === 0 && (
-  <div className="pcus-no-products-wrapper">
-    <div className="pcus-no-products">
-      No products found in this category.
-    </div>
-  </div>
-)}
-
+          {!loadingProducts && products.length === 0 && <div className="pcus-no-products-wrapper"><div className="pcus-no-products">No products found in this category.</div></div>}
         </div>
 
-        {hasMoreProducts && (
-          <div style={{ textAlign: 'center', margin: '20px 0' }}>
-            <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>
-              {loadingProducts ? 'Loading…' : 'Load More'}
-            </button>
-          </div>
-        )}
+        {hasMoreProducts && <div style={{ textAlign: 'center', margin: '20px 0' }}>
+          <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>{loadingProducts ? 'Loading…' : 'Load More'}</button>
+        </div>}
       </div>
       <MiniCart />
     </div>
