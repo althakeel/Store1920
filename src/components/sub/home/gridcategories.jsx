@@ -20,10 +20,10 @@ const AUTH = {
 
 // Static left categories
 const staticCategories = [
-  { id: 1, name: "Mobiles & Tablets", image: grid2, link: "/category/mobiles" },
-  { id: 2, name: "Laptops & Gadgets", image: grid4, link: "/category/laptops" },
-  { id: 3, name: "Fashion Deals", image: grid1, link: "/category/fashion" },
-  { id: 4, name: "Home & Kitchen", image: grid3, link: "/category/home-kitchen" },
+  { id: 1, name: "Mobiles & Tablets", image: grid2, link: "/category/6535" },
+  { id: 2, name: "Automotive & Motorcycle", image: grid4, link: "/category/6531	" },
+  { id: 3, name: "Fashion Deals", image: grid1, link: "/category/6522" },
+  { id: 4, name: "Home & Kitchen", image: grid3, link: "/category/6519" },
 ];
 
 // Initial static center grid placeholders
@@ -55,7 +55,7 @@ const useCountdown = (targetDate) => {
         s: Math.floor((distance / 1000) % 60),
       });
     }, 1000);
-
+  
     return () => clearInterval(interval);
   }, [targetDate]);
 

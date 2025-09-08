@@ -7,6 +7,7 @@ import AddedToCartIcon from "../assets/images/added-cart.png";
 import IconAED from "../assets/images/Dirham 2.png";
 import "../assets/styles/categorypageid.css";
 import ProductCardReviews from "../components/temp/productcardreviews";
+import PlaceHolderIcon from "../assets/images/common/Placeholder.png";
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
@@ -14,7 +15,6 @@ const CONSUMER_SECRET = "cs_92458ba6ab5458347082acc6681560911a9e993d";
 const PRODUCTS_PER_PAGE = 42;
 const TITLE_LIMIT = 25;
 
-// Decode HTML entities
 const decodeHTML = (html) => {
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
@@ -22,7 +22,7 @@ const decodeHTML = (html) => {
 };
 
 const ProductCategory = () => {
-  const { parentSlug, slug, id } = useParams(); // accept slug or manual id
+  const { parentSlug, slug, id } = useParams();
   const { addToCart, cartItems } = useCart();
   const [category, setCategory] = useState(null);
   const [childCategoryIds, setChildCategoryIds] = useState([]);
@@ -34,63 +34,63 @@ const ProductCategory = () => {
   const cartIconRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fetch category by slug or ID
+  // --- Fetch category + products fast ---
   useEffect(() => {
     if (!slug && !id) return;
 
     const fetchCategory = async () => {
       setInitialLoading(true);
       try {
-        const allCatsRes = await fetch(
-          `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100`
-        );
-        const allCats = await allCatsRes.json();
-
         let matchedCategory;
 
-if (id) {
-  // Direct fetch by ID instead of filtering all categories
-  try {
-    const catRes = await fetch(
-      `${API_BASE}/products/categories/${id}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
-    );
-    matchedCategory = await catRes.json();
-  } catch (err) {
-    console.error("Error fetching category by ID:", err);
-  }
-} else {
-  matchedCategory = allCats.find(
-    (c) =>
-      c.slug === slug &&
-      (parentSlug
-        ? allCats.find((pc) => pc.id === c.parent)?.slug === parentSlug
-        : true)
-  );
-}
+        // ✅ 1. Fetch category directly by id or slug
+        if (id) {
+          const res = await fetch(
+            `${API_BASE}/products/categories/${id}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
+          );
+          matchedCategory = await res.json();
+        } else {
+          const res = await fetch(
+            `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&slug=${slug}`
+          );
+          const data = await res.json();
+          matchedCategory = data.find(
+            (c) =>
+              !parentSlug ||
+              (parentSlug &&
+                c.parent &&
+                c.parent.toString() === parentSlug.toString())
+          );
+        }
 
         if (!matchedCategory) {
           setCategory(null);
           setProducts([]);
+          setInitialLoading(false);
           return;
         }
 
         setCategory(matchedCategory);
 
-        // Get children categories
-        const children = allCats
-          .filter((c) => c.parent === matchedCategory.id)
-          .map((c) => c.id);
-        setChildCategoryIds([matchedCategory.id, ...children]);
+        // ✅ 2. Fetch children + products in parallel
+        const [childrenRes, productsRes] = await Promise.all([
+          fetch(
+            `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&parent=${matchedCategory.id}`
+          ),
+          fetch(
+            `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${matchedCategory.id}&per_page=${PRODUCTS_PER_PAGE}&page=1&orderby=date&order=desc&_fields=id,name,slug,images,price,total_sales`
+          ),
+        ]);
 
-        // Fetch products
-        const prodRes = await fetch(
-          `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${matchedCategory.id}&per_page=${PRODUCTS_PER_PAGE}&page=1&orderby=date&order=desc`
-        );
-        const productsData = await prodRes.json();
+        const children = await childrenRes.json();
+        const productsData = await productsRes.json();
+
+        const ids = [matchedCategory.id, ...children.map((c) => c.id)];
+        setChildCategoryIds(ids);
         setProducts(productsData);
         setHasMore(productsData.length >= PRODUCTS_PER_PAGE);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching category or products:", err);
       } finally {
         setInitialLoading(false);
       }
@@ -99,21 +99,22 @@ if (id) {
     fetchCategory();
   }, [slug, parentSlug, id]);
 
-  // Pagination
+  // --- Pagination ---
   useEffect(() => {
     if (!childCategoryIds.length || page === 1) return;
 
     const fetchMoreProducts = async () => {
       setLoading(true);
       try {
-        const categoryQuery = childCategoryIds.join(",");
-        const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${categoryQuery}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc`;
+        const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${childCategoryIds.join(
+          ","
+        )}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc&_fields=id,name,slug,images,price,total_sales`;
         const res = await fetch(url);
         const data = await res.json();
         setProducts((prev) => [...prev, ...data]);
         setHasMore(data.length >= PRODUCTS_PER_PAGE);
       } catch (err) {
-        console.error("Error fetching products:", err);
+        console.error("Error fetching more products:", err);
       } finally {
         setLoading(false);
       }
@@ -142,11 +143,11 @@ if (id) {
   };
 
   const flyToCart = (e, imgSrc) => {
-    if (!cartIconRef.current || !imgSrc) return;
+    if (!cartIconRef.current) return;
     const cartRect = cartIconRef.current.getBoundingClientRect();
     const startRect = e.currentTarget.getBoundingClientRect();
     const clone = document.createElement("img");
-    clone.src = imgSrc;
+    clone.src = imgSrc || PlaceHolderIcon; // ✅ fallback for missing image
     clone.style.position = "fixed";
     clone.style.zIndex = 9999;
     clone.style.width = "60px";
@@ -196,7 +197,7 @@ if (id) {
                   style={{ cursor: "pointer" }}
                 >
                   <img
-                    src={p.images?.[0]?.src || ""}
+                    src={p.images?.[0]?.src || PlaceHolderIcon}
                     alt={decodeHTML(p.name)}
                     className="pc-card-image"
                     loading="lazy"

@@ -9,51 +9,65 @@ import "../../../assets/styles/CategorySlider.css";
 import placeholderImg from "../../../assets/images/Skelton.png";
 import { FaClock } from "react-icons/fa";
 
-// static
-import Static1 from '../../../assets/images/megamenu/Main catogory webp/Electronics & Smart Devices.webp'
-import Static2 from '../../../assets/images/megamenu/Main catogory webp/Home Appliances.webp'
-import Static3 from '../../../assets/images/megamenu/Main catogory webp/Home Improvement & Tools.webp'
-import Static4 from '../../../assets/images/megamenu/Main catogory webp/Furniture & Home Living.webp'
-import Static5 from '../../../assets/images/megamenu/Main catogory webp/MenClothing.webp'
-import Static6 from '../../../assets/images/megamenu/Main catogory webp/WomenClothing.webp'
-import Static7 from '../../../assets/images/megamenu/Main catogory webp/Lingerie & Loungewear.webp'
-import Static8 from '../../../assets/images/megamenu/Main catogory webp/Accessories.webp'
-import Static9 from '../../../assets/images/megamenu/Main catogory webp/Beauty & Personal Care.webp'
-import Static10 from '../../../assets/images/megamenu/Main catogory webp/Shoes & Footwear.webp'
-
+// Static category images
+import Static1 from '../../../assets/images/megamenu/Main catogory webp/Electronics & Smart Devices.webp';
+import Static2 from '../../../assets/images/megamenu/Main catogory webp/Home Appliances.webp';
+import Static3 from '../../../assets/images/megamenu/Main catogory webp/Home Improvement & Tools.webp';
+import Static4 from '../../../assets/images/megamenu/Main catogory webp/Furniture & Home Living.webp';
+import Static5 from '../../../assets/images/megamenu/Main catogory webp/MenClothing.webp';
+import Static6 from '../../../assets/images/megamenu/Main catogory webp/WomenClothing.webp';
+import Static7 from '../../../assets/images/megamenu/Main catogory webp/Lingerie & Loungewear.webp';
+import Static8 from '../../../assets/images/megamenu/Main catogory webp/Accessories.webp';
+import Static9 from '../../../assets/images/megamenu/Main catogory webp/Beauty & Personal Care.webp';
+import Static10 from '../../../assets/images/megamenu/Main catogory webp/Shoes & Footwear.webp';
+import Static11 from '../../../assets/images/megamenu/Main catogory webp/Baby, Kids & Maternity.webp';
+import Static12 from '../../../assets/images/megamenu/Main catogory webp/Toys, Games & Entertainment.webp';
+import Static13 from '../../../assets/images/megamenu/Main catogory webp/Sports, Outdoors & Hobbies.webp';
+import Static14 from '../../../assets/images/megamenu/Main catogory webp/Automotive & Motorcycle.webp';
+import Static15 from '../../../assets/images/megamenu/Main catogory webp/Security & Safety.webp';
+import Static16 from '../../../assets/images/megamenu/Main catogory webp/Pet Supplies.webp';
+import Static17 from '../../../assets/images/megamenu/Main catogory webp/Special Occasion & Costumes.webp';
 
 // WooCommerce API credentials
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const CK = "ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8";
 const CS = "cs_c65538cff741bd9910071c7584b3d070609fec24";
 
+// Decode HTML entities
 const decodeHTML = (html) => {
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
   return txt.value;
 };
 
-
+// Static categories
 const STATIC_CATEGORIES = [
-  { id: "static1", name: "Electronics & Smart Devices", image: Static1 },
-  { id: "static2", name: "Home Appliances", image: Static2 },
-  { id: "static3", name: "Home Improvement & Tools", image: Static3 },
-  { id: "static4", name: "Furniture & Home Living", image: Static4 },
-  { id: "static5", name: "Men’s Clothing", image:Static5 },
-  { id: "static6", name: "Women’s Clothing", image: Static6 },
-  { id: "static7", name: "Lingerie & Loungewear", image: Static7 },
-  { id: "static8", name: "Accessories", image: Static8 },
-  { id: "static9", name: "Beauty & Personal Care", image: Static9 },
-  { id: "static10", name: "Shoes & Footwear", image: Static10 },
-  
+  { id: "498", name: "Electronics & Smart Devices", image: Static1, path: "/category/498" },
+  { id: "6519", name: "Home Appliances", image: Static2, path: "/category/6519" },
+  { id: "6520", name: "Home Improvement & Tools", image: Static3, path: "/category/6520" },
+  { id: "6521", name: "Furniture & Home Living", image: Static4, path: "/category/6521" },
+  { id: "6522", name: "Men's Clothing", image: Static5, path: "/category/6522" },
+  { id: "6523", name: "Women's Clothing", image: Static6, path: "/category/6523" },
+  { id: "6524", name: "Lingerie & Loungewear", image: Static7, path: "/category/6524" },
+  { id: "6525", name: "Accessories", image: Static8, path: "/category/6525" },
+  { id: "6526", name: "Beauty & Personal Care", image: Static9, path: "/category/6526" },
+  { id: "6527", name: "Shoes & Footwear", image: Static10, path: "/category/6527" },
+  { id: "6528", name: "Baby, Kids & Maternity", image: Static11, path: "/category/6528" },
+  { id: "6529", name: "Toys, Games & Entertainment", image: Static12, path: "/category/6529" },
+  { id: "6530", name: "Sports, Outdoors & Hobbies", image: Static13, path: "/category/6530" },
+  { id: "6531", name: "Automotive & Motorcycle", image: Static14, path: "/category/6531" },
+  { id: "6532", name: "Security & Safety", image: Static15, path: "/category/6532" },
+  { id: "6533", name: "Pet Supplies", image: Static16, path: "/category/6533" },
+  { id: "6591", name: "Special Occasion & Costumes", image: Static17, path: "/category/6591" },
 ];
 
 const CategorySlider = () => {
-  const [categories, setCategories] = useState(STATIC_CATEGORIES); // show static first
+  const [categories, setCategories] = useState(STATIC_CATEGORIES);
   const sliderRef = useRef(null);
   const location = useLocation();
   const isHomePage = location.pathname === "/";
 
+  // Fetch categories from API
   useEffect(() => {
     if (!isHomePage) return;
     let isMounted = true;
@@ -70,30 +84,29 @@ const CategorySlider = () => {
 
         const categoriesWithDeals = filtered.map((cat) => ({
           ...cat,
-          isDeal:
-            cat.name.toLowerCase() === "electronics" ||
-            cat.name.toLowerCase() === "fashion",
+          id: String(cat.id).trim(),
+          path: `/category/${cat.id}`,
+          isDeal: ["electronics", "fashion"].includes(cat.name.toLowerCase()),
           megaSale: cat.enable_offer === true,
           dealTime: 172800,
         }));
 
-        // Deduplicate categories by ID
+        // Deduplicate
         const uniqueCategories = Array.from(
           new Map(categoriesWithDeals.map((cat) => [cat.id, cat])).values()
         );
 
-        setCategories(uniqueCategories); // replace static with fetched
+        setCategories(uniqueCategories);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
       }
     };
 
     loadCategories();
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [isHomePage]);
 
+  // Slider settings
   const settings = {
     dots: false,
     infinite: categories.length > 7,
@@ -135,18 +148,17 @@ const CategorySlider = () => {
           return (
             <div key={cat.id} className="category-slide" onMouseDown={handleMouseDown} onMouseMove={handleMouseMove}>
               <Link
-                to={`/category/${cat.id}`}
+                to={cat.path || `/category/${cat.id}`}
                 onClick={handleClick}
                 className="category-link"
                 style={{ textDecoration: "none", color: "#333" }}
               >
                 <div style={{ position: "relative", width: "100%" }}>
-                <img
-  src={cat.image?.src ? cat.image.src : cat.image || placeholderImg}
-  alt={decodedName}
-  className="category-image"
-/>
-
+                  <img
+                    src={cat.image?.src || cat.image || placeholderImg}
+                    alt={decodedName}
+                    className="category-image"
+                  />
                   {cat.megaSale && <div className="mega-sale-badge">Mega Sale</div>}
                   {cat.isDeal && <ProgressBar totalDuration={cat.dealTime} />}
                 </div>
@@ -184,14 +196,13 @@ const ProgressBar = ({ totalDuration = 172800 }) => {
     return () => clearInterval(interval);
   }, [totalDuration]);
 
-  const percent = timeLeft > 0 ? (timeLeft / totalDuration) * 100 : 0;
+  const percent = (timeLeft / totalDuration) * 100;
 
   const formatTime = (secs) => {
     const days = Math.floor(secs / 86400);
     const hours = Math.floor((secs % 86400) / 3600);
     const minutes = Math.floor((secs % 3600) / 60);
     const seconds = secs % 60;
-
     if (days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`;
     if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
     if (minutes > 0) return `${minutes}m ${seconds}s`;

@@ -4,8 +4,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  // Initialize user from localStorage
   const [user, setUser] = useState(() => {
-    // Load from localStorage on initial render
     const id = localStorage.getItem("userId");
     const email = localStorage.getItem("email");
     const token = localStorage.getItem("token");
@@ -14,10 +14,10 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(true);
 
+  // Sync user across tabs
   useEffect(() => {
-    setLoading(false); // Loading complete after initial check
+    setLoading(false);
 
-    // Sync user across tabs
     const handleStorageChange = (e) => {
       if (["userId", "email", "token"].includes(e.key)) {
         const id = localStorage.getItem("userId");
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // Keep localStorage in sync with state
+  // Keep localStorage in sync with user state
   useEffect(() => {
     if (user) {
       localStorage.setItem("userId", user.id);
@@ -44,12 +44,16 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
+  // Login function
   const login = (userData) => {
-    setUser(userData); // Triggers localStorage update
+    setUser(userData);
+    // CartContext will automatically handle user-specific cart
   };
 
+  // Logout function
   const logout = () => {
-    setUser(null); // Clears state and localStorage
+    // CartContext will handle clearing user cart if needed
+    setUser(null);
   };
 
   return (

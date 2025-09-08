@@ -198,14 +198,14 @@ const categories = [
     subCategories: [
       { id: 6535, name: "Mobile Phones", image: MobilePhones, path: "/category/6535", metaTitle: "Buy Electronics & Smart Devices Online | Store1920", metaDescription: "Shop the latest smartphones, laptops, cameras, and smart home devices at Store1920. Great prices, fast delivery, and trusted quality." },
       { id: 6536, name: "Phone Accessories", image: PhoneAccessories, path: "/category/6536" },
-      { id: 6536, name: "Phone Parts & Repair", image: PhonePartsRepair, path: "/category/6536" },
+      { id: 6537, name: "Phone Parts & Repair", image: PhonePartsRepair, path: "/category/6537" },
       { id: 6538, name: "Smart Electronics & Smart Home", image: SmartHome, path: "/category/6538" },
       { id: 6539, name: "Home Audio & Video", image: HomeAudioVideo, path: "/category/6539" },
       { id: 6540, name: "Portable Audio & Video", image: PortableAudioVideo, path: "/category/6540" },
       { id: 6541, name: "Cameras & Photography", image: CamerasPhotography, path: "/category/6541" },
       { id: 6542, name: "Games & Gaming Accessories", image: GamesGaming, path: "/category/6542" },
       { id: 6543, name: "Computer Components & Desktops", image: ComputerComponents, path: "/category/6543" },
-      { id: 6543, name: "Laptops & Tablets", image: LaptopsTablets, path: "/category/6543" },
+      { id: 6544, name: "Laptops & Tablets", image: LaptopsTablets, path: "/category/6544" },
       { id: 6545, name: "Networking & Communication", image: Networking, path: "/category/6545" },
       { id: 6546, name: "Wearable Tech", image: WearableTech, path: "/category/6546" }
     ]

@@ -246,15 +246,32 @@
 }
 
 .pcus-prd-discount-box1 {
+  position: absolute;
+  top: 8px;       /* distance from the top */
+  right: 8px;     /* distance from the right */
   background: #d32f2f;
   color: #fff;
   font-size: 9px;
   font-weight: 500;
-  padding: 2px 5px;
+  padding: 5px 10px;
   border-radius: 4px;
-  margin: 0 1px;
   white-space: nowrap;
+  z-index: 5;
 }
+.pcus-prd-sale-price12 {
+  font-size: 16px;   /* bigger, bold */
+  font-weight: bold;
+  color: #d32f2f;    /* red for highlight */
+  margin-right: 6px;
+}
+
+.pcus-prd-regular-price12 {
+  font-size: 10px !important;   /* smaller */
+  font-weight: 400;
+  color: #888;       /* grey to look faded */
+  text-decoration: line-through;
+}
+
 
 
 /* Category buttons */
@@ -376,6 +393,7 @@ img.flying-clone {
   position: relative;
   overflow: hidden;
   border-radius: 5px 5px 0 0;
+    display: inline-block;
   /* Add: */
   image-rendering: auto;
   transform: translateZ(0); /* triggers GPU acceleration */

@@ -24,6 +24,7 @@ const TITLE_LIMIT = 35;
 const badgeLabelMap = {
   best_seller: "Best Seller",
   recommended: "Recommended",
+  best_sale: "Best Sale", 
 };
 
 const badgeColors = ["darkgreen", "orange", "red"];
@@ -757,6 +758,20 @@ const onProductClick = useCallback((slug, id) => {
     className="pcus-prd-image1 secondary-img"
   />
 )}
+
+ {displayRegularPrice && displaySalePrice && (
+                                <span className="pcus-prd-discount-box1">
+                                  {" "}
+                                  -
+                                  {Math.round(
+                                    ((parseFloat(displayRegularPrice) -
+                                      parseFloat(displaySalePrice)) /
+                                      parseFloat(displayRegularPrice)) *
+                                      100
+                                  )}
+                                  % OFF
+                                </span>
+                              )}
                       {hasMegaOffer && (
                         <div className="mega-offer-badge">
                           <span
@@ -815,19 +830,7 @@ const onProductClick = useCallback((slug, id) => {
                                 value={displayRegularPrice}
                                 className="pcus-prd-regular-price12"
                               />
-                              {displayRegularPrice && displaySalePrice && (
-                                <span className="pcus-prd-discount-box1">
-                                  {" "}
-                                  -
-                                  {Math.round(
-                                    ((parseFloat(displayRegularPrice) -
-                                      parseFloat(displaySalePrice)) /
-                                      parseFloat(displayRegularPrice)) *
-                                      100
-                                  )}
-                                  % OFF
-                                </span>
-                              )}
+                             
                             </>
                           ) : (
                             <Price value={displayPrice} className="price1" />
@@ -902,6 +905,9 @@ const onProductClick = useCallback((slug, id) => {
                             cursor: "pointer",
                           }}
                         />
+
+
+                        
                       </div>
                     </div>
                   </div>
