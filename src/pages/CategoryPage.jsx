@@ -14,6 +14,7 @@ const CONSUMER_SECRET = "cs_92458ba6ab5458347082acc6681560911a9e993d";
 const PRODUCTS_PER_PAGE = 42;
 const TITLE_LIMIT = 25;
 
+// Decode HTML entities
 const decodeHTML = (html) => {
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
@@ -21,7 +22,7 @@ const decodeHTML = (html) => {
 };
 
 const ProductCategory = () => {
-  const { parentSlug, slug } = useParams();
+  const { parentSlug, slug, id } = useParams(); // accept slug or manual id
   const { addToCart, cartItems } = useCart();
   const [category, setCategory] = useState(null);
   const [childCategoryIds, setChildCategoryIds] = useState([]);
@@ -33,20 +34,31 @@ const ProductCategory = () => {
   const cartIconRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fetch category by slug
+  // Fetch category by slug or ID
   useEffect(() => {
-    if (!slug) return;
+    if (!slug && !id) return;
 
-    const fetchCategoryBySlug = async () => {
+    const fetchCategory = async () => {
       setInitialLoading(true);
       try {
         const allCatsRes = await fetch(
           `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100`
         );
         const allCats = await allCatsRes.json();
-        const matchedCategory = allCats.find(
-          (c) => c.slug === slug && (parentSlug ? allCats.find(pc => pc.id === c.parent)?.slug === parentSlug : true)
-        );
+
+        let matchedCategory;
+
+        if (id) {
+          matchedCategory = allCats.find((c) => c.id === parseInt(id));
+        } else {
+          matchedCategory = allCats.find(
+            (c) =>
+              c.slug === slug &&
+              (parentSlug
+                ? allCats.find((pc) => pc.id === c.parent)?.slug === parentSlug
+                : true)
+          );
+        }
 
         if (!matchedCategory) {
           setCategory(null);
@@ -56,9 +68,13 @@ const ProductCategory = () => {
 
         setCategory(matchedCategory);
 
-        const children = allCats.filter((c) => c.parent === matchedCategory.id).map((c) => c.id);
+        // Get children categories
+        const children = allCats
+          .filter((c) => c.parent === matchedCategory.id)
+          .map((c) => c.id);
         setChildCategoryIds([matchedCategory.id, ...children]);
 
+        // Fetch products
         const prodRes = await fetch(
           `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${matchedCategory.id}&per_page=${PRODUCTS_PER_PAGE}&page=1&orderby=date&order=desc`
         );
@@ -72,8 +88,8 @@ const ProductCategory = () => {
       }
     };
 
-    fetchCategoryBySlug();
-  }, [slug, parentSlug]);
+    fetchCategory();
+  }, [slug, parentSlug, id]);
 
   // Pagination
   useEffect(() => {
@@ -144,7 +160,9 @@ const ProductCategory = () => {
 
   return (
     <div className="pc-wrapper" style={{ minHeight: "40vh" }}>
-      <h2 className="pc-category-title">{category ? decodeHTML(category.name) : "Category Not Found"}</h2>
+      <h2 className="pc-category-title">
+        {category ? decodeHTML(category.name) : "Category Not Found"}
+      </h2>
 
       <div className="pc-products-container">
         {initialLoading ? (
@@ -178,14 +196,22 @@ const ProductCategory = () => {
                   <h3 className="pc-card-title">{truncate(decodeHTML(p.name))}</h3>
 
                   <div style={{ padding: "0 5px" }}>
-                    <ProductCardReviews productId={p.id} soldCount={p.total_sales || 0} />
+                    <ProductCardReviews
+                      productId={p.id}
+                      soldCount={p.total_sales || 0}
+                    />
                   </div>
                   <div className="pc-card-divider" />
-                  <div className="pc-card-footer" onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="pc-card-footer"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <img src={IconAED} alt="AED" className="pc-aed-icon" />
                     <Price value={p.price} />
                     <button
-                      className={`pc-add-btn ${cartItems.some((item) => item.id === p.id) ? "pc-added" : ""}`}
+                      className={`pc-add-btn ${
+                        cartItems.some((item) => item.id === p.id) ? "pc-added" : ""
+                      }`}
                       onClick={(e) => {
                         e.stopPropagation();
                         flyToCart(e, p.images?.[0]?.src);
@@ -193,7 +219,11 @@ const ProductCategory = () => {
                       }}
                     >
                       <img
-                        src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCartIcon}
+                        src={
+                          cartItems.some((item) => item.id === p.id)
+                            ? AddedToCartIcon
+                            : AddCartIcon
+                        }
                         alt="Add to cart"
                         className="pc-add-icon"
                       />
@@ -204,7 +234,11 @@ const ProductCategory = () => {
             </div>
             {hasMore && (
               <div className="pc-load-more-wrapper">
-                <button className="pc-load-more-btn" onClick={loadMore} disabled={loading}>
+                <button
+                  className="pc-load-more-btn"
+                  onClick={loadMore}
+                  disabled={loading}
+                >
                   {loading ? "Loading…" : "Load More"}
                 </button>
               </div>
