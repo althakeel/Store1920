@@ -1,16 +1,16 @@
 // src/components/home/GridCategories.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import "../../../assets/styles/home/GridCategories.css";
 import { useCart } from "../../../contexts/CartContext";
-import PlaceHolderImage from '../../../assets/images/common/Placeholder.png'
-import grid1 from '../../../assets/images/gridhome/1 (1).png'
-import grid2 from '../../../assets/images/gridhome/2.png'
-import grid3 from '../../../assets/images/gridhome/3.png'
-import grid4 from '../../../assets/images/gridhome/4.png'
 
-
+// Images
+import PlaceHolderImage from "../../../assets/images/common/Placeholder.png";
+import grid1 from "../../../assets/images/gridhome/1 (1).png";
+import grid2 from "../../../assets/images/gridhome/2.png";
+import grid3 from "../../../assets/images/gridhome/3.png";
+import grid4 from "../../../assets/images/gridhome/4.png";
 
 const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 const AUTH = {
@@ -18,32 +18,20 @@ const AUTH = {
   password: "cs_b2b2ab3b1cdbc7db01cd718dc52b8f5a5711a6e5",
 };
 
-
+// Static left categories
 const staticCategories = [
-  {
-    id: 1,
-    name: "Mobiles & Tablets",
-    image: grid2,
-    link: "/category/mobiles",
-  },
-  {
-    id: 2,
-    name: "Laptops & Gadgets",
-    image: grid4,
-    link: "/category/laptops",
-  },
-  {
-    id: 3,
-    name: "Fashion Deals",
-    image: grid1,
-    link: "/category/fashion",
-  },
-  {
-    id: 4,
-    name: "Home & Kitchen",
-    image: grid3,
-    link: "/category/home-kitchen",
-  },
+  { id: 1, name: "Mobiles & Tablets", image: grid2, link: "/category/mobiles" },
+  { id: 2, name: "Laptops & Gadgets", image: grid4, link: "/category/laptops" },
+  { id: 3, name: "Fashion Deals", image: grid1, link: "/category/fashion" },
+  { id: 4, name: "Home & Kitchen", image: grid3, link: "/category/home-kitchen" },
+];
+
+// Initial static center grid placeholders
+const initialProductPlaceholders = [
+  { id: "ph1", image: 'https://db.store1920.com/wp-content/uploads/2025/09/171996-2m5ilp.jpg', name: "Loading...", price: null },
+  { id: "ph2", image: 'https://db.store1920.com/wp-content/uploads/2025/09/171829-pa7trl.jpg', name: "Loading...", price: null },
+  { id: "ph3", image: 'https://db.store1920.com/wp-content/uploads/2025/09/168833-oyb1ng.jpg', name: "Loading...", price: null },
+  { id: "ph4", image: 'https://db.store1920.com/wp-content/uploads/2025/09/168010-gsmxtg.jpg', name: "Loading...", price: null },
 ];
 
 // Countdown Hook
@@ -75,8 +63,7 @@ const useCountdown = (targetDate) => {
 };
 
 const GridCategories = () => {
-  const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(initialProductPlaceholders);
   const [banners, setBanners] = useState([]);
   const [targetDate] = useState(new Date().getTime() + 24 * 60 * 60 * 1000);
 
@@ -103,27 +90,46 @@ const GridCategories = () => {
     return () => clearInterval(interval);
   }, [isMobile, banners.length]);
 
-  // Fetch categories
+  // Fetch products (fast API first, fallback to WC products)
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/products/categories?per_page=10`, { auth: AUTH })
-      .then((res) => setCategories(res.data.slice(0, 4)))
-      .catch((err) => console.error("Category fetch error:", err));
-  }, []);
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(
+          "https://db.store1920.com/wp-json/custom/v1/fast-products",
+          { timeout: 2000 }
+        );
+        const data = Array.isArray(res.data) ? res.data.slice(0, 4) : [];
+        if (data.length > 0) {
+          setProducts(data);
+          return;
+        }
+      } catch (err) {
+        console.error("⚠️ Fast product fetch error:", err);
+      }
 
-  // Fetch products
-  useEffect(() => {
-    axios
-      .get(`${API_BASE}/products?per_page=10`, { auth: AUTH })
-      .then((res) => setProducts(res.data.slice(0, 4)))
-      .catch((err) => console.error("Product fetch error:", err));
+      // fallback
+      try {
+        const res = await axios.get(`${API_BASE}/products?per_page=4`, { auth: AUTH });
+        setProducts(res.data);
+      } catch (err) {
+        console.error("⚠️ WC product fetch error:", err);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   // Set banners
   useEffect(() => {
     setBanners([
-      { id: 1, image: "https://db.store1920.com/wp-content/uploads/2025/08/3-6.webp" },
-      { id: 2, image: "https://db.store1920.com/wp-content/uploads/2025/08/4-4.webp" },
+      {
+        id: 1,
+        image: "https://db.store1920.com/wp-content/uploads/2025/08/3-6.webp",
+      },
+      {
+        id: 2,
+        image: "https://db.store1920.com/wp-content/uploads/2025/08/4-4.webp",
+      },
     ]);
   }, []);
 
@@ -132,60 +138,83 @@ const GridCategories = () => {
   return (
     <div className="gcx-container">
       {/* LEFT - Categories */}
- {/* LEFT - Static Categories */}
-<div className="gcx-left">
-  <h3 className="gcx-section-title">More Reasons to Shop</h3>
-  <div className="gcx-left-grid">
-    {staticCategories.map((cat) => (
-      <div
-        key={cat.id}
-        className="gcx-category-card"
-        onClick={() => navigate(cat.link)}
-      >
-        <img
-          src={cat.image || PlaceHolderImage}
-          alt={cat.name}
-          style={{ objectFit: "fill" }}
-        />
-        <div className="gcx-cat-info">
-          <h4>{cat.name}</h4>
+      <div className="gcx-left">
+        <h3 className="gcx-section-title">More Reasons to Shop</h3>
+        <div className="gcx-left-grid">
+          {staticCategories.map((cat) => (
+            <div
+              key={cat.id}
+              className="gcx-category-card"
+              onClick={() => navigate(cat.link)}
+            >
+              <img
+                src={cat.image || PlaceHolderImage}
+                alt={cat.name}
+                style={{ objectFit: "fill" }}
+              />
+              <div className="gcx-cat-info">
+                <h4>{cat.name}</h4>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-    ))}
-  </div>
-</div>
-
 
       {/* CENTER - Products */}
       <div className="gcx-middle">
         <div className="gcx-featured-header">
           <h3 className="gcx-mega-title">MEGA DEALS</h3>
           <div className="gcx-featured-countdown">
-            ⏳ {featuredCountdown.h}h : {featuredCountdown.m}m : {featuredCountdown.s}s
+            ⏳ {featuredCountdown.h}h : {featuredCountdown.m}m :{" "}
+            {featuredCountdown.s}s
           </div>
         </div>
 
         <div className="gcx-middle-grid">
-          {products.map((prod) => {
+          {products.map((prod, idx) => {
             const inCart = isInCart(prod.id);
+            const shortName =
+              prod.name && prod.name.length > 20
+                ? prod.name.substring(0, 20) + "..."
+                : prod.name || "Loading...";
+
             return (
-              <div key={prod?.id} className="gcx-product-card">
+              <div key={prod?.id || `ph-${idx}`} className="gcx-product-card">
                 <img
-                  src={prod?.images?.[0]?.src || PlaceHolderImage}
+                  src={
+                    prod?.images?.[0]?.src ||
+                    prod?.image ||
+                    PlaceHolderImage
+                  }
                   alt={prod?.name || "Product"}
                 />
-                <div className="gcx-price-wrap">
-                  {prod?.regular_price && (
-                    <span className="gcx-old-price">AED {prod.regular_price}</span>
-                  )}
-                  <span className="gcx-product-price">AED {prod?.price || "N/A"}</span>
-                </div>
-                <button
-                  className="gcx-cart-btn"
-                  onClick={() => !inCart && addToCart(prod)}
-                >
-                  {inCart ? "Added" : "Add to Cart"}
-                </button>
+
+                {/* Product name */}
+                <h4 className="gcx-product-title">{shortName}</h4>
+
+                {/* Price */}
+                {prod?.price && (
+                  <div className="gcx-price-wrap">
+                    {prod?.regular_price && (
+                      <span className="gcx-old-price">
+                        AED {prod.regular_price}
+                      </span>
+                    )}
+                    <span className="gcx-product-price">
+                      AED {prod.price}
+                    </span>
+                  </div>
+                )}
+
+                {/* Add to cart button (only if real product) */}
+                {prod?.id && (
+                  <button
+                    className="gcx-cart-btn"
+                    onClick={() => !inCart && addToCart(prod)}
+                  >
+                    {inCart ? "Added" : "Add to Cart"}
+                  </button>
+                )}
               </div>
             );
           })}

@@ -35,7 +35,7 @@ yarn-error.log*
 Thumbs.db
 .DS_Store
 
-# Electron build artifacts (optional, if you're using Electron)
+# Electron build artifacts
 /out/
 *.exe
 *.dmg

@@ -6,48 +6,52 @@ export default function ProductCardReviews({ productId, soldCount = 0 }) {
   const [averageRating, setAverageRating] = useState(0);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  async function fetchReviews() {
-    console.log('Starting fetchReviews...', productId);
-    if (!productId) {
-      console.warn('No productId provided');
-      setLoading(false);
-      return;
-    }
+  useEffect(() => {
+    async function fetchReviews() {
+      console.log("🔎 ProductCardReviews mounted with productId:", productId);
 
-    const id = parseInt(productId, 10);
-    console.log('Parsed product ID:', id);
-    if (isNaN(id)) {
-      console.error('Invalid productId:', productId);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      console.log('Calling getProductReviewsWoo...');
-      const data = await getProductReviewsWoo(id);
-      console.log('Data received:', data);
-      setReviews(data || []);
-
-      if (data && data.length > 0) {
-        const avg = data.reduce((sum, r) => sum + Number(r.rating), 0) / data.length;
-        setAverageRating(avg);
-      } else {
-        setAverageRating(0);
+      if (!productId) {
+        console.warn("⚠️ No productId provided, skipping fetch");
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      console.error('Error fetching reviews:', err);
-      setReviews([]);
-      setAverageRating(0);
-    } finally {
-      console.log('Setting loading false');
-      setLoading(false);
+
+      const id = parseInt(productId, 10);
+      console.log("➡️ Parsed product ID:", id);
+
+      if (isNaN(id)) {
+        console.error("❌ Invalid productId:", productId);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        console.log("📡 Calling getProductReviewsWoo with ID:", id);
+        const data = await getProductReviewsWoo(id);
+        console.log("✅ Data received from Woo:", data);
+
+        setReviews(data || []);
+
+        if (data && data.length > 0) {
+          const avg = data.reduce((sum, r) => sum + Number(r.rating), 0) / data.length;
+          console.log("⭐ Calculated average rating:", avg);
+          setAverageRating(avg);
+        } else {
+          console.log("ℹ️ No reviews found for this product");
+          setAverageRating(0);
+        }
+      } catch (err) {
+        console.error("🔥 Error fetching reviews:", err);
+        setReviews([]);
+        setAverageRating(0);
+      } finally {
+        console.log("✅ Finished fetching, setting loading to false");
+        setLoading(false);
+      }
     }
-  }
 
-  fetchReviews();
-}, [productId]);
-
+    fetchReviews();
+  }, [productId]);
 
   // Star logic
   const renderStars = (rating) => {

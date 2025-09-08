@@ -16,6 +16,16 @@
   height: 520px; /* fixed height for all columns */
 }
 
+.gcx-product-title {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 5px 0;
+ 
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+
 /* Force all children to match height */
 .gcx-left,
 .gcx-middle,

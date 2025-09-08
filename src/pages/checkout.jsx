@@ -19,7 +19,7 @@ const fetchWithAuth = async (endpoint, options = {}) => {
     headers: {
       'Authorization': authHeader,
       'Content-Type': 'application/json',
-      ...(options.headers || {})
+      ...(options.headers || {}),
     },
   };
 
@@ -28,9 +28,11 @@ const fetchWithAuth = async (endpoint, options = {}) => {
     const errData = await res.json().catch(() => ({}));
     throw new Error(errData.message || `Request failed with status ${res.status}`);
   }
-
   return res.json();
 };
+
+// Ensure required fields are never empty for Paymob
+const sanitizeField = (value) => (value && value.trim() ? value : 'NA');
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -39,8 +41,6 @@ export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState([]);
   const [countries, setCountries] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
-
-  // ✅ Unified formData structure
   const [formData, setFormData] = useState({
     shipping: {
       first_name: '',
@@ -48,11 +48,12 @@ export default function CheckoutPage() {
       email: '',
       street: '',
       apartment: '',
+      floor: '',
       city: '',
       state: '',
       postal_code: '',
       country: 'AE',
-      phone_number: '971'
+      phone_number: '971',
     },
     billing: {
       first_name: '',
@@ -60,11 +61,12 @@ export default function CheckoutPage() {
       email: '',
       street: '',
       apartment: '',
+      floor: '',
       city: '',
       state: '',
       postal_code: '',
       country: 'AE',
-      phone_number: '971'
+      phone_number: '971',
     },
     billingSameAsShipping: true,
     paymentMethod: 'cod',
@@ -92,28 +94,24 @@ export default function CheckoutPage() {
   // Fetch cart product details
   useEffect(() => {
     if (!contextCartItems.length) return setCartItems([]);
-
     const fetchProducts = async () => {
       try {
         const details = await Promise.all(
-          contextCartItems.map(async item => {
+          contextCartItems.map(async (item) => {
             const prod = await fetchWithAuth(`products/${item.id}`);
             return {
               ...item,
               price: parseFloat(prod.price) || 0,
               inStock: prod.stock_quantity > 0,
-              name: prod.name
+              name: prod.name,
             };
           })
         );
         setCartItems(details);
       } catch {
-        setCartItems(
-          contextCartItems.map(i => ({ ...i, price: i.price || 0, inStock: true }))
-        );
+        setCartItems(contextCartItems.map(i => ({ ...i, price: i.price || 0, inStock: true })));
       }
     };
-
     fetchProducts();
   }, [contextCartItems]);
 
@@ -123,22 +121,21 @@ export default function CheckoutPage() {
       try {
         const [countriesData, paymentsData] = await Promise.all([
           fetchWithAuth('data/countries'),
-          fetchWithAuth('payment_gateways')
+          fetchWithAuth('payment_gateways'),
         ]);
         setCountries(countriesData);
         setPaymentMethods(paymentsData);
         setIsLoggedIn(!!localStorage.getItem('userToken'));
-      } catch(err) {
+      } catch (err) {
         setError(err.message || 'Failed to load checkout data.');
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
-  // Handle payment redirects (success/failure)
+  // Handle payment redirects
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const success = params.get('payment_success');
@@ -147,9 +144,9 @@ export default function CheckoutPage() {
 
     if (success && orderIdFromUrl) {
       fetchWithAuth(`orders/${orderIdFromUrl}`, { method: 'PUT', body: JSON.stringify({ set_paid: true }) })
-        .then(() => { 
-          clearCart(); 
-          navigate(`/order-success?order_id=${orderIdFromUrl}`); 
+        .then(() => {
+          clearCart();
+          navigate(`/order-success?order_id=${orderIdFromUrl}`);
         });
     }
 
@@ -159,12 +156,10 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  // Payment method select
   const handlePaymentSelect = (id, title) => {
     setFormData(prev => ({ ...prev, paymentMethod: id, paymentMethodTitle: title }));
   };
 
-  // ✅ Create WooCommerce order with unified fields
   const createOrder = async () => {
     const shipping = formData.shipping;
     const billing = formData.billingSameAsShipping ? shipping : formData.billing;
@@ -179,29 +174,31 @@ export default function CheckoutPage() {
         first_name: billing.first_name,
         last_name: billing.last_name,
         address_1: billing.street,
-        address_2: billing.apartment || '',
+        address_2: sanitizeField(billing.apartment),
         city: billing.city,
         state: billing.state,
         postcode: billing.postal_code,
         country: billing.country,
         phone: billing.phone_number,
-        email: billing.email
+        email: billing.email,
+        floor: sanitizeField(billing.floor),
       },
       shipping: {
         first_name: shipping.first_name,
         last_name: shipping.last_name,
         address_1: shipping.street,
-        address_2: shipping.apartment || '',
+        address_2: sanitizeField(shipping.apartment),
         city: shipping.city,
         state: shipping.state,
         postcode: shipping.postal_code,
         country: shipping.country,
         phone: shipping.phone_number,
-        email: shipping.email
+        email: shipping.email,
+        floor: sanitizeField(shipping.floor),
       },
       line_items,
       shipping_lines: formData.shippingMethodId ? [{ method_id: formData.shippingMethodId }] : [],
-      ...(userId ? { customer_id: parseInt(userId, 10) } : { create_account: true })
+      ...(userId ? { customer_id: parseInt(userId, 10) } : { create_account: true }),
     };
 
     const order = await fetchWithAuth('orders', { method: 'POST', body: JSON.stringify(payload) });
@@ -210,7 +207,6 @@ export default function CheckoutPage() {
     return order;
   };
 
-  // Place order
   const handlePlaceOrder = async () => {
     setError('');
     try {
@@ -220,12 +216,10 @@ export default function CheckoutPage() {
       if (formData.paymentMethod === 'cod') {
         clearCart();
         navigate(`/order-success?order_id=${order.id}`);
-      } 
-      else if (formData.paymentMethod === 'paymob_accept') {
+      } else if (formData.paymentMethod === 'paymob_accept') {
         if (order.payment_url) window.location.href = order.payment_url;
         else throw new Error('Paymob payment URL not found. Check plugin setup.');
-      }
-      else {
+      } else {
         throw new Error('Unsupported payment method selected.');
       }
     } catch (err) {
@@ -233,11 +227,11 @@ export default function CheckoutPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="checkout-loading">Loading...</div>;
 
   return (
     <>
-      <div className="checkoutGrid">
+      <div className="checkoutGrid" style={{ minHeight: '100vh', overflowY: 'auto' }}>
         <CheckoutLeft
           countries={countries}
           cartItems={cartItems}
@@ -259,11 +253,7 @@ export default function CheckoutPage() {
         />
       </div>
 
-      {alert.message && (
-        <div className={`checkout-alert ${alert.type}`}>
-          {alert.message}
-        </div>
-      )}
+      {alert.message && <div className={`checkout-alert ${alert.type}`}>{alert.message}</div>}
 
       {showSignInModal && (
         <SignInModal

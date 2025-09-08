@@ -17,6 +17,7 @@ function joinWithComma(items, key = 'id', display = 'name') {
   ));
 }
 
+
 export default function ProductDescription({ product, selectedVariation }) {
   if (!product) return null;
 

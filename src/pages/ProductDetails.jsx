@@ -12,7 +12,32 @@ import ProductReviewList from '../components/products/ProductReviewList';
 import { getProductReviewsWoo } from '../data/wooReviews';
 
 
+
 const RelatedProducts = lazy(() => import('../components/RelatedProducts'));
+
+
+const ReviewStars = ({ rating, onRate }) => (
+  <div className="stars" role="radiogroup" aria-label="Rating">
+    {[1, 2, 3, 4, 5].map(i => (
+      <span
+        key={i}
+        role={onRate ? 'radio' : undefined}
+        aria-checked={i === rating}
+        tabIndex={onRate ? 0 : -1}
+        className={i <= rating ? 'star filled' : 'star'}
+        onClick={() => onRate && onRate(i)}
+        onKeyDown={e => {
+          if (!onRate) return;
+          if (e.key === 'Enter' || e.key === ' ') onRate(i);
+        }}
+        style={{ cursor: onRate ? 'pointer' : 'default' }}
+        aria-label={`${i} Star${i > 1 ? 's' : ''}`}
+      >
+        ★
+      </span>
+    ))}
+  </div>
+);
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3/products';
 const AUTH = {
@@ -271,7 +296,23 @@ export default function ProductDetails() {
           )}
 
 
-{!isMobile && productFull && (
+
+
+          <div style={{ marginTop: 20 }}>
+          <div className="review-summary" aria-live="polite">
+        <strong>{reviews.length} review{reviews.length !== 1 ? 's' : ''}</strong> &nbsp;|&nbsp;
+        <span>
+          {(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length || 0).toFixed(1)}{' '}
+          <ReviewStars rating={Math.round(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length || 0)} />
+        </span>
+      </div>
+            <ProductDescription product={productFull} selectedVariation={selectedVariation} />
+            
+          </div>
+
+
+
+ {isMobile && productFull && (
   <div style={{ marginTop: 20 }}>
     <Suspense fallback={<div>Loading reviews...</div>}>
       <ProductReviewList
@@ -285,12 +326,7 @@ export default function ProductDetails() {
   </div>
 )}
 
-
-          <div style={{ marginTop: 20 }}>
-            <ProductDescription product={productFull} selectedVariation={selectedVariation} />
-          </div>
-
- {isMobile && productFull && (
+{!isMobile && productFull && (
   <div style={{ marginTop: 20 }}>
     <Suspense fallback={<div>Loading reviews...</div>}>
       <ProductReviewList
@@ -326,6 +362,8 @@ export default function ProductDetails() {
             )}
           </div>
         )}
+
+        
       </div>
 
       {/* Related Products */}

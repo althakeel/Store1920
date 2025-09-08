@@ -101,6 +101,13 @@ export default function ProductReviewList({ reviews, setReviews, productId, user
     setName(userData.name || '');
   };
 
+  function stripHtml(html) {
+    const temp = document.createElement("div");
+    temp.innerHTML = html;
+    return temp.textContent || temp.innerText || "";
+  }
+  
+
   return (
     <div className="product-review-box">
       <div className="review-summary" aria-live="polite">
@@ -121,7 +128,9 @@ export default function ProductReviewList({ reviews, setReviews, productId, user
             </div>
             <ReviewStars rating={r.rating} />
             {r.image_url && <img src={r.image_url} alt="Review" className="review-image" />}
-            <p className="review-text">{r.comment || r.review}</p>
+            <p className="review-text">
+  {stripHtml(r.comment || r.review)}
+</p>
             <button className="report-btn" onClick={() => setReportAlertOpen(true)} type="button">Report</button>
           </div>
         ))}

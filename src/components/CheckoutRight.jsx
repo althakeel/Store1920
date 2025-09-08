@@ -6,6 +6,9 @@ import CouponDiscount from './sub/account/CouponDiscount';
 import CoinBalance from './sub/account/CoinBalace';
 import HelpText from './HelpText';
 
+// -----------------------------
+// Alert Component
+// -----------------------------
 function Alert({ message, type = 'info', onClose }) {
   useEffect(() => {
     if (!message) return;
@@ -15,12 +18,7 @@ function Alert({ message, type = 'info', onClose }) {
 
   if (!message) return null;
 
-  const colors = {
-    info: '#2f86eb',
-    success: '#28a745',
-    error: '#dc3545',
-  };
-
+  const colors = { info: '#2f86eb', success: '#28a745', error: '#dc3545' };
   return (
     <div
       style={{
@@ -58,6 +56,14 @@ function Alert({ message, type = 'info', onClose }) {
   );
 }
 
+// -----------------------------
+// Utility: Sanitize Fields
+// -----------------------------
+const sanitizeField = (value) => (value && value.trim() ? value : 'NA');
+
+// -----------------------------
+// CheckoutRight Component
+// -----------------------------
 export default function CheckoutRight({ cartItems, formData, createOrder, clearCart, orderId }) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -65,68 +71,112 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   const [coinDiscount, setCoinDiscount] = useState(0);
 
   // -----------------------------
-  // Robust price calculation
+  // Parse price safely
   // -----------------------------
-const itemsTotal = cartItems.reduce((acc, item) => {
-  const rawPrice = item.prices?.price ?? item.price ?? 0;
-  const cleanPrice = String(rawPrice).replace(/[^0-9.]/g, '');
-  const priceFloat = parseFloat(cleanPrice) || 0;
-  const quantity = parseInt(item.quantity, 10) || 1;
+  const parsePrice = (raw) => {
+    if (typeof raw === 'object' && raw !== null) {
+      raw = raw.price ?? raw.regular_price ?? raw.sale_price ?? 0;
+    }
+    const cleaned = String(raw).replace(/,/g, '').replace(/[^\d.-]/g, '');
+    return parseFloat(cleaned) || 0;
+  };
 
-  return acc + priceFloat * quantity;
-}, 0);
+  // -----------------------------
+  // Calculate totals
+  // -----------------------------
+  const itemsTotal = cartItems.reduce((acc, item) => {
+    const price = parsePrice(item.prices?.price ?? item.price);
+    const quantity = parseInt(item.quantity, 10) || 1;
+    return acc + price * quantity;
+  }, 0);
 
+  const subtotal = Math.max(
+    0,
+    itemsTotal - Math.min(discount, itemsTotal) - Math.min(coinDiscount, itemsTotal)
+  );
 
-  const subtotal = Math.max(0, itemsTotal - discount - coinDiscount);
-  const totalWithShipping = subtotal; // shipping removed
+  const MIN_PAYMOB_AMOUNT = 0.01;
+  const amountToSend = Math.max(subtotal, MIN_PAYMOB_AMOUNT); // Always non-zero
+  const paymobAmount = Math.max(1, Math.ceil(amountToSend * 100)); // Convert to fils
 
   const showAlert = (message, type = 'info') => setAlert({ message, type });
 
   // -----------------------------
-  // Place order handler
+  // Check for empty fields in payload
+  // -----------------------------
+  const checkEmptyFields = (obj, parentKey = '') => {
+    Object.entries(obj).forEach(([key, value]) => {
+      const fullKey = parentKey ? `${parentKey}.${key}` : key;
+      if (value === undefined || value === null || value === '') {
+        console.warn(`⚠️ PAYMOB PAYLOAD EMPTY FIELD: ${fullKey}`);
+      } else if (typeof value === 'object' && !Array.isArray(value)) {
+        checkEmptyFields(value, fullKey);
+      }
+    });
+  };
+
+  // -----------------------------
+  // Place order
   // -----------------------------
   const handlePlaceOrder = async () => {
-    console.log('--- Place Order Start ---');
-    console.log('Form Data:', formData);
-    console.log('Cart Items:', cartItems);
-    console.log('Items total:', itemsTotal);
-    console.log('Discount:', discount, 'Coin Discount:', coinDiscount);
-    console.log('Subtotal:', subtotal);
-    console.log('Total With Shipping (no shipping):', totalWithShipping);
-
-    if (!formData.paymentMethod) {
-      console.error('No payment method selected.');
-      return showAlert('Select a payment method', 'error');
-    }
-
+    if (!formData.paymentMethod) return showAlert('Select a payment method', 'error');
     setIsPlacingOrder(true);
+
     try {
       const id = orderId || (await createOrder());
-      console.log('Order created:', id);
 
+      // Cash on Delivery
       if (formData.paymentMethod === 'cod') {
         clearCart();
         window.location.href = `/order-success?order_id=${id.id || id}`;
         return;
       }
 
+      // Paymob/Card
       if (['paymob', 'card'].includes(formData.paymentMethod)) {
-        const fullName = formData.shipping.fullName || 'First Last';
-        const nameParts = fullName.split(' ');
+        const shipping = formData.shipping || {};
+        const fullName = `${shipping.first_name || 'First'} ${shipping.last_name || 'Last'}`;
+        const [firstName, ...rest] = fullName.split(' ');
+        const lastName = rest.join(' ') || 'Last';
 
         const normalized = {
-          first_name: nameParts[0] || 'First',
-          last_name: nameParts[1] || 'Last',
-          email: formData.billing?.email || 'customer@example.com',
-          phone_number: formData.shipping.phone || '+971501234567',
-          street: formData.shipping.address1 || 'NA',
-          apartment: formData.shipping.address2 || '',
-          floor: '',
-          city: formData.shipping.city || 'Dubai',
-          state: formData.shipping.state || 'DXB',
+          first_name: sanitizeField(firstName),
+          last_name: sanitizeField(lastName),
+          email: sanitizeField(shipping.email || formData.billing?.email),
+          phone_number: sanitizeField(shipping.phone_number),
+          street: sanitizeField(shipping.street),
+          apartment: sanitizeField(shipping.apartment),
+          floor: sanitizeField(shipping.floor || shipping.floor_number || 'NA'),
+          city: sanitizeField(shipping.city),
+          state: sanitizeField(shipping.state),
           country: 'AE',
-          postal_code: '00000',
+          postal_code: sanitizeField(shipping.postal_code),
         };
+
+        console.log('===== PAYMOB DEBUG =====');
+        console.log('Amount to send:', amountToSend);
+        console.log('Order ID:', id.id || id);
+        console.log('Normalized billing/shipping:', normalized);
+
+        checkEmptyFields(normalized);
+
+        const payload = {
+          amount: paymobAmount,
+          order_id: id.id || id,
+          billing: normalized,
+          shipping: normalized,
+          billingSameAsShipping: true,
+          items: [
+            {
+              name: `Order ${id.id || id}`,
+              amount: paymobAmount,
+              quantity: 1,
+              description: 'Order from store1920.com'
+            }
+          ]
+        };
+
+        console.log('Payload JSON:', JSON.stringify(payload, null, 2));
 
         try {
           const res = await fetch(
@@ -134,29 +184,27 @@ const itemsTotal = cartItems.reduce((acc, item) => {
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({
-  amount: Number(totalWithShipping), // ensure it's a number
-  order_id: id.id || id,
-  billing: normalized,
-  shipping: normalized,
-  billingSameAsShipping: true,
-}),
+              body: JSON.stringify(payload),
             }
           );
 
           const data = await res.json();
+          console.log('===== PAYMOB RESPONSE =====', data);
 
           if (!res.ok) throw new Error(data.message || 'Failed to initiate Paymob payment.');
           if (!data.checkout_url) throw new Error('Paymob checkout URL not returned.');
 
+          // Redirect to Paymob checkout
           window.location.href = data.checkout_url;
         } catch (err) {
+          console.error('❌ PAYMOB FETCH ERROR:', err);
           showAlert(err.message || 'Failed to initiate Paymob payment.', 'error');
         }
       } else {
         showAlert('Selected payment method not supported yet.', 'error');
       }
     } catch (err) {
+      console.error('❌ ORDER PLACEMENT ERROR:', err);
       showAlert(err.message || 'Failed to place order.', 'error');
     } finally {
       setIsPlacingOrder(false);
@@ -169,8 +217,7 @@ const itemsTotal = cartItems.reduce((acc, item) => {
   const handleCoupon = (couponData) => {
     if (!couponData) {
       setDiscount(0);
-      showAlert('Coupon removed or invalid.', 'error');
-      return;
+      return showAlert('Coupon removed or invalid.', 'error');
     }
 
     let discountAmount =
@@ -188,7 +235,7 @@ const itemsTotal = cartItems.reduce((acc, item) => {
   // Coin handling
   // -----------------------------
   const handleCoinRedemption = ({ coinsUsed, discountAED }) => {
-    setCoinDiscount(discountAED);
+    setCoinDiscount(Math.min(discountAED, itemsTotal));
     showAlert(`You redeemed ${coinsUsed} coins for AED ${discountAED}`, 'success');
   };
 
@@ -198,7 +245,7 @@ const itemsTotal = cartItems.reduce((acc, item) => {
   };
 
   // -----------------------------
-  // Button style & label
+  // Button styles and label
   // -----------------------------
   const getButtonStyle = () => {
     const base = {
@@ -209,68 +256,44 @@ const itemsTotal = cartItems.reduce((acc, item) => {
       padding: '14px 36px',
       cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
     };
-
     switch (formData.paymentMethod) {
-      case 'apple_pay':
-        return { ...base, backgroundColor: '#000' };
-      case 'cod':
-        return { ...base, backgroundColor: '#f97316' };
-      case 'paymob':
-        return { ...base, backgroundColor: '#22c55e' };
-      case 'card':
-        return { ...base, backgroundColor: '#2563eb' };
-      default:
-        return { ...base, backgroundColor: '#10b981' };
+      case 'apple_pay': return { ...base, backgroundColor: '#000' };
+      case 'cod': return { ...base, backgroundColor: '#f97316' };
+      case 'paymob': return { ...base, backgroundColor: '#22c55e' };
+      case 'card': return { ...base, backgroundColor: '#2563eb' };
+      default: return { ...base, backgroundColor: '#10b981' };
     }
   };
 
   const getButtonLabel = () => {
-    const labels = {
-      cod: 'Cash on Delivery',
-      card: 'Card',
-      apple_pay: 'Apple Pay',
-      paymob: 'Paymob',
-    };
+    const labels = { cod: 'Cash on Delivery', card: 'Card', apple_pay: 'Apple Pay', paymob: 'Paymob' };
     const label = labels[formData.paymentMethod] || 'Order';
     return isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with ${label}`;
   };
 
   // -----------------------------
-  // JSX Rendering
+  // Render JSX
   // -----------------------------
   return (
     <aside className="checkoutRightContainer">
-      <Alert
-        message={alert.message}
-        type={alert.type}
-        onClose={() => setAlert({ message: '', type: 'info' })}
-      />
+      <Alert message={alert.message} type={alert.type} onClose={() => setAlert({ message: '', type: 'info' })} />
 
       <h2>Order Summary</h2>
       <CouponDiscount onApplyCoupon={handleCoupon} />
-
       <div className="summaryRowCR discountCR">
         <span>Item(s) total:</span>
         <span>AED {itemsTotal.toFixed(2)}</span>
       </div>
-
       <div className="summaryRow discount" style={{ color: '#fe6c03', fontWeight: 600 }}>
         <span>Item(s) discount:</span>
         <span>-AED {discount.toFixed(2)}</span>
       </div>
 
       <CoinBalance onCoinRedeem={handleCoinRedemption} />
-
       {coinDiscount > 0 && (
         <div
           className="summaryRow"
-          style={{
-            color: 'green',
-            fontWeight: 600,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
+          style={{ color: 'green', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         >
           <div>
             <span>Coin discount:</span>
@@ -278,14 +301,7 @@ const itemsTotal = cartItems.reduce((acc, item) => {
           </div>
           <button
             onClick={handleRemoveCoinDiscount}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#dc3545',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-            }}
+            style={{ background: 'transparent', border: 'none', color: '#dc3545', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
             aria-label="Remove coin discount"
           >
             ×
@@ -297,10 +313,9 @@ const itemsTotal = cartItems.reduce((acc, item) => {
         <span>Subtotal:</span>
         <span>AED {subtotal.toFixed(2)}</span>
       </div>
-
       <div className="summaryRowCR" style={{ fontWeight: 700 }}>
         <span>Total:</span>
-        <span>AED {totalWithShipping.toFixed(2)}</span>
+        <span>AED {subtotal.toFixed(2)}</span>
       </div>
 
       <p className="checkoutNote">
@@ -309,14 +324,9 @@ const itemsTotal = cartItems.reduce((acc, item) => {
 
       <p className="checkoutTerms">
         By submitting your order, you agree to our{' '}
-        <a href="/terms-0f-use" target="_blank" rel="noopener noreferrer">
-          Terms of Use
-        </a>{' '}
+        <a href="/terms-0f-use" target="_blank" rel="noopener noreferrer">Terms of Use</a>{' '}
         and{' '}
-        <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">
-          Privacy Policy
-        </a>
-        .
+        <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
       </p>
 
       <button
@@ -330,7 +340,6 @@ const itemsTotal = cartItems.reduce((acc, item) => {
       </button>
 
       <TrustSection />
-
       <div className="mobile-only">
         <HelpText />
       </div>

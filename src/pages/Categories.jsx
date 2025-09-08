@@ -21,7 +21,7 @@ const CategoryList = () => {
   // Fetch Categories
   useEffect(() => {
     axios
-      .get('https://db.store1920.com/wp-json/wc/v3/products/categories', { auth: API_AUTH })
+      .get('https://db.store1920.com/wp-json/wc/v1/products/categories', { auth: API_AUTH })
       .then((res) => {
         setCategories(res.data);
         setLoading(false);

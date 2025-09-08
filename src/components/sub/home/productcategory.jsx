@@ -62,6 +62,9 @@ const ReviewPills = memo(({ productId }) => {
   );
 });
 
+
+
+
 const handleProductClick = (productId) => {
   let recent = JSON.parse(localStorage.getItem("recentProducts")) || [];
   recent = recent.filter((id) => id !== productId);
@@ -207,6 +210,7 @@ useEffect(() => {
     setSortedProducts(shuffleArray(products)); // always random if no recent
     return;
   }
+  
 
   const recentSet = new Set(recent);
 
@@ -778,6 +782,17 @@ const onProductClick = useCallback((slug, id) => {
     productId={p.id} 
     soldCount={p.total_sales || 0} 
 />
+
+<div
+                    style={{
+                      height: '1px',
+                      width: '100%',
+                      backgroundColor: 'lightgrey',
+                      margin: '0px 0 2px 0',
+                      borderRadius: '1px',
+                    }}
+                  />
+
                       <div className="pcus-prd-price-cart1">
                         <div className="pcus-prd-prices1">
                           <img

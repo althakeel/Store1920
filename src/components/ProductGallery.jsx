@@ -22,10 +22,21 @@ export default function ProductGallery({
   const zoomedImageRef = useRef(null);
   const containerRef = useRef(null);
   const lastDragPosition = useRef(null);
+  const [visibleImages, setVisibleImages] = useState(images?.length ? [images[0]] : []);
 
   // Sync mainIndex when mainImageUrl changes
 // Initialize main image when images change
 
+
+useEffect(() => {
+  if (!mainLoading && images.length > 1) {
+    // Delay adding other images slightly after main loads
+    const timer = setTimeout(() => {
+      setVisibleImages(images);
+    }, 200); // small delay to avoid blocking
+    return () => clearTimeout(timer);
+  }
+}, [mainLoading, images]);
 
   // Reset loading and zoom state when mainIndex changes
   useEffect(() => {
@@ -182,20 +193,21 @@ export default function ProductGallery({
             backgroundColor: mainLoading ? '#f0f0f0' : '#fff',
           }}
         >
-          <img
-            src={images[mainIndex]?.src || PlaceHolderImage}
-            alt={images[mainIndex]?.alt || 'Product Image'}
-            draggable={false}
-            onLoad={() => setMainLoading(false)}
-            onClick={() => openModal('zoom')}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'fill',
-              transition: 'opacity 0.3s ease',
-              opacity: mainLoading ? 0 : 1,
-            }}
-          />
+         <img
+  src={visibleImages[mainIndex]?.src || PlaceHolderImage}
+  alt={visibleImages[mainIndex]?.alt || 'Product Image'}
+  draggable={false}
+  onLoad={() => setMainLoading(false)}
+  onClick={() => openModal('zoom')}
+  style={{
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+    transition: 'opacity 0.3s ease',
+    opacity: mainLoading ? 0 : 1,
+  }}
+/>
+
           <button
             className="arrow-btn arrow-left"
             onClick={handlePrev}
@@ -252,30 +264,29 @@ export default function ProductGallery({
           {/* Modal thumbnail strip */}
           <div className="modal-thumbnail-container" onClick={e => e.stopPropagation()}>
             <button className="modal-thumb-scroll arrow-left" onClick={scrollModalThumbsLeft} aria-label="Scroll thumbnails left" type="button">‹</button>
-            <div className="modal-thumbnail-list" ref={modalThumbListRef}>
-              {images.map((img, idx) => (
-                <button
-                  key={`modal-thumb-${img.id || idx}`}
-                  className={`thumbnail-btn ${idx === mainIndex ? 'active' : ''}`}
-                  onClick={() => {
-                    setMainImageUrl(img.src);
-                    setMainIndex(idx);
-                    setZoomScale(1);
-                    setZoomTranslate({ x: 0, y: 0 });
-                  }}
-                  type="button"
-                  aria-label={`Thumbnail ${idx + 1}`}
-                >
-                  <img
-                    src={img.src || PlaceHolderImage}
-                    alt={img.alt || `Thumbnail ${idx + 1}`}
-                    className="thumbnail-image"
-                    loading="lazy"
-                    draggable={false}
-                  />
-                </button>
-              ))}
-            </div>
+            <div className="thumbnail-list" role="list">
+  {visibleImages.map((img, idx) => (
+    <button
+      key={img.id || idx}
+      className={`thumbnail-btn ${idx === mainIndex ? 'active' : ''}`}
+      onClick={() => {
+        setMainImageUrl(img.src);
+        setMainIndex(idx);
+      }}
+      type="button"
+      aria-label={`Thumbnail ${idx + 1}`}
+    >
+      <img
+        src={img.src}
+        alt={img.alt || `Thumbnail ${idx + 1}`}
+        className="thumbnail-image"
+        loading="lazy"
+        draggable={false}
+      />
+    </button>
+  ))}
+</div>
+
             <button className="modal-thumb-scroll arrow-right" onClick={scrollModalThumbsRight} aria-label="Scroll thumbnails right" type="button">›</button>
           </div>
         </ModalWrapper>

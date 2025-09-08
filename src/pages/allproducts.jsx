@@ -6,7 +6,7 @@ import FilterButton from '../components/sub/FilterButton';
 import '../assets/styles/allproducts.css';
 import ProductsUnder20AED from '../components/ProductsUnder20AED';
 
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v2';
 const CONSUMER_KEY = 'ck_be7e3163c85f7be7ca616ab4d660d65117ae5ac5';
 const CONSUMER_SECRET = 'cs_df731e48bf402020856ff21400c53503d545ac35';
 const PRODUCTS_PER_PAGE = 50;
@@ -203,6 +203,7 @@ const fetchProducts = useCallback(
     }
     return true;
   });
+  
 
 const NoProductsFound = () => (
 <div className="pcus-no-products" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
@@ -217,7 +218,7 @@ const NoProductsFound = () => (
     </button>
     <button
       className="pcus-btn-primary"
-      onClick={() => navigate('/products')}
+      onClick={() => navigate('/allproducts')}
       aria-label="Go to all products"
     >
       Go to All Products
