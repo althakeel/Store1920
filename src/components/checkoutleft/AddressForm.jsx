@@ -14,6 +14,46 @@ const UAE_EMIRATES = [
   { code: 'FSH', name: 'Fujairah' },
 ];
 
+const UAE_CITIES = {
+  ABU: [
+    'Abu Dhabi', 'Al Ain', 'Madinat Zayed', 'Sweihan', 'Liwa Oasis', 'Ruways', 'Ghayathi', 'Jebel Dhanna',
+    'Al Yahar', 'Al Khazna', 'Al Mahdar', 'Al Falah', 'Al Shuwaib', 'Al Rafaah', 'Al Salamah', 'Al Hayer',
+    'Al Khari', 'Al Ghashban', 'Al Ghabah', 'Al Fara\'', 'Al Fulayyah', 'Al Awdah', 'Al Ghabam', 'Al Hamraniyah',
+    'Al Hamriyah', 'Al Haybah', 'Al Hayl', 'Al Hayr', 'Al Hayrah', 'Al Hulaylah', 'Al Jaddah', 'Al Khashfah',
+    'Al Mahamm', 'Al Masafirah', 'Al Mataf', 'Al Mu\'amurah', 'Al Naslah', 'Al Qir', 'Al Quwayz', 'Al Usayli',
+    'Khalifa City', 'Shakhbout City', 'Corniche', 'Mussafah', 'Reem Island', 'Yas Island', 'Saadiyat Island'
+  ],
+  DXB: [
+    'Dubai', 'Deira', 'Bur Dubai', 'Jebel Ali', 'Al Barsha', 'Al Quoz', 'Al Safa', 'Dubai Marina', 'Jumeirah',
+    'Satwa', 'Al Karama', 'Al Nahda', 'Al Qusais', 'Al Rashidiya', 'Al Jaddaf', 'Al Khawaneej', 'Al Warqa',
+    'Al Muhaisnah', 'Al Mizhar', 'Al Garhoud', 'Al Satwa', 'Business Bay', 'Mirdif', 'Jumeirah Beach Residences',
+    'International City', 'Discovery Gardens', 'Dubai Silicon Oasis', 'Dubai Investment Park', 'Dubai Festival City',
+    'Downtown Dubai', 'Palm Jumeirah', 'Jumeirah Lakes Towers (JLT)', 'DIFC', 'Emirates Towers', 'Trade Centre 2',
+    'Sheikh Zayed Road', 'Al Sufouh', 'Dubai Sports City', 'Dubai Hills Estate', 'Al Barsha South', 'Dubai Industrial City'
+  ],
+  SHJ: [
+    'Sharjah', 'Al Dhaid', 'Khor Fakkan', 'Kalba', 'Mleiha', 'Al Hamriyah', 'Al Madam', 'Al Bataeh',
+    'Al Khan', 'Al Layyah', 'Al Yarmook', 'Industrial Area', 'Sharjah City Center', 'University City', 'Al Nahda'
+  ],
+  AJM: [
+    'Ajman', 'Masfout', 'Manama', 'Al Jurf', 'Al Rashidiya', 'Al Nuaimia', 'Al Rawda', 'Al Rumailah',
+    'Al Mowaihat', 'Al Tallah', 'Al Sheikh Maktoum', 'Al Hamidiyah'
+  ],
+  UAQ: [
+    'Umm Al Quwain', 'Falaj Al Mualla', 'Al Sinniyah', 'Al Rumailah', 'Al Kharran', 'Al Jurf', 'Al Rahbah',
+    'Al Raas', 'Al Tallah', 'Al Bu Falah', 'Al Qawasim'
+  ],
+  RAK: [
+    'Ras Al Khaimah', 'Dibba Al-Hisn', 'Khatt', 'Al Jazirah Al Hamra', 'Al Rams', 'Dhayah', 'Ghalilah',
+    'Al Nakheel', 'Al Hamra Village', 'Al Nakheel Industrial', 'Al Qusaidat', 'Al Maarid', 'Al Hudaibah'
+  ],
+  FSH: [
+    'Fujairah', 'Dibba Al-Fujairah', 'Khor Fakkan', 'Masafi', 'Bidiyah', 'Dibba Al-Hisn', 'Al Aqah',
+    'Al Bithnah', 'Al Faseel', 'Al Hala', 'Al Madhah', 'Al Sharqiyah', 'Al Sakamkam', 'Al Twar', 'Al Jurf'
+  ]
+};
+
+
 const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) => {
   const [formErrors, setFormErrors] = useState({});
 
@@ -73,8 +113,11 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
       ...formData,
       shipping: {
         ...formData.shipping,
+        postal_code: '00000', 
       },
     };
+
+    
 
     onSubmit(preparedData);
   };
@@ -138,6 +181,18 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
               {formErrors.email && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.email}</span>}
             </label>
 
+                 <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444',gap:5 }}>
+              Phone Number
+              <PhoneInput country="ae" value={formData.shipping.phone_number || '971'} onChange={handlePhoneChange}
+                containerStyle={{ width: '100%' }}
+                inputStyle={{ width: '100%', height: '42px', borderRadius: '6px', border: '1px solid #ccc', paddingLeft: '48px'}}
+                buttonStyle={{ pointerEvents: 'none', backgroundColor: '#fff' }}
+                enableSearch={false} countryCodeEditable={false}
+              />
+              {formErrors.phone_number && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.phone_number}</span>}
+            </label>
+
+
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
               Street
               <input type="text" name="street" value={formData.shipping.street} onChange={handleFieldChange}
@@ -152,17 +207,8 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
                 style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
               />
             </label>
-
-            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
-              City
-              <input type="text" name="city" value={formData.shipping.city} onChange={handleFieldChange}
-                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-              />
-              {formErrors.city && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.city}</span>}
-            </label>
-
-            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
-              State / Province
+                <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              Province / Emirates
               <select name="state" value={formData.shipping.state} onChange={handleFieldChange}
                 style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}>
                 <option value="">Select state</option>
@@ -170,25 +216,42 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
               </select>
               {formErrors.state && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.state}</span>}
             </label>
+<label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+  City / Area 
+  <select
+    name="city"
+    value={formData.shipping.city}
+    onChange={handleFieldChange}
+    style={{
+      marginTop: '6px',
+      padding: '10px',
+      fontSize: '1rem',
+      borderRadius: '6px',
+      border: '1px solid #ccc',
+      width: '100%',
+      backgroundColor: '#fff',
+      cursor: 'pointer'
+    }}
+  >
+    <option value="">Select city</option>
+    {UAE_CITIES[formData.shipping.state]?.map((city) => (
+      <option key={city} value={city}>{city}</option>
+    ))}
+  </select>
+  {formErrors.city && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.city}</span>}
+</label>
 
+
+        
+{/* 
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
               Postal Code
               <input type="text" name="postal_code" value={formData.shipping.postal_code} onChange={handleFieldChange}
                 style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
               />
-            </label>
+            </label> */}
 
-            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
-              Phone
-              <PhoneInput country="ae" value={formData.shipping.phone_number || '971'} onChange={handlePhoneChange}
-                containerStyle={{ width: '100%' }}
-                inputStyle={{ width: '100%', height: '42px', borderRadius: '6px', border: '1px solid #ccc', paddingLeft: '48px' }}
-                buttonStyle={{ pointerEvents: 'none', backgroundColor: '#fff' }}
-                enableSearch={false} countryCodeEditable={false}
-              />
-              {formErrors.phone_number && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.phone_number}</span>}
-            </label>
-
+       
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
               Country
               <input type="text" value="United Arab Emirates" readOnly

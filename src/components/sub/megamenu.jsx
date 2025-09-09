@@ -59,7 +59,7 @@ import MensJacketsOuterwear from '../../assets/images/megamenu/Sub catogory Webp
 import MensSweatersHoodies from '../../assets/images/megamenu/Sub catogory Webp/Sweaters & Hoodies copy.webp';
 import MensBlazersSuits from '../../assets/images/megamenu/Sub catogory Webp/Blazers & Suits copy.webp';
 import MensShorts from '../../assets/images/megamenu/Sub catogory Webp/Shorts-1 copy.webp';
-// import MensWinterWear from '../../assets/images/megamenu/Sub catogory Webp/mens'; 
+import MensWinterWear from '../../assets/images/megamenu/Sub catogory Webp/Winter Wear & Down Jackets.webp'; 
 import MensClothingSets from '../../assets/images/megamenu/Sub catogory Webp/Clothing Sets copy.webp';
 import MensNewArrivals from '../../assets/images/megamenu/Sub catogory Webp/New Arrivals copy.webp';
 
@@ -274,7 +274,7 @@ const categories = [
         { id: 504, name: "Sweaters & Hoodies", image: MensSweatersHoodies, path: "/category/6577" },
         { id: 505, name: "Blazers & Suits", image: MensBlazersSuits, path: "/category/6578" },
         { id: 506, name: "Shorts", image: MensShorts, path: "/category/6579" },
-        // { id: 507, name: "Winter Wear & Down Jackets", image: MensWinterWear, path: "/mens-clothing/winter" },
+        { id: 507, name: "Winter Wear & Down Jackets", image: MensWinterWear, path: "/category/6580" },
         { id: 508, name: "Clothing Sets", image: MensClothingSets, path: "/category/6629" },
         { id: 509, name: "New Arrivals", image: MensNewArrivals, path: "/category/6582" }
       ]

@@ -340,6 +340,26 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       <div className="mobile-only">
         <HelpText />
       </div>
+
+      {/* ...other JSX above */}
+{/* Mobile sticky area */}
+<div className="mobileStickyButton">
+  <div className="mobileStickyContent">
+    <span className="mobileSubtotal">AED {subtotal.toFixed(2)}</span>
+    <button
+      className="placeOrderBtnCR"
+      onClick={handlePlaceOrder}
+      disabled={isPlacingOrder}
+      style={getButtonStyle()}
+      aria-disabled={isPlacingOrder}
+    >
+      {getButtonLabel()}
+    </button>
+  </div>
+</div>
+
+{/* ...other JSX below */}
+
     </aside>
   );
 }  

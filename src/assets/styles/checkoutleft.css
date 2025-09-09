@@ -481,6 +481,9 @@
   .checkout-left{
     margin: 0 10px;
   }
+  .desktop-only{
+    display: none;
+  }
 }
 
 

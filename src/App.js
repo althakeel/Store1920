@@ -314,7 +314,7 @@ useEffect(() => {
                     <Route path="*" element={<NotFound />} />
                     <Route path="contact" element={<Contact />} />
                     <Route path="search" element={<Search />} />
-                    <Route path="/paymob-success" element={<PaymobSuccess />} />
+                    <Route path="/payment-success" element={<PaymobSuccess />} />
                     <Route path="/paymob-checkout" element={<PaymobCheckoutPage />} />
                   </Routes>
                 </main>

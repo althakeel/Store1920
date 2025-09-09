@@ -11,6 +11,8 @@ import Image15 from '../assets/images/Footer icons/17.webp';
 import Image16 from '../assets/images/Footer icons/18.webp';
 import Image17 from '../assets/images/Footer icons/19.webp';
 import Image18 from '../assets/images/Footer icons/20.webp';
+import SafetyIcon from '../assets/images/safetycenter/support-center-1.webp'
+
 
 
 const SafetyCenter = () => {
@@ -18,11 +20,18 @@ const SafetyCenter = () => {
     <div className="safety-center-container">
       <div className="safety-header">
         <div className="header-inner">
-          <h1>Safety Center</h1>
-          <p className="subtitle">
-            Store1920 is committed to creating a secure and trustworthy shopping experience. Learn how we protect you.
-          </p>
-        </div>
+  <div className="header-text">
+    <h1>Safety Center</h1>
+    <p className="subtitle">
+      Store1920 is committed to creating a secure and trustworthy shopping experience. Learn how we protect you.
+    </p>
+  </div>
+
+  <div className="header-image">
+    <img src={SafetyIcon} alt="Safety" />
+  </div>
+</div>
+
       </div>
 
       <div className="safety-content">

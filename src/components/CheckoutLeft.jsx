@@ -61,9 +61,7 @@ export default function CheckoutLeft({
     });
   };
 
-  // -------------------------------
-  // Remove cart item (works now)
-  // -------------------------------
+ 
 const handleRemoveItem = (itemId) => {
   // Remove from local formData
   setFormData(prev => {
@@ -75,13 +73,9 @@ const handleRemoveItem = (itemId) => {
     return { ...prev, cartItems: newCartItems };
   });
 
-  // Also remove from CartContext
   removeFromCart(itemId);
 };
 
-  // -------------------------------
-  // Delete address
-  // -------------------------------
   const handleDeleteAddress = () => {
     const emptyAddress = {
       first_name: '', last_name: '', email: '', street: '', apartment: '',

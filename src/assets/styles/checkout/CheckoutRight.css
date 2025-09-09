@@ -21,6 +21,11 @@
   display: none;
 }
 
+.mobileStickyButton {
+  display: block;
+}
+
+
 .summaryRowCR {
   display: flex;
   justify-content: space-between;
@@ -212,3 +217,49 @@
   }
 }
 
+/* Default: button behaves normally */
+.mobileStickyButton {
+  display: block;
+}
+
+/* Mobile: stick button to bottom */
+@media (max-width: 768px) {
+  .mobileStickyButton {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    padding: 0px 16px 15px; /* reduced padding */
+  }
+
+  .mobileStickyContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* vertical centering */
+    gap: 12px;
+  }
+
+  .mobileSubtotal {
+    font-weight: 700;
+    font-size: 16px;
+    color: #000000;
+    display: flex;
+    align-items: center; /* vertical center */
+    margin-top: 20px;
+  }
+
+  .mobileStickyButton .placeOrderBtnCR {
+    flex: 1;
+    border-radius: 25px;
+    padding: 5px 0; /* reduced height */
+    text-align: center;
+  }
+
+  /* Ensure content above the button is not hidden */
+  .checkoutRightContainer {
+    padding-bottom: 60px; /* adjusted for reduced height */
+  }
+}

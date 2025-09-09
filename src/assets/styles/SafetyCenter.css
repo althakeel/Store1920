@@ -15,7 +15,9 @@
   color: white;
   padding: 60px 0 120px 0; /* vertical padding */
   position: relative;
-  background-image: url('https://db.store1920.com/wp-content/uploads/2025/07/checkout_bg_05.jpg');
+  /* background-image: url('https://db.store1920.com/wp-content/uploads/2025/07/checkout_bg_05.jpg'); 
+  */
+  background-color: #007d2f;
   background-size: cover;
   background-position: center;
   /* border-bottom-left-radius: 32px;
@@ -27,9 +29,17 @@
 .safety-header > .header-inner {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 0 10px; /* horizontal padding */
-  text-align: left;
+  padding: 0 10px;
+  display: flex;
+  justify-content: space-between; /* text left, image right */
+  align-items: center; /* vertical alignment */
 }
+
+.header-image img {
+  max-width: 120px; /* adjust size */
+  height: auto;
+}
+
 
 .safety-header h1 {
   font-size: 42px;
