@@ -59,7 +59,7 @@ import MensJacketsOuterwear from '../../assets/images/megamenu/Sub catogory Webp
 import MensSweatersHoodies from '../../assets/images/megamenu/Sub catogory Webp/Sweaters & Hoodies copy.webp';
 import MensBlazersSuits from '../../assets/images/megamenu/Sub catogory Webp/Blazers & Suits copy.webp';
 import MensShorts from '../../assets/images/megamenu/Sub catogory Webp/Shorts-1 copy.webp';
-// import MensWinterWear from '../../assets/images/megamenu/Sub catogory Webp/'; 
+// import MensWinterWear from '../../assets/images/megamenu/Sub catogory Webp/mens'; 
 import MensClothingSets from '../../assets/images/megamenu/Sub catogory Webp/Clothing Sets copy.webp';
 import MensNewArrivals from '../../assets/images/megamenu/Sub catogory Webp/New Arrivals copy.webp';
 

@@ -168,7 +168,7 @@ const Footer = () => {
         >
           <p>&copy; 2022 – 2025 Al Thakeel Group. All rights reserved.</p>
           <ul className="legal-links">
-            <li><Link to="/terms-of-use">Terms of Use</Link></li>
+            <li><Link to="/Terms-0f-use">Terms of Use</Link></li>
             <li><Link to="/privacy-policy">Privacy Policy</Link></li>
             <li><Link to="/cookies-settings">Cookie Settings</Link></li>
           </ul>

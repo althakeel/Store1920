@@ -1,55 +1,193 @@
-.payment-card {
-  border: 1.5px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 14px;
+/* Import Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+.pm-wrapper {
+  font-family: 'Montserrat', sans-serif;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
-  cursor: pointer;
-  background: #fff;
-  transition: all 0.3s ease;
-
-}
-.payment-section-title{
-  padding-bottom: 3px;
-    margin-top: 10px;
 }
 
-.payment-card:hover {
-  border-color: #00b894;
-  background: #f9fffc;
+.pm-wrapper h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
 }
 
-.payment-card.selected {
-  border-color: #00b894;
-  background: #f0fff8;
-  box-shadow: 0 4px 12px rgba(0,184,148,0.15);
+.pm-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.payment-card input[type="radio"] {
-  accent-color: #00b894;
-  cursor: pointer;
-}
-
-.payment-icon {
-  font-size: 20px;
-  color: #00b894;
-  flex-shrink: 0;
-}
-
-.payment-info {
+.pm-card-wrapper {
   display: flex;
   flex-direction: column;
 }
 
-.payment-title {
-  font-weight: 600;
-  font-size: 14px;
-  color: #1a1a1a;
+.pm-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
 }
 
-.payment-desc {
-  font-size: 12px;
-  color: #666;
+.pm-card:hover {
+  border-color: #10b981;
+}
+
+.pm-card.selected {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+.pm-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.pm-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.pm-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.pm-desc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+/* Card Icons inline */
+.card-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.card-icons img {
+  width: 28px;
+  height: auto;
+  object-fit: contain;
+}
+
+.checkmark {
+  font-size: 18px;
+  color: #10b981;
+  font-weight: bold;
+}
+
+.pm-extra-container {
+  margin-left: 52px;
+  margin-top: 8px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.pm-extra {
+  background: #f9fafb;
+  border-left: 4px solid #10b981;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #374151;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Tabby Progress */
+.tabby-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 12px;
+  position: relative;
+}
+
+.tabby-step-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.tabby-line {
+  position: absolute;
+  top: 14px;
+  left: -50%;
+  width: 100%;
+  height: 2px;
+  background: #e5e7eb;
+  z-index: 0;
+}
+
+.tabby-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+  gap: 4px;
+}
+
+.tabby-circle {
+  width: 28px;
+  height: 28px;
+}
+
+.tabby-amount {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.aed-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.tabby-date {
+  font-size: 11px;
+  color: #6b7280;
   margin-top: 2px;
+  text-align: center;
+}
+
+.tamara-extra p {
+  margin: 2px 0;
+}
+
+.tamara-extra ul {
+  margin: 4px 0 0 0;
+  padding-left: 16px;
+  list-style-type: disc;
+}
+
+.tamara-extra li {
+  font-size: 13px;
+  color: #374151;
+}
+
+.tabby-note {
+  font-size: 13px;
+  color: #374151;
 }

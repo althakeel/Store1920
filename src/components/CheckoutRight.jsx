@@ -57,9 +57,15 @@ function Alert({ message, type = 'info', onClose }) {
 }
 
 // -----------------------------
-// Utility: Sanitize Fields
+// Utility: parse price safely
 // -----------------------------
-const sanitizeField = (value) => (value && value.trim() ? value : 'NA');
+const parsePrice = (raw) => {
+  if (typeof raw === 'object' && raw !== null) {
+    raw = raw.price ?? raw.regular_price ?? raw.sale_price ?? 0;
+  }
+  const cleaned = String(raw).replace(/,/g, '').replace(/[^\d.-]/g, '');
+  return parseFloat(cleaned) || 0;
+};
 
 // -----------------------------
 // CheckoutRight Component
@@ -70,16 +76,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   const [discount, setDiscount] = useState(0);
   const [coinDiscount, setCoinDiscount] = useState(0);
 
-  // -----------------------------
-  // Parse price safely
-  // -----------------------------
-  const parsePrice = (raw) => {
-    if (typeof raw === 'object' && raw !== null) {
-      raw = raw.price ?? raw.regular_price ?? raw.sale_price ?? 0;
-    }
-    const cleaned = String(raw).replace(/,/g, '').replace(/[^\d.-]/g, '');
-    return parseFloat(cleaned) || 0;
-  };
+  const showAlert = (message, type = 'info') => setAlert({ message, type });
 
   // -----------------------------
   // Calculate totals
@@ -96,21 +93,25 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   );
 
   const MIN_PAYMOB_AMOUNT = 0.01;
-  const amountToSend = Math.max(subtotal, MIN_PAYMOB_AMOUNT); // Always non-zero
-  const paymobAmount = Math.max(1, Math.ceil(amountToSend * 100)); // Convert to fils
-
-  const showAlert = (message, type = 'info') => setAlert({ message, type });
+  const amountToSend = Math.max(subtotal, MIN_PAYMOB_AMOUNT); // Ensure > 0
 
   // -----------------------------
-  // Check for empty fields in payload
+  // Validate only required fields
   // -----------------------------
-  const checkEmptyFields = (obj, parentKey = '') => {
-    Object.entries(obj).forEach(([key, value]) => {
-      const fullKey = parentKey ? `${parentKey}.${key}` : key;
-      if (value === undefined || value === null || value === '') {
-        console.warn(`⚠️ PAYMOB PAYLOAD EMPTY FIELD: ${fullKey}`);
-      } else if (typeof value === 'object' && !Array.isArray(value)) {
-        checkEmptyFields(value, fullKey);
+  const checkEmptyFields = (data) => {
+    const requiredFields = [
+      'first_name',
+      'last_name',
+      'email',
+      'phone_number',
+      'street',
+      'city',
+      'country',
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!data[field]) {
+        console.warn(`⚠️ Missing required field: ${field}`);
       }
     });
   };
@@ -135,33 +136,29 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       // Paymob/Card
       if (['paymob', 'card'].includes(formData.paymentMethod)) {
         const shipping = formData.shipping || {};
-        const fullName = `${shipping.first_name || 'First'} ${shipping.last_name || 'Last'}`;
-        const [firstName, ...rest] = fullName.split(' ');
-        const lastName = rest.join(' ') || 'Last';
 
         const normalized = {
-          first_name: sanitizeField(firstName),
-          last_name: sanitizeField(lastName),
-          email: sanitizeField(shipping.email || formData.billing?.email),
-          phone_number: sanitizeField(shipping.phone_number),
-          street: sanitizeField(shipping.street),
-          apartment: sanitizeField(shipping.apartment),
-          floor: sanitizeField(shipping.floor || shipping.floor_number || 'NA'),
-          city: sanitizeField(shipping.city),
-          state: sanitizeField(shipping.state),
+          first_name: shipping.first_name?.trim() || 'First',
+          last_name: shipping.last_name?.trim() || 'Last',
+          email: shipping.email?.trim() || formData.billing?.email || 'customer@example.com',
+          phone_number: shipping.phone_number?.startsWith('+')
+            ? shipping.phone_number
+            : `+${shipping.phone_number || '971501234567'}`,
+          street: shipping.street?.trim() || '',
+          apartment: shipping.apartment?.trim() || '', // optional
+          floor: shipping.floor?.trim() || '',         // optional
+          city: shipping.city?.trim()
+            ? shipping.city.charAt(0).toUpperCase() + shipping.city.slice(1)
+            : 'Dubai',
+          state: shipping.state?.trim() || 'DXB',
           country: 'AE',
-          postal_code: sanitizeField(shipping.postal_code),
+          postal_code: shipping.postal_code?.trim() || '', // optional
         };
-
-        console.log('===== PAYMOB DEBUG =====');
-        console.log('Amount to send:', amountToSend);
-        console.log('Order ID:', id.id || id);
-        console.log('Normalized billing/shipping:', normalized);
 
         checkEmptyFields(normalized);
 
         const payload = {
-          amount: paymobAmount,
+          amount: amountToSend, // AED, backend converts to fils
           order_id: id.id || id,
           billing: normalized,
           shipping: normalized,
@@ -169,14 +166,14 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
           items: [
             {
               name: `Order ${id.id || id}`,
-              amount: paymobAmount,
+              amount: amountToSend,
               quantity: 1,
-              description: 'Order from store1920.com'
-            }
-          ]
+              description: 'Order from store1920.com',
+            },
+          ],
         };
 
-        console.log('Payload JSON:', JSON.stringify(payload, null, 2));
+        console.log('===== PAYMOB PAYLOAD =====', payload);
 
         try {
           const res = await fetch(
@@ -345,4 +342,4 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       </div>
     </aside>
   );
-}
+}  

@@ -1,5 +1,16 @@
 import React from 'react';
 import '../assets/styles/SafetyCenter.css'; 
+import Image8 from '../assets/images/Footer icons/2.webp';
+import Image9 from '../assets/images/Footer icons/3.webp';
+import Image10 from '../assets/images/Footer icons/6.webp';
+import Image11 from '../assets/images/Footer icons/11.webp';
+import Image12 from '../assets/images/Footer icons/12.webp';
+import Image13 from '../assets/images/Footer icons/13.webp';
+import Image14 from '../assets/images/Footer icons/16.webp';
+import Image15 from '../assets/images/Footer icons/17.webp';
+import Image16 from '../assets/images/Footer icons/18.webp';
+import Image17 from '../assets/images/Footer icons/19.webp';
+import Image18 from '../assets/images/Footer icons/20.webp';
 
 
 const SafetyCenter = () => {
@@ -48,17 +59,17 @@ const SafetyCenter = () => {
             Store1920 supports secure payment methods and holds multiple security certifications.
           </p>
           <div className="partner-logos">
-             <img src="https://db.store1920.com/wp-content/uploads/2025/07/058c1e09-2f89-4769-9fd9-a3cac76e13e5-1.webp" alt="Visa" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/6fad9cde-cc9c-4364-8583-74bb32612cea.webp" alt="MasterCard" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/3a626fff-bbf7-4a26-899a-92c42eef809a.png.slim_.webp" alt="AmEx" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/ec0c5d69-1717-4571-a193-9950ec73c8af.png.slim_.webp" alt="PayPal" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/da7f463a-916f-4d91-bcbb-047317a1c35e.png.slim_.webp" alt="Cash" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/c3e5eb19-1b60-4c2b-87e1-4528fb390cbf.png.slim_.webp" alt="Apple Pay" />
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/bcb8bf23-78c9-45ab-b480-f7020d1a5f66.png.slim_.webp" alt="Apple Pay" />   
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/b79a2dc3-b089-4cf8-a907-015a25ca12f2.png.slim_.webp" alt="Apple Pay" />   
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/ae5e15c1-ffe8-42c4-9ddb-bb9ed1fdcf6a.png.slim_.webp" alt="Apple Pay" />   
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/936bf9dc-9bb2-4935-9c5a-a70b800d4cf1.png.slim_.webp" alt="Apple Pay" />   
-              <img src="https://db.store1920.com/wp-content/uploads/2025/07/ac293ffc-9957-4588-a4df-f3397b4a54e0.png.slim_.webp" alt="Apple Pay" />   
+             <img src={Image8} alt="Visa" />
+              <img src={Image9} alt="MasterCard" />
+              <img src={Image10} alt="AmEx" />
+              <img src={Image11} alt="PayPal" />
+              <img src={Image12} alt="Cash" />
+              <img src={Image13} alt="Apple Pay" />
+              <img src={Image14} alt="Apple Pay" />   
+              <img src={Image15} alt="Apple Pay" />   
+              <img src={Image16} alt="Apple Pay" />   
+              <img src={Image17} alt="Apple Pay" />   
+              <img src={Image18} alt="Apple Pay" />   
       </div>
         </section>
       </div>
