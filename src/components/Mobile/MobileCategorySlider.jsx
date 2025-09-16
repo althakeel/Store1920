@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import placeholderImg from '../../assets/images/Skelton.png';
-
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
-const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import placeholderImg from "../../assets/images/Skelton.png";
+import { getChildCategories } from "../../api/woocommerce";
 
 // Decode HTML entities in category names
 const decodeHTML = (html) => {
-  const txt = document.createElement('textarea');
+  const txt = document.createElement("textarea");
   txt.innerHTML = html;
   return txt.value;
 };
@@ -18,29 +14,23 @@ const CategorySlider = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    // Clear old cache for testing
-    // localStorage.removeItem('categories');
-
     const fetchCategories = async () => {
       try {
-        const cached = localStorage.getItem('categories');
+        const cached = localStorage.getItem("categories");
         if (cached) {
-          const parsed = JSON.parse(cached);
-          setCategories(parsed);
+          setCategories(JSON.parse(cached));
           return;
         }
 
-        const response = await axios.get(`${API_BASE}/products/categories`, {
-          params: { consumer_key: CK, consumer_secret: CS },
-        });
+        // Fetch top-level categories (parent = 0)
+        const cats = await getChildCategories(0);
 
-        const cats = response.data.filter((c) => c.parent === 0);
-        setCategories(cats);
-        localStorage.setItem('categories', JSON.stringify(cats));
-
-        console.log('Fetched categories:', cats); // Debug log
+        if (cats) {
+          setCategories(cats);
+          localStorage.setItem("categories", JSON.stringify(cats));
+        }
       } catch (err) {
-        console.error('Error fetching categories:', err);
+        console.error("Error fetching categories:", err);
       }
     };
 
@@ -48,13 +38,20 @@ const CategorySlider = () => {
   }, []);
 
   return (
-    <div style={{ overflowX: 'auto', padding: '10px', marginBottom:'10px', WebkitOverflowScrolling: 'touch' }}>
+    <div
+      style={{
+        overflowX: "auto",
+        padding: "10px",
+        marginBottom: "10px",
+        WebkitOverflowScrolling: "touch",
+      }}
+    >
       <div
         style={{
-          display: 'flex',
+          display: "flex",
           gap: 10,
-          flexWrap: 'nowrap',
-          scrollSnapType: 'x mandatory',
+          flexWrap: "nowrap",
+          scrollSnapType: "x mandatory",
         }}
       >
         {categories.length === 0
@@ -62,12 +59,12 @@ const CategorySlider = () => {
               <div
                 key={i}
                 style={{
-                  flex: '0 0 auto',
+                  flex: "0 0 auto",
                   width: 110,
                   height: 145,
-                  background: '#eee',
+                  background: "#eee",
                   borderRadius: 10,
-                  scrollSnapAlign: 'start',
+                  scrollSnapAlign: "start",
                 }}
               />
             ))
@@ -78,29 +75,29 @@ const CategorySlider = () => {
               return (
                 <Link
                   key={cat.id}
-                  to={`/category/${cat.slug}`}
+                  to={`/category/${cat.id}`}
                   style={{
-                    flex: '0 0 auto',
+                    flex: "0 0 auto",
                     width: 110,
                     borderRadius: 10,
-                    backgroundColor: '#fff',
-                    boxShadow: '0 1px 6px rgba(0,0,0,0.08)',
-                    textDecoration: 'none',
-                    color: '#000',
-                    scrollSnapAlign: 'start',
-                    display: 'block',
+                    backgroundColor: "#fff",
+                    boxShadow: "0 1px 6px rgba(0,0,0,0.08)",
+                    textDecoration: "none",
+                    color: "#000",
+                    scrollSnapAlign: "start",
+                    display: "block",
                   }}
                 >
                   <img
                     src={imgSrc}
                     alt={name}
                     style={{
-                      width: '100%',
+                      width: "100%",
                       height: 90,
-                      objectFit: 'cover',
+                      objectFit: "cover",
                       borderTopLeftRadius: 10,
                       borderTopRightRadius: 10,
-                      background: '#f9f9f9',
+                      background: "#f9f9f9",
                     }}
                     onError={(e) => {
                       e.target.onerror = null;
@@ -109,13 +106,13 @@ const CategorySlider = () => {
                   />
                   <div
                     style={{
-                      padding: '6px 5px',
+                      padding: "6px 5px",
                       fontSize: 12,
                       fontWeight: 500,
-                      textAlign: 'center',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
+                      textAlign: "center",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
                   >
                     {name}

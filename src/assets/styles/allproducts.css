@@ -1,56 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
+/* Wrapper */
 .pcus-wrapper1 {
   max-width: 1400px;
   margin: 0 auto;
   padding: 10px 10px 50px 10px;
-  font-family: 'Montserrat',  sans-serif;
+  font-family: 'Montserrat', sans-serif;
   box-sizing: border-box;
   color: #222;
 }
 
-.pcus-category-img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 50%;
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
-.pcus-no-products-wrapper {
-  display: flex;
-  justify-content: center; /* horizontal center */
-  align-items: center;     /* vertical center */
-  flex-direction: column;
-  width: 100%;
-  min-height: 300px;       /* adjust as needed, or use 60vh */
-}
-
-.pcus-no-products-buttons {
-  display: flex;
-  gap: 15px;
-  justify-content: center; /* horizontally center buttons */
-  flex-wrap: wrap;         /* responsive wrap */
-  margin-top: 10px;
-}
-
+/* Buttons */
 .pcus-btn-primary,
 .pcus-btn-secondary {
   padding: 12px 20px;
   border-radius: 25px;
-  border: none;
   font-weight: 600;
   font-family: 'Montserrat', sans-serif;
   cursor: pointer;
   transition: background 0.3s ease, color 0.3s ease;
   min-width: 120px;
   text-align: center;
+  border: none;
 }
 
 .pcus-btn-primary {
   background-color: #fb7701;
-  color: #ffffff;
+  color: #fff;
 }
 
 .pcus-btn-primary:hover {
@@ -58,7 +34,7 @@
 }
 
 .pcus-btn-secondary {
-  background-color: #ffffff;
+  background-color: #fff;
   border: 1px solid #ccc;
   color: #333;
 }
@@ -67,77 +43,64 @@
   background-color: #f0f0f0;
 }
 
-
-.pcus-badges-inline {
-  margin-top: 0px;
-}
-.pcus-badge-best_seller {
-  background-color: #d4edda;
-  color: #155724;
-
-}
-
-.pcus-badge-recommended {
-  background-color: #fff3cd;
-  color: #856404;
+/* No Products Found */
+.pcus-no-products-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 300px;
 }
 
+.pcus-no-products-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+/* Titles */
 .pcus-main-title1 {
   font-size: 24px;
-  margin: 0;
-  font-weight: 900; /* Increased thickness */
+  font-weight: 900;
   color: #ff7b00;
   text-align: center;
+  margin: 0;
   letter-spacing: 0.5px;
 }
 
 .pcus-sub-title1 {
   font-size: 20px;
-  font-weight: 800; /* Increased thickness */
+  font-weight: 800;
   text-align: center;
   color: #000;
-  margin-bottom: 1.5rem;
+  margin: 5px 0 1.5rem;
   letter-spacing: 0.3px;
-  margin-top: 5px;
 }
-.pcus-load-more-btn{
+
+/* Load More Button */
+.pcus-load-more-btn {
   padding: 12px 20px;
   border-radius: 25px;
   background-color: #fb7701;
   border: none;
-  color: #ffffff;
+  color: #fff;
   font-weight: 500;
   font-family: 'Montserrat', sans-serif;
-  word-spacing: 2.5;
 }
 
-.pcus-subtitle {
-  font-size: 1rem;
-  margin: 0;
-  color: #555;
-}
-
-.pcus-categories-scroll::-webkit-scrollbar {
-  height: 6px;
-}
-
-.pcus-categories-scroll::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 3px;
-}
-
-
-/* Categories container */
+/* Categories Scroll */
 .pcus-categories-wrapper {
-  position: relative; /* ensure arrows can be positioned absolutely inside */
   display: flex;
   align-items: center;
+  position: relative;
+  padding: 0 10px;
   margin-bottom: 35px;
   user-select: none;
-  /* optionally add padding so arrows don't overlap content */
-  padding: 0 10px;
-  margin-left: 2px;
 }
+
 .pcus-categories-scroll {
   flex: 1;
   overflow-x: auto;
@@ -150,21 +113,12 @@
   display: none;
 }
 
-.pcus-prd-discount-box {
-  background: #d32f2f;
-  color: #fff;
-  font-size: 9px;
-  font-weight: 500;
-  padding: 2px 5px;
-  border-radius: 4px;
-  margin: 0 6px;
-  white-space: nowrap;
-}
-
-
-/* Category buttons */
+/* Category Buttons */
 .pcus-category-btn1 {
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 8px 15px;
   margin-right: 12px;
   border-radius: 10px;
@@ -175,70 +129,14 @@
   font-size: 14px;
   cursor: pointer;
   white-space: nowrap;
-  transition:
-    background-color 0.5s ease,
-    color 0.5s ease,
-    border-color 0.5s ease,
-    transform 0.5s ease; /* added transform transition */
-  user-select: none;
-  font-family: 'Montserrat', sans-serif;
-    flex-direction: column;
-  justify-content: center;  /* vertical centering */
-  align-items: center; 
-  
-}
-
-.recomended img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  /* border-radius: 50%; */
-    user-select: none;
-}
-
-.recomended-text {
-  font-size: 13px;           /* same as .pcus-category-name */
-  line-height: 1.2;          /* same line height */
-  color: inherit;
-  text-align: center;
-  font-weight: 500;          /* match others */
-  margin-top: 3px;
-  user-select: none;
-}
-
-
-
-.pcus-category-name {
-  max-width: 100%;        /* fit inside button */
-  white-space: normal;    /* allow wrapping to next line */
-  text-align: center;     /* center text */
-  font-size: 13px;
-  line-height: 1.2;
-  margin-top: 3px;
-  word-wrap: break-word;  /* break long words if needed */
-  overflow-wrap: anywhere; /* better word break support */
-  user-select: none;
-}
-
-.pcus-category-btn1:hover {
-  /* background-color: #ffffff;
-  border-bottom: 1px solid rgb(255, 81, 0);
-  border-top: 1px solid rgb(255, 81, 0); */
-  color: #000;
-  /* transform: scale(1.01);  */
+  transition: background-color 0.5s ease, color 0.5s ease, transform 0.5s ease;
 }
 
 .pcus-category-btn1.active {
-  background-color: #ffffff;
-  color: #000000;
-  transform: scale(1.08); 
-  /* border: 1px solid grey; */
-  /* border-right: 1px solid grey;
-  border-left: 1px solid grey; */
-  /* border-bottom: 1px solid rgb(255, 81, 0);
-  border-top: 1px solid rgb(255, 81, 0); */
+  background-color: #fff;
+  color: #000;
+  transform: scale(1.08);
 }
-
 
 .pcus-category-btn1.load-more {
   font-weight: 700;
@@ -247,11 +145,35 @@
   color: #666;
 }
 
-/* Arrow buttons */
+.pcus-category-btn1:hover {
+  color: #000;
+}
+
+/* Category Name */
+.pcus-category-name,
+.recomended-text {
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  font-weight: 500;
+  margin-top: 3px;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  user-select: none;
+}
+
+/* Recommended Images */
+.recomended img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  user-select: none;
+}
+
+/* Arrow Buttons */
 .pcus-arrow-btn1 {
   background: #fff;
   border: 1px solid #ccc;
-  position: absolute;
   border-radius: 50%;
   width: 38px;
   height: 38px;
@@ -261,89 +183,81 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  user-select: none;
+  position: absolute;
   transition: background-color 0.25s ease, color 0.25s ease;
-  margin: 0 6px;
 }
 
 .pcus-arrow-btn1.left {
-  left: -10px; /* moves the left arrow 10px outside the container */
+  left: -10px;
 }
 
 .pcus-arrow-btn1.right {
-  right: -10px; /* moves the right arrow 10px outside */
+  right: -10px;
 }
-
 
 .pcus-arrow-btn1:hover {
   background-color: #000;
   color: #fff;
 }
 
-/* Products grid */
+/* Products Grid */
 .pcus-prd-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 15px;
 }
 
-/* Product card */
+/* Product Card */
 .pcus-prd-card {
-  border: .5px solid #eeeeee50;
-  border-radius: 5px;
-  background: #fff;
-  /* box-shadow: 0 2px 6px rgb(0 0 0 / 0.05); */
   display: flex;
   flex-direction: column;
+  border: 0.5px solid #eeeeee50;
+  border-radius: 5px;
+  background: #fff;
   cursor: pointer;
   transition: box-shadow 0.3s ease;
-  user-select: none;
   overflow: hidden;
   position: relative;
- 
 }
 
 .pcus-prd-card:hover,
 .pcus-prd-card:focus {
-  box-shadow: 0 8px 16px rgb(0 0 0 / 0.12);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
   outline: none;
 }
 
-/* Sold count badge top left */
+/* Sold Badge */
 .pcus-sold-badge {
-  position: static !important; /* remove absolute */
+  position: static !important;
   background: transparent;
   color: #585858;
   font-size: 12px;
   font-weight: 600;
-  /* padding: 4px 8px; */
-  /* border-radius: 20px; */
-  user-select: none;
   white-space: nowrap;
-  flex-shrink: 0;
+  user-select: none;
 }
-/* Image wrapper to position badges overlay */
+
+/* Image Wrapper */
 .pcus-image-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1/1;
   overflow: hidden;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   padding: 0;
 }
 
-/* Product image */
 .pcus-prd-image {
   width: 100%;
   height: 100%;
   object-fit: fill;
   display: block;
   user-select: none;
-   padding: 10px 10px 0 10px;
+  padding: 10px 10px 0 10px;
 }
 
-/* Badges overlay at bottom of image */
+/* Badges Overlay */
 .pcus-badges-overlay {
   position: absolute;
   bottom: 0;
@@ -357,21 +271,32 @@
   overflow-x: auto;
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
-  box-sizing: border-box;
-  scrollbar-width: none;
   user-select: none;
 }
 
-.pcus-badges-overlay::-webkit-scrollbar {
-  display: none;
+.pcus-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 14px;
+  white-space: nowrap;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
 }
 
-/* Badge colors */
+/* Badge Colors */
+.pcus-badge-best_seller,
 .pcus-badges-color-green .pcus-badge {
   background-color: #d4edda;
   color: #155724;
 }
 
+.pcus-badge-recommended,
 .pcus-badges-color-orange .pcus-badge {
   background-color: #fff3cd;
   color: #856404;
@@ -382,26 +307,7 @@
   color: #721c24;
 }
 
-/* Individual badge style */
-.pcus-badge {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 14px;
-  white-space: nowrap;
-  cursor: default;
-  flex-shrink: 0;
-  user-select: none;
-
-  display: flex;
-  align-items: center;   /* Vertically center text */
-  justify-content: center; /* Optional: horizontally center */
-  height: 100%; /* Optional: ensures flex alignment works correctly */
-}
-
-
-/* Product info container */
+/* Product Info */
 .pcus-prd-info {
   padding: 5px 14px 14px;
   display: flex;
@@ -410,11 +316,10 @@
   flex-grow: 1;
 }
 
-/* Product title */
 .pcus-prd-title {
   display: flex;
-  align-items: center;       /* ✅ Vertically center all content */
-  gap: 6px;                  /* Optional: spacing between badge and title */
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   font-weight: 500;
   color: #111;
@@ -424,6 +329,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
 .pcus-title-text {
   overflow: hidden;
   white-space: nowrap;
@@ -431,13 +337,13 @@
   display: inline-block;
 }
 
-
-/* Review stars */
+/* Reviews */
 .pcus-prd-review {
-  display: flex !important; /* override if needed */
+  display: flex;
   align-items: center;
   gap: 12px;
 }
+
 .pcus-stars {
   color: #f4b400;
   font-size: 14px;
@@ -453,14 +359,7 @@
   color: #f4b400;
 }
 
-.pcus-no-reviews {
-  color: #999;
-  font-size: 12px;
-  font-style: italic;
-  user-select: none;
-}
-
-/* Price and cart container */
+/* Prices */
 .pcus-prd-price-cart {
   display: flex;
   justify-content: space-between;
@@ -468,14 +367,12 @@
   gap: 5px;
 }
 
-/* Prices container */
 .pcus-prd-prices {
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
-/* Regular price when on sale */
 .pcus-prd-regular-price {
   font-size: 12px;
   color: #888;
@@ -485,7 +382,6 @@
   gap: 5px;
 }
 
-/* Sale price */
 .pcus-prd-sale-price {
   font-size: 16px;
   font-weight: 700;
@@ -496,23 +392,15 @@
   user-select: text;
 }
 
-/* Sale price highlight if on sale */
 .pcus-prd-sale-price.on-sale {
-  color: #d33;
+  color: rgb(0, 0, 0);
 }
 
-/* Sale price turns red if almost sold */
 .pcus-prd-sale-price.almost-sold {
   color: #a81b1b !important;
 }
 
-/* Icons in price */
-.pcus-prd-price-icon {
-  display: inline-block;
-  vertical-align: middle;
-}
-
-/* Add to cart button */
+/* Add to Cart */
 .pcus-prd-add-cart-btn {
   background-color: #fff;
   border: 1px solid #ccc;
@@ -531,14 +419,13 @@
   background-color: #eee;
 }
 
-/* Add to cart icon image */
 .pcus-prd-add-cart-icon-img {
   width: 20px;
   height: 20px;
   user-select: none;
 }
 
-/* Loading skeleton styles */
+/* Skeleton Loader */
 .pcus-skeleton {
   animation: pulse 1.4s infinite ease-in-out;
   background-color: #f0f0f0;
@@ -547,94 +434,51 @@
   overflow: hidden;
 }
 
-.pcus-prd-image-skel {
-  width: 100%;
-  height: 220px;
-  background-color: #ddd;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-
-.pcus-prd-info-skel {
-  padding: 14px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.pcus-prd-title-skel,
-.pcus-prd-review-skel,
-.pcus-prd-price-cart-skel {
-  background-color: #ccc;
-  border-radius: 8px;
-}
-
-.pcus-prd-title-skel {
-  width: 90%;
-  height: 18px;
-}
-
-.pcus-prd-review-skel {
-  width: 40%;
-  height: 14px;
-}
-
-.pcus-prd-price-cart-skel {
-  width: 80%;
-  height: 24px;
-  margin-top: 12px;
-}
-
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.pcus-price-decimal {
+  font-size: 0.7em;  /* smaller decimal */
+  vertical-align: super; /* optional: raise slightly */
+  margin-left: 1px;
 }
 
-/* Responsive tweaks */
+
+
+/* Animated dots after text */
+/* Animated dots after text for Load More button */
+.pcus-load-more-btn .loading-text {
+  color: white; /* keep text white */
+}
+
+.pcus-load-more-btn .loading-text::after {
+  content: "";
+  display: inline-block;
+  width: 1em;
+  text-align: left;
+  animation: dots 1s steps(3, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: ""; }
+  40% { content: "."; }
+  60% { content: ".."; }
+  80%, 100% { content: "..."; }
+}
+
+
+/* Responsive */
 @media (max-width: 768px) {
-  .pcus-prd-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 18px;
-  }
-  .pcus-wrapper1 {
-
-  padding: 20px 20px;
-
-}
-
-
-  .pcus-image-wrapper {
-    height: 150px;
-  }
+  .pcus-prd-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; }
+  .pcus-wrapper1 { padding: 20px 20px; }
+  .pcus-image-wrapper { height: 150px; }
 }
 
 @media (max-width: 480px) {
-  .pcus-categories-wrapper {
-    margin-bottom: 20px;
-  }
-
-  .pcus-arrow-btn1 {
-    width: 32px;
-    height: 32px;
-    font-size: 20px;
-    margin: 0 4px;
-  }
-
-  .pcus-category-btn1 {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .pcus-prd-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 15px;
-  }
-
-  .pcus-image-wrapper {
-    height: 130px;
-  }
+  .pcus-categories-wrapper { margin-bottom: 20px; }
+  .pcus-arrow-btn1 { width: 32px; height: 32px; font-size: 20px; margin: 0 4px; }
+  .pcus-category-btn1 { padding: 6px 12px; font-size: 12px; }
+  .pcus-prd-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+  .pcus-image-wrapper { height: 130px; }
 }

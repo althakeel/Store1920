@@ -220,6 +220,7 @@ useEffect(() => {
     );
 
   const isHomePage = path === '/';
+  const isSupportPage = path === '/support';
   const isFestSalePage = path === '/fest-sale';
   const onCheckoutPage = path === '/checkout' || path.startsWith('/checkout/');
 
@@ -271,7 +272,7 @@ useEffect(() => {
                     background: '#fff',
                   }}
                 >
-                  {!isHomePage && !isFestSalePage && <Breadcrumbs />}
+{!isHomePage && !isFestSalePage && !isSupportPage && <Breadcrumbs />}
 
                   <Routes>
                     <Route path="/" element={<Home />} />

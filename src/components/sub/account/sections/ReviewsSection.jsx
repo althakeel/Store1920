@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { getProductReviews } from '../../../../api/woocommerce'; // import from your helper
 import '../../../../assets/styles/myaccount/reviewSection.css';
-
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CONSUMER_KEY = 'ck_8adb881aaff96e651cf69b9a8128aa5d9c80eb46';
-const CONSUMER_SECRET = 'cs_595f6cb2c159c14024d77a2a87fa0b6947041f9f';
 
 const ReviewSection = ({ customerEmail }) => {
   const [reviews, setReviews] = useState([]);
@@ -18,17 +14,15 @@ const ReviewSection = ({ customerEmail }) => {
       }
 
       try {
-        const res = await axios.get(`${API_BASE}/products/reviews`, {
-          params: {
-            consumer_key: CONSUMER_KEY,
-            consumer_secret: CONSUMER_SECRET,
-            reviewer_email: customerEmail,
-            per_page: 100,
-          },
-        });
+        // Fetch all reviews (WooCommerce API supports filtering by email)
+        const allReviews = await getProductReviews(); // fetchAPI returns all reviews
+        // Filter by reviewer email
+        const filteredReviews = allReviews.filter(
+          (review) => review.reviewer_email === customerEmail
+        );
 
-        console.log('Fetched Reviews:', res.data);
-        setReviews(res.data);
+        console.log('Fetched Reviews:', filteredReviews);
+        setReviews(filteredReviews);
       } catch (error) {
         console.error('Error fetching reviews:', error);
       } finally {
@@ -65,7 +59,8 @@ const ReviewSection = ({ customerEmail }) => {
           <p><strong>Rating:</strong> {review.rating} ⭐</p>
           <p><strong>Review:</strong> {review.review}</p>
           <p className="review-date">
-            {new Date(review.date_created).toLocaleDateString()} at {new Date(review.date_created).toLocaleTimeString()}
+            {new Date(review.date_created).toLocaleDateString()} at{' '}
+            {new Date(review.date_created).toLocaleTimeString()}
           </p>
         </div>
       ))}

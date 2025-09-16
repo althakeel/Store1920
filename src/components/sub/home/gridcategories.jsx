@@ -1,9 +1,9 @@
 // src/components/home/GridCategories.js
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../../assets/styles/home/GridCategories.css";
 import { useCart } from "../../../contexts/CartContext";
+import { getProductsByCategories } from "../../../api/woocommerce";
 
 // Images
 import PlaceHolderImage from "../../../assets/images/common/Placeholder.png";
@@ -12,26 +12,20 @@ import grid2 from "../../../assets/images/gridhome/2.png";
 import grid3 from "../../../assets/images/gridhome/3.png";
 import grid4 from "../../../assets/images/gridhome/4.png";
 
-const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
-const AUTH = {
-  username: "ck_c4e35c0d93df1f96cae81fccae967b8969a1eb85",
-  password: "cs_b2b2ab3b1cdbc7db01cd718dc52b8f5a5711a6e5",
-};
-
 // Static left categories
 const staticCategories = [
   { id: 1, name: "Mobiles & Tablets", image: grid2, link: "/category/6535" },
-  { id: 2, name: "Automotive & Motorcycle", image: grid4, link: "/category/6531	" },
+  { id: 2, name: "Automotive & Motorcycle", image: grid4, link: "/category/6531" },
   { id: 3, name: "Fashion Deals", image: grid1, link: "/category/6522" },
   { id: 4, name: "Home & Kitchen", image: grid3, link: "/category/6519" },
 ];
 
-// Initial static center grid placeholders
+// Placeholder products while loading
 const initialProductPlaceholders = [
-  { id: "ph1", image: 'https://db.store1920.com/wp-content/uploads/2025/09/171996-2m5ilp.jpg', name: "Loading...", price: null },
-  { id: "ph2", image: 'https://db.store1920.com/wp-content/uploads/2025/09/171829-pa7trl.jpg', name: "Loading...", price: null },
-  { id: "ph3", image: 'https://db.store1920.com/wp-content/uploads/2025/09/168833-oyb1ng.jpg', name: "Loading...", price: null },
-  { id: "ph4", image: 'https://db.store1920.com/wp-content/uploads/2025/09/168010-gsmxtg.jpg', name: "Loading...", price: null },
+  { id: "ph1", image: PlaceHolderImage, name: "Loading...", price: null },
+  { id: "ph2", image: PlaceHolderImage, name: "Loading...", price: null },
+  { id: "ph3", image: PlaceHolderImage, name: "Loading...", price: null },
+  { id: "ph4", image: PlaceHolderImage, name: "Loading...", price: null },
 ];
 
 // Countdown Hook
@@ -55,7 +49,7 @@ const useCountdown = (targetDate) => {
         s: Math.floor((distance / 1000) % 60),
       });
     }, 1000);
-  
+
     return () => clearInterval(interval);
   }, [targetDate]);
 
@@ -63,16 +57,15 @@ const useCountdown = (targetDate) => {
 };
 
 const GridCategories = () => {
-  const [products, setProducts] = useState(initialProductPlaceholders);
+  const [products, setProducts] = useState(initialProductPlaceholders); // Start with placeholders
   const [banners, setBanners] = useState([]);
-  const [targetDate] = useState(new Date().getTime() + 24 * 60 * 60 * 1000);
-
   const [currentBanner, setCurrentBanner] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [targetDate] = useState(new Date().getTime() + 24 * 60 * 60 * 1000);
 
   const { addToCart, cartItems } = useCart();
-  const featuredCountdown = useCountdown(targetDate);
   const navigate = useNavigate();
+  const featuredCountdown = useCountdown(targetDate);
 
   // Detect mobile resize
   useEffect(() => {
@@ -90,46 +83,33 @@ const GridCategories = () => {
     return () => clearInterval(interval);
   }, [isMobile, banners.length]);
 
-  // Fetch products (fast API first, fallback to WC products)
+  // Fetch max 4 products via API helper and replace placeholders
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(
-          "https://db.store1920.com/wp-json/custom/v1/fast-products",
-          { timeout: 2000 }
-        );
-        const data = Array.isArray(res.data) ? res.data.slice(0, 4) : [];
-        if (data.length > 0) {
-          setProducts(data);
-          return;
+        const data = await getProductsByCategories([6522, 6531, 6535, 6519], 1, 4); // max 4
+        if (data && data.length > 0) {
+          const updatedProducts = data.slice(0, 4).map((prod) => ({
+            id: prod.id,
+            name: prod.name,
+            price: prod.price,
+            regular_price: prod.regular_price,
+            images: prod.images && prod.images.length > 0 ? prod.images : [{ src: PlaceHolderImage }],
+          }));
+          setProducts(updatedProducts);
         }
       } catch (err) {
-        console.error("⚠️ Fast product fetch error:", err);
-      }
-
-      // fallback
-      try {
-        const res = await axios.get(`${API_BASE}/products?per_page=4`, { auth: AUTH });
-        setProducts(res.data);
-      } catch (err) {
-        console.error("⚠️ WC product fetch error:", err);
+        console.error("Error fetching products via API helper:", err);
       }
     };
-
     fetchProducts();
   }, []);
 
   // Set banners
   useEffect(() => {
     setBanners([
-      {
-        id: 1,
-        image: "https://db.store1920.com/wp-content/uploads/2025/08/3-6.webp",
-      },
-      {
-        id: 2,
-        image: "https://db.store1920.com/wp-content/uploads/2025/08/4-4.webp",
-      },
+      { id: 1, image: "https://db.store1920.com/wp-content/uploads/2025/08/3-6.webp" },
+      { id: 2, image: "https://db.store1920.com/wp-content/uploads/2025/08/4-4.webp" },
     ]);
   }, []);
 
@@ -147,11 +127,7 @@ const GridCategories = () => {
               className="gcx-category-card"
               onClick={() => navigate(cat.link)}
             >
-              <img
-                src={cat.image || PlaceHolderImage}
-                alt={cat.name}
-                style={{ objectFit: "fill" }}
-              />
+              <img src={cat.image || PlaceHolderImage} alt={cat.name} style={{ objectFit: "fill" }} />
               <div className="gcx-cat-info">
                 <h4>{cat.name}</h4>
               </div>
@@ -165,48 +141,51 @@ const GridCategories = () => {
         <div className="gcx-featured-header">
           <h3 className="gcx-mega-title">MEGA DEALS</h3>
           <div className="gcx-featured-countdown">
-            ⏳ {featuredCountdown.h}h : {featuredCountdown.m}m :{" "}
-            {featuredCountdown.s}s
+            ⏳ {featuredCountdown.h}h : {featuredCountdown.m}m : {featuredCountdown.s}s
           </div>
         </div>
 
         <div className="gcx-middle-grid">
           {products.map((prod, idx) => {
             const inCart = isInCart(prod.id);
-            const shortName =
-              prod.name && prod.name.length > 20
-                ? prod.name.substring(0, 20) + "..."
-                : prod.name || "Loading...";
+            const displayName = prod.name
+              ? prod.name.length > 22
+                ? prod.name.substring(0, 22) + "…"
+                : prod.name
+              : "Loading...";
 
             return (
-              <div key={prod?.id || `ph-${idx}`} className="gcx-product-card">
+              <div key={prod.id || `ph-${idx}`} className="gcx-product-card">
+                {/* Image with fade-in effect when replaced */}
                 <img
-                  src={
-                    prod?.images?.[0]?.src ||
-                    prod?.image ||
-                    PlaceHolderImage
-                  }
+                  src={prod?.images?.[0]?.src || PlaceHolderImage}
                   alt={prod?.name || "Product"}
+                  className="gcx-product-image"
                 />
 
-                {/* Product name */}
-                <h4 className="gcx-product-title">{shortName}</h4>
+                {/* Product title single line with max 25 characters */}
+                <h4
+                  className="gcx-product-title"
+                  style={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {displayName}
+                </h4>
 
                 {/* Price */}
                 {prod?.price && (
                   <div className="gcx-price-wrap">
                     {prod?.regular_price && (
-                      <span className="gcx-old-price">
-                        AED {prod.regular_price}
-                      </span>
+                      <span className="gcx-old-price">AED {prod.regular_price}</span>
                     )}
-                    <span className="gcx-product-price">
-                      AED {prod.price}
-                    </span>
+                    <span className="gcx-product-price">AED {prod.price}</span>
                   </div>
                 )}
 
-                {/* Add to cart button (only if real product) */}
+                {/* Add to cart */}
                 {prod?.id && (
                   <button
                     className="gcx-cart-btn"

@@ -108,7 +108,7 @@ const ProductsUnder20AED = () => {
                   <div className="pu20-image-wrapper">
                     {!loadedImages[p.id] && <div className="pu20-image-skeleton" />}
                     <img
-                      src={p.images?.[0]?.src || PlaceholderImage}
+                       src={p.images?.[0]?.src || PlaceholderImage}
                       alt={decodeHTML(p.name)}
                       className={`pu20-image primary ${loadedImages[p.id] ? 'visible' : 'hidden'}`}
                       loading="lazy"

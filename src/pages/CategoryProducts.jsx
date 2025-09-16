@@ -9,9 +9,12 @@ import "../assets/styles/Category.css";
 import ProductCardReviews from "../components/temp/productcardreviews";
 import FilterButton from "../components/sub/FilterButton";
 
-const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
-const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
-const CONSUMER_SECRET = "cs_92458ba6ab5458347082acc6681560911a9e993d";
+import {
+  getCategoryById,
+  getChildCategories,
+  getProductsByCategories,
+} from "../api/woocommerce";
+
 const PRODUCTS_PER_PAGE = 42;
 const TITLE_LIMIT = 22;
 
@@ -35,55 +38,40 @@ const UniqueProductCategory = () => {
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const cartIconRef = useRef(null);
 
-  // Fetch category info
+  // --- Fetch category info + child categories ---
   useEffect(() => {
     if (!categoryId) return;
+
     const fetchCategoryInfo = async () => {
       try {
-        const res = await fetch(
-          `${API_BASE}/products/categories/${categoryId}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
-        );
-        const cat = await res.json();
-        setCategoryName(decodeHTML(cat.name));
+        const category = await getCategoryById(categoryId);
+        if (!category) return;
 
-        const allRes = await fetch(
-          `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100`
-        );
-        const allCats = await allRes.json();
-        const children = allCats.filter((c) => c.parent === categoryId).map((c) => c.id);
-        setChildCategoryIds([categoryId, ...children]);
+        setCategoryName(decodeHTML(category.name));
+
+        const children = await getChildCategories(categoryId);
+        const ids = [categoryId, ...(children?.map((c) => c.id) || [])];
+        setChildCategoryIds(ids);
         setPage(1);
         setProducts([]);
       } catch (err) {
         console.error("Error fetching category info:", err);
       }
     };
+
     fetchCategoryInfo();
   }, [categoryId]);
 
-  // Fetch products
+  // --- Fetch products ---
   useEffect(() => {
     if (!childCategoryIds.length) return;
-
-    const cacheKey = `unique_category_${categoryId}_page_${page}`;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      const data = JSON.parse(cached);
-      setProducts((prev) => (page === 1 ? data : [...prev, ...data]));
-      setHasMore(data.length >= PRODUCTS_PER_PAGE);
-      return;
-    }
 
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const categoryQuery = childCategoryIds.join(",");
-        const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${categoryQuery}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc&fields=id,name,images,price,total_sales`;
-        const res = await fetch(url);
-        const data = await res.json();
-        setProducts((prev) => (page === 1 ? data : [...prev, ...data]));
-        setHasMore(data.length >= PRODUCTS_PER_PAGE);
-        localStorage.setItem(cacheKey, JSON.stringify(data));
+        const data = await getProductsByCategories(childCategoryIds, page, PRODUCTS_PER_PAGE);
+        setProducts((prev) => (page === 1 ? data : [...prev, ...(data || [])]));
+        setHasMore(data?.length >= PRODUCTS_PER_PAGE);
       } catch (err) {
         console.error("Error fetching products:", err);
         setProducts([]);
@@ -94,7 +82,7 @@ const UniqueProductCategory = () => {
     };
 
     fetchProducts();
-  }, [childCategoryIds, page, categoryId]);
+  }, [childCategoryIds, page]);
 
   const loadMore = () => {
     if (!hasMore || loading) return;
@@ -186,9 +174,7 @@ const UniqueProductCategory = () => {
                         <Price value={p.price} />
                       </div>
                       <button
-                        className={`upc-add-btn ${
-                          cartItems.some((item) => item.id === p.id) ? "upc-added" : ""
-                        }`}
+                        className={`upc-add-btn ${cartItems.some((item) => item.id === p.id) ? "upc-added" : ""}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           flyToCart(e, p.images?.[0]?.src);
@@ -196,11 +182,7 @@ const UniqueProductCategory = () => {
                         }}
                       >
                         <img
-                          src={
-                            cartItems.some((item) => item.id === p.id)
-                              ? AddedToCartIcon
-                              : AddCartIcon
-                          }
+                          src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCartIcon}
                           alt="Add to cart"
                           className="upc-add-icon"
                         />

@@ -9,9 +9,13 @@ import "../assets/styles/categorypageid.css";
 import ProductCardReviews from "../components/temp/productcardreviews";
 import PlaceHolderIcon from "../assets/images/common/Placeholder.png";
 
-const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
-const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
-const CONSUMER_SECRET = "cs_92458ba6ab5458347082acc6681560911a9e993d";
+import {
+  getCategoryById,
+  getCategoryBySlug,
+  getChildCategories,
+  getProductsByCategories,
+} from "../api/woocommerce";
+
 const PRODUCTS_PER_PAGE = 42;
 const TITLE_LIMIT = 25;
 
@@ -34,34 +38,16 @@ const ProductCategory = () => {
   const cartIconRef = useRef(null);
   const navigate = useNavigate();
 
-  // --- Fetch category + products fast ---
+  // --- Fetch category + products ---
   useEffect(() => {
     if (!slug && !id) return;
 
-    const fetchCategory = async () => {
+    const fetchCategoryAndProducts = async () => {
       setInitialLoading(true);
       try {
-        let matchedCategory;
-
-        // ✅ 1. Fetch category directly by id or slug
-        if (id) {
-          const res = await fetch(
-            `${API_BASE}/products/categories/${id}?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`
-          );
-          matchedCategory = await res.json();
-        } else {
-          const res = await fetch(
-            `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&slug=${slug}`
-          );
-          const data = await res.json();
-          matchedCategory = data.find(
-            (c) =>
-              !parentSlug ||
-              (parentSlug &&
-                c.parent &&
-                c.parent.toString() === parentSlug.toString())
-          );
-        }
+        let matchedCategory = id
+          ? await getCategoryById(id)
+          : (await getCategoryBySlug(slug))?.[0];
 
         if (!matchedCategory) {
           setCategory(null);
@@ -72,23 +58,15 @@ const ProductCategory = () => {
 
         setCategory(matchedCategory);
 
-        // ✅ 2. Fetch children + products in parallel
-        const [childrenRes, productsRes] = await Promise.all([
-          fetch(
-            `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&parent=${matchedCategory.id}`
-          ),
-          fetch(
-            `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${matchedCategory.id}&per_page=${PRODUCTS_PER_PAGE}&page=1&orderby=date&order=desc&_fields=id,name,slug,images,price,total_sales`
-          ),
-        ]);
-
-        const children = await childrenRes.json();
-        const productsData = await productsRes.json();
-
-        const ids = [matchedCategory.id, ...children.map((c) => c.id)];
+        // Get children categories
+        const children = await getChildCategories(matchedCategory.id);
+        const ids = [matchedCategory.id, ...(children?.map((c) => c.id) || [])];
         setChildCategoryIds(ids);
-        setProducts(productsData);
-        setHasMore(productsData.length >= PRODUCTS_PER_PAGE);
+
+        // Fetch first page of products
+        const productsData = await getProductsByCategories(ids, 1, PRODUCTS_PER_PAGE);
+        setProducts(productsData || []);
+        setHasMore(productsData?.length >= PRODUCTS_PER_PAGE);
       } catch (err) {
         console.error("Error fetching category or products:", err);
       } finally {
@@ -96,7 +74,7 @@ const ProductCategory = () => {
       }
     };
 
-    fetchCategory();
+    fetchCategoryAndProducts();
   }, [slug, parentSlug, id]);
 
   // --- Pagination ---
@@ -106,13 +84,9 @@ const ProductCategory = () => {
     const fetchMoreProducts = async () => {
       setLoading(true);
       try {
-        const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&category=${childCategoryIds.join(
-          ","
-        )}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc&_fields=id,name,slug,images,price,total_sales`;
-        const res = await fetch(url);
-        const data = await res.json();
-        setProducts((prev) => [...prev, ...data]);
-        setHasMore(data.length >= PRODUCTS_PER_PAGE);
+        const data = await getProductsByCategories(childCategoryIds, page, PRODUCTS_PER_PAGE);
+        setProducts((prev) => [...prev, ...(data || [])]);
+        setHasMore(data?.length >= PRODUCTS_PER_PAGE);
       } catch (err) {
         console.error("Error fetching more products:", err);
       } finally {
@@ -147,7 +121,7 @@ const ProductCategory = () => {
     const cartRect = cartIconRef.current.getBoundingClientRect();
     const startRect = e.currentTarget.getBoundingClientRect();
     const clone = document.createElement("img");
-    clone.src = imgSrc || PlaceHolderIcon; // ✅ fallback for missing image
+    clone.src = imgSrc || PlaceHolderIcon;
     clone.style.position = "fixed";
     clone.style.zIndex = 9999;
     clone.style.width = "60px";
@@ -169,15 +143,10 @@ const ProductCategory = () => {
 
   return (
     <div className="pc-wrapper" style={{ minHeight: "40vh" }}>
-<h2 className="pc-category-title">
-  {initialLoading ? (
-  <div className="pc-title-skeleton shimmer" />
-) : category ? (
-  decodeHTML(category.name)
-) : (
-  "Category Not Found"
-)}
-</h2>
+      <h2 className="pc-category-title">
+        {initialLoading ? <div className="pc-title-skeleton shimmer" /> : category ? decodeHTML(category.name) : "Category Not Found"}
+      </h2>
+
       <div className="pc-products-container">
         {initialLoading ? (
           <div className="pc-grid">
@@ -195,52 +164,25 @@ const ProductCategory = () => {
           <>
             <div className="pc-grid">
               {products.map((p) => (
-                <div
-                  key={p.id}
-                  className="pc-card"
-                  onClick={() => navigate(`/product/${p.slug}`)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <img
-                    src={p.images?.[0]?.src || PlaceHolderIcon}
-                    alt={decodeHTML(p.name)}
-                    className="pc-card-image"
-                    loading="lazy"
-                  />
+                <div key={p.id} className="pc-card" onClick={() => navigate(`/product/${p.slug}`)} style={{ cursor: "pointer" }}>
+                  <img src={p.images?.[0]?.src || PlaceHolderIcon} alt={decodeHTML(p.name)} className="pc-card-image" loading="lazy" />
                   <h3 className="pc-card-title">{truncate(decodeHTML(p.name))}</h3>
-
                   <div style={{ padding: "0 5px" }}>
-                    <ProductCardReviews
-                      productId={p.id}
-                      soldCount={p.total_sales || 0}
-                    />
+                    <ProductCardReviews productId={p.id} soldCount={p.total_sales || 0} />
                   </div>
                   <div className="pc-card-divider" />
-                  <div
-                    className="pc-card-footer"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="pc-card-footer" onClick={(e) => e.stopPropagation()}>
                     <img src={IconAED} alt="AED" className="pc-aed-icon" />
                     <Price value={p.price} />
                     <button
-                      className={`pc-add-btn ${
-                        cartItems.some((item) => item.id === p.id) ? "pc-added" : ""
-                      }`}
+                      className={`pc-add-btn ${cartItems.some((item) => item.id === p.id) ? "pc-added" : ""}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         flyToCart(e, p.images?.[0]?.src);
                         addToCart(p, true);
                       }}
                     >
-                      <img
-                        src={
-                          cartItems.some((item) => item.id === p.id)
-                            ? AddedToCartIcon
-                            : AddCartIcon
-                        }
-                        alt="Add to cart"
-                        className="pc-add-icon"
-                      />
+                      <img src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCartIcon} alt="Add to cart" className="pc-add-icon" />
                     </button>
                   </div>
                 </div>
@@ -248,11 +190,7 @@ const ProductCategory = () => {
             </div>
             {hasMore && (
               <div className="pc-load-more-wrapper">
-                <button
-                  className="pc-load-more-btn"
-                  onClick={loadMore}
-                  disabled={loading}
-                >
+                <button className="pc-load-more-btn" onClick={loadMore} disabled={loading}>
                   {loading ? "Loading…" : "Load More"}
                 </button>
               </div>

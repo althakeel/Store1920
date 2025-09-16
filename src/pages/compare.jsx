@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useCompare } from '../contexts/CompareContext';
-
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
-const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
+import { getProductsByIds } from '../api/woocommerce'; // ✅ fixed path
 
 export default function ComparePage() {
   const { compareIds, removeFromCompare, clearCompare } = useCompare();
@@ -15,11 +12,8 @@ export default function ComparePage() {
       return;
     }
     const fetchData = async () => {
-      const res = await fetch(
-        `${API_BASE}/products?include=${compareIds.join(',')}&consumer_key=${CK}&consumer_secret=${CS}`
-      );
-      const data = await res.json();
-      setProducts(data);
+      const data = await getProductsByIds(compareIds);
+      setProducts(data || []);
     };
     fetchData();
   }, [compareIds]);
@@ -111,6 +105,7 @@ export default function ComparePage() {
   );
 }
 
+/* ✅ define missing styles */
 const thStyle = {
   border: '1px solid #ccc',
   padding: 10,

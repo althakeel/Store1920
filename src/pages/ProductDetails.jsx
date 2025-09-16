@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback, Suspense, lazy, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -10,11 +9,13 @@ import ProductDescription from '../components/products/ProductDescription';
 import SkeletonLoader from '../components/SkeletonLoader';
 import ProductReviewList from '../components/products/ProductReviewList';
 import { getProductReviewsWoo } from '../data/wooReviews';
-
-
+import {
+  fetchAPI,
+  getProductById,
+  getProductBySlug,
+} from '../api/woocommerce';
 
 const RelatedProducts = lazy(() => import('../components/RelatedProducts'));
-
 
 const ReviewStars = ({ rating, onRate }) => (
   <div className="stars" role="radiogroup" aria-label="Rating">
@@ -38,13 +39,6 @@ const ReviewStars = ({ rating, onRate }) => (
     ))}
   </div>
 );
-
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3/products';
-const AUTH = {
-  username: 'ck_5441db4d77e2a329dc7d96d2db6a8e2d8b63c29f',
-  password: 'cs_81384d5f9e75e0ab81d0ea6b0d2029cba2d52b63',
-};
-const axiosInstance = axios.create({ auth: AUTH });
 
 function getReviewSummary(reviews) {
   const totalReviews = reviews.length;
@@ -77,71 +71,34 @@ export default function ProductDetails() {
     if (storedUser && !user) login(JSON.parse(storedUser));
   }, [user, login]);
 
-  // Update window width
+  // Window resize
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
   const isMobile = windowWidth <= 768;
 
-  // Fetch Minimal Product
-  const { data: productMin, isLoading: loadingMin } = useQuery({
-    queryKey: ['product-min', id || slug],
-    queryFn: async () => {
-      const fields = ['id', 'name', 'price', 'images'].join(',');
-      const endpoint = id
-        ? `${API_BASE}/${id}?_fields=${fields}`
-        : `${API_BASE}?slug=${slug}&_fields=${fields}`;
-      const res = await axiosInstance.get(endpoint);
-      return id ? res.data : res.data[0] || null;
-    },
+  // Fetch minimal/full product
+  const { data: product, isLoading, error } = useQuery({
+    queryKey: ['product', id || slug],
+    queryFn: async () => (id ? await getProductById(id) : await getProductBySlug(slug)),
     staleTime: 1000 * 60 * 5,
   });
 
-  // Fetch Full Product
-  const { data: productFull, isLoading: loadingFull, error } = useQuery({
-    queryKey: ['product-full', productMin?.id],
-    queryFn: async () => {
-      if (!productMin) return null;
-      const fields = [
-        'id',
-        'name',
-        'price',
-        'images',
-        'variations',
-        'description',
-        'categories',
-        'tags',
-        'stock_status',
-        'short_description',
-      ].join(',');
-      const endpoint = `${API_BASE}/${productMin.id}?_fields=${fields}`;
-      const res = await axiosInstance.get(endpoint);
-      return res.data;
-    },
-    enabled: !!productMin,
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const product = productFull || productMin;
-
-  // Fetch Variations
+  // Fetch variations
   useEffect(() => {
-    if (!productFull?.variations?.length) return setVariations([]);
+    if (!product?.variations?.length) return setVariations([]);
     async function fetchVariations() {
       try {
-        const res = await axiosInstance.get(
-          `${API_BASE}/${productFull.id}/variations?per_page=100&_fields=id,attributes,price,image`
-        );
-        setVariations(res.data || []);
+        const data = await fetchAPI(`/products/${product.id}/variations?per_page=100`);
+        setVariations(data || []);
       } catch {
         setVariations([]);
       }
     }
     fetchVariations();
-  }, [productFull]);
+  }, [product]);
 
   useEffect(() => {
     if (variations.length > 0 && !selectedVariation) setSelectedVariation(variations[0]);
@@ -149,21 +106,16 @@ export default function ProductDetails() {
 
   // Set main image
   useEffect(() => {
-    if (!productMin?.images?.length) return;
-    const firstValidImage = productMin.images.find(img => img?.src) || null;
-    if (firstValidImage && mainImageUrl !== firstValidImage.src) {
-      setMainImageUrl(firstValidImage.src);
-    }
-  }, [productMin, mainImageUrl]);
+    if (!product?.images?.length) return;
+    const firstValidImage = product.images.find(img => img?.src) || null;
+    if (firstValidImage && mainImageUrl !== firstValidImage.src) setMainImageUrl(firstValidImage.src);
+  }, [product, mainImageUrl]);
 
   useEffect(() => {
     if (!selectedVariation) return;
-    if (selectedVariation.image?.src) {
-      setMainImageUrl(selectedVariation.image.src);
-    } else if (productMin?.images?.[0]?.src) {
-      setMainImageUrl(productMin.images[0].src);
-    }
-  }, [selectedVariation, productMin]);
+    if (selectedVariation.image?.src) setMainImageUrl(selectedVariation.image.src);
+    else if (product?.images?.[0]?.src) setMainImageUrl(product.images[0].src);
+  }, [selectedVariation, product]);
 
   // Gather variation images
   useEffect(() => {
@@ -177,28 +129,25 @@ export default function ProductDetails() {
   }, [variations]);
 
   const combinedImages = useMemo(() => {
-    if (!productFull) return [];
-    return [...(productFull.images || []), ...extraImages].filter(
+    if (!product) return [];
+    return [...(product.images || []), ...extraImages].filter(
       (img, idx, arr) => arr.findIndex(i => i.src === img.src) === idx
     );
-  }, [productFull, extraImages]);
+  }, [product, extraImages]);
 
-  // Fetch Reviews
+  // Fetch reviews
   useEffect(() => {
-    if (!productFull) return;
+    if (!product) return;
     async function fetchReviews() {
       try {
-        const reviewsFromWoo = await getProductReviewsWoo(productFull.id);
+        const reviewsFromWoo = await getProductReviewsWoo(product.id);
         setReviews(reviewsFromWoo);
       } catch {
         setReviews([]);
       }
     }
     fetchReviews();
-  }, [productFull]);
-
-
-  
+  }, [product]);
 
   const reviewSummary = getReviewSummary(reviews);
 
@@ -224,7 +173,7 @@ export default function ProductDetails() {
     showToast('✅ Logged in successfully!');
   };
 
-  if (loadingMin || loadingFull) return <SkeletonLoader />;
+  if (isLoading) return <SkeletonLoader />;
   if (error) return <div>Error loading product.</div>;
   if (!product) return <div>Product not found.</div>;
 
@@ -249,7 +198,6 @@ export default function ProductDetails() {
         </div>
       )}
 
-      {/* Main container */}
       <div
         style={{
           display: isMobile ? 'block' : 'flex',
@@ -260,124 +208,90 @@ export default function ProductDetails() {
         }}
       >
         {/* Left Column */}
-      <div
-  ref={leftColumnRef}
-  style={{
-    flex: isMobile ? 'auto' : '1',
-    boxSizing: 'border-box',
-    maxHeight: isMobile ? 'auto' : '80vh', // fixed height on desktop
-    overflowY: isMobile ? 'visible' : 'auto', // scrollable on desktop
-    paddingRight: isMobile ? 0 : 10,
-    /* Thin scrollbar for desktop only */
-    scrollbarWidth: isMobile ? 'auto' : 'none', // Firefox
-    msOverflowStyle: isMobile ? 'auto' : 'auto', // IE 10+
-  }}
-  className={isMobile ? '' : 'thin-scrollbar'}
->
+        <div
+          ref={leftColumnRef}
+          style={{
+            flex: isMobile ? 'auto' : '1',
+            boxSizing: 'border-box',
+            maxHeight: isMobile ? 'auto' : '80vh',
+            overflowY: isMobile ? 'visible' : 'auto',
+            paddingRight: isMobile ? 0 : 10,
+            scrollbarWidth: isMobile ? 'auto' : 'none',
+          }}
+          className={isMobile ? '' : 'thin-scrollbar'}
+        >
           <ProductGallery
-            images={combinedImages.length > 0 ? combinedImages : productMin?.images || []}
-            mainImageUrl={mainImageUrl || productMin?.images?.[0]?.src}
+            images={combinedImages.length > 0 ? combinedImages : product.images || []}
+            mainImageUrl={mainImageUrl || product.images?.[0]?.src}
             setMainImageUrl={setMainImageUrl}
             activeModal={activeModal}
             openModal={openModal}
             closeModal={closeModal}
           />
 
-          {isMobile && productFull && (
+          {isMobile && (
             <div style={{ marginTop: 20 }}>
               <ProductInfo
-                product={productFull}
+                product={product}
                 variations={variations}
                 selectedVariation={selectedVariation}
                 onVariationChange={handleVariationChange}
-                loadingVariations={variations.length === 0 && !!productFull.variations?.length}
+                loadingVariations={variations.length === 0 && !!product.variations?.length}
               />
             </div>
           )}
 
-
-
+          <div style={{ marginTop: 20 }}>
+            <div className="review-summary" aria-live="polite">
+              <strong>
+                {reviews.length} review{reviews.length !== 1 ? 's' : ''}
+              </strong>{' '}
+              &nbsp;|&nbsp;
+              <span>
+                {reviewSummary.avgRating.toFixed(1)}{' '}
+                <ReviewStars rating={Math.round(reviewSummary.avgRating)} />
+              </span>
+            </div>
+            <ProductDescription product={product} selectedVariation={selectedVariation} />
+          </div>
 
           <div style={{ marginTop: 20 }}>
-          <div className="review-summary" aria-live="polite">
-        <strong>{reviews.length} review{reviews.length !== 1 ? 's' : ''}</strong> &nbsp;|&nbsp;
-        <span>
-          {(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length || 0).toFixed(1)}{' '}
-          <ReviewStars rating={Math.round(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length || 0)} />
-        </span>
-      </div>
-            <ProductDescription product={productFull} selectedVariation={selectedVariation} />
-            
+            <Suspense fallback={<div>Loading reviews...</div>}>
+              <ProductReviewList
+                productId={product.id}
+                user={user}
+                onLogin={login}
+                reviews={reviews}
+                setReviews={setReviews}
+              />
+            </Suspense>
           </div>
-
-
-
- {isMobile && productFull && (
-  <div style={{ marginTop: 20 }}>
-    <Suspense fallback={<div>Loading reviews...</div>}>
-      <ProductReviewList
-        productId={productFull.id}
-        user={user}
-        onLogin={login}
-        reviews={reviews}
-        setReviews={setReviews}
-      />
-    </Suspense>
-  </div>
-)}
-
-{!isMobile && productFull && (
-  <div style={{ marginTop: 20 }}>
-    <Suspense fallback={<div>Loading reviews...</div>}>
-      <ProductReviewList
-        productId={productFull.id}
-        user={user}
-        onLogin={login}
-        reviews={reviews}
-        setReviews={setReviews}
-      />
-    </Suspense>
-  </div>
-)}
         </div>
 
-        {/* Right Column (Desktop only) */}
+        {/* Right Column */}
         {!isMobile && (
-          <div
-            style={{
-              flex: 1,
-              position: 'sticky',
-              top: 20,
-              alignSelf: 'flex-start',
-            }}
-          >
-            {productFull && (
-              <ProductInfo
-                product={productFull}
-                variations={variations}
-                selectedVariation={selectedVariation}
-                onVariationChange={handleVariationChange}
-                loadingVariations={variations.length === 0 && !!productFull.variations?.length}
-              />
-            )}
+          <div style={{ flex: 1, position: 'sticky', top: 20, alignSelf: 'flex-start' }}>
+            <ProductInfo
+              product={product}
+              variations={variations}
+              selectedVariation={selectedVariation}
+              onVariationChange={handleVariationChange}
+              loadingVariations={variations.length === 0 && !!product.variations?.length}
+            />
           </div>
         )}
-
-        
       </div>
 
       {/* Related Products */}
-      {productFull && (
-        <div style={{ maxWidth: 1400, margin: '40px auto', padding: '0 10px' }}>
-          <Suspense fallback={<div>Loading related products...</div>}>
-            <RelatedProducts
-              productId={productFull.id}
-              categories={productFull.categories || []}
-              tags={productFull.tags || []}
-            />
-          </Suspense>
-        </div>
-      )}
+      <div style={{ maxWidth: 1400, margin: '40px auto', padding: '0 10px' }}>
+        <Suspense fallback={<div>Loading related products...</div>}>
+          <RelatedProducts
+            productId={product.id}
+            categories={product.categories || []}
+            tags={product.tags || []}
+          />
+        </Suspense>
+      </div>
 
       {/* Login Modal */}
       {showLoginModal && (
