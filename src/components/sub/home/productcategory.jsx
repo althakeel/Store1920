@@ -12,6 +12,8 @@ import PlaceholderImage from "../../../assets/images/common/Placeholder.png";
 import { throttle } from "lodash";
 import { API_BASE, CONSUMER_KEY, CONSUMER_SECRET } from "../../../api/woocommerce";
 import ProductCardReviews from "../../temp/productcardreviews";
+import { useNavigate } from "react-router-dom";
+
 
 
 const PAGE_SIZE = 10;           
@@ -69,6 +71,7 @@ const ProductCategory = () => {
 
   const [badgeText, setBadgeText] = useState("MEGA OFFER");
 const [animate, setAnimate] = useState(true);
+const navigate = useNavigate();
 
 
 
@@ -117,7 +120,7 @@ useEffect(() => {
           `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}` +
           `&per_page=${PRODUCTS_PER_PAGE}&page=${page}` +
           (categoryId !== "all" ? `&category=${categoryId}` : "") +
-          `&_fields=id,name,images,price,regular_price,sale_price`;
+`&_fields=id,slug,name,images,price,regular_price,sale_price`;
 
         const res = await fetch(url);
         const data = await res.json();
@@ -148,7 +151,7 @@ useEffect(() => {
     fetchCategories(1);
   }, [isHomePage, selectedCategoryId, fetchProducts, fetchCategories]);
 
-  // Scroll arrows visibility
+
   const updateArrowVisibility = useCallback(() => {
     const el = categoriesRef.current;
     if (!el) return;
@@ -164,7 +167,7 @@ useEffect(() => {
     return () => el.removeEventListener("scroll", throttled);
   }, [categories, updateArrowVisibility]);
 
-  // === Actions ===
+
 
   // Load more products
   const loadMoreProducts = useCallback(() => {
@@ -211,7 +214,7 @@ useEffect(() => {
     setTimeout(() => clone.remove(), 800);
   };
 
-  // === Render ===
+ 
   return (
     <div className="pcus-wrapper3" style={{ display: "flex" }}>
       <div className="pcus-categories-products1" style={{ width: "100%", transition: "width 0.3s ease" }}>
@@ -297,7 +300,12 @@ useEffect(() => {
               {products.map((p, index) => {
                 const hasSale = p.sale_price && p.sale_price !== p.regular_price;
                 return (
-                  <div key={p.id} className="pcus-prd-card">
+                  <div
+  key={p.id}
+  className="pcus-prd-card"
+  onClick={() => window.open(`/product/${p.slug}`, "_blank")} // or `/product/${p.slug}` if you have slug
+  style={{ cursor: "pointer" }}
+>
                     
                     {/* Images */}
                     <div className="pcus-image-wrapper1">
