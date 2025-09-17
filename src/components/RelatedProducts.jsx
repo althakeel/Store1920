@@ -9,7 +9,7 @@ import Dirham from '../assets/images/Dirham 2.png';
 import PlaceHolderImage from '../assets/images/common/Placeholder.png';
 
 // WooCommerce helper
-import { getProductById, getProductsByIds } from '../utils/woocommerce';
+import { getProductById, getProductsByIds } from '../api/woocommerce';
 
 // ---------------- Skeleton Loader ----------------
 function SkeletonCard() {

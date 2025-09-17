@@ -7,9 +7,9 @@ import IconAED from '../assets/images/Dirham 2.png';
 import ProductCardReviews from './temp/productcardreviews';
 import PlaceholderImage from '../assets/images/common/Placeholder.png';
 
-// Import WooCommerce helper
-import { getProductsByCategories } from '../utils/woocommerce';
-
+const API_BASE = 'https://db.store1920.com/wp-json/wc/v2';
+const CONSUMER_KEY = 'ck_f44feff81d804619a052d7bbdded7153a1f45bdd';
+const CONSUMER_SECRET = 'cs_92458ba6ab5458347082acc6681560911a9e993d';
 const PRODUCTS_PER_PAGE = 20;
 const TITLE_LIMIT = 35;
 
@@ -31,25 +31,22 @@ const ProductsUnder20AED = () => {
   // Track loaded images for skeleton replacement
   const [loadedImages, setLoadedImages] = useState({});
 
-  // Fetch products using WooCommerce helper
   const fetchProducts = useCallback(async (pageNum = 1) => {
     setLoading(true);
     try {
-      // Fetch all categories (empty array = all products)
-      const data = await getProductsByCategories([], pageNum, PRODUCTS_PER_PAGE, 'desc');
-
-      // Filter products under 20 AED
-      const under20Products = data.filter(p => parseFloat(p.price) <= 20);
+      const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${pageNum}&max_price=20&orderby=date&order=desc`;
+      const res = await fetch(url);
+      const data = await res.json();
 
       if (pageNum === 1) {
-        setProducts(under20Products);
+        setProducts(data);
       } else {
-        setProducts(prev => [...prev, ...under20Products]);
+        setProducts((prev) => [...prev, ...data]);
       }
 
-      setHasMore(under20Products.length === PRODUCTS_PER_PAGE);
-    } catch (err) {
-      console.error('Failed to fetch products', err);
+      setHasMore(data.length === PRODUCTS_PER_PAGE);
+    } catch (e) {
+      console.error('Failed to fetch products', e);
     } finally {
       setLoading(false);
     }
@@ -63,7 +60,7 @@ const ProductsUnder20AED = () => {
 
   const onProductClick = (slug, id) => {
     let recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
-    recent = recent.filter(rid => rid !== id);
+    recent = recent.filter((rid) => rid !== id);
     recent.unshift(id);
     localStorage.setItem('recentProducts', JSON.stringify(recent.slice(0, 5)));
 
@@ -85,7 +82,7 @@ const ProductsUnder20AED = () => {
   };
 
   const handleImageLoad = (id) => {
-    setLoadedImages(prev => ({ ...prev, [id]: true }));
+    setLoadedImages((prev) => ({ ...prev, [id]: true }));
   };
 
   return (
@@ -97,67 +94,68 @@ const ProductsUnder20AED = () => {
           {(loading && products.length === 0
             ? Array.from({ length: 8 }).map((_, i) => <div key={i} className="pu20-card pu20-skeleton" />)
             : products
-          ).map(p => {
-            if (!p.id) return null;
+          ).map((p) => {
+            if (p.id) {
+              return (
+                <div
+                  key={p.id}
+                  className="pu20-card"
+                  onClick={() => onProductClick(p.slug, p.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && onProductClick(p.slug, p.id)}
+                >
+                  <div className="pu20-image-wrapper">
+                    {!loadedImages[p.id] && <div className="pu20-image-skeleton" />}
+                    <img
+                       src={p.images?.[0]?.src || PlaceholderImage}
+                      alt={decodeHTML(p.name)}
+                      className={`pu20-image primary ${loadedImages[p.id] ? 'visible' : 'hidden'}`}
+                      loading="lazy"
+                      decoding="async"
+                      onLoad={() => handleImageLoad(p.id)}
+                    />
+                    <img
+                      src={p.images?.[1]?.src || PlaceholderImage}
+                      alt={decodeHTML(p.name)}
+                      className={`pu20-image secondary ${loadedImages[p.id] ? 'visible' : 'hidden'}`}
+                      loading="lazy"
+                      decoding="async"
+                      onLoad={() => handleImageLoad(p.id)}
+                    />
+                  </div>
 
-            return (
-              <div
-                key={p.id}
-                className="pu20-card"
-                onClick={() => onProductClick(p.slug, p.id)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={e => e.key === 'Enter' && onProductClick(p.slug, p.id)}
-              >
-                <div className="pu20-image-wrapper">
-                  {!loadedImages[p.id] && <div className="pu20-image-skeleton" />}
-                  <img
-                    src={p.images?.[0]?.src || PlaceholderImage}
-                    alt={decodeHTML(p.name)}
-                    className={`pu20-image primary ${loadedImages[p.id] ? 'visible' : 'hidden'}`}
-                    loading="lazy"
-                    decoding="async"
-                    onLoad={() => handleImageLoad(p.id)}
-                  />
-                  <img
-                    src={p.images?.[1]?.src || PlaceholderImage}
-                    alt={decodeHTML(p.name)}
-                    className={`pu20-image secondary ${loadedImages[p.id] ? 'visible' : 'hidden'}`}
-                    loading="lazy"
-                    decoding="async"
-                    onLoad={() => handleImageLoad(p.id)}
-                  />
-                </div>
+                  <div className="pu20-info">
+                    <h3 className="pu20-product-title">{truncate(decodeHTML(p.name))}</h3>
+                    <ProductCardReviews />
 
-                <div className="pu20-info">
-                  <h3 className="pu20-product-title">{truncate(decodeHTML(p.name))}</h3>
-                  <ProductCardReviews />
+                    <div className="pu20-price-cart">
+                      <div className="pu20-prices">
+                        <img src={IconAED} alt="AED" className="pu20-currency-icon" />
+                        <span className="pu20-price">{parseFloat(p.price).toFixed(2)}</span>
+                      </div>
 
-                  <div className="pu20-price-cart">
-                    <div className="pu20-prices">
-                      <img src={IconAED} alt="AED" className="pu20-currency-icon" />
-                      <span className="pu20-price">{parseFloat(p.price).toFixed(2)}</span>
+                      <button
+                        className={`pu20-add-cart-btn ${cartItems.some((item) => item.id === p.id) ? 'added' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(p, true);
+                          showAddToCartToast();
+                        }}
+                        aria-label={`Add ${decodeHTML(p.name)} to cart`}
+                      >
+                        <img
+                          src={cartItems.some((item) => item.id === p.id) ? AddedCartIcon : AddCartIcon}
+                          alt={cartItems.some((item) => item.id === p.id) ? 'Added' : 'Add'}
+                          className="pu20-add-cart-icon"
+                        />
+                      </button>
                     </div>
-
-                    <button
-                      className={`pu20-add-cart-btn ${cartItems.some(item => item.id === p.id) ? 'added' : ''}`}
-                      onClick={e => {
-                        e.stopPropagation();
-                        addToCart(p, true);
-                        showAddToCartToast();
-                      }}
-                      aria-label={`Add ${decodeHTML(p.name)} to cart`}
-                    >
-                      <img
-                        src={cartItems.some(item => item.id === p.id) ? AddedCartIcon : AddCartIcon}
-                        alt={cartItems.some(item => item.id === p.id) ? 'Added' : 'Add'}
-                        className="pu20-add-cart-icon"
-                      />
-                    </button>
                   </div>
                 </div>
-              </div>
-            );
+              );
+            }
+            return null;
           })}
         </div>
 
@@ -174,7 +172,9 @@ const ProductsUnder20AED = () => {
         )}
       </div>
 
-      {showToast && <div className="pu20-toast">Product added</div>}
+      {showToast && (
+        <div className="pu20-toast">Product added</div>
+      )}
     </div>
   );
 };

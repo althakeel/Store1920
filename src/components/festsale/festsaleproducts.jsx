@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../assets/styles/New.css';
-import { useCart } from '../contexts/CartContext';
-import MiniCart from '../components/MiniCart';
-import AddCarticon from '../assets/images/addtocart.png';
-import AddedToCartIcon from '../assets/images/added-cart.png';
-import Adsicon from '../assets/images/summer-saving-coloured.png';
-import IconAED from '../assets/images/Dirham 2.png';
-import ProductCardReviews from '../components/temp/productcardreviews'
+import '../../assets/styles/New.css';
+import { useCart } from '../../contexts/CartContext';
+import MiniCart from '../../components/MiniCart';
+import AddCarticon from '../../assets/images/addtocart.png';
+import AddedToCartIcon from '../../assets/images/added-cart.png';
+import Adsicon from '../../assets/images/summer-saving-coloured.png';
+import IconAED from '../../assets/images/Dirham 2.png';
+import ProductCardReviews from '../../components/temp/productcardreviews'
 
 
 import { 
   getProductsByTagSlugs, 
   getFirstVariation, 
   getCurrencySymbol 
-} from '../api/woocommerce';
+} from '../../api/woocommerce';
 
 const PRODUCTS_PER_PAGE = 24;
 const TITLE_LIMIT = 35;

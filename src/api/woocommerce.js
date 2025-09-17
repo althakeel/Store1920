@@ -192,3 +192,4 @@ export const getOrdersByEmail = async (email, perPage = 20) => {
   return fetchAPI(`/orders?customer=${email}&per_page=${perPage}&orderby=date&order=desc&`);
 };
 
+export const getCategories = () => fetchAPI(`/products/categories?per_page=100&`);

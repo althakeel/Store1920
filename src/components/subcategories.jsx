@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Recomendedicon from '../assets/images/grid.png';
 
 // WooCommerce helper functions
-import { getCategories, getProductsByCategory, getProductReviews } from '../utils/woocommerce';
+import { getCategories, getProductsByCategory, getProductReviews } from '../api/woocommerce';
 
 const PAGE_SIZE = 10;
 const PRODUCTS_PER_PAGE = 10;
