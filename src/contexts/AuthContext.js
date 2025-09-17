@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // Keep localStorage in sync with user state
+  // Persist user to localStorage
   useEffect(() => {
     if (user) {
       localStorage.setItem("userId", user.id);
@@ -44,15 +44,11 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Login function
   const login = (userData) => {
     setUser(userData);
-    // CartContext will automatically handle user-specific cart
   };
 
-  // Logout function
   const logout = () => {
-    // CartContext will handle clearing user cart if needed
     setUser(null);
   };
 
@@ -63,5 +59,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook
 export const useAuth = () => useContext(AuthContext);

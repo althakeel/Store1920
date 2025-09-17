@@ -5,9 +5,9 @@ import MiniCart from '../components/MiniCart';
 import { useNavigate } from 'react-router-dom';
 import Recomendedicon from '../assets/images/grid.png';
 
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CONSUMER_KEY = 'ck_be7e3163c85f7be7ca616ab4d660d65117ae5ac5';
-const CONSUMER_SECRET = 'cs_df731e48bf402020856ff21400c53503d545ac35';
+// WooCommerce helper functions
+import { getCategories, getProductsByCategory, getProductReviews } from '../utils/woocommerce';
+
 const PAGE_SIZE = 10;
 const PRODUCTS_PER_PAGE = 10;
 const TITLE_LIMIT = 35;
@@ -25,6 +25,7 @@ const decodeHTML = (html) => {
   return txt.value;
 };
 
+// ---------------- Skeleton Card ----------------
 const SkeletonCard = () => (
   <div className="pcus-prd-card pcus-skeleton">
     <div className="pcus-prd-image-skel" />
@@ -36,19 +37,21 @@ const SkeletonCard = () => (
   </div>
 );
 
+// ---------------- Review Pills ----------------
 const ReviewPills = ({ productId }) => {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
-    fetch(`https://db.store1920.com/wp-json/custom-reviews/v1/product/${productId}`)
-      .then((res) => res.json())
-      .then((data) => isMounted && setReviews(data.reviews || []))
+
+    getProductReviews(productId)
+      .then((data) => isMounted && setReviews(data || []))
       .catch((err) => console.error('Review fetch error', err));
+
     return () => { isMounted = false; };
   }, [productId]);
 
-  if (reviews.length === 0) return null;
+  if (!reviews.length) return null;
 
   return (
     <div className="pcus-review-pill-wrapper">
@@ -64,6 +67,7 @@ const ReviewPills = ({ productId }) => {
   );
 };
 
+// ---------------- Product Category Component ----------------
 const ProductCategory = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -80,7 +84,6 @@ const ProductCategory = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
-  const [currencySymbol, setCurrencySymbol] = useState('$');
   const [badgeColorIndex, setBadgeColorIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -93,75 +96,49 @@ const ProductCategory = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch currency symbol
-  useEffect(() => {
-    async function fetchCurrencySymbol() {
-      try {
-        const res = await fetch(`${API_BASE}/settings/general?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`);
-        const data = await res.json();
-        const currencyCode = data.find((item) => item.id === 'woocommerce_currency')?.value || 'USD';
-        const map = { USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', INR: '₹' };
-        setCurrencySymbol(map[currencyCode] || '$');
-      } catch (e) {
-        console.error(e);
-      }
+  // ---------------- Fetch Categories ----------------
+  const fetchCategories = useCallback(async () => {
+    setLoadingCategories(true);
+    try {
+      const allCategories = await getCategories(); // WooCommerce helper
+      const lightingCat = allCategories.find(cat => cat.slug === 'lighting');
+      if (!lightingCat) return;
+
+      const lightingChildren = allCategories.filter(cat => cat.parent === lightingCat.id);
+
+      if (lightingChildren.length < PAGE_SIZE) setHasMoreCategories(false);
+      setCategories((prev) => {
+        const existingIds = new Set(prev.map((cat) => cat.id));
+        const newUnique = lightingChildren.filter((cat) => !existingIds.has(cat.id));
+        return [...prev, ...newUnique];
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingCategories(false);
     }
-    fetchCurrencySymbol();
   }, []);
 
-  // Fetch categories
-// Fetch categories under "lighting"
-const fetchCategories = useCallback(async (page = 1) => {
-  setLoadingCategories(true);
-  try {
-    // First fetch all top-level categories
-    const res = await fetch(
-      `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=100&page=${page}&hide_empty=false`
-    );
-    const data = await res.json();
-    if (!Array.isArray(data)) return;
-
-    // Find the "lighting" category ID
-    const lightingCat = data.find(cat => cat.slug === 'lighting'); // replace with exact slug
-    if (!lightingCat) return;
-
-    // Filter categories whose parent is lighting
-    const lightingChildren = data.filter(cat => cat.parent === lightingCat.id);
-
-    if (lightingChildren.length < PAGE_SIZE) setHasMoreCategories(false);
-
-    setCategories((prev) => {
-      const existingIds = new Set(prev.map((cat) => cat.id));
-      const newUnique = lightingChildren.filter((cat) => !existingIds.has(cat.id));
-      return [...prev, ...newUnique];
-    });
-  } catch (e) {
-    console.error(e);
-  } finally {
-    setLoadingCategories(false);
-  }
-}, []);
-
-
-  // Fetch products
+  // ---------------- Fetch Products ----------------
   const fetchProducts = useCallback(async (page = 1, categoryId = selectedCategoryId) => {
     setLoadingProducts(true);
     try {
-      const tagFilter = 'lightingdeals';
-      const url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&orderby=date&order=desc&tag=${tagFilter}` + (categoryId !== 'all' ? `&category=${categoryId}` : '');
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!Array.isArray(data)) return; // safety
-
-      if (page === 1) {
-        setProducts(data);
+      let productsData = [];
+      if (categoryId === 'all') {
+        productsData = await getProductsByCategory(null, PRODUCTS_PER_PAGE, page); // fetch all with tag filter internally
       } else {
-        setProducts((prev) => [...prev, ...data]);
+        productsData = await getProductsByCategory(categoryId, PRODUCTS_PER_PAGE, page);
       }
 
-      setHasMoreProducts(data.length >= PRODUCTS_PER_PAGE);
-    } catch (e) {
-      console.error(e);
+      if (page === 1) {
+        setProducts(productsData);
+      } else {
+        setProducts((prev) => [...prev, ...productsData]);
+      }
+
+      setHasMoreProducts(productsData.length >= PRODUCTS_PER_PAGE);
+    } catch (err) {
+      console.error(err);
       if (page === 1) setProducts([]);
       setHasMoreProducts(false);
     } finally {
@@ -169,8 +146,8 @@ const fetchCategories = useCallback(async (page = 1) => {
     }
   }, [selectedCategoryId]);
 
-  // Initial fetch
-  useEffect(() => { fetchCategories(1); }, [fetchCategories]);
+  // ---------------- Initial Fetch ----------------
+  useEffect(() => { fetchCategories(); }, [fetchCategories]);
   useEffect(() => { setProductsPage(1); setHasMoreProducts(true); fetchProducts(1, selectedCategoryId); }, [selectedCategoryId, fetchProducts]);
 
   const loadMoreProducts = () => {
@@ -180,6 +157,7 @@ const fetchCategories = useCallback(async (page = 1) => {
     fetchProducts(nextPage, selectedCategoryId);
   };
 
+  // ---------------- Category Scroll ----------------
   const updateArrowVisibility = () => {
     const el = categoriesRef.current;
     if (!el) return;
@@ -187,7 +165,6 @@ const fetchCategories = useCallback(async (page = 1) => {
     setCanScrollRight(el.scrollWidth - el.scrollLeft > el.clientWidth + 10);
   };
 
-  // Category scroll arrows
   useEffect(() => {
     const el = categoriesRef.current;
     if (!el) return;
@@ -196,7 +173,6 @@ const fetchCategories = useCallback(async (page = 1) => {
     return () => el.removeEventListener('scroll', updateArrowVisibility);
   }, [categories]);
 
-  // Drag scroll
   useEffect(() => {
     const el = categoriesRef.current;
     if (!el) return;
@@ -252,7 +228,6 @@ const fetchCategories = useCallback(async (page = 1) => {
                 <div className="pcus-category-name">{decodeHTML(cat.name)}</div>
               </button>
             ))}
-            {hasMoreCategories && <button className="pcus-category-btn1 load-more" disabled={loadingCategories} onClick={() => { if (!loadingCategories) { fetchCategories(categoriesPage + 1); setCategoriesPage((p) => p + 1); } }}>{loadingCategories ? 'Loading…' : 'Load More'}</button>}
           </div>
           {canScrollRight && <button className="pcus-arrow-btn1 right" onClick={() => scrollCats('right')} aria-label="Next">›</button>}
         </div>
@@ -263,6 +238,7 @@ const fetchCategories = useCallback(async (page = 1) => {
             const rawBadges = p.best_seller_recommended_badges || [];
             const badges = Array.isArray(rawBadges) ? rawBadges : [];
             const soldCount = p.meta_data?.find((m) => m.key === '_sold_count')?.value ?? 0;
+
             return (
               <div key={p.id} className="pcus-prd-card" onClick={() => navigate(`/product/${p.slug}`)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && navigate(`/product/${p.slug}`)}>
                 <div className="pcus-image-wrapper">
@@ -284,8 +260,8 @@ const fetchCategories = useCallback(async (page = 1) => {
                   <ReviewPills productId={p.id} />
                   <div className="pcus-prd-price-cart">
                     <div className="pcus-prd-prices">
-                      <span className={`pcus-prd-sale-price ${onSale ? 'on-sale' : ''}`}>{currencySymbol}{p.price}</span>
-                      {onSale && <span className="pcus-prd-regular-price">{currencySymbol}{p.regular_price}</span>}
+                      <span className={`pcus-prd-sale-price ${onSale ? 'on-sale' : ''}`}>{p.price}</span>
+                      {onSale && <span className="pcus-prd-regular-price">{p.regular_price}</span>}
                       {onSale && p.regular_price && p.price && <span className="pcus-prd-discount-box">-{Math.round(((p.regular_price - p.price) / p.regular_price) * 100)}% OFF</span>}
                     </div>
                     <button className="pcus-prd-add-cart-btn" onClick={(e) => { e.stopPropagation(); addToCart(p); }} aria-label={`Add ${decodeHTML(p.name)} to cart`}>

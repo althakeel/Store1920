@@ -1,4 +1,4 @@
-// NavbarWithMegaMenu.js
+// NavbarWithMegaMenu.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import chroma from 'chroma-js';
@@ -11,11 +11,12 @@ import SupportDropdownMenu from './sub/SupportDropdownMenu';
 import CoinWidget from './CoinWidget';
 import { useCart } from '../contexts/CartContext';
 import { useTheme } from '../contexts/ThemeContext'; 
-import LogoMain from '../assets/images/Logo/3.webp'
+import { useAuth } from '../contexts/AuthContext';
+import LogoMain from '../assets/images/Logo/3.webp';
 
-import Dirham from '../assets/images/language/aed (1).png'
-import Dollor from '../assets/images/language/dollor.png'
-import aeFlag from '../assets/images/language/aed (3).png'
+import Dirham from '../assets/images/language/aed (1).png';
+import Dollor from '../assets/images/language/dollor.png';
+import aeFlag from '../assets/images/language/aed (3).png';
 
 import '../assets/styles/Navbar.css';
 
@@ -25,20 +26,18 @@ import Star from '../assets/images/webicons/Common/Asset 117@6x.png';
 import SupportIcon from '../assets/images/webicons/Header/White/Asset 32@6x.png';
 import CartIcon from '../assets/images/webicons/Header/White/Asset 30@6x.png';
 import UserIcon from '../assets/images/webicons/Header/White/Asset 21@6x.png';
-import TopSellicon from '../assets/images/webicons/Header/White/Asset 24@6x.png'
+import TopSellicon from '../assets/images/webicons/Header/White/Asset 24@6x.png';
 
 // MegaMenu Component
 import MegaMenu from '../components/sub/megamenu';
 
 const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
   const { currentTheme } = useTheme(); 
-  const [categories, setCategories] = useState([]); // Keep state for MegaMenu
-  const [activeCategoryId, setActiveCategoryId] = useState(null);
-  const [products, setProducts] = useState([]);
+  const { user, login, logout } = useAuth();
+  const [categories, setCategories] = useState([]);
   const [hovering, setHovering] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [supportDropdownOpen, setSupportDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -70,12 +69,10 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
   // Auto logout after 30 minutes
   useEffect(() => {
     const MS_PER_MINUTE = 60 * 1000;
-
     const handleBeforeUnload = () => {
       const now = new Date().getTime();
       localStorage.setItem('lastClosed', now);
     };
-
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     const lastClosed = localStorage.getItem('lastClosed');
@@ -87,7 +84,6 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
         console.log('User auto-signed out after 30 minutes of inactivity.');
       }
     }
-
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
@@ -98,56 +94,41 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Load user from localStorage
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) setUser(JSON.parse(savedUser));
-  }, []);
-
   const handleMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setHovering(true);
   };
-
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => setHovering(false), 200);
   };
-
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
     setUserDropdownOpen(false);
   };
 
+  // ===================== Updated handleLogin =====================
   const handleLogin = (userData) => {
-    let mappedUser;
-    
-    if (userData.uid) {
-      mappedUser = {
-        id: userData.uid,
-        name: userData.displayName || (userData.email ? userData.email.split('@')[0] : 'User'),
-        email: userData.email || '',
-        image: userData.photoURL || null,
-      };
-    } else {
-      mappedUser = {
-        id: userData.id || userData.user?.id,
-        name: userData.name || 'User',
-        email: userData.user?.email || userData.email || '',
-        image: userData.image || null,
-      };
-    }
-  
-    setUser(mappedUser);
-    localStorage.setItem('user', JSON.stringify(mappedUser));
+    const mappedUser = {
+      id: userData.id || userData.user?.id || userData.uid,
+      name:
+        userData.name ||
+        userData.user?.name ||
+        userData.displayName ||
+        (userData.email ? userData.email.split('@')[0] : 'User'),
+      email: userData.email || userData.user?.email || '',
+      image: userData.image || userData.user?.photoURL || userData.photoURL || null,
+      token: userData.token || null,
+    };
+
+    login(mappedUser);
     setSignInOpen(false);
   };
 
   const handleSignOut = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+    logout();
     setUserDropdownOpen(false);
     setMobileMenuOpen(false);
-    window.location.href = '/';
+    navigate('/');
   };
 
   const backgroundColor = currentTheme?.navbarBg || '#CCA000';
@@ -160,9 +141,9 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
       <nav
         className="navbar"
         style={{
-          width: isMobile ? '100%' : (isCartOpen ? 'calc(100% - 250px)' : '100%'),
+          width: isMobile ? '100%' : isCartOpen ? 'calc(100% - 250px)' : '100%',
           transition: 'width 0.3s ease',
-          backgroundColor: backgroundColor,
+          backgroundColor,
           color: textColor,
         }}
       >
@@ -180,9 +161,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
             />
           </div>
 
-          <div className="nav-center-mobile">
-            <SearchBar />
-          </div>
+          <div className="nav-center-mobile"><SearchBar /></div>
 
           <div
             className="mobile-toggle"
@@ -207,7 +186,6 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
                 <span>5-Star Rated</span>
               </div>
 
-              {/* Categories MegaMenu */}
               <div
                 className="categories-dropdown"
                 onMouseEnter={handleMouseEnter}
@@ -221,23 +199,18 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
                 >
-                  <MegaMenu 
-                    categories={categories} 
-                    onClose={() => setHovering(false)}
-                  />
+                  <MegaMenu categories={categories} onClose={() => setHovering(false)} />
                 </div>
               )}
             </div>
 
-            <div className="nav-center">
-              <SearchBar />
-            </div>
+            <div className="nav-center"><SearchBar /></div>
 
             <div className="nav-right">
               {user ? (
                 <div
                   className="account logged-in"
-                  title={`Hi, ${user.name}`}
+                  title={`Hi, ${user?.name || 'User'}`}
                   onMouseEnter={() => {
                     if (userTimeoutRef.current) clearTimeout(userTimeoutRef.current);
                     setUserDropdownOpen(true);
@@ -248,15 +221,21 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
                   style={{ position: 'relative' }}
                 >
                   <div className="avatar">
-                    {user.image ? <img src={user.image} alt={user.name} /> :
-                      <div className="avatar-fallback">{user.name.charAt(0).toUpperCase()}</div>}
+                    {user?.image ? (
+                      <img src={user.image} alt={user.name} />
+                    ) : (
+                      <div className="avatar-fallback">
+                        {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                    )}
                   </div>
                   <div className="user-name">
-                    Hi, {capitalizeFirst(truncateName(user.name))} <CoinWidget userId={Number(user.id)} />
+                    Hi, {user?.name ? capitalizeFirst(truncateName(user.name)) : 'User'}{' '}
+                    <CoinWidget userId={user?.id ? Number(user.id) : 0} />
                   </div>
+
                   <UserDropdownMenu
                     user={user}
-                    setUser={setUser}
                     isOpen={userDropdownOpen}
                     onSignOut={handleSignOut}
                     onClose={() => setUserDropdownOpen(false)}
@@ -274,6 +253,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
                 </div>
               )}
 
+              {/* Support dropdown */}
               <div
                 className="nav-icon-with-text support-link"
                 onMouseEnter={() => {
@@ -290,7 +270,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
                 <SupportDropdownMenu isOpen={supportDropdownOpen} onClose={() => setSupportDropdownOpen(false)} />
               </div>
 
-              {/* Language Dropdown */}
+              {/* Language & currency */}
               <div
                 className="nav-icon-with-text language-dropdown"
                 onMouseEnter={() => {
@@ -304,7 +284,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
               >
                 <span style={{ display: 'flex', alignItems: 'center' }}>
                   <img
-                    src={language === 'en' ? aeFlag : aeFlag}
+                    src={aeFlag}
                     alt={language === 'en' ? 'English' : 'العربية'}
                     className="lang-icon"
                     style={{ marginRight: '5px', width: '20px', height: '20px' }}
@@ -349,7 +329,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
                 )}
               </div>
 
-              {/* Cart Icon */}
+              {/* Cart icon */}
               <div
                 className="nav-icon-only"
                 title="Cart"
@@ -367,7 +347,7 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
       <MobileMenu
         isOpen={mobileMenuOpen}
         closeMobileMenu={closeMobileMenu}
-        categories={categories}  // remains empty array unless you populate manually
+        categories={categories}
         user={user}
         userDropdownOpen={userDropdownOpen}
         setUserDropdownOpen={setUserDropdownOpen}

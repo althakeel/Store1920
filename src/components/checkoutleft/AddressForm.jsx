@@ -257,8 +257,18 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
               <input type="text" value="United Arab Emirates" readOnly
                 style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />
             </label>
-          </div>
 
+            
+          </div>
+<label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 500, color: '#444' }}>
+<input
+  type="checkbox"
+  name="saveAsDefault"
+  checked={formData.saveAsDefault || false}
+  onChange={(e) => onChange({ target: { name: 'saveAsDefault', value: e.target.checked } })}
+/>
+  Save this address as default for future orders
+</label>
           {error && <div style={{ color: 'red', fontWeight: 600 }}>{error}</div>}
 
           <button type="submit" disabled={saving}

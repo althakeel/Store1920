@@ -1,9 +1,9 @@
 import React from 'react';
 import '../../assets/styles/MobileMenu.css';
 import { Link } from 'react-router-dom';
-import Accounticon from '../../assets/images/Accounts  2.png'
-import Chaticon from '../../assets/images/Chatwithstore19201.png'
-import Carticon from '../../assets/images/addtocartnotadded-black.png'
+import Accounticon from '../../assets/images/Accounts  2.png';
+import Chaticon from '../../assets/images/Chatwithstore19201.png';
+import Carticon from '../../assets/images/addtocartnotadded-black.png';
 
 const decodeHtml = (html) => {
   const txt = document.createElement('textarea');
@@ -31,7 +31,7 @@ const MobileMenu = ({
     >
       <nav
         className="mobile-menu-unique__content"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         aria-label="Mobile Navigation Menu"
       >
         {/* Close Button */}
@@ -65,41 +65,38 @@ const MobileMenu = ({
               5-Star Rated
             </a>
           </li>
-          <li
-            className="mobile-menu-unique__categories-title"
-            aria-hidden="true"
-          >
+          <li className="mobile-menu-unique__categories-title" aria-hidden="true">
             Categories
           </li>
 
-         {Array.isArray(categories) && categories.map((cat) => (
-  <li
-    key={cat.id}
-    className="mobile-menu-unique__item mobile-menu-unique__category-item"
-    role="menuitem"
-    tabIndex={0}
-    onClick={() => {
-      handleCategoryHover(cat.id);
-      closeMobileMenu();
-    }}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter') {
-        handleCategoryHover(cat.id);
-        closeMobileMenu();
-      }
-    }}
-  >
-    {decodeHtml(cat.name)}
-  </li>
-))}
-
+          {Array.isArray(categories) &&
+            categories.map((cat) => (
+              <li
+                key={cat.id}
+                className="mobile-menu-unique__item mobile-menu-unique__category-item"
+                role="menuitem"
+                tabIndex={0}
+                onClick={() => {
+                  handleCategoryHover(cat.id);
+                  closeMobileMenu();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleCategoryHover(cat.id);
+                    closeMobileMenu();
+                  }
+                }}
+              >
+                {decodeHtml(cat.name)}
+              </li>
+            ))}
         </ul>
 
         <div className="mobile-menu-unique__bottom-section">
           {user ? (
             <div
               className="mobile-menu-unique__account-logged-in-footer"
-              title={`Hi, ${user.name}`}
+              title={`Hi, ${user?.name || 'User'}`}
             >
               <button
                 className="mobile-menu-unique__account-logged-in-footer-trigger"
@@ -109,20 +106,20 @@ const MobileMenu = ({
                 aria-haspopup="true"
               >
                 <div className="mobile-menu-unique__avatar">
-                  {user.image ? (
+                  {user?.image ? (
                     <img
                       src={user.image}
-                      alt={user.name}
+                      alt={user?.name || 'User'}
                       className="mobile-menu-unique__avatar-img"
                     />
                   ) : (
                     <div className="mobile-menu-unique__avatar-fallback">
-                      {user.name.charAt(0).toUpperCase()}
+                      {(user?.name?.charAt(0)?.toUpperCase()) || 'U'}
                     </div>
                   )}
                 </div>
                 <span className="mobile-menu-unique__account-logged-in-text">
-                  Hi, {user.name}
+                  Hi, {user?.name || 'User'}
                 </span>
                 <span
                   className={`mobile-menu-unique__dropdown-arrow ${
@@ -251,33 +248,37 @@ const MobileMenu = ({
             </button>
           )}
 
-      <div className="mobile-menu-unique__support-cart-footer" role="group" aria-label="Support and Cart">
-  <Link
-    to="/support"
-    className="mobile-menu-unique__support-footer"
-    aria-label="Support"
-  >
-    <img
-      src={Chaticon}
-      alt="Support Icon"
-      className="mobile-menu-unique__icon-small"
-    />
-    <span>Support</span>
-  </Link>
+          <div
+            className="mobile-menu-unique__support-cart-footer"
+            role="group"
+            aria-label="Support and Cart"
+          >
+            <Link
+              to="/support"
+              className="mobile-menu-unique__support-footer"
+              aria-label="Support"
+            >
+              <img
+                src={Chaticon}
+                alt="Support Icon"
+                className="mobile-menu-unique__icon-small"
+              />
+              <span>Support</span>
+            </Link>
 
-  <Link
-    to="/cart"
-    className="mobile-menu-unique__cart-footer"
-    aria-label="Cart"
-  >
-    <img
-      src={Carticon}
-      alt="Cart Icon"
-      className="mobile-menu-unique__icon-cart"
-    />
-    <span>Cart</span>
-  </Link>
-</div>
+            <Link
+              to="/cart"
+              className="mobile-menu-unique__cart-footer"
+              aria-label="Cart"
+            >
+              <img
+                src={Carticon}
+                alt="Cart Icon"
+                className="mobile-menu-unique__icon-cart"
+              />
+              <span>Cart</span>
+            </Link>
+          </div>
 
           <div className="mobile-menu-unique__bottom-links">
             <a

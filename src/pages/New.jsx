@@ -18,7 +18,7 @@ import {
 
 const PRODUCTS_PER_PAGE = 24;
 const TITLE_LIMIT = 35;
-const BEST_RATED_TAG_SLUG = 'Top-Selling-items';
+const BEST_RATED_TAG_SLUG = 'new-arrivals';
 
 // Utility functions
 const decodeHTML = (html) => {

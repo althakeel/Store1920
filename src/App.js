@@ -79,135 +79,135 @@ const AppContent = () => {
   }, []);
 
 
-// Notification effect in AppContent
-useEffect(() => {
-  if (!("Notification" in window)) return; // Browser doesn't support notifications
+  // Notification effect in AppContent
+  useEffect(() => {
+    if (!("Notification" in window)) return; // Browser doesn't support notifications
 
-  let promoInterval;
-  let promoIndex = 0;
+    let promoInterval;
+    let promoIndex = 0;
 
-  // Array of promotional items
-  const promotions = [
-    {
-      title: "🔥 Limited Offer!",
-      body: "Buy now – 80% off on this product!",
-      image: `${window.location.origin}/promo-product1.jpg`,
-    },
-    {
-      title: "🎁 Special Deal!",
-      body: "Grab 50% off on our best-seller!",
-      image: AdsImage,
-    },
-    {
-      title: "💥 Flash Sale!",
-      body: "Hurry! 50% off on selected items!",
-      image: AdsImage,
-    },
-  ];
+    // Array of promotional items
+    const promotions = [
+      {
+        title: "🔥 Limited Offer!",
+        body: "Buy now – 80% off on this product!",
+        image: `${window.location.origin}/promo-product1.jpg`,
+      },
+      {
+        title: "🎁 Special Deal!",
+        body: "Grab 50% off on our best-seller!",
+        image: AdsImage,
+      },
+      {
+        title: "💥 Flash Sale!",
+        body: "Hurry! 50% off on selected items!",
+        image: AdsImage,
+      },
+    ];
 
-  const showPromoNotification = () => {
-    if (Notification.permission === "granted") {
-      const promo = promotions[promoIndex];
+    const showPromoNotification = () => {
+      if (Notification.permission === "granted") {
+        const promo = promotions[promoIndex];
 
-      const notification = new Notification(promo.title, {
-        body: promo.body,
-        icon: `${window.location.origin}/logo.webp`,
-        image: promo.image,
-        requireInteraction: true,
-      });
+        const notification = new Notification(promo.title, {
+          body: promo.body,
+          icon: `${window.location.origin}/logo.webp`,
+          image: promo.image,
+          requireInteraction: true,
+        });
 
-      // Auto-close after 10 seconds
-      setTimeout(() => notification.close(), 10000);
+        // Auto-close after 10 seconds
+        setTimeout(() => notification.close(), 10000);
 
-      notification.onclick = () => {
-        window.focus();
-        window.location.href = "/allproducts"; // Redirect to promo page
-      };
+        notification.onclick = () => {
+          window.focus();
+          window.location.href = "/allproducts"; // Redirect to promo page
+        };
 
-      // Cycle to the next promotion for next notification
-      promoIndex = (promoIndex + 1) % promotions.length;
-    }
-  };
+        // Cycle to the next promotion for next notification
+        promoIndex = (promoIndex + 1) % promotions.length;
+      }
+    };
 
-  // Request permission on first user interaction
-  const requestPermission = () => {
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-    window.removeEventListener("click", requestPermission);
-  };
-  window.addEventListener("click", requestPermission);
+    // Request permission on first user interaction
+    const requestPermission = () => {
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+      window.removeEventListener("click", requestPermission);
+    };
+    window.addEventListener("click", requestPermission);
 
-  // Show immediately on first load
-  showPromoNotification();
+    // Show immediately on first load
+    showPromoNotification();
 
-  // Repeat every 10 minutes
-  promoInterval = setInterval(showPromoNotification, 10 * 60 * 1000);
+    // Repeat every 10 minutes
+    promoInterval = setInterval(showPromoNotification, 10 * 60 * 1000);
 
-  return () => {
-    clearInterval(promoInterval);
-    window.removeEventListener("click", requestPermission);
-  };
-}, []);
+    return () => {
+      clearInterval(promoInterval);
+      window.removeEventListener("click", requestPermission);
+    };
+  }, []);
 
 
   // Cart notification logic
-// Cart notification logic
-useEffect(() => {
-  if (!("Notification" in window)) return; // Browser doesn't support notifications
+  // Cart notification logic
+  useEffect(() => {
+    if (!("Notification" in window)) return; // Browser doesn't support notifications
 
-  let notificationTimeout;
-  let notificationInterval;
+    let notificationTimeout;
+    let notificationInterval;
 
-  const showCartNotification = () => {
-    if (Notification.permission === 'granted' && cartItems?.length > 0) {
-      const notification = new Notification('Cart Reminder', {
-        body: `You have ${cartItems.length} pending item(s) in your cart!`,
-        icon: `${window.location.origin}/logo.webp`,
-        image: cartItems[0]?.image,
-      });
-      const audio = new Audio(SoundAlert);
-      audio.play().catch(() => console.log('Audio blocked until user interacts'));
+    const showCartNotification = () => {
+      if (Notification.permission === 'granted' && cartItems?.length > 0) {
+        const notification = new Notification('Cart Reminder', {
+          body: `You have ${cartItems.length} pending item(s) in your cart!`,
+          icon: `${window.location.origin}/logo.webp`,
+          image: cartItems[0]?.image,
+        });
+        const audio = new Audio(SoundAlert);
+        audio.play().catch(() => console.log('Audio blocked until user interacts'));
 
-      notification.onclick = () => {
-        window.focus();
-        window.location.href = '/cart';
-      };
-    }
-  };
+        notification.onclick = () => {
+          window.focus();
+          window.location.href = '/cart';
+        };
+      }
+    };
 
-  const handleVisibilityChange = () => {
-    if (document.hidden && cartItems?.length > 0) {
-      // Start timer 30 sec after tab hidden
-      notificationTimeout = setTimeout(() => {
-        showCartNotification();
-        // Repeat every 15 min
-        notificationInterval = setInterval(showCartNotification, 15 * 60 * 1000);
-      }, 30 * 1000);
-    } else {
-      // Tab is active: clear timers
+    const handleVisibilityChange = () => {
+      if (document.hidden && cartItems?.length > 0) {
+        // Start timer 30 sec after tab hidden
+        notificationTimeout = setTimeout(() => {
+          showCartNotification();
+          // Repeat every 15 min
+          notificationInterval = setInterval(showCartNotification, 15 * 60 * 1000);
+        }, 30 * 1000);
+      } else {
+        // Tab is active: clear timers
+        clearTimeout(notificationTimeout);
+        clearInterval(notificationInterval);
+      }
+    };
+
+    // Request permission on first user interaction if not granted
+    const requestPermission = () => {
+      if (Notification.permission !== 'granted') {
+        Notification.requestPermission();
+      }
+      window.removeEventListener('click', requestPermission);
+    };
+    window.addEventListener('click', requestPermission);
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
       clearTimeout(notificationTimeout);
       clearInterval(notificationInterval);
-    }
-  };
-
-  // Request permission on first user interaction if not granted
-  const requestPermission = () => {
-    if (Notification.permission !== 'granted') {
-      Notification.requestPermission();
-    }
-    window.removeEventListener('click', requestPermission);
-  };
-  window.addEventListener('click', requestPermission);
-
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-  return () => {
-    clearTimeout(notificationTimeout);
-    clearInterval(notificationInterval);
-    document.removeEventListener('visibilitychange', handleVisibilityChange);
-    window.removeEventListener('click', requestPermission);
-  };
-}, [cartItems]);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('click', requestPermission);
+    };
+  }, [cartItems]);
 
 
   const excludeMiniCartPaths = ['/cart', '/checkout', '/lost-password', '/order-success'];
@@ -272,13 +272,20 @@ useEffect(() => {
                     background: '#fff',
                   }}
                 >
-{!isHomePage && !isFestSalePage && !isSupportPage && <Breadcrumbs />}
+                  {!isHomePage && !isFestSalePage && !isSupportPage && <Breadcrumbs />}
 
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/product/:slug" element={<ProductDetails />} />
                     <Route path="/cart" element={<CartPage />} />
-                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route
+                      path="/checkout"
+                      element={
+                        <ProtectedRoute>
+                          <CheckoutPage />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route
                       path="/myaccount/*"
                       element={

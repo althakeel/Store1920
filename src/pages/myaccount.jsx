@@ -18,46 +18,24 @@ import PermissionsSection from '../components/sub/account/sections/PermissionsSe
 import NotificationsSection from '../components/sub/account/sections/NotificationsSection';
 import ProductsUnder20AED from '../components/ProductsUnder20AED';
 
+import { useAuth } from '../contexts/AuthContext';
+
 import '../assets/styles/myaccount.css';
 
 const API_BASE = 'https://db.store1920.com/wp-json/custom/v1';
 
 const MyAccount = () => {
-  const [userId, setUserId] = useState(null);
-  const [email, setEmail] = useState('');
-  const [token, setToken] = useState(null); // JWT token
+  const { user } = useAuth(); // Fetch user from context
   const [coinBalance, setCoinBalance] = useState(0);
   const [coinHistory, setCoinHistory] = useState([]);
   const [loadingCoins, setLoadingCoins] = useState(false);
   const [coinError, setCoinError] = useState(null);
 
-  // Load user and token from localStorage
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
+  const userId = user?.id;
+  const email = user?.email;
+  const token = user?.token;
 
-    if (storedUser && storedToken) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        const id = parsedUser?.id || parsedUser?.user?.id || null;
-        const userEmail = parsedUser?.email || parsedUser?.user?.email || '';
-        setUserId(id);
-        setEmail(userEmail);
-        setToken(storedToken);
-      } catch (err) {
-        console.error('Error parsing user from localStorage:', err);
-        setUserId(null);
-        setEmail('');
-        setToken(null);
-      }
-    } else {
-      setUserId(null);
-      setEmail('');
-      setToken(null);
-    }
-  }, []);
-
-  // Fetch coin data for user, with token in headers
+  // Fetch coin data for logged-in user
   useEffect(() => {
     if (!userId || !token) {
       setCoinBalance(0);
@@ -125,13 +103,11 @@ const MyAccount = () => {
             <Route path="" element={<Navigate to="orders" replace />} />
           </Routes>
         </main>
-        
       </div>
-      <div style={{ maxWidth: "1400px", margin: '0 auto', textAlign: 'center' }}>
-  <ProductsUnder20AED />
-</div>
 
-     
+      <div style={{ maxWidth: "1400px", margin: '0 auto', textAlign: 'center' }}>
+        <ProductsUnder20AED />
+      </div>
     </div>
   );
 };

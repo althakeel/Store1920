@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
 import CheckoutLeft from '../components/CheckoutLeft';
 import CheckoutRight from '../components/CheckoutRight';
 import SignInModal from '../components/sub/SignInModal';
@@ -31,12 +32,12 @@ const fetchWithAuth = async (endpoint, options = {}) => {
   return res.json();
 };
 
-// Ensure required fields are never empty for Paymob
 const sanitizeField = (value) => (value && value.trim() ? value : 'NA');
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { cartItems: contextCartItems, clearCart } = useCart();
+  const { user } = useAuth(); // current logged-in user
 
   const [cartItems, setCartItems] = useState([]);
   const [countries, setCountries] = useState([]);
@@ -77,7 +78,6 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSignInModal, setShowSignInModal] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [error, setError] = useState('');
 
@@ -90,6 +90,63 @@ export default function CheckoutPage() {
     setAlert({ message, type });
     setTimeout(() => setAlert({ message: '', type: 'info' }), 4000);
   };
+
+  // Auto-fill formData email when user logs in
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        shipping: { ...prev.shipping, email: user.email || prev.shipping.email },
+        billing: { ...prev.billing, email: user.email || prev.billing.email },
+      }));
+    }
+  }, [user]);
+
+  // Auto-fetch saved addresses if user is logged in
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchUserAddresses = async () => {
+      try {
+        const customer = await fetchWithAuth(`customers/${user.id}`);
+        if (customer) {
+          setFormData((prev) => ({
+            ...prev,
+            billing: {
+              first_name: customer.billing.first_name || prev.billing.first_name,
+              last_name: customer.billing.last_name || prev.billing.last_name,
+              email: customer.billing.email || prev.billing.email,
+              street: customer.billing.address_1 || prev.billing.street,
+              apartment: customer.billing.address_2 || prev.billing.apartment,
+              floor: '', // WooCommerce doesn't store floor by default
+              city: customer.billing.city || prev.billing.city,
+              state: customer.billing.state || prev.billing.state,
+              postal_code: customer.billing.postcode || prev.billing.postal_code,
+              country: customer.billing.country || prev.billing.country,
+              phone_number: customer.billing.phone || prev.billing.phone_number,
+            },
+            shipping: {
+              first_name: customer.shipping.first_name || prev.shipping.first_name,
+              last_name: customer.shipping.last_name || prev.shipping.last_name,
+              email: customer.email || prev.shipping.email,
+              street: customer.shipping.address_1 || prev.shipping.street,
+              apartment: customer.shipping.address_2 || prev.shipping.apartment,
+              floor: '', // WooCommerce doesn't store floor by default
+              city: customer.shipping.city || prev.shipping.city,
+              state: customer.shipping.state || prev.shipping.state,
+              postal_code: customer.shipping.postcode || prev.shipping.postal_code,
+              country: customer.shipping.country || prev.shipping.country,
+              phone_number: prev.shipping.phone_number,
+            },
+          }));
+        }
+      } catch (err) {
+        console.error('Failed to fetch saved addresses:', err);
+      }
+    };
+
+    fetchUserAddresses();
+  }, [user]);
 
   // Fetch cart product details
   useEffect(() => {
@@ -125,7 +182,6 @@ export default function CheckoutPage() {
         ]);
         setCountries(countriesData);
         setPaymentMethods(paymentsData);
-        setIsLoggedIn(!!localStorage.getItem('userToken'));
       } catch (err) {
         setError(err.message || 'Failed to load checkout data.');
       } finally {
@@ -164,7 +220,7 @@ export default function CheckoutPage() {
     const shipping = formData.shipping;
     const billing = formData.billingSameAsShipping ? shipping : formData.billing;
     const line_items = cartItems.map(i => ({ product_id: i.id, quantity: i.quantity }));
-    const userId = localStorage.getItem('userId');
+    const userId = user?.id;
 
     const payload = {
       payment_method: formData.paymentMethod,
@@ -258,7 +314,7 @@ export default function CheckoutPage() {
       {showSignInModal && (
         <SignInModal
           onClose={() => setShowSignInModal(false)}
-          onLoginSuccess={() => setIsLoggedIn(true)}
+          onLoginSuccess={() => setShowSignInModal(false)}
         />
       )}
 

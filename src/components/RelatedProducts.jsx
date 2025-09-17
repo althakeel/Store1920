@@ -1,5 +1,4 @@
 import React, { useEffect, useState, memo } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import '../assets/styles/related-products.css';
@@ -7,15 +6,12 @@ import AddCarticon from '../assets/images/addtocart.png';
 import AddedToCartIcon from '../assets/images/added-cart.png';
 import DummyReviewsSold from '../components/temp/productcardreviews';
 import Dirham from '../assets/images/Dirham 2.png';
-import PlaceHolderImage from '../assets/images/common/Placeholder.png'
+import PlaceHolderImage from '../assets/images/common/Placeholder.png';
 
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3/products';
-const AUTH = {
-  username: 'ck_5441db4d77e2a329dc7d96d2db6a8e2d8b63c29f',
-  password: 'cs_81384d5f9e75e0ab81d0ea6b0d2029cba2d52b63',
-};
+// WooCommerce helper
+import { getProductById, getProductsByIds } from '../utils/woocommerce';
 
-// Skeleton Loader
+// ---------------- Skeleton Loader ----------------
 function SkeletonCard() {
   return (
     <div className="hr-skeleton-card">
@@ -30,11 +26,23 @@ function SkeletonCard() {
   );
 }
 
-// Toast Component
+// ---------------- Toast Component ----------------
 function Toast({ message, visible }) {
   return (
-    <div className={`toast ${visible ? 'show' : ''}`} role="alert" aria-live="assertive" aria-atomic="true">
-      <svg xmlns="http://www.w3.org/2000/svg" className="toast-icon" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={3}>
+    <div
+      className={`toast ${visible ? 'show' : ''}`}
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="toast-icon"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="white"
+        strokeWidth={3}
+      >
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
       </svg>
       <span className="toast-message">{message}</span>
@@ -80,6 +88,7 @@ function Toast({ message, visible }) {
   );
 }
 
+// ---------------- Horizontal Related Products ----------------
 export default function HorizontalRelatedProducts({ productId }) {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,65 +100,61 @@ export default function HorizontalRelatedProducts({ productId }) {
   useEffect(() => {
     if (!productId) return;
 
-    const fetchRelatedProducts = async () => {
+    const fetchRelated = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const { data: product } = await axios.get(`${API_BASE}/${productId}?status=publish`, { auth: AUTH });
+        const product = await getProductById(productId);
+        if (!product) return;
 
         let related = [];
 
-        // 1️⃣ related_ids
+        // 1️⃣ Related IDs
         if (product.related_ids?.length) {
-          const requests = product.related_ids.map(id =>
-            axios.get(`${API_BASE}/${id}?status=publish`, { auth: AUTH }).then(res => res.data)
-          );
-          related = await Promise.all(requests);
+          const relatedData = await getProductsByIds(product.related_ids);
+          related = relatedData.filter(p => p?.id && p.id !== productId);
         }
 
-        // 2️⃣ category fallback
+        // 2️⃣ Category fallback
         if (!related.length && product.categories?.length) {
-          const categoryIds = product.categories.map(c => c.id).join(',');
-          const { data: categoryRelated } = await axios.get(
-            `${API_BASE}?category=${categoryIds}&per_page=10&status=publish`,
-            { auth: AUTH }
+          const categoryIds = product.categories.map(c => c.id);
+          const categoryProducts = await Promise.all(
+            categoryIds.map(id => getProductsByIds([id]))
           );
-          related = categoryRelated.filter(p => p.id !== productId);
+          related = categoryProducts.flat().filter(p => p.id !== productId);
         }
 
-        // 3️⃣ tag fallback
+        // 3️⃣ Tag fallback
         if (!related.length && product.tags?.length) {
-          const tagIds = product.tags.map(t => t.id).join(',');
-          const { data: tagRelated } = await axios.get(
-            `${API_BASE}?tag=${tagIds}&per_page=10&status=publish`,
-            { auth: AUTH }
+          const tagIds = product.tags.map(t => t.id);
+          const tagProducts = await Promise.all(
+            tagIds.map(id => getProductsByIds([id]))
           );
-          related = tagRelated.filter(p => p.id !== productId);
+          related = tagProducts.flat().filter(p => p.id !== productId);
         }
 
-        // 4️⃣ latest fallback
+        // 4️⃣ Latest fallback
         if (!related.length) {
-          const { data: latest } = await axios.get(`${API_BASE}?per_page=10&status=publish`, { auth: AUTH });
+          const latest = await getProductsByIds([]);
           related = latest.filter(p => p.id !== productId);
         }
 
-        setRelatedProducts(related);
-      } catch (error) {
-        console.error('Error fetching related products:', error);
+        setRelatedProducts(related.slice(0, 10)); // limit to 10
+      } catch (err) {
+        console.error('Error fetching related products:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRelatedProducts();
+    fetchRelated();
   }, [productId]);
 
-  const showToast = (message) => {
+  const showToastMessage = (message) => {
     setToast({ message, visible: true });
     setTimeout(() => setToast({ message: '', visible: false }), 3000);
   };
 
-  const truncate = (str, max = 25) =>
-    str?.length > max ? str.substring(0, max) + '...' : str;
+  const truncate = (str, max = 25) => (str?.length > max ? str.substring(0, max) + '...' : str);
 
   const getPrice = (prod) => {
     const regular = parseFloat(prod.regular_price);
@@ -175,16 +180,18 @@ export default function HorizontalRelatedProducts({ productId }) {
 
   const handleAddToCart = (product) => {
     const exists = cartItems.some(
-      (item) => item.id === product.id && JSON.stringify(item.variation || []) === JSON.stringify(product.variation || [])
+      (item) =>
+        item.id === product.id &&
+        JSON.stringify(item.variation || []) === JSON.stringify(product.variation || [])
     );
 
     if (exists) {
-      showToast(`"${product.name}" is already in the cart.`);
+      showToastMessage(`"${product.name}" is already in the cart.`);
       return;
     }
 
     addToCart(product);
-    showToast(`Added "${product.name}" to cart!`);
+    showToastMessage(`Added "${product.name}" to cart!`);
   };
 
   const handleNavigate = (product) => {
@@ -195,7 +202,9 @@ export default function HorizontalRelatedProducts({ productId }) {
     return (
       <div className="horizontal-related-wrapper">
         <div className="horizontal-related-list">
-          {Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)}
+          {Array.from({ length: 5 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       </div>
     );
@@ -221,19 +230,21 @@ export default function HorizontalRelatedProducts({ productId }) {
         <h2 className="hr-heading">Recommended for You</h2>
         <div className="horizontal-related-list">
           {relatedProducts.map((prod) => {
-            const image = prod.images?.[0]?.src;
+            const image = prod.images?.[0]?.src || PlaceHolderImage;
             const { regular, sale } = getPrice(prod);
             const displayPrice = sale && sale < regular ? sale : regular;
             const discount = calcDiscount(regular, sale);
 
             const isInCart = cartItems.some(
-              (item) => item.id === prod.id && JSON.stringify(item.variation || []) === JSON.stringify(prod.variation || [])
+              (item) =>
+                item.id === prod.id &&
+                JSON.stringify(item.variation || []) === JSON.stringify(prod.variation || [])
             );
 
             return (
               <div className="horizontal-related-card" key={prod.id}>
                 <img
-                   src={image || PlaceHolderImage}
+                  src={image}
                   alt={prod.name}
                   className="hr-product-image"
                   onClick={() => handleNavigate(prod)}
@@ -260,7 +271,10 @@ export default function HorizontalRelatedProducts({ productId }) {
                   <DummyReviewsSold />
 
                   <div className="hr-bottom-row">
-                    <div className="hr-price-info" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div
+                      className="hr-price-info"
+                      style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
                       <img
                         src={Dirham}
                         alt="Dirham"

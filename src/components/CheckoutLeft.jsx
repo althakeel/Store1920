@@ -11,12 +11,7 @@ import emptyAddressImg from '../assets/images/adress-not-found.png';
 import ProductsUnder20AED from './ProductsUnder20AED';
 import { useCart } from '../contexts/CartContext';
 
-
-const API_BASE = 'https://db.store1920.com/wp-json';
-const WC_CONSUMER_KEY = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
-const WC_CONSUMER_SECRET = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
-
-const getLocalStorageKey = (userId) => `checkoutAddressData_${userId || 'guest'}`;
+const API_BASE = 'https://db.store1920.com/wp-json/custom/v1';
 
 export default function CheckoutLeft({
   countries,
@@ -32,22 +27,22 @@ export default function CheckoutLeft({
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [shippingStates, setShippingStates] = useState([]);
   const [billingStates, setBillingStates] = useState([]);
-  const [methodsByZone, setMethodsByZone] = useState({});
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [selectedShippingMethodId, setSelectedShippingMethodId] = useState(null);
+
   const { removeFromCart } = useCart();
 
   // -------------------------------
-  // Initialize cart items once on mount
+  // Initialize cart items on mount
   // -------------------------------
- useEffect(() => {
-  setFormData(prev => ({ ...prev, cartItems: cartItems || [] }));
-}, [cartItems]);
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, cartItems: cartItems || [] }));
+  }, [cartItems]);
 
   // -------------------------------
-  // Handle form field changes
+  // Handle field changes
   // -------------------------------
   const handleFieldChange = (e, section) => {
     const { name, value, type, checked } = e.target;
@@ -61,28 +56,29 @@ export default function CheckoutLeft({
     });
   };
 
- 
-const handleRemoveItem = (itemId) => {
-  // Remove from local formData
-  setFormData(prev => {
-    const newCartItems = (prev.cartItems || []).filter(i => {
-      const id = i.id ?? i.product_id ?? i.sku ?? i.slug ?? null;
-      return id !== itemId;
+  // -------------------------------
+  // Remove cart item
+  // -------------------------------
+  const handleRemoveItem = (itemId) => {
+    setFormData(prev => {
+      const newCartItems = (prev.cartItems || []).filter(i => {
+        const id = i.id ?? i.product_id ?? i.sku ?? i.slug ?? null;
+        return id !== itemId;
+      });
+      return { ...prev, cartItems: newCartItems };
     });
-    console.log('Removed itemId:', itemId, 'New cart items:', newCartItems);
-    return { ...prev, cartItems: newCartItems };
-  });
+    removeFromCart(itemId);
+  };
 
-  removeFromCart(itemId);
-};
-
+  // -------------------------------
+  // Delete address
+  // -------------------------------
   const handleDeleteAddress = () => {
     const emptyAddress = {
       first_name: '', last_name: '', email: '', street: '', apartment: '',
       city: '', state: '', postal_code: '', country: '', phone_number: ''
     };
     setSelectedShippingMethodId(null);
-    localStorage.removeItem(getLocalStorageKey('wp_user'));
     setFormData(prev => ({
       ...prev,
       shipping: emptyAddress,
@@ -91,23 +87,14 @@ const handleRemoveItem = (itemId) => {
   };
 
   // -------------------------------
-  // Save formData to localStorage
-  // -------------------------------
-  useEffect(() => {
-    try {
-      localStorage.setItem(getLocalStorageKey('wp_user'), JSON.stringify(formData));
-    } catch {}
-  }, [formData]);
-
-  // -------------------------------
-  // Auto-open address form if empty
+  // Auto-open form if no shipping address
   // -------------------------------
   useEffect(() => {
     if (!formData?.shipping?.street?.trim()) setShowForm(true);
   }, [formData?.shipping]);
 
   // -------------------------------
-  // Shipping method
+  // Shipping method handling
   // -------------------------------
   useEffect(() => {
     setSelectedShippingMethodId(formData.shippingMethodId || null);
@@ -118,7 +105,7 @@ const handleRemoveItem = (itemId) => {
   };
 
   // -------------------------------
-  // UI handlers
+  // Toggle address form
   // -------------------------------
   const handleAddAddressClick = () => {
     setShowForm(prev => !prev);
@@ -126,59 +113,63 @@ const handleRemoveItem = (itemId) => {
     setError(null);
   };
 
+  // -------------------------------
+  // Select payment
+  // -------------------------------
   const handlePaymentSelect = (id, title) => {
     setFormData(prev => ({ ...prev, paymentMethod: id, paymentMethodTitle: title }));
   };
 
   // -------------------------------
-  // Submit address
+  // Submit address to backend
   // -------------------------------
-const handleSubmit = async (e) => {
-  if (e && e.preventDefault) e.preventDefault(); // safe check
-  setSaving(true);
-  setError(null);
-  setSaveSuccess(false);
+  const handleSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setSaving(true);
+    setError(null);
+    setSaveSuccess(false);
 
-  const formatAddress = (addr) => ({
-    first_name: addr.first_name || '',
-    last_name: addr.last_name || '',
-    email: addr.email || '',
-    address_1: addr.street || '',
-    address_2: addr.apartment || '',
-    city: addr.city || '',
-    state: addr.state || '',
-    postcode: addr.postal_code || '',
-    country: addr.country || '',
-    phone: addr.phone_number || ''
-  });
-
-  const payload = {
-    shipping: formatAddress(formData.shipping),
-    billing: formData.billingSameAsShipping ? formatAddress(formData.shipping) : formatAddress(formData.billing),
-    billingSameAsShipping: formData.billingSameAsShipping,
-    shippingMethodId: formData.shippingMethodId || null
-  };
-
-  try {
-    const res = await fetch(`${API_BASE}/custom/v1/save-address`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(payload)
+    const formatAddress = (addr) => ({
+      first_name: addr.first_name || '',
+      last_name: addr.last_name || '',
+      email: addr.email || '',
+      address_1: addr.street || '',
+      address_2: addr.apartment || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      postcode: addr.postal_code || '',
+      country: addr.country || '',
+      phone: addr.phone_number || ''
     });
-    if (!res.ok) throw new Error('Failed to save address');
-    await res.json();
-    setSaveSuccess(true);
-    setShowForm(false);
-    localStorage.removeItem(getLocalStorageKey('wp_user'));
-    setTimeout(() => setSaveSuccess(false), 3000);
-  } catch {
-    setError('Failed to save address. Please try again.');
-  } finally {
-    setSaving(false);
-  }
-};
 
+    const payload = {
+      shipping: formatAddress(formData.shipping),
+      billing: formData.billingSameAsShipping ? formatAddress(formData.shipping) : formatAddress(formData.billing),
+      billingSameAsShipping: formData.billingSameAsShipping,
+      shippingMethodId: formData.shippingMethodId || null,
+        save_as_default: formData.saveAsDefault || false, // <-- Add this
+
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/save-address`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Failed to save address');
+      await res.json();
+      setSaveSuccess(true);
+      setShowForm(false);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to save address. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="checkout-left">

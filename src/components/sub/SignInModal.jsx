@@ -4,8 +4,8 @@ import "../../assets/styles/SignInModal.css";
 import { auth, googleProvider, facebookProvider } from "../../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 import { useAuth } from "../../contexts/AuthContext";
-import GoogleSignIcon from '../../assets/images/search.png'
-import FacebookIcon from '../../assets/images/facebook.png'
+import GoogleSignIcon from '../../assets/images/search.png';
+import FacebookIcon from '../../assets/images/facebook.png';
 
 // ===================== Alert Component =====================
 const Alert = ({ children, onClose }) => (
@@ -17,18 +17,13 @@ const Alert = ({ children, onClose }) => (
   </div>
 );
 
-// ===================== Error Parser =====================
+
 const parseErrorMsg = (rawMsg) => {
   if (!rawMsg) return null;
-
-  // Match any <a> tag
   const linkMatch = rawMsg.match(/<a [^>]*>([^<]+)<\/a>/);
-
   if (linkMatch) {
-    const linkText = linkMatch[1]; // keep the text
+    const linkText = linkMatch[1];
     const textOnly = rawMsg.replace(/<a[^>]*>[^<]*<\/a>/, "").replace(/<[^>]+>/g, "").trim();
-
-    // Always point to frontend lost-password page
     return (
       <>
         <strong>Error:</strong> {textOnly}{" "}
@@ -43,7 +38,6 @@ const parseErrorMsg = (rawMsg) => {
       </>
     );
   }
-
   return <>{rawMsg.replace(/<[^>]+>/g, "").trim()}</>;
 };
 
@@ -55,10 +49,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-  // add state
-const [showPassword, setShowPassword] = useState(false);
-const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
 
   const FRONTEND_URL = "https://store1920.com";
 
@@ -116,10 +107,13 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
           image: "",
           token: loginRes.data.token,
           id: res.data.id || res.data.user_id,
+          email: formData.email,  // <-- fix: store email
           user: res.data,
         };
         login(userInfo);
-        localStorage.setItem("userId", userInfo.id); // save user ID
+        localStorage.setItem("userId", userInfo.id);
+        localStorage.setItem("email", userInfo.email);
+        localStorage.setItem("token", userInfo.token);
         onLogin?.(userInfo);
         onClose();
       } else {
@@ -153,11 +147,14 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
           image: "",
           token: res.data.token,
           id: profileRes.data.id,
+          email: formData.email,  // <-- fix: store email
           user: profileRes.data,
         };
 
         login(userInfo);
-        localStorage.setItem("userId", userInfo.id); // save user ID
+        localStorage.setItem("userId", userInfo.id);
+        localStorage.setItem("email", userInfo.email);
+        localStorage.setItem("token", userInfo.token);
         onLogin?.(userInfo);
         onClose();
       } else {
@@ -189,9 +186,12 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
           token: res.data.token,
           user: { id: res.data.user_id, email: res.data.email },
           id: res.data.user_id,
+          email: res.data.email,  // <-- fix: store email
         };
         login(userInfo);
-        localStorage.setItem("userId", userInfo.id); // save user ID
+        localStorage.setItem("userId", userInfo.id);
+        localStorage.setItem("email", userInfo.email);
+        localStorage.setItem("token", userInfo.token);
         onLogin?.(userInfo);
         onClose();
       } else {
@@ -246,67 +246,64 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
             className="signin-modal-input"
             required
           />
-{!isRegister && (
-  <>
-    <input
-      type={showPassword ? "text" : "password"}
-      name="password"
-      placeholder="Password"
-      value={formData.password}
-      onChange={handleChange}
-      className="signin-modal-input"
-      required
-    />
-    <div className="signin-show-password">
-      <label>
-        <input
-          type="checkbox"
-          checked={showPassword}
-          onChange={() => setShowPassword(!showPassword)}
-        />
-        Show password
-      </label>
-    </div>
-  </>
-)}
 
-{isRegister && (
-  <>
-    {/* Password field */}
-    <input
-      type={showPassword ? "text" : "password"}
-      name="password"
-      placeholder="Password"
-      value={formData.password}
-      onChange={handleChange}
-      className="signin-modal-input"
-      required
-    />
+          {!isRegister && (
+            <>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className="signin-modal-input"
+                required
+              />
+              <div className="signin-show-password">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showPassword}
+                    onChange={() => setShowPassword(!showPassword)}
+                  />
+                  Show password
+                </label>
+              </div>
+            </>
+          )}
 
-    {/* Confirm Password field */}
-    <input
-      type={showPassword ? "text" : "password"}  // <-- use showPassword, not showConfirmPassword
-      name="confirmPassword"
-      placeholder="Confirm Password"
-      value={formData.confirmPassword}
-      onChange={handleChange}
-      className="signin-modal-input"
-      required
-    />
+          {isRegister && (
+            <>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className="signin-modal-input"
+                required
+              />
+              <input
+                type={showPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="signin-modal-input"
+                required
+              />
+              <div className="signin-show-password">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showPassword}
+                    onChange={() => setShowPassword(!showPassword)}
+                  />
+                  Show password
+                </label>
+              </div>
+            </>
+          )}
 
-    {/* Single checkbox toggling both */}
-    <div className="signin-show-password">
-      <label>
-        <input
-          type="checkbox"
-          checked={showPassword}
-          onChange={() => setShowPassword(!showPassword)}
-        />
-        Show password
-      </label>
-    </div>
-  </>
-)}
           <button type="submit" className="signin-submit-btn" disabled={loading}>
             {loading ? "Please wait..." : isRegister ? "Register" : "Continue"}
           </button>

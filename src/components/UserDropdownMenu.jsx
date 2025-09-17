@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/styles/UserDropdownMenu.css';
 import SignOutConfirmModal from './sub/SignOutConfirmModal';
+import { useAuth } from '../contexts/AuthContext'; // ✅ import useAuth
 
 import orderIcon from '../assets/images/webicons/Home/Black/add-tocart-black.png';
 import reviewIcon from '../assets/images/Reviews 2.png';
@@ -11,7 +12,14 @@ import notificationIcon from '../assets/images/webicons/Header/Black/Asset 13@6x
 import historyIcon from '../assets/images/webicons/Header/Black/Asset 10@6x.png';
 import SignOut from '../assets/images/webicons/Header/Black/Asset 8@6x.png';
 
-const UserDropdownMenu = ({ isOpen, onClose, setUserDropdownOpen, setMobileMenuOpen, user, setUser }) => {
+const UserDropdownMenu = ({
+  isOpen,
+  onClose,
+  setUserDropdownOpen,
+  setMobileMenuOpen,
+  user
+}) => {
+  const { logout } = useAuth(); // ✅ use logout from AuthContext
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const timeoutRef = useRef(null);
   const navigate = useNavigate();
@@ -30,8 +38,8 @@ const UserDropdownMenu = ({ isOpen, onClose, setUserDropdownOpen, setMobileMenuO
 
   const handleSignOut = () => {
     setShowConfirmModal(false);
-    setUser(null);
-    localStorage.removeItem('user');
+    logout(); // ✅ use AuthContext logout
+    localStorage.removeItem('user'); // optional, depends on your AuthContext
     setUserDropdownOpen(false);
     setMobileMenuOpen(false);
     navigate('/');
