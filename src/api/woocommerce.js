@@ -36,11 +36,12 @@ export const getProductsByCategory = (categoryId, page = 1, perPage = 42) =>
 export const getProductsByCategories = async (
   categoryIds = [],
   page = 1,
-  perPage = 42
+  perPage = 42,
+  order = "desc"  // <- default to desc
 ) => {
   if (!Array.isArray(categoryIds) || categoryIds.length === 0) return [];
   return fetchAPI(
-    `/products?category=${categoryIds.join(",")}&per_page=${perPage}&page=${page}&orderby=date&order=desc&_fields=id,name,slug,images,price,total_sales&`
+    `/products?category=${categoryIds.join(",")}&per_page=${perPage}&page=${page}&orderby=date&order=${order}&_fields=id,name,slug,images,price,total_sales&`
   );
 };
 
@@ -190,3 +191,4 @@ export const getOrdersByEmail = async (email, perPage = 20) => {
   if (!email) return [];
   return fetchAPI(`/orders?customer=${email}&per_page=${perPage}&orderby=date&order=desc&`);
 };
+

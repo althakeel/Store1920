@@ -1,6 +1,6 @@
 // src/components/ProductCategory.jsx
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../../../assets/styles/ProductCategory.css";
 import { useCart } from "../../../contexts/CartContext";
 import MiniCart from "../../MiniCart";
@@ -12,14 +12,10 @@ import PlaceholderImage from "../../../assets/images/common/Placeholder.png";
 import { throttle } from "lodash";
 import { API_BASE, CONSUMER_KEY, CONSUMER_SECRET } from "../../../api/woocommerce";
 import ProductCardReviews from "../../temp/productcardreviews";
-import { useNavigate } from "react-router-dom";
 
-
-
-const PAGE_SIZE = 10;           
-const PRODUCTS_PER_PAGE = 20; 
-const MAX_PRODUCTS = 200;        
-
+const PAGE_SIZE = 10;
+const PRODUCTS_PER_PAGE = 30;
+const MAX_PRODUCTS = 200;
 
 const decodeHTML = (html) => {
   const txt = document.createElement("textarea");
@@ -27,7 +23,7 @@ const decodeHTML = (html) => {
   return txt.value;
 };
 
-
+// Skeleton Loader
 const SkeletonCard = () => (
   <div className="pcus-prd-card pcus-skeleton">
     <div className="pcus-prd-image-skel" />
@@ -38,7 +34,7 @@ const SkeletonCard = () => (
   </div>
 );
 
-
+// Price Component
 function Price({ value, className }) {
   if (!value) return null;
   const price = parseFloat(value || 0).toFixed(2);
@@ -51,9 +47,20 @@ function Price({ value, className }) {
   );
 }
 
+// Shuffle array utility
+const shuffleArray = (array) => {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
 const ProductCategory = () => {
   const { addToCart, cartItems } = useCart();
   const location = useLocation();
+  const navigate = useNavigate();
   const isHomePage = location.pathname === "/";
 
   const [categories, setCategories] = useState([]);
@@ -61,7 +68,6 @@ const ProductCategory = () => {
   const [hasMoreCategories, setHasMoreCategories] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(false);
 
- 
   const [products, setProducts] = useState([]);
   const [productsPage, setProductsPage] = useState(1);
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
@@ -70,16 +76,14 @@ const ProductCategory = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
 
   const [badgeText, setBadgeText] = useState("MEGA OFFER");
-const [animate, setAnimate] = useState(true);
-const navigate = useNavigate();
-
-
+  const [animate, setAnimate] = useState(true);
 
   const categoriesRef = useRef(null);
   const cartIconRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
+  // Fetch categories
   const fetchCategories = useCallback(async (page = 1) => {
     setLoadingCategories(true);
     try {
@@ -96,62 +100,76 @@ const navigate = useNavigate();
     }
   }, []);
 
- 
+  // Badge animation
+  useEffect(() => {
+    const texts = ["MEGA OFFER", "HURRY UP"];
+    let idx = 0;
+    const interval = setInterval(() => {
+      setAnimate(false);
+      setTimeout(() => {
+        idx = (idx + 1) % texts.length;
+        setBadgeText(texts[idx]);
+        setAnimate(true);
+      }, 500);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
-useEffect(() => {
-  const texts = ["MEGA OFFER", "HURRY UP"];
-  let idx = 0;
-  const interval = setInterval(() => {
-    setAnimate(false); // fade out
-    setTimeout(() => {
-      idx = (idx + 1) % texts.length;
-      setBadgeText(texts[idx]);
-      setAnimate(true); // fade in
-    }, 500);
-  }, 5000);
-  return () => clearInterval(interval);
-}, []);
+  // Fetch products with shuffle logic
+const fetchProducts = useCallback(
+  async (page = 1, categoryId = selectedCategoryId) => {
+    setLoadingProducts(true);
+    try {
+    const url =
+  `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}` +
+  `&per_page=${PRODUCTS_PER_PAGE}&page=${page}` +
+  (categoryId !== "all" ? `&category=${categoryId}` : "") +
+  `&_fields=id,slug,name,images,price,regular_price,sale_price,date_created` +
+  `&orderby=date&order=asc`; // fetch oldest first
 
-  const fetchProducts = useCallback(
-    async (page = 1, categoryId = selectedCategoryId) => {
-      setLoadingProducts(true);
-      try {
-        const url =
-          `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}` +
-          `&per_page=${PRODUCTS_PER_PAGE}&page=${page}` +
-          (categoryId !== "all" ? `&category=${categoryId}` : "") +
-`&_fields=id,slug,name,images,price,regular_price,sale_price`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-        const res = await fetch(url);
-        const data = await res.json();
+      let sortedData;
 
-   
-        setProducts((prev) => (page === 1 ? data : [...prev, ...data]));
-        setHasMoreProducts(
-          data.length === PRODUCTS_PER_PAGE &&
-          page * PRODUCTS_PER_PAGE < MAX_PRODUCTS
+      if (categoryId === "all") {
+        // Sort ascending: oldest first
+        const dataAsc = [...data].sort(
+          (a, b) => new Date(a.date_created) - new Date(b.date_created)
         );
-      } catch {
-        setHasMoreProducts(false);
-      } finally {
-        setLoadingProducts(false);
-      }
-    },
-    [selectedCategoryId]
-  );
 
+        const latestProducts = dataAsc.slice(-5); // last 5 = newest
+        const otherProducts = shuffleArray(dataAsc.slice(0, dataAsc.length - latestProducts.length));
+
+        sortedData = [...otherProducts, ...latestProducts];
+      } else {
+        sortedData = data; // other categories: normal order
+      }
+
+      setProducts((prev) => (page === 1 ? sortedData : [...prev, ...sortedData]));
+      setHasMoreProducts(
+        data.length === PRODUCTS_PER_PAGE && page * PRODUCTS_PER_PAGE < MAX_PRODUCTS
+      );
+    } catch {
+      setHasMoreProducts(false);
+    } finally {
+      setLoadingProducts(false);
+    }
+  },
+  [selectedCategoryId]
+);
+
+
+  // Initial fetch
   useEffect(() => {
     if (!isHomePage) return;
-
     setProducts([]);
     setProductsPage(1);
     fetchProducts(1, selectedCategoryId);
-
-
     fetchCategories(1);
   }, [isHomePage, selectedCategoryId, fetchProducts, fetchCategories]);
 
-
+  // Arrow visibility for categories scroll
   const updateArrowVisibility = useCallback(() => {
     const el = categoriesRef.current;
     if (!el) return;
@@ -166,8 +184,6 @@ useEffect(() => {
     updateArrowVisibility();
     return () => el.removeEventListener("scroll", throttled);
   }, [categories, updateArrowVisibility]);
-
-
 
   // Load more products
   const loadMoreProducts = useCallback(() => {
@@ -214,11 +230,32 @@ useEffect(() => {
     setTimeout(() => clone.remove(), 800);
   };
 
- 
+  // Handle product click: move clicked product to top
+const handleProductClick = (product) => {
+  setProducts((prev) => {
+    // For "all" (Recommended), keep latest products at the end
+    const latestProducts = prev.slice(-5);
+    const otherProducts = prev.slice(0, prev.length - 5);
+
+    let newOtherProducts;
+    if (latestProducts.some(p => p.id === product.id)) {
+      // Clicked a latest product -> leave it at end
+      newOtherProducts = otherProducts;
+    } else {
+      // Move clicked product to top of shuffled section
+      newOtherProducts = [product, ...otherProducts.filter(p => p.id !== product.id)];
+    }
+
+    return [...newOtherProducts, ...latestProducts];
+  });
+
+  navigate(`/product/${product.slug}`);
+};
+
+
   return (
     <div className="pcus-wrapper3" style={{ display: "flex" }}>
       <div className="pcus-categories-products1" style={{ width: "100%", transition: "width 0.3s ease" }}>
-        
         {/* Banner */}
         <div style={{ display: "flex", justifyContent: "center" }}>
           <img
@@ -301,12 +338,11 @@ useEffect(() => {
                 const hasSale = p.sale_price && p.sale_price !== p.regular_price;
                 return (
                   <div
-  key={p.id}
-  className="pcus-prd-card"
-  onClick={() => window.open(`/product/${p.slug}`, "_blank")} // or `/product/${p.slug}` if you have slug
-  style={{ cursor: "pointer" }}
->
-                    
+                    key={p.id}
+                    className="pcus-prd-card"
+                    onClick={() => handleProductClick(p)}
+                    style={{ cursor: "pointer" }}
+                  >
                     {/* Images */}
                     <div className="pcus-image-wrapper1">
                       <img
@@ -333,31 +369,24 @@ useEffect(() => {
                       )}
                       {hasSale && (
                         <span className="pcus-prd-discount-box1">
-                          -
-                          {Math.round(
-                            ((parseFloat(p.regular_price) - parseFloat(p.sale_price)) /
-                              parseFloat(p.regular_price)) * 100
-                          )}
-                          % OFF
+                          -{Math.round(((parseFloat(p.regular_price) - parseFloat(p.sale_price)) / parseFloat(p.regular_price)) * 100)}% OFF
                         </span>
                       )}
 
-  {index === 0 && (
-          <div className="mega-offer-badge">
-            <span
-              className="mega-offer-text"
-              style={{
-                transform: animate ? "translateY(0)" : "translateY(100%)",
-                opacity: animate ? 1 : 0,
-                display: "inline-block",
-              }}
-            >
-              {badgeText}
-            </span>
-          </div>
-        )}
-
-
+                      {index === 0 && (
+                        <div className="mega-offer-badge">
+                          <span
+                            className="mega-offer-text"
+                            style={{
+                              transform: animate ? "translateY(0)" : "translateY(100%)",
+                              opacity: animate ? 1 : 0,
+                              display: "inline-block",
+                            }}
+                          >
+                            {badgeText}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Info */}
@@ -382,9 +411,7 @@ useEffect(() => {
                           )}
                         </div>
                         <button
-                          className={`pcus-prd-add-cart-btn ${
-                            cartItems.some((item) => item.id === p.id) ? "added-to-cart" : ""
-                          }`}
+                          className={`pcus-prd-add-cart-btn ${cartItems.some((item) => item.id === p.id) ? "added-to-cart" : ""}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             flyToCart(e, p.images?.[0]?.src);
@@ -393,11 +420,7 @@ useEffect(() => {
                           aria-label={`Add ${decodeHTML(p.name)} to cart`}
                         >
                           <img
-                            src={
-                              cartItems.some((item) => item.id === p.id)
-                                ? AddedToCartIcon
-                                : AddCarticon
-                            }
+                            src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCarticon}
                             alt="cart icon"
                             className="pcus-prd-add-cart-icon-img"
                           />

@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../../assets/styles/home/GridCategories.css";
 import { useCart } from "../../../contexts/CartContext";
-import { getProductsByCategories } from "../../../api/woocommerce";
 
 // Images
 import PlaceHolderImage from "../../../assets/images/common/Placeholder.png";
@@ -11,6 +10,16 @@ import grid1 from "../../../assets/images/gridhome/1 (1).png";
 import grid2 from "../../../assets/images/gridhome/2.png";
 import grid3 from "../../../assets/images/gridhome/3.png";
 import grid4 from "../../../assets/images/gridhome/4.png";
+
+import Static1 from '../../../assets/images/stattic/static1.png'
+import Static2 from '../../../assets/images/stattic/static2.jpg'
+import Static3 from '../../../assets/images/stattic/static3.jpg'
+import Static4 from '../../../assets/images/stattic/static4.jpg'
+
+// WooCommerce API credentials
+const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
+const CK = "ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8";
+const CS = "cs_c65538cff741bd9910071c7584b3dffb";
 
 // Static left categories
 const staticCategories = [
@@ -20,15 +29,15 @@ const staticCategories = [
   { id: 4, name: "Home & Kitchen", image: grid3, link: "/category/6519" },
 ];
 
-// Placeholder products while loading
+// Initial placeholder products (shown instantly)
 const initialProductPlaceholders = [
-  { id: "ph1", image: PlaceHolderImage, name: "Loading...", price: null },
-  { id: "ph2", image: PlaceHolderImage, name: "Loading...", price: null },
-  { id: "ph3", image: PlaceHolderImage, name: "Loading...", price: null },
-  { id: "ph4", image: PlaceHolderImage, name: "Loading...", price: null },
+  { id: 1, name: "IP68 Universal Waterproof Phone Cases Bag For iP", price: "8.16",  images: [{ src: Static1 }]  },
+  { id: 2, name: "iBudim Bike Phone Holder 360 Rotation Bicycle Phone Holder for 4.7-7.0 inc", price: "22.17", images: [{ src: Static2 }] },
+  { id: 3, name: "Portable Mini Selfie Fill Light Rechargeable 3 Modes Adjustable Brightness C", price: "58.16", images: [{ src: Static3 }] },
+  { id: 4, name: "Multifunction 6 in 1 OTG SD Card Reader USB2.0 Type-C/TF/SD Memory Card ", price: "11.47", images: [{ src: Static4 }] },
 ];
 
-// Countdown Hook
+// Countdown hook
 const useCountdown = (targetDate) => {
   const [timeLeft, setTimeLeft] = useState({ h: 0, m: 0, s: 0 });
 
@@ -36,13 +45,11 @@ const useCountdown = (targetDate) => {
     const interval = setInterval(() => {
       const now = new Date().getTime();
       const distance = targetDate - now;
-
       if (distance <= 0) {
         clearInterval(interval);
         setTimeLeft({ h: 0, m: 0, s: 0 });
         return;
       }
-
       setTimeLeft({
         h: Math.floor(distance / (1000 * 60 * 60)),
         m: Math.floor((distance / (1000 * 60)) % 60),
@@ -57,7 +64,7 @@ const useCountdown = (targetDate) => {
 };
 
 const GridCategories = () => {
-  const [products, setProducts] = useState(initialProductPlaceholders); // Start with placeholders
+  const [products, setProducts] = useState(initialProductPlaceholders);
   const [banners, setBanners] = useState([]);
   const [currentBanner, setCurrentBanner] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -67,14 +74,14 @@ const GridCategories = () => {
   const navigate = useNavigate();
   const featuredCountdown = useCountdown(targetDate);
 
-  // Detect mobile resize
+  // Resize detection
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Auto-slide banners on mobile
+  // Auto-slide banners
   useEffect(() => {
     if (!isMobile) return;
     const interval = setInterval(() => {
@@ -83,25 +90,29 @@ const GridCategories = () => {
     return () => clearInterval(interval);
   }, [isMobile, banners.length]);
 
-  // Fetch max 4 products via API helper and replace placeholders
+  // Fetch real products in background
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getProductsByCategories([6522, 6531, 6535, 6519], 1, 4); // max 4
-        if (data && data.length > 0) {
-          const updatedProducts = data.slice(0, 4).map((prod) => ({
+        const url = `${API_BASE}/products?consumer_key=${CK}&consumer_secret=${CS}&per_page=4&page=1&orderby=date&order=asc&_fields=id,name,price,regular_price,images`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data?.length > 0) {
+          const formatted = data.map((prod) => ({
             id: prod.id,
             name: prod.name,
             price: prod.price,
             regular_price: prod.regular_price,
-            images: prod.images && prod.images.length > 0 ? prod.images : [{ src: PlaceHolderImage }],
+            images: prod.images?.length ? prod.images : [{ src: PlaceHolderImage }],
           }));
-          setProducts(updatedProducts);
+          setProducts(formatted);
         }
       } catch (err) {
-        console.error("Error fetching products via API helper:", err);
+        console.error("Error fetching products:", err);
       }
     };
+
     fetchProducts();
   }, []);
 
@@ -117,16 +128,12 @@ const GridCategories = () => {
 
   return (
     <div className="gcx-container">
-      {/* LEFT - Categories */}
+      {/* LEFT */}
       <div className="gcx-left">
         <h3 className="gcx-section-title">More Reasons to Shop</h3>
         <div className="gcx-left-grid">
           {staticCategories.map((cat) => (
-            <div
-              key={cat.id}
-              className="gcx-category-card"
-              onClick={() => navigate(cat.link)}
-            >
+            <div key={cat.id} className="gcx-category-card" onClick={() => navigate(cat.link)}>
               <img src={cat.image || PlaceHolderImage} alt={cat.name} style={{ objectFit: "fill" }} />
               <div className="gcx-cat-info">
                 <h4>{cat.name}</h4>
@@ -136,7 +143,7 @@ const GridCategories = () => {
         </div>
       </div>
 
-      {/* CENTER - Products */}
+      {/* CENTER */}
       <div className="gcx-middle">
         <div className="gcx-featured-header">
           <h3 className="gcx-mega-title">MEGA DEALS</h3>
@@ -148,49 +155,31 @@ const GridCategories = () => {
         <div className="gcx-middle-grid">
           {products.map((prod, idx) => {
             const inCart = isInCart(prod.id);
-            const displayName = prod.name
-              ? prod.name.length > 22
-                ? prod.name.substring(0, 22) + "…"
-                : prod.name
-              : "Loading...";
+            const displayName =
+              prod.name?.length > 22 ? prod.name.substring(0, 22) + "…" : prod.name || "Loading...";
 
             return (
               <div key={prod.id || `ph-${idx}`} className="gcx-product-card">
-                {/* Image with fade-in effect when replaced */}
                 <img
                   src={prod?.images?.[0]?.src || PlaceHolderImage}
                   alt={prod?.name || "Product"}
                   className="gcx-product-image"
+                  loading="lazy"
                 />
-
-                {/* Product title single line with max 25 characters */}
                 <h4
                   className="gcx-product-title"
-                  style={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
+                  style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
                 >
                   {displayName}
                 </h4>
-
-                {/* Price */}
                 {prod?.price && (
                   <div className="gcx-price-wrap">
-                    {prod?.regular_price && (
-                      <span className="gcx-old-price">AED {prod.regular_price}</span>
-                    )}
+                    {prod?.regular_price && <span className="gcx-old-price">AED {prod.regular_price}</span>}
                     <span className="gcx-product-price">AED {prod.price}</span>
                   </div>
                 )}
-
-                {/* Add to cart */}
                 {prod?.id && (
-                  <button
-                    className="gcx-cart-btn"
-                    onClick={() => !inCart && addToCart(prod)}
-                  >
+                  <button className="gcx-cart-btn" onClick={() => !inCart && addToCart(prod)}>
                     {inCart ? "Added" : "Add to Cart"}
                   </button>
                 )}
@@ -200,7 +189,7 @@ const GridCategories = () => {
         </div>
       </div>
 
-      {/* RIGHT - Banners */}
+      {/* RIGHT */}
       <div className="gcx-right">
         {isMobile ? (
           <div className="gcx-banner">
