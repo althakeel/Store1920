@@ -15,7 +15,7 @@ import ProductCardReviews from "../../temp/productcardreviews";
 
 const PAGE_SIZE = 10;
 const PRODUCTS_PER_PAGE = 30;
-const MAX_PRODUCTS = 200;
+const MAX_PRODUCTS = 500;
 
 const decodeHTML = (html) => {
   const txt = document.createElement("textarea");
