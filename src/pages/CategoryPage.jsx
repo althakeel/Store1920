@@ -39,43 +39,43 @@ const ProductCategory = () => {
   const navigate = useNavigate();
 
   // --- Fetch category + products ---
-  useEffect(() => {
-    if (!slug && !id) return;
+useEffect(() => {
+  if (!slug) return;
 
-    const fetchCategoryAndProducts = async () => {
-      setInitialLoading(true);
-      try {
-        let matchedCategory = id
-          ? await getCategoryById(id)
-          : (await getCategoryBySlug(slug))?.[0];
+  const fetchCategoryAndProducts = async () => {
+    setInitialLoading(true);
+    try {
+      // Fetch category by slug
+      const matchedCategory = (await getCategoryBySlug(slug))?.[0];
 
-        if (!matchedCategory) {
-          setCategory(null);
-          setProducts([]);
-          setInitialLoading(false);
-          return;
-        }
-
-        setCategory(matchedCategory);
-
-        // Get children categories
-        const children = await getChildCategories(matchedCategory.id);
-        const ids = [matchedCategory.id, ...(children?.map((c) => c.id) || [])];
-        setChildCategoryIds(ids);
-
-        // Fetch first page of products
-        const productsData = await getProductsByCategories(ids, 1, PRODUCTS_PER_PAGE);
-        setProducts(productsData || []);
-        setHasMore(productsData?.length >= PRODUCTS_PER_PAGE);
-      } catch (err) {
-        console.error("Error fetching category or products:", err);
-      } finally {
+      if (!matchedCategory) {
+        setCategory(null);
+        setProducts([]);
         setInitialLoading(false);
+        return;
       }
-    };
 
-    fetchCategoryAndProducts();
-  }, [slug, parentSlug, id]);
+      setCategory(matchedCategory);
+
+      // Use category.id to fetch children
+      const children = await getChildCategories(matchedCategory.id);
+      const ids = [matchedCategory.id, ...(children?.map((c) => c.id) || [])];
+      setChildCategoryIds(ids);
+
+      // Fetch first page of products
+      const productsData = await getProductsByCategories(ids, 1, PRODUCTS_PER_PAGE);
+      setProducts(productsData || []);
+      setHasMore(productsData?.length >= PRODUCTS_PER_PAGE);
+    } catch (err) {
+      console.error("Error fetching category or products:", err);
+    } finally {
+      setInitialLoading(false);
+    }
+  };
+
+  fetchCategoryAndProducts();
+}, [slug]);
+
 
   // --- Pagination ---
   useEffect(() => {

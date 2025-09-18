@@ -299,8 +299,9 @@ const AppContent = () => {
                     <Route path="/lightningdeal" element={<Lightningdeal />} />
                     <Route path="/compare" element={<ComparePage />} />
                     <Route path="/category" element={<Categories />} />
-                    <Route path="/category/:id" element={<CategoryPageid />} />
-                    
+                    {/* <Route path="/category/:id" element={<CategoryPageid />} /> */}
+                    <Route path="/category/:slug" element={<CategoryPageid />} />
+
                     <Route path="/allproducts" element={<AllProducts />} />
                     <Route path="/new" element={<New />} />
                     <Route path="/rated" element={<Rated />} />
