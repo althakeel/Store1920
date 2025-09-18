@@ -16,14 +16,21 @@ export const AuthProvider = ({ children }) => {
 
   // Sync user across tabs
   useEffect(() => {
+    const syncUser = () => {
+      const id = localStorage.getItem("userId");
+      const email = localStorage.getItem("email");
+      const token = localStorage.getItem("token");
+      setUser(id && email && token ? { id, email, token } : null);
+    };
+
+    // Run once on mount
+    syncUser();
     setLoading(false);
 
+    // Listen for changes from other tabs
     const handleStorageChange = (e) => {
       if (["userId", "email", "token"].includes(e.key)) {
-        const id = localStorage.getItem("userId");
-        const email = localStorage.getItem("email");
-        const token = localStorage.getItem("token");
-        setUser(id && email && token ? { id, email, token } : null);
+        syncUser();
       }
     };
 
@@ -46,11 +53,28 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData) => {
     setUser(userData);
+    // 🔑 Important: force storage event so other tabs update immediately
+    localStorage.setItem("loginEvent", Date.now());
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.setItem("logoutEvent", Date.now());
   };
+
+  // Also listen for custom login/logout events
+  useEffect(() => {
+    const syncEvents = (e) => {
+      if (e.key === "loginEvent" || e.key === "logoutEvent") {
+        const id = localStorage.getItem("userId");
+        const email = localStorage.getItem("email");
+        const token = localStorage.getItem("token");
+        setUser(id && email && token ? { id, email, token } : null);
+      }
+    };
+    window.addEventListener("storage", syncEvents);
+    return () => window.removeEventListener("storage", syncEvents);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>

@@ -7,7 +7,7 @@ const festsale = () => {
     <div>
 
       <BannerSale/>
-   <Festsaleproducts isFestSale={true} festSaleTagId={302} />
+   <Festsaleproducts />
     </div>
   )
 }

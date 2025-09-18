@@ -120,30 +120,25 @@ const fetchProducts = useCallback(
   async (page = 1, categoryId = selectedCategoryId) => {
     setLoadingProducts(true);
     try {
-    const url =
-  `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}` +
-  `&per_page=${PRODUCTS_PER_PAGE}&page=${page}` +
-  (categoryId !== "all" ? `&category=${categoryId}` : "") +
-  `&_fields=id,slug,name,images,price,regular_price,sale_price,date_created` +
-  `&orderby=date&order=asc`; // fetch oldest first
+      const url =
+        `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}` +
+        `&per_page=${PRODUCTS_PER_PAGE}&page=${page}` +
+        `&_fields=id,slug,name,images,price,regular_price,sale_price,date_created` +
+        `&orderby=date&order=asc`; // fetch oldest first
 
       const res = await fetch(url);
       const data = await res.json();
 
-      let sortedData;
+      let sortedData = [];
 
-      if (categoryId === "all") {
-        // Sort ascending: oldest first
-        const dataAsc = [...data].sort(
-          (a, b) => new Date(a.date_created) - new Date(b.date_created)
-        );
+      if (data.length > 0) {
+        // Last product = newest → pinned at end
+        const newestProduct = data[data.length - 1];
 
-        const latestProducts = dataAsc.slice(-5); // last 5 = newest
-        const otherProducts = shuffleArray(dataAsc.slice(0, dataAsc.length - latestProducts.length));
+        // Older products = all others → shuffle
+        const olderProducts = shuffleArray(data.slice(0, data.length - 1));
 
-        sortedData = [...otherProducts, ...latestProducts];
-      } else {
-        sortedData = data; // other categories: normal order
+        sortedData = [...olderProducts, newestProduct];
       }
 
       setProducts((prev) => (page === 1 ? sortedData : [...prev, ...sortedData]));
@@ -158,6 +153,9 @@ const fetchProducts = useCallback(
   },
   [selectedCategoryId]
 );
+
+
+
 
 
   // Initial fetch
@@ -233,24 +231,24 @@ const fetchProducts = useCallback(
   // Handle product click: move clicked product to top
 const handleProductClick = (product) => {
   setProducts((prev) => {
-    // For "all" (Recommended), keep latest products at the end
-    const latestProducts = prev.slice(-5);
-    const otherProducts = prev.slice(0, prev.length - 5);
+    if (prev.length === 0) return prev;
 
-    let newOtherProducts;
-    if (latestProducts.some(p => p.id === product.id)) {
-      // Clicked a latest product -> leave it at end
-      newOtherProducts = otherProducts;
-    } else {
-      // Move clicked product to top of shuffled section
-      newOtherProducts = [product, ...otherProducts.filter(p => p.id !== product.id)];
-    }
+    // Last product = newest → pinned
+    const newestProduct = prev[prev.length - 1];
+    const olderProducts = prev.slice(0, prev.length - 1);
 
-    return [...newOtherProducts, ...latestProducts];
+    // Move clicked product to top of olderProducts
+    const newOlderProducts = [
+      product,
+      ...olderProducts.filter((p) => p.id !== product.id)
+    ];
+
+    return [...newOlderProducts, newestProduct];
   });
 
-  navigate(`/product/${product.slug}`);
+  window.open(`/product/${product.slug}`, "_blank");
 };
+
 
 
   return (

@@ -63,6 +63,7 @@ import PurchasePopup from './components/common/PurchasePopup';
 import SoundAlert from './assets/sound/alertsound.mp3';
 import LogoIcon from './assets/images/logo.webp';
 import AdsImage from './assets/images/ads/ads.webp'
+import NewUserBonusPopup from './components/common/newpopup';
 
 const AppContent = () => {
   const { isCartOpen, setIsCartOpen, cartItems } = useCart();
@@ -299,6 +300,7 @@ const AppContent = () => {
                     <Route path="/compare" element={<ComparePage />} />
                     <Route path="/category" element={<Categories />} />
                     <Route path="/category/:id" element={<CategoryPageid />} />
+                    
                     <Route path="/allproducts" element={<AllProducts />} />
                     <Route path="/new" element={<New />} />
                     <Route path="/rated" element={<Rated />} />
@@ -335,6 +337,7 @@ const AppContent = () => {
               {!isMobile && <PurchasePopup />}
               <CookiePopup />
               <ChatBot />
+{isHomePage && <NewUserBonusPopup />}
               <Footer />
 
               {isMobile &&

@@ -52,6 +52,106 @@
   margin-bottom: 1rem;
 }
 
+.new-product-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #ff3b3b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 3px;
+  z-index: 10;
+  text-transform: uppercase;
+  pointer-events: none;
+
+  /* Animation */
+  animation: pulseBadge 1.5s infinite;
+}
+
+/* Pulse animation */
+@keyframes pulseBadge {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(255, 59, 59, 0.7);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(255, 59, 59, 0.9);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(255, 59, 59, 0.7);
+  }
+}
+
+
+.Top-product-badge {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background: rgba(255, 255, 255, 0.15); /* semi-transparent white */
+  color: #5e5c5c; /* white text */
+  font-size: 11px;
+  font-weight: bold;
+  padding: 8px 12px;
+  /* border-radius: 8px/ */
+  z-index: 10;
+  text-transform: uppercase;
+  pointer-events: none;
+
+  /* Frosted glass effect */
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  /* border: 1px solid rgba(255, 255, 255, 0.3); */
+
+  /* Optional animation */
+
+}
+
+/* Pulse animation */
+
+
+
+/* Mega Offer Badge */
+.mega-offer-badge {
+  position: absolute;
+  top: 25px;
+  left: -25px;
+  width: 120px;
+  text-align: center;
+  background: #ff4d4d;
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 4px 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  overflow: hidden; /* ensures smooth text sliding */
+}
+
+.mega-offer-text {
+  display: inline-block;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+@keyframes slideUp {
+  0% {
+    transform: rotate(-45deg) translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(-45deg) translateY(0%);
+    opacity: 1;
+  }
+}
+
+
+
+
 /* Filter options */
 .pcus2-filter-price { display: flex; align-items: center; gap: 8px; margin-right: 20px; }
 .pcus2-price-input { width: 80px; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; }

@@ -24,7 +24,7 @@ const CS = "cs_c65538cff741bd9910071c7584b3dffb";
 // Static left categories
 const staticCategories = [
   { id: 1, name: "Mobiles & Tablets", image: grid2, link: "/category/6535" },
-  { id: 2, name: "Automotive & Motorcycle", image: grid4, link: "/category/6531" },
+  { id: 2, name: "Auto & Moto", image: grid4, link: "/category/6531" },
   { id: 3, name: "Fashion Deals", image: grid1, link: "/category/6522" },
   { id: 4, name: "Home & Kitchen", image: grid3, link: "/category/6519" },
 ];

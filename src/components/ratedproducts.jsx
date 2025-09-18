@@ -1,34 +1,29 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../assets/styles/Rated.css';
+import '../assets/styles/New.css';
 import { useCart } from '../contexts/CartContext';
 import MiniCart from '../components/MiniCart';
 import AddCarticon from '../assets/images/addtocart.png';
 import AddedToCartIcon from '../assets/images/added-cart.png';
 import Adsicon from '../assets/images/summer-saving-coloured.png';
 import IconAED from '../assets/images/Dirham 2.png';
-import ProductCardReviews from './temp/productcardreviews'
+import ProductCardReviews from '../components/temp/productcardreviews';
 
-
-import { 
-  getProductsByTagSlugs, 
-  getFirstVariation, 
-  getCurrencySymbol 
-} from '../api/woocommerce';
+import { getProductsByTagSlugs, getFirstVariation, getCurrencySymbol } from '../api/woocommerce';
 
 const PRODUCTS_PER_PAGE = 24;
 const TITLE_LIMIT = 35;
-const BEST_RATED_TAG_SLUG = 'Rated';
+const NEW_TAG_SLUG = 'new-arrival'; // You will handle PHP side for this tag
 
-// Utility functions
+// ===================== Utility functions =====================
 const decodeHTML = (html) => {
   const txt = document.createElement('textarea');
   txt.innerHTML = html;
   return txt.value;
 };
+const truncate = (str) => (str?.length <= TITLE_LIMIT ? str : `${str.slice(0, TITLE_LIMIT)}…`);
 
-const truncate = (str) => (str.length <= TITLE_LIMIT ? str : `${str.slice(0, TITLE_LIMIT)}…`);
-
+// ===================== Skeleton Loader =====================
 const SkeletonCard = () => (
   <div className="pcus-prd-card pcus-skeleton">
     <div className="pcus-prd-image-skel" />
@@ -40,9 +35,11 @@ const SkeletonCard = () => (
   </div>
 );
 
-const Rated = () => {
+// ===================== Main Component =====================
+const New = () => {
   const navigate = useNavigate();
   const { addToCart, cartItems } = useCart();
+  const cartIconRef = useRef(null);
 
   const [products, setProducts] = useState([]);
   const [variationPrices, setVariationPrices] = useState({});
@@ -51,27 +48,32 @@ const Rated = () => {
   const [productsPage, setProductsPage] = useState(1);
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
 
-  const cartIconRef = useRef(null);
-
-  // Fetch currency symbol
+  // ===================== Fetch currency =====================
   useEffect(() => {
     const fetchCurrency = async () => {
-      const symbol = await getCurrencySymbol();
-      setCurrencySymbol(symbol);
+      try {
+        const symbol = await getCurrencySymbol();
+        setCurrencySymbol(symbol || 'AED');
+      } catch (error) {
+        console.error('Failed to fetch currency symbol:', error);
+        setCurrencySymbol('AED');
+      }
     };
     fetchCurrency();
   }, []);
 
-  // Fetch products by "new" tag (manual pagination)
+  // ===================== Fetch products =====================
   const fetchProducts = useCallback(async (page = 1) => {
     setLoadingProducts(true);
     try {
-      const data = await getProductsByTagSlugs([BEST_RATED_TAG_SLUG], page, PRODUCTS_PER_PAGE);
-      if (page === 1) setProducts(data);
-      else setProducts((prev) => [...prev, ...data]);
-      setHasMoreProducts(data.length >= PRODUCTS_PER_PAGE);
-    } catch (e) {
-      console.error('Error fetching products:', e);
+      const data = await getProductsByTagSlugs([NEW_TAG_SLUG], page, PRODUCTS_PER_PAGE);
+      const validData = Array.isArray(data) ? data : [];
+      setProducts((prev) => (page === 1 ? validData : [...prev, ...validData]));
+      setHasMoreProducts(validData.length >= PRODUCTS_PER_PAGE);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setProducts([]);
+      setHasMoreProducts(false);
     } finally {
       setLoadingProducts(false);
     }
@@ -79,6 +81,7 @@ const Rated = () => {
 
   useEffect(() => {
     fetchProducts(1);
+    setProductsPage(1);
   }, [fetchProducts]);
 
   const loadMoreProducts = () => {
@@ -88,39 +91,46 @@ const Rated = () => {
     fetchProducts(nextPage);
   };
 
-  // Handle product click
+  // ===================== Handle product click =====================
   const onProductClick = useCallback((slug, id) => {
     let recent = JSON.parse(localStorage.getItem('recentProducts')) || [];
-    recent = recent.filter(rid => rid !== id);
+    recent = recent.filter((rid) => rid !== id);
     recent.unshift(id);
     localStorage.setItem('recentProducts', JSON.stringify(recent.slice(0, 5)));
     window.open(`/product/${slug}`, '_blank', 'noopener,noreferrer');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Fetch first variation prices for variable products
+  // ===================== Fetch first variation prices =====================
   useEffect(() => {
+    if (!products || products.length === 0) return;
     products.forEach((p) => {
       if (p.type === 'variable' && !variationPrices[p.id]) fetchFirstVariationPrice(p.id);
     });
   }, [products]);
 
   const fetchFirstVariationPrice = async (productId) => {
-    const variation = await getFirstVariation(productId);
-    if (variation) {
-      setVariationPrices((prev) => ({
-        ...prev,
-        [productId]: {
-          price: variation.price,
-          regular_price: variation.regular_price,
-          sale_price: variation.sale_price,
-        },
-      }));
+    try {
+      const variation = await getFirstVariation(productId);
+      if (variation) {
+        setVariationPrices((prev) => ({
+          ...prev,
+          [productId]: {
+            price: variation.price,
+            regular_price: variation.regular_price,
+            sale_price: variation.sale_price,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error(`Failed to fetch variation for product ${productId}:`, error);
     }
   };
 
+  // ===================== Fly to cart animation =====================
   const flyToCart = (e, imgSrc) => {
     if (!cartIconRef.current || !imgSrc) return;
+
     const cartRect = cartIconRef.current.getBoundingClientRect();
     const startRect = e.currentTarget.getBoundingClientRect();
 
@@ -149,22 +159,25 @@ const Rated = () => {
     setTimeout(() => clone.remove(), 800);
   };
 
+  // ===================== Render =====================
   return (
-    <div className="pcus-wrapper10" style={{ display: 'flex' }}>
+    <div className="pcus-wrapper12" style={{ display: 'flex' }}>
       <div className="pcus-categories-products1" style={{ width: '100%', transition: 'width 0.3s ease' }}>
+        {/* Title Section */}
         <div className="pcus-title-section">
           <h2 className="pcus-main-title">
-            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" />TOP RATED{' '}
+            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" /> LATEST ARRIVALS{' '}
             <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" />
           </h2>
-          <p className="pcus-sub-title">5-Star Products You’ll Love</p>
+          <p className="pcus-sub-title">TOP SELLING ITEMS</p>
         </div>
 
-        {loadingProducts && products.length === 0 ? (
+        {/* Product Grid */}
+        {loadingProducts && (!products || products.length === 0) ? (
           <div className="pcus-prd-grid12">
             {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
-        ) : products.length === 0 ? (
+        ) : (!products || products.length === 0) ? (
           <div className="pcus-no-products" style={{ minHeight: '300px', textAlign: 'center', paddingTop: '40px', fontSize: '18px', color: '#666' }}>
             No products found.
           </div>
@@ -196,10 +209,10 @@ const Rated = () => {
                   </div>
 
                   <div className="pcus-prd-info1">
-                    <h2 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h2>
-                     <div style={{ padding: "0 0px" }}>
-                                        <ProductCardReviews productId={p.id} soldCount={p.total_sales || 0} />
-                                      </div>
+                    <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>
+                      <ProductCardReviews productId={p.id} />
+                                            <div style={{ height: "1px", width: "100%", backgroundColor: "lightgrey", margin: "0px 0 2px 0", borderRadius: "1px" }} />
+
                     <div className="pcus-prd-price-cart1">
                       <div className="pcus-prd-prices1">
                         <img src={IconAED} alt="AED currency icon" style={{ width: 'auto', height: '13px', verticalAlign: 'middle' }} />
@@ -228,6 +241,7 @@ const Rated = () => {
           </div>
         )}
 
+        {/* Load More */}
         {hasMoreProducts && (
           <div style={{ textAlign: 'center', margin: '20px 0' }}>
             <button className="pcus-load-more-btn" onClick={loadMoreProducts} disabled={loadingProducts}>
@@ -237,9 +251,9 @@ const Rated = () => {
         )}
       </div>
 
-      <MiniCart />
+      <MiniCart ref={cartIconRef} />
     </div>
   );
 };
 
-export default memo(Rated);
+export default memo(New);
