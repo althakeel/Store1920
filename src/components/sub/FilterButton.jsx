@@ -266,7 +266,7 @@ export default function FilterButton({ onFilterChange }) {
           </div>
 
           {/* Badge Checkboxes */}
-          <div className="filter-section checkboxes">
+          {/* <div className="filter-section checkboxes">
             <label className="checkbox-label">
               <input
                 type="checkbox"
@@ -294,7 +294,7 @@ export default function FilterButton({ onFilterChange }) {
               />
               Fast Delivery
             </label>
-          </div>
+          </div> */}
 
           {/* Buttons */}
           <div className="filter-buttons">

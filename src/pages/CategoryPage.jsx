@@ -8,16 +8,17 @@ import IconAED from "../assets/images/Dirham 2.png";
 import "../assets/styles/categorypageid.css";
 import ProductCardReviews from "../components/temp/productcardreviews";
 import PlaceHolderIcon from "../assets/images/common/Placeholder.png";
+import FilterButton from "../components/sub/FilterButton";
 
 import {
-  getCategoryById,
   getCategoryBySlug,
   getChildCategories,
   getProductsByCategories,
+  getProductsByCategorySlug,
 } from "../api/woocommerce";
 
 const PRODUCTS_PER_PAGE = 42;
-const TITLE_LIMIT = 25;
+const TITLE_LIMIT = 22;
 
 const decodeHTML = (html) => {
   const txt = document.createElement("textarea");
@@ -25,8 +26,8 @@ const decodeHTML = (html) => {
   return txt.value;
 };
 
-const ProductCategory = () => {
-  const { parentSlug, slug, id } = useParams();
+const Category = () => {
+  const { slug } = useParams(); // parentSlug removed for simplicity
   const { addToCart, cartItems } = useCart();
   const [category, setCategory] = useState(null);
   const [childCategoryIds, setChildCategoryIds] = useState([]);
@@ -42,39 +43,100 @@ const ProductCategory = () => {
 useEffect(() => {
   if (!slug) return;
 
-  const fetchCategoryAndProducts = async () => {
+  const fetchProducts = async () => {
     setInitialLoading(true);
     try {
-      // Fetch category by slug
-      const matchedCategory = (await getCategoryBySlug(slug))?.[0];
-
-      if (!matchedCategory) {
-        setCategory(null);
-        setProducts([]);
-        setInitialLoading(false);
-        return;
-      }
-
-      setCategory(matchedCategory);
-
-      // Use category.id to fetch children
-      const children = await getChildCategories(matchedCategory.id);
-      const ids = [matchedCategory.id, ...(children?.map((c) => c.id) || [])];
-      setChildCategoryIds(ids);
-
-      // Fetch first page of products
-      const productsData = await getProductsByCategories(ids, 1, PRODUCTS_PER_PAGE);
-      setProducts(productsData || []);
+      const productsData = await getProductsByCategorySlug(slug, 1, PRODUCTS_PER_PAGE);
+      setProducts(productsData);
       setHasMore(productsData?.length >= PRODUCTS_PER_PAGE);
+
+      // Optionally set the first category name for the title
+      if (productsData?.length) {
+        setCategory({ name: productsData[0].categories?.[0]?.name || slug });
+      } else {
+        setCategory({ name: slug });
+      }
     } catch (err) {
-      console.error("Error fetching category or products:", err);
+      console.error("Error fetching products by slug:", err);
+      setProducts([]);
+      setHasMore(false);
+      setCategory({ name: slug });
     } finally {
       setInitialLoading(false);
     }
   };
 
-  fetchCategoryAndProducts();
+  fetchProducts();
 }, [slug]);
+
+
+const handleFilterChange = async (filters) => {
+  try {
+    setInitialLoading(true);
+
+    // If no filters, clear and fetch all products
+    if (!filters) {
+      setPage(1);
+      setHasMore(true);
+      const allProducts = await getProductsByCategorySlug(slug, 1, PRODUCTS_PER_PAGE);
+      setProducts(allProducts || []);
+      return;
+    }
+
+    // Fetch products for this category
+    let filteredProducts = await getProductsByCategorySlug(slug, 1, PRODUCTS_PER_PAGE);
+
+    // Apply price filters
+    if (filters.priceMin != null) {
+      filteredProducts = filteredProducts.filter(
+        (p) => parseFloat(p.price) >= filters.priceMin
+      );
+    }
+    if (filters.priceMax != null) {
+      filteredProducts = filteredProducts.filter(
+        (p) => parseFloat(p.price) <= filters.priceMax
+      );
+    }
+
+    // Apply rating filter
+    if (filters.rating) {
+      filteredProducts = filteredProducts.filter(
+        (p) => parseFloat(p.average_rating) >= filters.rating
+      );
+    }
+
+    // Apply sorting
+    if (filters.sortBy) {
+      switch (filters.sortBy) {
+        case "price_asc":
+          filteredProducts.sort((a, b) => a.price - b.price);
+          break;
+        case "price_desc":
+          filteredProducts.sort((a, b) => b.price - a.price);
+          break;
+        case "newest":
+          filteredProducts.sort(
+            (a, b) => new Date(b.date_created) - new Date(a.date_created)
+          );
+          break;
+        case "popularity":
+          filteredProducts.sort((a, b) => b.total_sales - a.total_sales);
+          break;
+        default:
+          break;
+      }
+    }
+
+    setProducts(filteredProducts);
+    setHasMore(false); // Reset pagination for simplicity
+  } catch (err) {
+    console.error("Error applying filters:", err);
+  } finally {
+    setInitialLoading(false);
+  }
+};
+
+
 
 
   // --- Pagination ---
@@ -85,6 +147,7 @@ useEffect(() => {
       setLoading(true);
       try {
         const data = await getProductsByCategories(childCategoryIds, page, PRODUCTS_PER_PAGE);
+        console.log("Fetched more products:", data);
         setProducts((prev) => [...prev, ...(data || [])]);
         setHasMore(data?.length >= PRODUCTS_PER_PAGE);
       } catch (err) {
@@ -143,9 +206,27 @@ useEffect(() => {
 
   return (
     <div className="pc-wrapper" style={{ minHeight: "40vh" }}>
-      <h2 className="pc-category-title">
-        {initialLoading ? <div className="pc-title-skeleton shimmer" /> : category ? decodeHTML(category.name) : "Category Not Found"}
-      </h2>
+<div className="pc-category-header">
+  <h2 className="pc-category-title">
+    {initialLoading ? (
+      <div className="pc-title-skeleton shimmer" />
+    ) : category ? (
+      decodeHTML(category.name)
+    ) : (
+      "Category Not Found"
+    )}
+  </h2>
+  <div className="pc-filter-actions" >
+  
+    <button
+      className="filter-btn pc-filter-actions"
+      onClick={() => handleFilterChange(null)}
+    >
+      Clear
+    </button>
+  </div>
+</div>
+
 
       <div className="pc-products-container">
         {initialLoading ? (
@@ -164,25 +245,48 @@ useEffect(() => {
           <>
             <div className="pc-grid">
               {products.map((p) => (
-                <div key={p.id} className="pc-card" onClick={() => navigate(`/product/${p.slug}`)} style={{ cursor: "pointer" }}>
-                  <img src={p.images?.[0]?.src || PlaceHolderIcon} alt={decodeHTML(p.name)} className="pc-card-image" loading="lazy" />
+                <div
+                  key={p.id}
+                  className="pc-card"
+                  onClick={() => navigate(`/product/${p.slug}`)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <img
+                    src={p.images?.[0]?.src || PlaceHolderIcon}
+                    alt={decodeHTML(p.name)}
+                    className="pc-card-image"
+                    loading="lazy"
+                  />
                   <h3 className="pc-card-title">{truncate(decodeHTML(p.name))}</h3>
                   <div style={{ padding: "0 5px" }}>
-                    <ProductCardReviews productId={p.id} soldCount={p.total_sales || 0} />
+                    <ProductCardReviews
+                      productId={p.id}
+                      soldCount={p.total_sales || 0}
+                    />
                   </div>
                   <div className="pc-card-divider" />
                   <div className="pc-card-footer" onClick={(e) => e.stopPropagation()}>
                     <img src={IconAED} alt="AED" className="pc-aed-icon" />
                     <Price value={p.price} />
                     <button
-                      className={`pc-add-btn ${cartItems.some((item) => item.id === p.id) ? "pc-added" : ""}`}
+                      className={`pc-add-btn ${
+                        cartItems.some((item) => item.id === p.id) ? "pc-added" : ""
+                      }`}
                       onClick={(e) => {
                         e.stopPropagation();
                         flyToCart(e, p.images?.[0]?.src);
                         addToCart(p, true);
                       }}
                     >
-                      <img src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCartIcon} alt="Add to cart" className="pc-add-icon" />
+                      <img
+                        src={
+                          cartItems.some((item) => item.id === p.id)
+                            ? AddedToCartIcon
+                            : AddCartIcon
+                        }
+                        alt="Add to cart"
+                        className="pc-add-icon"
+                      />
                     </button>
                   </div>
                 </div>
@@ -205,4 +309,4 @@ useEffect(() => {
   );
 };
 
-export default ProductCategory;
+export default Category;

@@ -120,24 +120,24 @@ const fetchProducts = useCallback(
   async (page = 1, categoryId = selectedCategoryId) => {
     setLoadingProducts(true);
     try {
-      const url =
+      let url =
         `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}` +
         `&per_page=${PRODUCTS_PER_PAGE}&page=${page}` +
         `&_fields=id,slug,name,images,price,regular_price,sale_price,date_created` +
         `&orderby=date&order=asc`; // fetch oldest first
 
+      // Add category filter if not "all"
+      if (categoryId !== "all") {
+        url += `&category=${categoryId}`;
+      }
+
       const res = await fetch(url);
       const data = await res.json();
 
       let sortedData = [];
-
       if (data.length > 0) {
-        // Last product = newest → pinned at end
         const newestProduct = data[data.length - 1];
-
-        // Older products = all others → shuffle
         const olderProducts = shuffleArray(data.slice(0, data.length - 1));
-
         sortedData = [...olderProducts, newestProduct];
       }
 
@@ -153,7 +153,6 @@ const fetchProducts = useCallback(
   },
   [selectedCategoryId]
 );
-
 
 
 

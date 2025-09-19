@@ -70,7 +70,7 @@
   align-items: center;
   position: relative;
 }
-.nav-item.active { color: #ff5500; }
+.nav-item.active { color: #000000; }
 
 .icon-wrapper {
   font-size: 22px;

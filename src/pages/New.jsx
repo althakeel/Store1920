@@ -238,6 +238,7 @@ useEffect(() => {
 
       <div className="pcus-prd-info1">
         <h3 className="pcus-prd-title1">{truncate(decodeHTML(p.name))}</h3>
+ 
         <ProductCardReviews productId={p.id} />
         <div style={{ height: "1px", width: "100%", backgroundColor: "lightgrey", margin: "0px 0 2px 0", borderRadius: "1px" }} />
         <div className="pcus-prd-price-cart1">

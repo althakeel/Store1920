@@ -8,10 +8,28 @@
 }
 
 /* Category Title */
+.pc-category-header {
+  display: flex;
+  justify-content: space-between; /* Title left, button right */
+  align-items: center;           /* Vertically center */
+  margin-bottom: 20px;           /* Optional spacing */
+}
+
 .pc-category-title {
-  margin-bottom: 1rem;
-  font-size: 28px;
+  text-transform: uppercase;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 600;
+  font-size: 24px;
+}
+.pc-filter-actions{
+  margin-left: 5px;
+}
+
+.pc-category-title {
+  text-transform: uppercase;      /* Make text all capital letters */
+  font-family: 'Montserrat', sans-serif;  /* Use Montserrat font */
+  font-weight: 600;                /* Optional: adjust weight */
+  font-size: 24px;                 /* Optional: adjust size */
 }
 
 /* Grid */

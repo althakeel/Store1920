@@ -12,11 +12,11 @@ import Category4 from '../../assets/images/megamenu/Sub catogory Webp/Wedding Dr
 import category5 from '../../assets/images/megamenu/Sub catogory Webp/Sports & Outdoor Toys copy.webp';
 
 const BEST_CATEGORIES = [
-  { id: 1, name: "Baby Products", id: "6634", image: category1 },
-  { id: 2, name: "Electronics", id: "498", image: Category2 },
-  { id: 3, name: "Home & Kitchen", id: "6519", image: Category3 },
-  { id: 4, name: "Fashion", id: "6523", image: Category4 },
-  { id: 5, name: "Sports", id: "6530", image: category5 },
+  { id: "6634", name: "Baby Products", image: category1 },
+  { id: "498", name: "Electronics", image: Category2 },
+  { id: "6519", name: "Home & Kitchen", image: Category3 },
+  { id: "6523", name: "Fashion", image: Category4 },
+  { id: "6530", name: "Sports", image: category5 },
 ];
 
 const SearchBar = () => {
@@ -95,7 +95,6 @@ const SearchBar = () => {
   };
   const handleMouseEnter = () => clearTimeout(timeoutRef.current);
 
-  // Save recent search (guest users)
   const saveRecentSearch = (searchTerm) => {
     if (!searchTerm.trim()) return;
     if (!user?.id) {
@@ -103,38 +102,34 @@ const SearchBar = () => {
       localStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(updated));
       setRecentSearches(updated);
     }
-    // TODO: logged-in users: send to backend
   };
 
-  // Navigate to product or search page
-  const goToProduct = (slug = null, customLabel = "") => {
-    const searchTerm = customLabel || term;
-    saveRecentSearch(searchTerm);
+const goToProduct = (slug = null, customLabel = "") => {
+  const searchTerm = customLabel || term;
+  saveRecentSearch(searchTerm);
 
-    if (slug) {
-      navigate(`/product/${slug}`);
-    } else {
-      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-    }
-  };
+  // Do NOT clear term here
+  if (slug) navigate(`/product/${slug}`);
+  else navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+};
 
-  // Navigate to category
-  const goToCategory = (slug) => {
-    navigate(`/category/${slug}`);
-  };
+  const goToCategory = (slug) => navigate(`/category/${slug}`);
 
-  // Highlight matching term
   const highlightTerm = (text, term) => {
     if (!term) return text;
     const regex = new RegExp(`(${term})`, "gi");
     return text.split(regex).map((part, i) =>
-      regex.test(part) ? (
-        <span key={i} className="highlight-term">{part}</span>
-      ) : (
-        part
-      )
+      regex.test(part) ? <span key={i} className="highlight-term">{part}</span> : part
     );
   };
+
+  const matchingCategories = term
+    ? BEST_CATEGORIES.filter(
+        (cat) =>
+          cat.name.toLowerCase().includes(term.toLowerCase()) ||
+          cat.id.includes(term)
+      )
+    : [];
 
   return (
     <div
@@ -191,34 +186,76 @@ const SearchBar = () => {
         <div className="scoped-search-dropdown">
           <div className="scoped-search-grid">
 
-            {/* Recent Searches */}
-            {!term && recentSearches.length > 0 && (
+            {/* Matching Categories */}
+            {term && matchingCategories.length > 0 && (
               <>
-                <div className="scoped-search-title">Recent Searches</div>
-                {recentSearches.map((s, idx) => (
+                <div className="scoped-search-title">Categories</div>
+                {matchingCategories.map((cat) => (
                   <div
-                    key={`recent-${idx}`}
-                    className="scoped-search-item"
-                    onMouseDown={() => { setTerm(s); goToProduct(null, s); }}
+                    key={`cat-${cat.id}`}
+                    className="scoped-search-item category-search-item"
+                    onMouseDown={() => goToCategory(cat.id)}
                   >
-                    {s}
+                    <img src={cat.image} alt={cat.name} style={{ width: '24px', marginRight: '8px' }} />
+                    {highlightTerm(cat.name, term)}
                   </div>
                 ))}
               </>
             )}
 
+            {/* Live search suggestions */}
+            {term && suggestions.length > 0 && (
+              <>
+                <div className="scoped-search-title">Products</div>
+                {suggestions.map((item, index) => (
+                  <div
+                    key={index}
+                    className="scoped-search-item"
+                    onMouseDown={() => { setTerm(item.label); goToProduct(item.slug, item.label); }}
+                  >
+                    {highlightTerm(item.label, term)} {item.id ? `(ID: ${item.id})` : ""}
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* No results */}
+            {term && suggestions.length === 0 && matchingCategories.length === 0 && (
+              <div className="scoped-search-item muted">No results found</div>
+            )}
+
+            {/* Recent Searches */}
+           // Inside the JSX for dropdown
+{!term && recentSearches.length > 0 && (
+  <>
+    <div className="scoped-search-title">Recent Searches</div>
+    {recentSearches.map((s, idx) => (
+      <div
+        key={`recent-${idx}`}
+        className="scoped-search-item"
+        onMouseDown={() => {
+          // Do NOT clear term immediately
+          setTerm(s); // fill input with selected term
+          goToProduct(null, s); // navigate/search
+        }}
+      >
+        {s}
+      </div>
+    ))}
+  </>
+)}
+
+
             {/* Best Categories */}
             {!term && BEST_CATEGORIES.length > 0 && (
               <>
-                <div className="scoped-search-title" style={{ marginTop: '12px' }}>
-                  Best Selling Categories
-                </div>
+                <div className="scoped-search-title" style={{ marginTop: '12px' }}>Best Selling Categories</div>
                 <div className="categories-grid">
                   {BEST_CATEGORIES.map(cat => (
                     <div
                       key={cat.id}
                       className="category-item"
-      onMouseDown={() => navigate(`/category/${cat.id}`)}
+                      onMouseDown={() => goToCategory(cat.id)}
                     >
                       <img src={cat.image} alt={cat.name} />
                       <span style={{color:"#000"}}>{cat.name}</span>
@@ -227,21 +264,6 @@ const SearchBar = () => {
                 </div>
               </>
             )}
-
-            {/* Live search suggestions */}
-            {term && suggestions.length > 0
-              ? suggestions.map((item, index) => (
-                  <div
-                    key={index}
-                    className="scoped-search-item"
-                    onMouseDown={() => { setTerm(item.label); goToProduct(item.slug, item.label); }}
-                  >
-                    {highlightTerm(item.label, term)} {item.id ? `(ID: ${item.id})` : ""}
-                  </div>
-                ))
-              : term && suggestions.length === 0 && (
-                  <div className="scoped-search-item muted">No results found</div>
-                )}
 
           </div>
         </div>

@@ -1,25 +1,42 @@
 import React, { useState, useEffect } from "react";
-import Image1 from "../../assets/images/homepopup/PopupBG.jpg";
+import Image1 from "../../assets/images/homepopup/Popup1.jpg";
 import Image2 from "../../assets/images/homepopup/RBG.png";
 import Image3 from "../../assets/images/homepopup/WBG.png";
+import mobileBg from '../../assets/images/homepopup/PopupBG.jpg'
 
 const NewUserBonusPopup = () => {
   const [claimed, setClaimed] = useState(false);
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false); // show after 3s
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState(5);
+
   const discountCode = "WELCOME1920";
 
-  // Auto-close after 30 seconds
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth < 768);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
+
+  /** Show popup after 3s */
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(false), 30000);
-    return () => clearTimeout(timer);
+    const delayTimer = setTimeout(() => setVisible(true), 3000);
+    return () => clearTimeout(delayTimer);
   }, []);
 
-  // Countdown after copy
+  /** Auto-close after 30s */
+  useEffect(() => {
+    if (!visible) return;
+    const timer = setTimeout(() => setVisible(false), 30000);
+    return () => clearTimeout(timer);
+  }, [visible]);
+
+  /** Countdown after copy */
   useEffect(() => {
     if (!copied) return;
-
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -30,10 +47,10 @@ const NewUserBonusPopup = () => {
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(interval);
   }, [copied]);
 
+  /** Handlers */
   const handleOverlayClick = (e) => {
     if (e.target.id === "popup-overlay") setVisible(false);
   };
@@ -43,7 +60,7 @@ const NewUserBonusPopup = () => {
   const handleCopy = () => {
     navigator.clipboard.writeText(discountCode).then(() => {
       setCopied(true);
-      setCountdown(5); // reset countdown
+      setCountdown(5); 
     });
   };
 
@@ -51,7 +68,7 @@ const NewUserBonusPopup = () => {
 
   return (
     <>
-      {/* Popup */}
+      {/* Overlay */}
       <div
         id="popup-overlay"
         onClick={handleOverlayClick}
@@ -64,8 +81,10 @@ const NewUserBonusPopup = () => {
           backgroundColor: "rgba(0,0,0,0.6)",
           zIndex: 9998,
           padding: "10px",
+          animation: "fadeIn 0.4s ease",
         }}
       >
+        {/* Popup */}
         <div
           style={{
             position: "relative",
@@ -74,13 +93,16 @@ const NewUserBonusPopup = () => {
             minHeight: "500px",
             borderRadius: "16px",
             overflow: "hidden",
-            backgroundImage: `url(${Image1})`,
+              backgroundImage: `url(${isMobile ? mobileBg : Image1})`, 
             backgroundSize: "cover",
             backgroundPosition: "center",
             boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
             display: "flex",
             flexDirection: "column",
             justifyContent: "flex-start",
+            transform: "scale(0.9)",
+            opacity: 0,
+            animation: "popupIn 0.5s ease forwards",
           }}
         >
           {/* Close Button */}
@@ -106,16 +128,19 @@ const NewUserBonusPopup = () => {
           </button>
 
           {/* Header */}
-          <div style={{ padding: "20px", position: "relative", zIndex: 3, marginTop: "2.5rem" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: "bold", color: "#333", margin: 0 }}>
-              New User Discount!
-            </h2>
-            <p style={{ fontSize: "15px", color: "#555", marginTop: "4px", marginBottom: "18px" }}>
-              Super savings on your first order!
-            </p>
-          </div>
+   {isMobile && (
+  <div style={{ padding: "20px", marginTop: "3.5rem", zIndex: 3 }}>
+    <h2 style={{ fontSize: "28px", fontWeight: "bold", color: "#333", margin: 0 }}>
+     Welcome <br/> Discount!
+    </h2>
+    <p style={{ fontSize: "15px", color: "#555", marginTop: "4px", marginBottom: "18px" }}>
+      Super savings on your first order!
+    </p>
+  </div>
+)}
 
-          {/* Offers Grid */}
+
+          {/* Offers Grid 1 */}
           <div
             style={{
               position: "absolute",
@@ -136,15 +161,14 @@ const NewUserBonusPopup = () => {
             }}
           >
             {[
-  { top: "10% OFF", bottom: "over AED 499" },
-  { top: "AED 19 OFF", bottom: "over AED 199" },
+              { top: "10% OFF", bottom: "over AED 499" },
+              { top: "AED 19 OFF", bottom: "over AED 199" },
             ].map((offer, i) => (
               <div
                 key={i}
                 style={{
                   padding: "10px 8px",
                   textAlign: "center",
-                  borderBottom: i < 2 ? "1px solid #eee" : "none",
                   borderRight: i % 2 === 0 ? "1px solid #eee" : "none",
                   display: "flex",
                   flexDirection: "column",
@@ -158,9 +182,8 @@ const NewUserBonusPopup = () => {
             ))}
           </div>
 
-          {/* offer grid2 */}
-
-             <div
+          {/* Offers Grid 2 */}
+          <div
             style={{
               position: "absolute",
               bottom: "110px",
@@ -180,15 +203,14 @@ const NewUserBonusPopup = () => {
             }}
           >
             {[
-  { top: "15% OFF", bottom: "over AED 299" },
-  { top: "AED 50 OFF", bottom: "over AED 799" },
+              { top: "15% OFF", bottom: "over AED 299" },
+              { top: "AED 50 OFF", bottom: "over AED 799" },
             ].map((offer, i) => (
               <div
                 key={i}
                 style={{
                   padding: "10px 8px",
                   textAlign: "center",
-                  borderBottom: i < 2 ? "1px solid #eee" : "none",
                   borderRight: i % 2 === 0 ? "1px solid #eee" : "none",
                   display: "flex",
                   flexDirection: "column",
@@ -202,11 +224,7 @@ const NewUserBonusPopup = () => {
             ))}
           </div>
 
-
-
-          {/* offer 3 */}
-
-          {/* Decorative Bottom Image */}
+          {/* Decorative Bottom */}
           <div
             style={{
               position: "absolute",
@@ -221,7 +239,7 @@ const NewUserBonusPopup = () => {
             <img src={Image2} alt="Decorative Bottom" style={{ width: "100%", height: "100%", objectFit: "fill" }} />
           </div>
 
-          {/* Claim / Code Button */}
+          {/* Claim / Code Section */}
           {!claimed ? (
             <button
               onClick={handleClaim}
@@ -282,7 +300,7 @@ const NewUserBonusPopup = () => {
         </div>
       </div>
 
-      {/* Toast Notification at bottom */}
+      {/* Toast */}
       {copied && (
         <div
           style={{
@@ -290,7 +308,7 @@ const NewUserBonusPopup = () => {
             bottom: "20px",
             left: "50%",
             transform: "translateX(-50%)",
-            background: "rgba(8, 95, 27, 0.85)",
+            background: "rgba(8, 95, 27, 0.9)",
             color: "#fff",
             padding: "12px 24px",
             borderRadius: "24px",
@@ -298,11 +316,26 @@ const NewUserBonusPopup = () => {
             textAlign: "center",
             zIndex: 10000,
             boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+            animation: "fadeIn 0.3s ease",
           }}
         >
           Code Copied! Closing in {countdown}s
         </div>
       )}
+
+      {/* Animations */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes popupIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+          }
+        `}
+      </style>
     </>
   );
 };

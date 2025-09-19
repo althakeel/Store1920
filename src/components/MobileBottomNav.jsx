@@ -48,7 +48,7 @@ export default function MobileBottomNav() {
     { path: '/', label: 'Home', icon: <FaHome /> },
     { path: '/allproducts', label: 'Shop', icon: <FaStore /> },
     { path: '/new', label: 'New', icon: null, isCenter: true, onClick: () => navigate('/new') },
-    { path: '/categories', label: 'Categories', icon: <FaTh /> },
+    { path: '/category', label: 'Categories', icon: <FaTh /> },
     {
       path: isLoggedIn ? '/myaccount' : '#',
       label: isLoggedIn ? 'Account' : 'Sign In',
