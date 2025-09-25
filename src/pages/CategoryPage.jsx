@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useCart } from "../contexts/CartContext";
 import MiniCart from "../components/MiniCart";
 import AddCartIcon from "../assets/images/addtocart.png";
 import AddedToCartIcon from "../assets/images/added-cart.png";
 import IconAED from "../assets/images/Dirham 2.png";
-import "../assets/styles/categorypageid.css";
-import ProductCardReviews from "../components/temp/productcardreviews";
 import PlaceHolderIcon from "../assets/images/common/Placeholder.png";
+import ProductCardReviews from "../components/temp/productcardreviews";
+import "../assets/styles/categorypageid.css";
 
-import { getCategoryBySlug, getLightProductsByCategorySlug } from "../api/woocommerce";
+const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
+const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
+const CONSUMER_SECRET = "cs_92458ba6ab5458347082acc6681560911a9e993d";
 
 const PRODUCTS_PER_PAGE = 22;
 const TITLE_LIMIT = 22;
@@ -32,148 +35,81 @@ const Category = () => {
   const cartIconRef = useRef(null);
   const navigate = useNavigate();
 
-  // --- Fetch products by slug ---
-  useEffect(() => {
+  // --- Fetch category info and products by slug ---
+  const fetchCategoryAndProducts = async (pageNum = 1) => {
     if (!slug) return;
+    setLoading(true);
 
-    const fetchProducts = async () => {
-      setInitialLoading(true);
-      try {
-        const productsData = await getLightProductsByCategorySlug(
+    try {
+      // 1️⃣ Fetch category by slug
+      const catRes = await axios.get(`${API_BASE}/products/categories`, {
+        params: {
           slug,
-          1,
-          PRODUCTS_PER_PAGE
-        );
+          consumer_key: CONSUMER_KEY,
+          consumer_secret: CONSUMER_SECRET,
+        },
+      });
 
-        setProducts(productsData);
-        setHasMore(productsData?.length >= PRODUCTS_PER_PAGE);
-
-        if (productsData?.length) {
-          setCategory({
-            name: productsData[0].categories?.[0]?.name || slug,
-          });
-        } else {
-          setCategory({ name: slug });
-        }
-      } catch (err) {
-        console.error("Error fetching products by slug:", err);
+      if (catRes.data.length === 0) {
+        setCategory({ id: null, name: slug });
         setProducts([]);
         setHasMore(false);
-        setCategory({ name: slug });
-      } finally {
         setInitialLoading(false);
-      }
-    };
-
-    fetchProducts();
-    setPage(1); // reset pagination when slug changes
-  }, [slug]);
-
-  // --- Filters ---
-  const handleFilterChange = async (filters) => {
-    try {
-      setInitialLoading(true);
-
-      let filteredProducts = await getLightProductsByCategorySlug(
-        slug,
-        1,
-        PRODUCTS_PER_PAGE
-      );
-
-      if (!filters) {
-        setProducts(filteredProducts || []);
-        setHasMore(filteredProducts?.length >= PRODUCTS_PER_PAGE);
         return;
       }
 
-      // Price filter
-      if (filters.priceMin != null) {
-        filteredProducts = filteredProducts.filter(
-          (p) => parseFloat(p.price) >= filters.priceMin
-        );
-      }
-      if (filters.priceMax != null) {
-        filteredProducts = filteredProducts.filter(
-          (p) => parseFloat(p.price) <= filters.priceMax
-        );
-      }
+      const cat = catRes.data[0];
+      setCategory(cat);
 
-      // Rating filter
-      if (filters.rating) {
-        filteredProducts = filteredProducts.filter(
-          (p) => parseFloat(p.average_rating) >= filters.rating
-        );
-      }
+      // 2️⃣ Fetch products by category ID
+      const prodRes = await axios.get(`${API_BASE}/products`, {
+        params: {
+          category: cat.id,
+          per_page: PRODUCTS_PER_PAGE,
+          page: pageNum,
+          consumer_key: CONSUMER_KEY,
+          consumer_secret: CONSUMER_SECRET,
+        },
+      });
 
-      // Sorting
-      if (filters.sortBy) {
-        switch (filters.sortBy) {
-          case "price_asc":
-            filteredProducts.sort((a, b) => a.price - b.price);
-            break;
-          case "price_desc":
-            filteredProducts.sort((a, b) => b.price - a.price);
-            break;
-          case "newest":
-            filteredProducts.sort(
-              (a, b) => new Date(b.date_created) - new Date(a.date_created)
-            );
-            break;
-          case "popularity":
-            filteredProducts.sort((a, b) => b.total_sales - a.total_sales);
-            break;
-          default:
-            break;
-        }
-      }
+      const newUnique = prodRes.data.filter(
+        (p) => !products.some((existing) => existing.id === p.id)
+      );
 
-      setProducts(filteredProducts);
-      setHasMore(false);
+      setProducts((prev) =>
+        pageNum === 1 ? prodRes.data : [...prev, ...newUnique]
+      );
+      setHasMore(prodRes.data.length >= PRODUCTS_PER_PAGE);
     } catch (err) {
-      console.error("Error applying filters:", err);
+      console.error("Error fetching category/products:", err);
+      if (pageNum === 1) setProducts([]);
+      setHasMore(false);
     } finally {
+      setLoading(false);
       setInitialLoading(false);
     }
   };
 
-  // --- Pagination ---
+  // --- Load on slug change ---
   useEffect(() => {
-    if (!slug || page === 1) return;
+    if (!slug) return;
+    setInitialLoading(true);
+    setProducts([]);
+    setPage(1);
+    fetchCategoryAndProducts(1);
+  }, [slug]);
 
-    const fetchMoreProducts = async () => {
-      setLoading(true);
-      try {
-        const data = await getLightProductsByCategorySlug(
-          slug,
-          page,
-          PRODUCTS_PER_PAGE
-        );
-
-        setProducts((prev) => {
-          // prevent duplicates
-          const newUnique = data.filter(
-            (p) => !prev.some((existing) => existing.id === p.id)
-          );
-          return [...prev, ...newUnique];
-        });
-
-        setHasMore(data?.length >= PRODUCTS_PER_PAGE);
-      } catch (err) {
-        console.error("Error fetching more products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMoreProducts();
-  }, [page, slug]);
+  // --- Load more products ---
+  useEffect(() => {
+    if (page === 1) return;
+    fetchCategoryAndProducts(page);
+  }, [page]);
 
   const loadMore = () => {
     if (!hasMore || loading) return;
     setPage((prev) => prev + 1);
   };
 
-  // --- Helpers ---
   const truncate = (str) =>
     str.length <= TITLE_LIMIT ? str : `${str.slice(0, TITLE_LIMIT)}…`;
 
@@ -219,7 +155,6 @@ const Category = () => {
 
   return (
     <div className="pc-wrapper" style={{ minHeight: "40vh" }}>
-      {/* Header */}
       <div className="pc-category-header">
         <h2 className="pc-category-title">
           {initialLoading ? (
@@ -230,17 +165,8 @@ const Category = () => {
             "Category Not Found"
           )}
         </h2>
-        <div className="pc-filter-actions">
-          <button
-            className="filter-btn pc-filter-actions"
-            onClick={() => handleFilterChange(null)}
-          >
-            Clear
-          </button>
-        </div>
       </div>
 
-      {/* Products */}
       <div className="pc-products-container">
         {initialLoading ? (
           <div className="pc-grid">
@@ -288,9 +214,7 @@ const Category = () => {
                     <Price value={p.price} />
                     <button
                       className={`pc-add-btn ${
-                        cartItems.some((item) => item.id === p.id)
-                          ? "pc-added"
-                          : ""
+                        cartItems.some((item) => item.id === p.id) ? "pc-added" : ""
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -312,6 +236,7 @@ const Category = () => {
                 </div>
               ))}
             </div>
+
             {hasMore && (
               <div className="pc-load-more-wrapper">
                 <button
@@ -327,7 +252,6 @@ const Category = () => {
         )}
       </div>
 
-      {/* Cart */}
       <div id="pc-cart-icon" ref={cartIconRef} />
       <MiniCart />
     </div>

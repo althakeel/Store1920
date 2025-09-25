@@ -285,6 +285,23 @@
     font-size: 12px;
     padding: 5px 10px;
   }
+    .gcx-right {
+    flex-direction: row;       /* optional: banners side-by-side or keep column */
+    gap: 10px;
+    height: auto;              /* let it grow naturally */
+  }
+
+  .gcx-banner {
+    flex: 1;
+    height: auto;              /* allow natural height */
+  }
+
+  .gcx-banner img {
+    width: 100%;
+    height: auto;              /* let image height scale */
+    object-fit: contain;       /* prevent cropping */
+    border-radius: 12px;
+  }
 
 }
 

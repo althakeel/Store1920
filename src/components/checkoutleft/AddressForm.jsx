@@ -142,7 +142,7 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
     }}>
       <div style={{
         position: 'relative', background: '#fff', borderRadius: '12px',
-        width: '100%', maxWidth: '650px', maxHeight: '90vh',
+        width: '100%', maxWidth: '650px', maxHeight: '80vh',
         overflowY: 'auto', padding: '25px 30px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
         display: 'flex', flexDirection: 'column', gap: '20px'
       }}>

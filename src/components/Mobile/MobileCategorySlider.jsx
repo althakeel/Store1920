@@ -75,7 +75,7 @@ const CategorySlider = () => {
               return (
                 <Link
                   key={cat.id}
-                  to={`/category/${cat.id}`}
+                  to={`/category/${cat.slug}`}
                   style={{
                     flex: "0 0 auto",
                     width: 110,
