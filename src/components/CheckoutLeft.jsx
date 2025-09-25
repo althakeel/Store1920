@@ -94,13 +94,11 @@ useEffect(() => {
                      formData?.shipping?.first_name?.trim() &&
                      formData?.shipping?.last_name?.trim();
   
-  // Only show form if no address
+  // Only show form initially if no address
   if (!hasAddress) {
     setShowForm(true);
-  } else {
-    setShowForm(false); // optional: hide if address exists
   }
-}, [formData.shipping]);
+}, []); // <-- empty dependency array so it only runs once
 
 
   // -------------------------------

@@ -148,7 +148,7 @@ const CategorySlider = () => {
           return (
             <div key={cat.id} className="category-slide" onMouseDown={handleMouseDown} onMouseMove={handleMouseMove}>
               <Link
-                to={cat.path || `/category/${cat.id}`}
+                to={cat.path || `/category/${cat.slug}`}
                 onClick={handleClick}
                 className="category-link"
                 style={{ textDecoration: "none", color: "#333" }}

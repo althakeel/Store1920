@@ -147,43 +147,30 @@ const fetchCategories = useCallback(async (page = 1) => {
   // Fetch products
 // Fetch products
 const fetchProducts = useCallback(
-  async (page = 1, categoryId = selectedCategoryId) => {
+  async (page = 1, categoryId) => {
     setLoadingProducts(true);
     try {
       let sortedData = [];
 
       if (categoryId === "all") {
-        // 1️⃣ Fetch top categories (limit to 20 for speed, adjust as needed)
-        const catRes = await fetch(
-          `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=20`
-        );
+        const catRes = await fetch(`${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=20`);
         const categoriesData = await catRes.json();
 
-        // 2️⃣ Fetch 5 products per category in parallel
         const productPromises = categoriesData.map(cat =>
-          fetch(
-            `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=5&page=1&category=${cat.id}&_fields=id,slug,name,images,price,regular_price,sale_price,date_created`
-          )
+          fetch(`${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=5&page=1&category=${cat.id}&_fields=id,slug,name,images,price,regular_price,sale_price,date_created`)
             .then(res => res.json())
             .catch(() => [])
         );
 
         const allProductsArrays = await Promise.all(productPromises);
-        let mixedProducts = allProductsArrays.flat();
+        const mixedProducts = allProductsArrays.flat();
 
         if (mixedProducts.length > 0) {
-          // 3️⃣ Identify newest product
-          const newestProduct = mixedProducts.reduce((latest, prod) =>
-            new Date(prod.date_created) > new Date(latest.date_created) ? prod : latest
-          , mixedProducts[0]);
-
-          // 4️⃣ Shuffle the rest
+          const newestProduct = mixedProducts.reduce((latest, prod) => new Date(prod.date_created) > new Date(latest.date_created) ? prod : latest, mixedProducts[0]);
           const olderProducts = mixedProducts.filter(p => p.id !== newestProduct.id);
           sortedData = [...shuffleArray(olderProducts), newestProduct];
         }
-
       } else {
-        // Normal category fetch
         let url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&_fields=id,slug,name,images,price,regular_price,sale_price,date_created&orderby=date&order=asc`;
         if (categoryId !== "all") url += `&category=${categoryId}`;
 
@@ -197,10 +184,12 @@ const fetchProducts = useCallback(
         }
       }
 
-      // 5️⃣ Update state
-      setProducts(prev => (page === 1 ? sortedData : [...prev, ...sortedData]));
-setHasMoreProducts(sortedData.length > 0 && products.length + sortedData.length < MAX_PRODUCTS);
-
+      // ✅ Append products and calculate hasMoreProducts correctly
+      setProducts(prev => {
+        const newProducts = page === 1 ? sortedData : [...prev, ...sortedData];
+        setHasMoreProducts(sortedData.length > 0 && newProducts.length < MAX_PRODUCTS);
+        return newProducts;
+      });
     } catch {
       setHasMoreProducts(false);
     } finally {
@@ -242,11 +231,11 @@ setHasMoreProducts(sortedData.length > 0 && products.length + sortedData.length 
   // Load more products
 const loadMoreProducts = useCallback(() => {
   if (loadingProducts || !hasMoreProducts) return;
-
   const nextPage = productsPage + 1;
   setProductsPage(nextPage);
   fetchProducts(nextPage, selectedCategoryId);
 }, [loadingProducts, hasMoreProducts, productsPage, fetchProducts, selectedCategoryId]);
+
 
   // Fly to cart animation
   const flyToCart = (e, imgSrc) => {

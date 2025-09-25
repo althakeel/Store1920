@@ -359,8 +359,8 @@ const AppContent = () => {
               </div>
 
               {!isMobile && <PurchasePopup />}
-              <CookiePopup />
-              <ChatBot />
+{!path.startsWith('/products/') && <CookiePopup />}       
+       <ChatBot />
 {isHomePage && <NewUserBonusPopup />}
               <Footer />
 
