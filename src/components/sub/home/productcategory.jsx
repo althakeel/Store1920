@@ -199,7 +199,7 @@ const fetchProducts = useCallback(
 
       // 5️⃣ Update state
       setProducts(prev => (page === 1 ? sortedData : [...prev, ...sortedData]));
-      setHasMoreProducts(sortedData.length === PRODUCTS_PER_PAGE && page * PRODUCTS_PER_PAGE < MAX_PRODUCTS);
+setHasMoreProducts(sortedData.length > 0 && products.length + sortedData.length < MAX_PRODUCTS);
 
     } catch {
       setHasMoreProducts(false);
@@ -240,12 +240,13 @@ const fetchProducts = useCallback(
   }, [categories, updateArrowVisibility]);
 
   // Load more products
-  const loadMoreProducts = useCallback(() => {
-    if (loadingProducts || !hasMoreProducts || products.length >= MAX_PRODUCTS) return;
-    const nextPage = productsPage + 1;
-    setProductsPage(nextPage);
-    fetchProducts(nextPage, selectedCategoryId);
-  }, [loadingProducts, hasMoreProducts, products.length, productsPage, fetchProducts, selectedCategoryId]);
+const loadMoreProducts = useCallback(() => {
+  if (loadingProducts || !hasMoreProducts) return;
+
+  const nextPage = productsPage + 1;
+  setProductsPage(nextPage);
+  fetchProducts(nextPage, selectedCategoryId);
+}, [loadingProducts, hasMoreProducts, productsPage, fetchProducts, selectedCategoryId]);
 
   // Fly to cart animation
   const flyToCart = (e, imgSrc) => {
@@ -493,23 +494,7 @@ return mergedProducts.slice(0, visibleCount).map((p, index) => {
             {/* Load More */}
            {/* Load More */}
 <div className="pcus-load-more-wrapper" style={{ textAlign: "center", margin: "24px 0" }}>
-  {visibleCount < products.length ? (
-    <button
-      className="pcus-load-more-btn"
-      onClick={() => setVisibleCount(prev => prev + 30)}
-      style={{
-        padding: "10px 20px",
-        fontSize: "14px",
-        backgroundColor: "#ff6207ff",
-        color: "#fff",
-        border: "none",
-        borderRadius: "50px",
-        cursor: "pointer"
-      }}
-    >
-      Load More
-    </button>
-  ) : hasMoreProducts ? (
+  {hasMoreProducts ? (
     <button
       className="pcus-load-more-btn"
       onClick={loadMoreProducts}
@@ -530,6 +515,7 @@ return mergedProducts.slice(0, visibleCount).map((p, index) => {
     <span style={{ color: "#666", fontSize: "14px" }}>No more products</span>
   )}
 </div>
+
 
           </>
         )}
