@@ -131,7 +131,7 @@ export default function ProductReviewList({ reviews, setReviews, productId, user
             <p className="review-text">
   {stripHtml(r.comment || r.review)}
 </p>
-            <button className="report-btn" onClick={() => setReportAlertOpen(true)} type="button">Report</button>
+            {/* <button className="report-btn" onClick={() => setReportAlertOpen(true)} type="button">Report</button> */}
           </div>
         ))}
       </div>

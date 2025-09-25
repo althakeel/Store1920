@@ -57,10 +57,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("loginEvent", Date.now());
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.setItem("logoutEvent", Date.now());
-  };
+const logout = () => {
+  setUser(null);
+  // Remove persisted user info
+  localStorage.removeItem("userId");
+  localStorage.removeItem("email");
+  localStorage.removeItem("token");
+  // Trigger logout event for other tabs
+  localStorage.setItem("logoutEvent", Date.now());
+};
 
   // Also listen for custom login/logout events
   useEffect(() => {

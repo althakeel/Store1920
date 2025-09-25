@@ -46,6 +46,10 @@ import Contact from './pages/contact';
 import Search from './pages/search';
 import PaymobSuccess from './pages/PaymobSuccess';
 import PaymobCheckoutPage from './pages/PaymobCheckoutPage';
+import StaticProductDetails from './pages/StaticProductDetails';
+import ProductRouteWrapper from './pages/ProductRouteWrapper '
+import CustomCheckout from './pages/adcheckout'
+
 
 // Components
 import Topbar from './components/topbar';
@@ -278,6 +282,8 @@ const AppContent = () => {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/product/:slug" element={<ProductDetails />} />
+                   {/* <Route path="/product/:slug" element={<ProductRouteWrapper />} />  */}
+
                     <Route path="/cart" element={<CartPage />} />
                     <Route
                       path="/checkout"
@@ -301,6 +307,10 @@ const AppContent = () => {
                     <Route path="/category" element={<Categories />} />
                     {/* <Route path="/category/:id" element={<CategoryPageid />} /> */}
                     <Route path="/category/:slug" element={<CategoryPageid />} />
+
+                    
+                     <Route path="/products/:slug" element={<StaticProductDetails />} />
+
 
                     <Route path="/allproducts" element={<AllProducts />} />
                     <Route path="/new" element={<New />} />
@@ -327,6 +337,8 @@ const AppContent = () => {
                     <Route path="search" element={<Search />} />
                     <Route path="/payment-success" element={<PaymobSuccess />} />
                     <Route path="/paymob-checkout" element={<PaymobCheckoutPage />} />
+                        <Route path="/adscheckout" element={<CustomCheckout />} />
+
                   </Routes>
                 </main>
 
@@ -341,11 +353,13 @@ const AppContent = () => {
 {isHomePage && <NewUserBonusPopup />}
               <Footer />
 
-              {isMobile &&
-                !excludeMiniCartPaths.some(
-                  (excludedPath) => path === excludedPath || path.startsWith(`${excludedPath}/`)
-                ) &&
-                !path.startsWith('/product/') && <MobileBottomNav />}
+           {isMobile &&
+  !excludeMiniCartPaths.some(
+    (excludedPath) => path === excludedPath || path.startsWith(`${excludedPath}/`)
+  ) &&
+  !path.startsWith('/product/') &&
+  !path.startsWith('/products/') && <MobileBottomNav />}
+
             </>
           </AuthProvider>
         </QueryClientProvider>

@@ -126,8 +126,8 @@ const TrackOrder = () => {
             <p><strong>Note:</strong> Delivery estimates may vary depending on location and courier performance.</p>
             <p>
               By tracking your order, you agree to our{' '}
-              <a href="/terms" style={{ color: '#888' }}>Terms of Service</a> and{' '}
-              <a href="/privacy" style={{ color: '#888' }}>Privacy Policy</a>.
+              <a href="/Terms-0f-use" style={{ color: '#888' }}>Terms of Service</a> and{' '}
+              <a href="/privacy-policy" style={{ color: '#888' }}>Privacy Policy</a>.
             </p>
           </div>
         </div>

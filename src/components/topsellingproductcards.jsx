@@ -69,21 +69,22 @@ const New = () => {
   }, []);
 
   // ===================== Fetch products =====================
-  const fetchProducts = useCallback(async (page = 1) => {
-    setLoadingProducts(true);
-    try {
-      const data = await getProductsByTagSlugs([NEW_TAG_SLUG], page, PRODUCTS_PER_PAGE);
-      const validData = Array.isArray(data) ? data : [];
-      setProducts((prev) => (page === 1 ? validData : [...prev, ...validData]));
-      setHasMoreProducts(validData.length >= PRODUCTS_PER_PAGE);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setProducts([]);
-      setHasMoreProducts(false);
-    } finally {
-      setLoadingProducts(false);
-    }
-  }, []);
+const fetchProducts = useCallback(async (page = 1) => {
+  setLoadingProducts(true);
+  try {
+    const data = await getProductsByTagSlugs([NEW_TAG_SLUG], page, PRODUCTS_PER_PAGE);
+    const validData = Array.isArray(data) ? data : [];
+    setProducts(prev => page === 1 ? shuffleArray(validData) : [...prev, ...validData]);
+    setHasMoreProducts(validData.length >= PRODUCTS_PER_PAGE);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    setProducts([]);
+    setHasMoreProducts(false);
+  } finally {
+    setLoadingProducts(false);
+  }
+}, []);
+
 
   useEffect(() => {
     fetchProducts(1);

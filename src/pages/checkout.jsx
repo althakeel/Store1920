@@ -32,12 +32,17 @@ const fetchWithAuth = async (endpoint, options = {}) => {
   return res.json();
 };
 
+
+
 const sanitizeField = (value) => (value && value.trim() ? value : 'NA');
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { cartItems: contextCartItems, clearCart } = useCart();
   const { user } = useAuth(); // current logged-in user
+
+    const LOCAL_STORAGE_KEY = 'checkoutFormData';
+
 
   const [cartItems, setCartItems] = useState([]);
   const [countries, setCountries] = useState([]);
@@ -85,6 +90,15 @@ export default function CheckoutPage() {
     (sum, item) => sum + (parseFloat(item.price) || 0) * item.quantity,
     0
   );
+  useEffect(() => {
+    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedData) {
+      try {
+        setFormData(JSON.parse(savedData));
+      } catch {}
+    }
+  }, []);
+
 
   const showAlert = (message, type = 'info') => {
     setAlert({ message, type });
@@ -103,50 +117,71 @@ export default function CheckoutPage() {
   }, [user]);
 
   // Auto-fetch saved addresses if user is logged in
-  useEffect(() => {
-    if (!user?.id) return;
+useEffect(() => {
+  if (!user?.id) return;
 
-    const fetchUserAddresses = async () => {
+  const LOCAL_STORAGE_KEY = 'checkoutFormData';
+
+  const loadAddresses = async () => {
+    // 1. Try to load from localStorage first
+    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedData) {
       try {
-        const customer = await fetchWithAuth(`customers/${user.id}`);
-        if (customer) {
-          setFormData((prev) => ({
-            ...prev,
-            billing: {
-              first_name: customer.billing.first_name || prev.billing.first_name,
-              last_name: customer.billing.last_name || prev.billing.last_name,
-              email: customer.billing.email || prev.billing.email,
-              street: customer.billing.address_1 || prev.billing.street,
-              apartment: customer.billing.address_2 || prev.billing.apartment,
-              floor: '', // WooCommerce doesn't store floor by default
-              city: customer.billing.city || prev.billing.city,
-              state: customer.billing.state || prev.billing.state,
-              postal_code: customer.billing.postcode || prev.billing.postal_code,
-              country: customer.billing.country || prev.billing.country,
-              phone_number: customer.billing.phone || prev.billing.phone_number,
-            },
-            shipping: {
-              first_name: customer.shipping.first_name || prev.shipping.first_name,
-              last_name: customer.shipping.last_name || prev.shipping.last_name,
-              email: customer.email || prev.shipping.email,
-              street: customer.shipping.address_1 || prev.shipping.street,
-              apartment: customer.shipping.address_2 || prev.shipping.apartment,
-              floor: '', // WooCommerce doesn't store floor by default
-              city: customer.shipping.city || prev.shipping.city,
-              state: customer.shipping.state || prev.shipping.state,
-              postal_code: customer.shipping.postcode || prev.shipping.postal_code,
-              country: customer.shipping.country || prev.shipping.country,
-              phone_number: prev.shipping.phone_number,
-            },
-          }));
-        }
+        setFormData(JSON.parse(savedData));
+        return; // Stop here, don't fetch from WooCommerce
       } catch (err) {
-        console.error('Failed to fetch saved addresses:', err);
+        console.warn('Failed to parse saved checkout data:', err);
       }
-    };
+    }
 
-    fetchUserAddresses();
-  }, [user]);
+    // 2. Fetch from WooCommerce if no localStorage data
+    try {
+      const customer = await fetchWithAuth(`customers/${user.id}`);
+      if (customer) {
+        const fetchedData = {
+          billing: {
+            first_name: customer.billing.first_name || '',
+            last_name: customer.billing.last_name || '',
+            email: customer.billing.email || '',
+            street: customer.billing.address_1 || '',
+            apartment: customer.billing.address_2 || '',
+            floor: '',
+            city: customer.billing.city || '',
+            state: customer.billing.state || '',
+            postal_code: customer.billing.postcode || '',
+            country: customer.billing.country || 'AE',
+            phone_number: customer.billing.phone || '971',
+          },
+          shipping: {
+            first_name: customer.shipping.first_name || '',
+            last_name: customer.shipping.last_name || '',
+            email: customer.email || '',
+            street: customer.shipping.address_1 || '',
+            apartment: customer.shipping.address_2 || '',
+            floor: '',
+            city: customer.shipping.city || '',
+            state: customer.shipping.state || '',
+            postal_code: customer.shipping.postcode || '',
+            country: customer.shipping.country || 'AE',
+            phone_number: '971',
+          },
+          billingSameAsShipping: true,
+          paymentMethod: 'cod',
+          paymentMethodTitle: 'Cash On Delivery',
+          shippingMethodId: null,
+        };
+
+        setFormData(fetchedData);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(fetchedData));
+      }
+    } catch (err) {
+      console.error('Failed to fetch saved addresses from WooCommerce:', err);
+    }
+  };
+
+  loadAddresses();
+}, [user]);
+
 
   // Fetch cart product details
   useEffect(() => {
@@ -283,7 +318,36 @@ export default function CheckoutPage() {
     }
   };
 
-  if (loading) return <div className="checkout-loading">Loading...</div>;
+<div className="checkoutPageWrapper" style={{ minHeight: '40vh' }}>
+  {loading && (
+    <div className="checkoutLoader">
+      <div className="loaderSpinner"></div>
+      <div>Loading Checkout...</div>
+    </div>
+  )}
+
+  <div className="checkoutGrid" style={{ minHeight: '100vh', overflowY: 'auto', opacity: loading ? 0.3 : 1 }}>
+    <CheckoutLeft
+      countries={countries}
+      cartItems={cartItems}
+      subtotal={subtotal}
+      orderId={orderId}
+      formData={formData}
+      setFormData={setFormData}
+      handlePlaceOrder={handlePlaceOrder}
+      createOrder={createOrder}
+    />
+    <CheckoutRight
+      cartItems={cartItems}
+      formData={formData}
+      orderId={orderId}
+      createOrder={createOrder}
+      clearCart={() => setCartItems([])}
+      handlePlaceOrder={handlePlaceOrder}
+      subtotal={subtotal}
+    />
+  </div>
+</div>
 
   return (
     <>

@@ -89,9 +89,19 @@ export default function CheckoutLeft({
   // -------------------------------
   // Auto-open form if no shipping address
   // -------------------------------
-  useEffect(() => {
-    if (!formData?.shipping?.street?.trim()) setShowForm(true);
-  }, [formData?.shipping]);
+useEffect(() => {
+  const hasAddress = formData?.shipping?.street?.trim() &&
+                     formData?.shipping?.first_name?.trim() &&
+                     formData?.shipping?.last_name?.trim();
+  
+  // Only show form if no address
+  if (!hasAddress) {
+    setShowForm(true);
+  } else {
+    setShowForm(false); // optional: hide if address exists
+  }
+}, [formData.shipping]);
+
 
   // -------------------------------
   // Shipping method handling

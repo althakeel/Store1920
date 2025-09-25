@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import CoinIcon from '../assets/images/coingroup.png';
 import '../assets/styles/MyCoinsPage.css';
-
-
+import { useAuth } from '../contexts/AuthContext';
 
 const API_BASE = 'https://db.store1920.com/wp-json/custom/v1';
 
@@ -16,13 +15,17 @@ const faqList = [
   { question: 'Can I transfer my coins to another user?', answer: 'No, coins are tied securely to your account and cannot be transferred.' },
 ];
 
-export default function MyCoinsPage({ user, userId: propUserId, useMyCoins = false }) {
+export default function MyCoinsPage({ userId: propUserId, useMyCoins = false }) {
+  const { user, loading: authLoading } = useAuth();
+
+  // Determine the correct user ID
   const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
   let localUserId = null;
   if (storedUser) {
     try { localUserId = JSON.parse(storedUser)?.id || null; } catch { localUserId = null; }
   }
-  const userId = propUserId || user?.id || localUserId;
+
+  const userId = Number(propUserId || user?.id || localUserId);
 
   const [coins, setCoins] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -30,45 +33,27 @@ export default function MyCoinsPage({ user, userId: propUserId, useMyCoins = fal
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
   useEffect(() => {
+    if (authLoading || !userId) return; // Wait until user is loaded
+
     async function fetchCoins() {
-      if (useMyCoins) {
-        try {
-          setLoading(true);
-          setError(null);
-          const res = await fetch(`${API_BASE}/my-coins`, {
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-          });
-          if (!res.ok) throw new Error(`API error: ${res.status}`);
-          const data = await res.json();
-          setCoins(data.coins ?? 0);
-        } catch {
-          setError('Failed to load coins');
-          setCoins(0);
-        } finally {
-          setLoading(false);
-        }
-        return;
-      }
-
-      if (!userId) {
-        setError('User ID not found');
-        setCoins(0);
-        setLoading(false);
-        return;
-      }
-
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`${API_BASE}/coins/${userId}`, {
+
+        let endpoint = useMyCoins ? `${API_BASE}/my-coins` : `${API_BASE}/coins/${userId}`;
+        const res = await fetch(endpoint, {
           credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(user?.token ? { Authorization: `Bearer ${user.token}` } : {}),
+          },
         });
+
         if (!res.ok) throw new Error(`API error: ${res.status}`);
         const data = await res.json();
         setCoins(data.coins ?? 0);
-      } catch {
+      } catch (err) {
+        console.error(err);
         setError('Failed to load coins');
         setCoins(0);
       } finally {
@@ -77,19 +62,17 @@ export default function MyCoinsPage({ user, userId: propUserId, useMyCoins = fal
     }
 
     fetchCoins();
-  }, [userId, useMyCoins]);
+  }, [userId, useMyCoins, authLoading, user?.token]);
 
   const toggleFaq = (index) => setOpenFaqIndex(openFaqIndex === index ? null : index);
 
   return (
     <>
       <div className="coins-banner">
-        <img src='https://db.store1920.com/wp-content/uploads/2025/08/scoin-banner-1.webp' alt="Store1920 Coins Banner" className="coins-banner-img" />
+        <img src="https://db.store1920.com/wp-content/uploads/2025/08/scoin-banner-1.webp" alt="Store1920 Coins Banner" className="coins-banner-img" />
       </div>
 
       <main className="coins-container">
-        {/* <h1 className="coins-title">Your Store1920 Coins</h1> */}
-
         <section className="coins-balance-card">
           <div className="coins-balance-content">
             <img src={CoinIcon} alt="Coin Icon" className="coins-icon" />
@@ -108,9 +91,7 @@ export default function MyCoinsPage({ user, userId: propUserId, useMyCoins = fal
         <section className="coins-info-cards">
           <article className="info-card">
             <h2>What Are Store1920 Coins?</h2>
-            <p>
-              Earn loyalty coins on every purchase and interaction with Store1920. Redeem them for discounts on products and shipping.
-            </p>
+            <p>Earn loyalty coins on every purchase and interaction with Store1920. Redeem them for discounts on products and shipping.</p>
           </article>
 
           <article className="info-card">

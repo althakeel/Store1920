@@ -81,22 +81,36 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, []);
 
+const shuffleArray = (array) => {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
   // ===================== Fetch products =====================
-  const fetchProducts = useCallback(async (page = 1) => {
-    setLoadingProducts(true);
-    try {
-      const data = await getProductsByTagSlugs([NEW_TAG_SLUG], page, PRODUCTS_PER_PAGE);
-      const validData = Array.isArray(data) ? data : [];
-      setProducts((prev) => (page === 1 ? validData : [...prev, ...validData]));
-      setHasMoreProducts(validData.length >= PRODUCTS_PER_PAGE);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setProducts([]);
-      setHasMoreProducts(false);
-    } finally {
-      setLoadingProducts(false);
-    }
-  }, []);
+const fetchProducts = useCallback(async (page = 1) => {
+  setLoadingProducts(true);
+  try {
+    const data = await getProductsByTagSlugs([NEW_TAG_SLUG], page, PRODUCTS_PER_PAGE);
+    const validData = Array.isArray(data) ? data : [];
+
+    // Always shuffle the products
+    const shuffledData = shuffleArray(validData);
+
+    setProducts(prev => page === 1 ? shuffledData : shuffleArray([...prev, ...shuffledData]));
+    setHasMoreProducts(validData.length >= PRODUCTS_PER_PAGE);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    setProducts([]);
+    setHasMoreProducts(false);
+  } finally {
+    setLoadingProducts(false);
+  }
+}, []);
+
 
   useEffect(() => {
     fetchProducts(1);
@@ -188,7 +202,7 @@ useEffect(() => {
             <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" /> LATEST ARRIVALS{' '}
             <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" />
           </h2>
-          <p className="pcus-sub-title">TOP SELLING ITEMS</p>
+          <p className="pcus-sub-title">  Check out our newest products</p>
         </div>
 
         {/* Product Grid */}

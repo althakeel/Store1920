@@ -57,19 +57,23 @@ const UAE_CITIES = {
 const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) => {
   const [formErrors, setFormErrors] = useState({});
 
-  // Save to localStorage
+  // Load saved address from localStorage on mount
   useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
-    } catch {}
-  }, [formData]);
-
-  useEffect(() => {
-    if (!formData.shipping.country) {
-      onChange({ target: { name: 'country', value: 'AE' } }, 'shipping');
-    }
-    if (!formData.shipping.phone_number) {
-      onChange({ target: { name: 'phone_number', value: '971' } }, 'shipping');
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.shipping) {
+          Object.keys(data.shipping).forEach((key) => {
+            onChange({ target: { name: key, value: data.shipping[key] } }, 'shipping');
+          });
+        }
+        if (data.saveAsDefault !== undefined) {
+          onChange({ target: { name: 'saveAsDefault', value: data.saveAsDefault } });
+        }
+      } catch (err) {
+        console.warn('Failed to parse saved checkout address:', err);
+      }
     }
   }, []);
 
@@ -105,21 +109,18 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSaveAddress = (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const preparedData = {
-      ...formData,
-      shipping: {
-        ...formData.shipping,
-        postal_code: '00000', 
-      },
-    };
+    // Save to localStorage
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
+    } catch (err) {
+      console.error('Failed to save checkout address:', err);
+    }
 
-    
-
-    onSubmit(preparedData);
+    onSubmit(formData); // Call parent handler
   };
 
   const handlePhoneChange = (phone) => {
@@ -155,59 +156,60 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
           Shipping Address
         </h2>
 
-        <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form onSubmit={handleSaveAddress} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '18px' }}>
+            {/* First Name */}
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
               First Name
               <input type="text" name="first_name" value={formData.shipping.first_name} onChange={handleFieldChange}
-                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-              />
+                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }} />
               {formErrors.first_name && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.first_name}</span>}
             </label>
 
+            {/* Last Name */}
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
               Last Name
               <input type="text" name="last_name" value={formData.shipping.last_name} onChange={handleFieldChange}
-                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-              />
+                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }} />
               {formErrors.last_name && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.last_name}</span>}
             </label>
 
+            {/* Email */}
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
               Email
               <input type="email" name="email" value={formData.shipping.email} onChange={handleFieldChange}
-                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-              />
+                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }} />
               {formErrors.email && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.email}</span>}
             </label>
 
-                 <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444',gap:5 }}>
+            {/* Phone */}
+            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444', gap: 5 }}>
               Phone Number
               <PhoneInput country="ae" value={formData.shipping.phone_number || '971'} onChange={handlePhoneChange}
                 containerStyle={{ width: '100%' }}
-                inputStyle={{ width: '100%', height: '42px', borderRadius: '6px', border: '1px solid #ccc', paddingLeft: '48px'}}
+                inputStyle={{ width: '100%', height: '42px', borderRadius: '6px', border: '1px solid #ccc', paddingLeft: '48px' }}
                 buttonStyle={{ pointerEvents: 'none', backgroundColor: '#fff' }}
-                enableSearch={false} countryCodeEditable={false}
-              />
+                enableSearch={false} countryCodeEditable={false} />
               {formErrors.phone_number && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.phone_number}</span>}
             </label>
 
-
+            {/* Street */}
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
               Street
               <input type="text" name="street" value={formData.shipping.street} onChange={handleFieldChange}
-                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-              />
+                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }} />
               {formErrors.street && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.street}</span>}
             </label>
 
+            {/* Apartment / Floor */}
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
               Apartment / Floor
               <input type="text" name="apartment" value={formData.shipping.apartment} onChange={handleFieldChange}
-                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-              />
+                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }} />
             </label>
-                <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+
+            {/* Emirates */}
+            <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
               Province / Emirates
               <select name="state" value={formData.shipping.state} onChange={handleFieldChange}
                 style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}>
@@ -216,59 +218,39 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
               </select>
               {formErrors.state && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.state}</span>}
             </label>
-<label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
-  City / Area 
-  <select
-    name="city"
-    value={formData.shipping.city}
-    onChange={handleFieldChange}
-    style={{
-      marginTop: '6px',
-      padding: '10px',
-      fontSize: '1rem',
-      borderRadius: '6px',
-      border: '1px solid #ccc',
-      width: '100%',
-      backgroundColor: '#fff',
-      cursor: 'pointer'
-    }}
-  >
-    <option value="">Select city</option>
-    {UAE_CITIES[formData.shipping.state]?.map((city) => (
-      <option key={city} value={city}>{city}</option>
-    ))}
-  </select>
-  {formErrors.city && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.city}</span>}
-</label>
 
-
-        
-{/* 
+            {/* City */}
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
-              Postal Code
-              <input type="text" name="postal_code" value={formData.shipping.postal_code} onChange={handleFieldChange}
-                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-              />
-            </label> */}
+              City / Area
+              <select name="city" value={formData.shipping.city} onChange={handleFieldChange}
+                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}>
+                <option value="">Select city</option>
+                {UAE_CITIES[formData.shipping.state]?.map((city) => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
+              {formErrors.city && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.city}</span>}
+            </label>
 
-       
+            {/* Country */}
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
               Country
               <input type="text" value="United Arab Emirates" readOnly
                 style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />
             </label>
-
-            
           </div>
-<label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 500, color: '#444' }}>
-<input
-  type="checkbox"
-  name="saveAsDefault"
-  checked={formData.saveAsDefault || false}
-  onChange={(e) => onChange({ target: { name: 'saveAsDefault', value: e.target.checked } })}
-/>
-  Save this address as default for future orders
-</label>
+
+          {/* Save as default */}
+          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 500, color: '#444' }}>
+            <input
+              type="checkbox"
+              name="saveAsDefault"
+              checked={formData.saveAsDefault || false}
+              onChange={(e) => onChange({ target: { name: 'saveAsDefault', value: e.target.checked } })}
+            />
+            Save this address as default for future orders
+          </label>
+
           {error && <div style={{ color: 'red', fontWeight: 600 }}>{error}</div>}
 
           <button type="submit" disabled={saving}

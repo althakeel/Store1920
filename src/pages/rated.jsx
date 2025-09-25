@@ -165,10 +165,10 @@ const New = () => {
         {/* Title Section */}
         <div className="pcus-title-section">
           <h2 className="pcus-main-title">
-            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" />TOP RATEDS{' '}
+            <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" />TOP RATED{' '}
             <img src={Adsicon} style={{ maxWidth: '18px' }} alt="Ads icon" />
           </h2>
-          <p className="pcus-sub-title">Our 4★ & 5★ Favorites</p>
+          <p className="pcus-sub-title">Customer Favorites</p>
         </div>
 
         {/* Product Grid */}

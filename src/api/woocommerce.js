@@ -180,3 +180,37 @@ export const getProductsByCategorySlug = async (slug, page = 1, perPage = 42, or
     return [];
   }
 };
+
+export const getLightProductsByCategories = (categoryIds = [], page = 1, perPage = 42, order = "desc") => {
+  if (!Array.isArray(categoryIds) || !categoryIds.length) return [];
+  return fetchAPI(
+    `/products?category=${categoryIds.join(",")}&per_page=${perPage}&page=${page}&orderby=date&order=${order}&_fields=id,name,slug,price,images`
+  );
+};
+export const getLightProductsByCategorySlug = async (slug, page = 1, perPage = 42, order = "desc") => {
+  try {
+    // 1️⃣ Get category by slug
+    const categories = await getCategoryBySlug(slug);
+    if (!categories?.length) return [];
+
+    const parentCategory = categories[0];
+
+    // 2️⃣ Get child categories
+    const children = await getChildCategories(parentCategory.id);
+    const categoryIds = [parentCategory.id, ...(children?.map(c => c.id) || [])];
+
+    if (!categoryIds.length) return [];
+
+    // 3️⃣ Fetch only lightweight product data
+    const products = await getLightProductsByCategories(categoryIds, page, perPage, order);
+
+    // 4️⃣ Limit images to first 2
+    return (products || []).map((p) => ({
+      ...p,
+      images: p.images ? p.images.slice(0, 2) : [],
+    }));
+  } catch (err) {
+    console.error("getLightProductsByCategorySlug error:", err);
+    return [];
+  }
+};

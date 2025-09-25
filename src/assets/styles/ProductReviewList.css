@@ -10,7 +10,11 @@
 }
 
 .report-btn{
-  padding: 2px 5px;
+  /* padding: 5px 8px ; */
+  border: none;
+  background-color: #fff;
+  text-decoration: underline;
+  border-radius:15px;
 }
 
 /* === Review Summary === */

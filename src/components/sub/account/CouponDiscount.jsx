@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
-const CK = 'ck_408d890799d9dc59267dd9b1d12faf2b50f9ccc8';
-const CS = 'cs_c65538cff741bd9910071c7584b3d070609fec24';
-
 export default function CouponDiscount({ onApplyCoupon }) {
   const [couponCode, setCouponCode] = useState('');
   const [message, setMessage] = useState('');
@@ -27,28 +23,24 @@ export default function CouponDiscount({ onApplyCoupon }) {
     setIsValid(false);
 
     try {
-      const url = `${API_BASE}/coupons?code=${encodeURIComponent(couponCode.trim())}&consumer_key=${CK}&consumer_secret=${CS}`;
-      const response = await axios.get(url);
+      const formData = new FormData();
+      formData.append('coupon_code', couponCode.trim());
 
-      if (response.data.length === 0) {
-        setMessage('Invalid coupon code.');
+      const response = await axios.post('/wp-admin/admin-ajax.php?action=check_coupon', formData);
+
+      if (response.data.success) {
+        const data = response.data.data;
+        setDiscountData(data);
+        setMessage(`Coupon applied! Discount: ${data.amount}${data.discount_type === 'percent' ? '%' : ''}`);
+        setIsValid(true);
+        onApplyCoupon && onApplyCoupon(data);
+      } else {
+        setMessage(response.data.data || 'Invalid coupon code.');
         setIsValid(false);
         onApplyCoupon(null);
-      } else {
-        const coupon = response.data[0];
-        if (!coupon.date_expires || new Date(coupon.date_expires) > new Date()) {
-          setDiscountData(coupon);
-          setMessage(`Coupon applied! Discount: ${coupon.amount}${coupon.discount_type === 'percent' ? '%' : ''}`);
-          setIsValid(true);
-          onApplyCoupon && onApplyCoupon(coupon);
-        } else {
-          setMessage('Coupon expired.');
-          setIsValid(false);
-          onApplyCoupon(null);
-        }
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       setMessage('Error checking coupon. Please try again.');
       setIsValid(false);
       onApplyCoupon(null);
@@ -58,34 +50,27 @@ export default function CouponDiscount({ onApplyCoupon }) {
   };
 
   return (
-    <div style={{ maxWidth: 350, margin: '0.8rem auto', fontFamily: "'Montserrat', sans-serif", fontSize: '13px' }}>
+    <div style={{ maxWidth: 350, margin: '1rem auto', fontFamily: "'Montserrat', sans-serif", fontSize: '13px' }}>
       <div style={{ display: 'flex', gap: '6px' }}>
-<input
-  type="text"
-  placeholder="Enter coupon code"
-  value={couponCode}
-  onChange={e => setCouponCode(e.target.value.toUpperCase())}
-  onKeyDown={e => {
-    if (e.key === 'Enter') {
-      handleApplyCoupon();
-    }
-  }}
-  disabled={loading}
-  style={{
-    flexGrow: 1,
-    padding: '8px 12px',
-    fontSize: '13px',
-    borderRadius: '5px',
-    border: isValid ? '1.8px solid #dd5e14ff' : '1.8px solid #bbb',
-    outline: 'none',
-    transition: 'border-color 0.25s',
-    boxShadow: isValid ? '0 0 5px #dd5e14ff' : 'none',
-    textTransform: 'uppercase',
-  }}
-  onFocus={e => e.target.style.borderColor = '#dd5e14ff'}
-  onBlur={e => e.target.style.borderColor = isValid ? '#dd5e14ff' : '#bbb'}
-/>
-
+        <input
+          type="text"
+          placeholder="Enter coupon code"
+          value={couponCode}
+          onChange={e => setCouponCode(e.target.value.toUpperCase())}
+          onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
+          disabled={loading}
+          style={{
+            flexGrow: 1,
+            padding: '8px 12px',
+            fontSize: '13px',
+            borderRadius: '5px',
+            border: isValid ? '1.8px solid #dd5e14ff' : '1.8px solid #bbb',
+            outline: 'none',
+            transition: 'border-color 0.25s',
+            boxShadow: isValid ? '0 0 5px #dd5e14ff' : 'none',
+            textTransform: 'uppercase',
+          }}
+        />
         <button
           onClick={handleApplyCoupon}
           disabled={loading}
@@ -98,10 +83,7 @@ export default function CouponDiscount({ onApplyCoupon }) {
             fontSize: '13px',
             cursor: loading ? 'not-allowed' : 'pointer',
             transition: 'background-color 0.25s',
-            userSelect: 'none',
           }}
-          onMouseEnter={e => !loading && (e.target.style.backgroundColor = '#dd5e14ff')}
-          onMouseLeave={e => !loading && (e.target.style.backgroundColor = '#036830ff')}
         >
           {loading ? 'Checking...' : 'Apply'}
         </button>
@@ -112,7 +94,7 @@ export default function CouponDiscount({ onApplyCoupon }) {
           marginTop: '10px',
           padding: '8px 12px',
           borderRadius: '5px',
-          color: isValid ? '#004085' : '#000000ff',
+          color: isValid ? '#004085' : '#000',
           backgroundColor: isValid ? '#cce5ff' : '#f3b49bff',
           border: `1px solid ${isValid ? '#b8daff' : '#f3b49bff'}`,
           fontWeight: '600',
@@ -136,7 +118,6 @@ export default function CouponDiscount({ onApplyCoupon }) {
             fontWeight: '700',
             fontSize: '14px',
             textAlign: 'center',
-            userSelect: 'none',
           }}
         >
           {discountData.discount_type === 'percent'
