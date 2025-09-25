@@ -285,14 +285,25 @@ const AppContent = () => {
                    {/* <Route path="/product/:slug" element={<ProductRouteWrapper />} />  */}
 
                     <Route path="/cart" element={<CartPage />} />
-                    <Route
+                    {/* <Route
                       path="/checkout"
                       element={
                         <ProtectedRoute>
                           <CheckoutPage />
                         </ProtectedRoute>
                       }
+                    /> */}
+
+
+                      <Route
+                      path="/checkout"
+                      element={
+                      
+                          <CheckoutPage />
+                
+                      }
                     />
+
                     <Route
                       path="/myaccount/*"
                       element={

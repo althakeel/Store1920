@@ -190,3 +190,15 @@
   right: 20px;
   z-index: 1000;
 }
+
+@media (max-width: 768px) {
+  .pc-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 10px; /* optional: reduce gap on mobile */
+  }
+
+  .pc-card-image {
+    width: 100%;
+    height: 180px; /* adjust image height for smaller screens */
+  }
+}

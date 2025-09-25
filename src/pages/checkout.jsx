@@ -5,7 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import CheckoutLeft from '../components/CheckoutLeft';
 import CheckoutRight from '../components/CheckoutRight';
-import SignInModal from '../components/sub/SignInModal';
+// import SignInModal from '../components/sub/SignInModal';
 import '../assets/styles/checkout.css';
 
 const API_BASE = 'https://db.store1920.com/wp-json/wc/v3';
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
 
   const [orderId, setOrderId] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showSignInModal, setShowSignInModal] = useState(false);
+  // const [showSignInModal, setShowSignInModal] = useState(false);
   const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [error, setError] = useState('');
 
@@ -349,40 +349,74 @@ useEffect(() => {
   </div>
 </div>
 
-  return (
-    <>
-      <div className="checkoutGrid" style={{ minHeight: '100vh', overflowY: 'auto' }}>
-        <CheckoutLeft
-          countries={countries}
-          cartItems={cartItems}
-          subtotal={subtotal}
-          orderId={orderId}
-          formData={formData}
-          setFormData={setFormData}
-          handlePlaceOrder={handlePlaceOrder}
-          createOrder={createOrder}
-        />
-        <CheckoutRight
-          cartItems={cartItems}
-          formData={formData}
-          orderId={orderId}
-          createOrder={createOrder}
-          clearCart={() => setCartItems([])}
-          handlePlaceOrder={handlePlaceOrder}
-          subtotal={subtotal}
-        />
-      </div>
+  // return (
+  //   <>
+  //     <div className="checkoutGrid" style={{ minHeight: '100vh', overflowY: 'auto' }}>
+  //       <CheckoutLeft
+  //         countries={countries}
+  //         cartItems={cartItems}
+  //         subtotal={subtotal}
+  //         orderId={orderId}
+  //         formData={formData}
+  //         setFormData={setFormData}
+  //         handlePlaceOrder={handlePlaceOrder}
+  //         createOrder={createOrder}
+  //       />
+  //       <CheckoutRight
+  //         cartItems={cartItems}
+  //         formData={formData}
+  //         orderId={orderId}
+  //         createOrder={createOrder}
+  //         clearCart={() => setCartItems([])}
+  //         handlePlaceOrder={handlePlaceOrder}
+  //         subtotal={subtotal}
+  //       />
+  //     </div>
 
-      {alert.message && <div className={`checkout-alert ${alert.type}`}>{alert.message}</div>}
+  //     {alert.message && <div className={`checkout-alert ${alert.type}`}>{alert.message}</div>}
 
-      {showSignInModal && (
-        <SignInModal
-          onClose={() => setShowSignInModal(false)}
-          onLoginSuccess={() => setShowSignInModal(false)}
-        />
-      )}
+  //     {showSignInModal && (
+  //       <SignInModal
+  //         onClose={() => setShowSignInModal(false)}
+  //         onLoginSuccess={() => setShowSignInModal(false)}
+  //       />
+  //     )}
 
-      {error && <div className="error-message">{error}</div>}
-    </>
-  );
+  //     {error && <div className="error-message">{error}</div>}
+  //   </>
+  // );
+
+return (
+  <>
+    <div className="checkoutGrid" style={{ minHeight: '100vh', overflowY: 'auto' }}>
+      <CheckoutLeft
+        countries={countries}
+        cartItems={cartItems}
+        subtotal={subtotal}
+        orderId={orderId}
+        formData={formData}
+        setFormData={setFormData}
+        handlePlaceOrder={handlePlaceOrder}
+        createOrder={createOrder}
+      />
+      <CheckoutRight
+        cartItems={cartItems}
+        formData={formData}
+        orderId={orderId}
+        createOrder={createOrder}
+        clearCart={() => setCartItems([])}
+        handlePlaceOrder={handlePlaceOrder}
+        subtotal={subtotal}
+      />
+    </div>
+
+    {alert.message && <div className={`checkout-alert ${alert.type}`}>{alert.message}</div>}
+
+    {error && <div className="error-message">{error}</div>}
+  </>
+);
+
+
+
+
 }
