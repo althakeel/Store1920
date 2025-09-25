@@ -45,8 +45,8 @@ const staticProducts = [
 
     bundles: [
       { type: 'Buy 1', discount: 0, price: 69.9, originalPrice: 69.9,image: Product1 },
-      { type: 'Bundle of 2', discount: 10, price: 125.82, originalPrice: 139.8, note: 'Perfect for you & a friend', mostPopular: true, image: Product3 },
-      { type: 'Bundle of 3', discount: 25, price: 157.27, originalPrice: 209.7, note: 'Get 25% OFF', image: Product3 },
+      { type: 'Bundle of 2', discount: 10, price: 125.8, originalPrice: 139.8, note: 'Perfect for you & a friend', mostPopular: true, image: Product3 },
+      { type: 'Bundle of 3', discount: 25, price: 157.2, originalPrice: 209.7, note: 'Get 25% OFF', image: Product3 },
     ],
 
     section2contentTitle: 'Reveal the Power of Clean, Anytime, Anywhere',

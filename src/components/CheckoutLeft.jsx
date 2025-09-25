@@ -98,7 +98,7 @@ useEffect(() => {
   if (!hasAddress) {
     setShowForm(true);
   }
-}, []); // <-- empty dependency array so it only runs once
+}, []); 
 
 
   // -------------------------------
