@@ -12,7 +12,7 @@ import { getProductsByTagSlugs, getFirstVariation, getCurrencySymbol } from '../
 
 const PRODUCTS_PER_PAGE = 24;
 const TITLE_LIMIT = 35;
-const NEW_TAG_SLUG = 'new-arrival'; // handled on PHP side
+const NEW_TAG_SLUG = 'new-arrival'; 
 
 // ===================== Utilities =====================
 const decodeHTML = (html) => {

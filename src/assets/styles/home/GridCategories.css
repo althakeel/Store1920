@@ -276,7 +276,7 @@
     gap: 10px;
   }
   .gcx-product-card img {
-    height: 100px; /* smaller images to fit mobile */
+    height: auto; /* smaller images to fit mobile */
   }
   .gcx-product-card {
     padding: 8px;

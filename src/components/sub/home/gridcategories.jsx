@@ -31,10 +31,34 @@ const staticCategories = [
 
 // Initial placeholder products (shown instantly)
 const initialProductPlaceholders = [
-  { id: 1, name: "IP68 Universal Waterproof Phone Cases Bag For iP", price: "8.16",  images: [{ src: Static1 }]  },
-  { id: 2, name: "iBudim Bike Phone Holder 360 Rotation Bicycle Phone Holder for 4.7-7.0 inc", price: "22.17", images: [{ src: Static2 }] },
-  { id: 3, name: "Portable Mini Selfie Fill Light Rechargeable 3 Modes Adjustable Brightness C", price: "58.16", images: [{ src: Static3 }] },
-  { id: 4, name: "Multifunction 6 in 1 OTG SD Card Reader USB2.0 Type-C/TF/SD Memory Card ", price: "11.47", images: [{ src: Static4 }] },
+  { 
+    id: 1, 
+    slug: "ip68-universal-waterproof-phone-cases-bag-for-iphone-16-15-14-13-12-11-pro-max-x-xiaomi-samsung-s24-ultra-swim-cover-accessories", 
+    name: "IP68 Universal Waterproof Phone Cases Bag For iP", 
+    price: "8.16",  
+    images: [{ src: Static1 }]  
+  },
+  { 
+    id: 2, 
+    slug: "ibudim-bike-phone-holder-360-rotation-bicycle-phone-holder-for-4-7-7-0-inch-devices-motorcycle-handlebar-mobile-phone-stand", 
+    name: "iBudim Bike Phone Holder 360 Rotation Bicycle Phone Holder for 4.7-7.0 inc", 
+    price: "22.17", 
+    images: [{ src: Static2 }] 
+  },
+  { 
+    id: 3, 
+    slug: "portable-mini-selfie-fill-light-rechargeable-3-modes-adjustable-brightness-clip-on-for-mobile-phone-make-up-computer-fill-light", 
+    name: "Portable Mini Selfie Fill Light Rechargeable 3 Modes Adjustable Brightness C", 
+    price: "58.16", 
+    images: [{ src: Static3 }] 
+  },
+  { 
+    id: 4, 
+    slug: "multifunction-6-in-1-otg-sd-card-reader-usb2-0-type-c-tf-sd-memory-card-smart-cardreader-for-laptop-accessories-adapter", 
+    name: "Multifunction 6 in 1 OTG SD Card Reader USB2.0 Type-C/TF/SD Memory Card", 
+    price: "11.47", 
+    images: [{ src: Static4 }] 
+  },
 ];
 
 // Countdown hook
@@ -159,7 +183,8 @@ const GridCategories = () => {
               prod.name?.length > 22 ? prod.name.substring(0, 22) + "…" : prod.name || "Loading...";
 
             return (
-              <div key={prod.id || `ph-${idx}`} className="gcx-product-card">
+              <div key={prod.id || `ph-${idx}`} className="gcx-product-card"
+                onClick={() => prod.id && navigate(`/product/${prod.slug}`)}>
                 <img
                   src={prod?.images?.[0]?.src || PlaceHolderImage}
                   alt={prod?.name || "Product"}
