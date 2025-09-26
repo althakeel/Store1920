@@ -14,7 +14,7 @@ import { API_BASE, CONSUMER_KEY, CONSUMER_SECRET } from "../../../api/woocommerc
 import ProductCardReviews from "../../temp/productcardreviews";
 import Product1 from '../../../assets/images/staticproducts//pressurewasher/1.webp';
 import Product2 from '../../../assets/images/staticproducts/airbed/1.webp'
-import product3 from '../../../assets/images/staticproducts/'
+import product3 from '../../../assets/images/staticproducts/paintspray/14.webp'
 
 const PAGE_SIZE = 10;
 const INITIAL_VISIBLE = 30;
@@ -106,9 +106,9 @@ const staticProducts = [
     sold: 195,
   },
 ];
+ 
 
-
-const staticPositions = [2, 11];
+const staticPositions = [2, 11 ,15 ];
 
 const ProductCategory = () => {
   const { addToCart, cartItems } = useCart();
