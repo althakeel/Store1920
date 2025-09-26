@@ -9,15 +9,13 @@ import '../assets/styles/cart.css';
 export default function CartPage() {
   const { cartItems } = useCart();
   const [discount, setDiscount] = useState(0);
-  const [sidebarTop, setSidebarTop] = useState(20); // top spacing
+  const [sidebarTop, setSidebarTop] = useState(20);
 
   useEffect(() => {
     const handleResize = () => {
-      // dynamically calculate top if needed (header height etc.)
-      const headerHeight = 20; // adjust if you have a header
+      const headerHeight = 20; // adjust if you have a fixed header
       setSidebarTop(headerHeight + 20);
     };
-
     window.addEventListener('resize', handleResize);
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
@@ -32,6 +30,7 @@ export default function CartPage() {
   return (
     <div className="cartPageWrapper">
       <div className="cartGrid">
+        {/* Left Column */}
         <section className="cartLeft">
           <CartMessages />
           <h2>Shopping Cart</h2>
@@ -45,20 +44,33 @@ export default function CartPage() {
           <ProductsUnder20AED />
         </section>
 
+        {/* Right Column - Sticky Sidebar */}
         <aside className="cartRightWrapper">
-  <div
-    className="cartRight"
-    style={{ top: `${sidebarTop}px` }}
-  >
-    <OrderSummary
-      subtotal={subtotal}
-      discount={discount}
-      total={total}
-      onCheckout={() => (window.location.href = '/checkout')}
-    />
-  </div>
-</aside>
+          <div
+            className="cartRightFixed"
+            style={{ top: `${sidebarTop}px` }}
+          >
+            <OrderSummary
+              subtotal={subtotal}
+              discount={discount}
+              total={total}
+              onCheckout={() => (window.location.href = '/checkout')}
+            />
+          </div>
+        </aside>
       </div>
+
+      {/* Mobile Floating Checkout Button */}
+      {cartItems.length > 0 && (
+  <div className="mobileCheckoutBtnWrapper">
+    <button
+      className="checkoutBtn"
+      onClick={() => (window.location.href = '/checkout')}
+    >
+      Go to Checkout
+    </button>
+  </div>
+)}
     </div>
   );
 }

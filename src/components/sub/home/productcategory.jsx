@@ -13,10 +13,12 @@ import { throttle } from "lodash";
 import { API_BASE, CONSUMER_KEY, CONSUMER_SECRET } from "../../../api/woocommerce";
 import ProductCardReviews from "../../temp/productcardreviews";
 import Product1 from '../../../assets/images/staticproducts//pressurewasher/1.webp';
+import Product2 from '../../../assets/images/staticproducts/airbed/1.webp'
 
 const PAGE_SIZE = 10;
-const PRODUCTS_PER_PAGE = 30;
-const MAX_PRODUCTS = 500;
+const INITIAL_VISIBLE = 30;
+const PRODUCT_FETCH_LIMIT = 20;
+const MAX_PRODUCTS = 5000;
 
 // Utility to decode HTML entities
 const decodeHTML = (html) => {
@@ -49,6 +51,8 @@ const Price = ({ value, className }) => {
   );
 };
 
+
+
 // Shuffle Array
 const shuffleArray = (array) => {
   const arr = [...array];
@@ -61,19 +65,31 @@ const shuffleArray = (array) => {
 
 // Static Products
 const staticProducts = [
-
   {
-    id: " 68V Cordless Portable Car Wash Pressure Washer Gun with Dual ",
-    name: "68V Cordless Portable Car Wash Pressure Washer Gun with Dual ",
-    price: "299.00",
+    id: "68V Cordless Portable Car Wash Pressure Washer Gun with Dual",
+    name: "68V Cordless Portable Car Wash Pressure Washer Gun with Dual",
+    price: "89.00",
     regular_price: "89.90",
     sale_price: "149.00",
     images: [{ src: Product1 }],
-     slug: "68v-cordless-portable-car-wash-pressure-washer-gun-with-dual",
+    slug: "68v-cordless-portable-car-wash-pressure-washer-gun-with-dual",
     path: "/products/68v-cordless-portable-car-wash-pressure-washer-gun-with-dual",
     rating: 4,
     reviews: 18,
     sold: 120
+  },
+    {
+    id: "twin-size-air-mattress-with-built-in-rechargeable-pump-16-self-inflating-blow-up-bed-for-home-camping-guests",
+    name: "Twin Size Air Mattress with Built-in Rechargeable Pump – 16 Self-Inflating Blow Up Bed for Home, Camping & Guests",
+    price: "139.00",
+    regular_price: "189.0",
+    sale_price: "139.00",
+    images: [{ src:Product2 }],
+    slug: "twin-size-air-mattress-with-built-in-rechargeable-pump-16-self-inflating-blow-up-bed-for-home-camping-guests",
+    path: "/products/twin-size-air-mattress-with-built-in-rechargeable-pump-16-self-inflating-blow-up-bed-for-home-camping-guests",
+    rating: 5,
+    reviews: 45,
+    sold: 135,
   },
 ];
 
@@ -90,11 +106,6 @@ const ProductCategory = () => {
   const [hasMoreCategories, setHasMoreCategories] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(false);
 
-  const [products, setProducts] = useState([]);
-  const [productsPage, setProductsPage] = useState(1);
-  const [hasMoreProducts, setHasMoreProducts] = useState(true);
-  const [loadingProducts, setLoadingProducts] = useState(false);
-
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [badgeText, setBadgeText] = useState("MEGA OFFER");
   const [animate, setAnimate] = useState(true);
@@ -104,30 +115,27 @@ const ProductCategory = () => {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const [visibleCount, setVisibleCount] = useState(30); 
-
-  // check if current category has "Enable Mega Offer"
-
-
+  const [allProducts, setAllProducts] = useState([]); // fetched products
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const hasMoreProducts = visibleCount < allProducts.length;
 
   // Fetch categories
-const fetchCategories = useCallback(async (page = 1) => {
-  setLoadingCategories(true);
-  try {
-    const res = await fetch(
-      `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PAGE_SIZE}&page=${page}&orderby=name`
-    );
-    const data = await res.json();
-    // now each category has enable_offer
-    setCategories((prev) => (page === 1 ? data : [...prev, ...data]));
-    setHasMoreCategories(data.length === PAGE_SIZE);
-  } catch {
-    setHasMoreCategories(false);
-  } finally {
-    setLoadingCategories(false);
-  }
-}, []);
-
+  const fetchCategories = useCallback(async (page = 1) => {
+    setLoadingCategories(true);
+    try {
+      const res = await fetch(
+        `${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PAGE_SIZE}&page=${page}&orderby=name`
+      );
+      const data = await res.json();
+      setCategories(prev => (page === 1 ? data : [...prev, ...data]));
+      setHasMoreCategories(data.length === PAGE_SIZE);
+    } catch {
+      setHasMoreCategories(false);
+    } finally {
+      setLoadingCategories(false);
+    }
+  }, []);
 
   // Badge animation
   useEffect(() => {
@@ -145,71 +153,58 @@ const fetchCategories = useCallback(async (page = 1) => {
   }, []);
 
   // Fetch products
-// Fetch products
-const fetchProducts = useCallback(
-  async (page = 1, categoryId) => {
+  const fetchProducts = useCallback(async (categoryId) => {
+    setVisibleCount(INITIAL_VISIBLE);
+    setAllProducts([]);
     setLoadingProducts(true);
     try {
-      let sortedData = [];
+      let fetchedProducts = [];
 
       if (categoryId === "all") {
-        const catRes = await fetch(`${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=20`);
+        const catRes = await fetch(`${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=30`);
         const categoriesData = await catRes.json();
 
         const productPromises = categoriesData.map(cat =>
-          fetch(`${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=5&page=1&category=${cat.id}&_fields=id,slug,name,images,price,regular_price,sale_price,date_created`)
+          fetch(`${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCT_FETCH_LIMIT}&_fields=id,slug,name,images,price,regular_price,sale_price,date_created&category=${cat.id}`)
             .then(res => res.json())
             .catch(() => [])
         );
 
         const allProductsArrays = await Promise.all(productPromises);
-        const mixedProducts = allProductsArrays.flat();
-
-        if (mixedProducts.length > 0) {
-          const newestProduct = mixedProducts.reduce((latest, prod) => new Date(prod.date_created) > new Date(latest.date_created) ? prod : latest, mixedProducts[0]);
-          const olderProducts = mixedProducts.filter(p => p.id !== newestProduct.id);
-          sortedData = [...shuffleArray(olderProducts), newestProduct];
-        }
+        fetchedProducts = allProductsArrays.flat().slice(0, MAX_PRODUCTS);
       } else {
-        let url = `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCTS_PER_PAGE}&page=${page}&_fields=id,slug,name,images,price,regular_price,sale_price,date_created&orderby=date&order=asc`;
-        if (categoryId !== "all") url += `&category=${categoryId}`;
-
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (data.length > 0) {
-          const newestProduct = data[data.length - 1];
-          const olderProducts = shuffleArray(data.slice(0, data.length - 1));
-          sortedData = [...olderProducts, newestProduct];
+        let page = 1;
+        while (fetchedProducts.length < MAX_PRODUCTS) {
+          const res = await fetch(`${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCT_FETCH_LIMIT}&page=${page}&category=${categoryId}&_fields=id,slug,name,images,price,regular_price,sale_price,date_created`);
+          const data = await res.json();
+          if (!data.length) break;
+          fetchedProducts.push(...data);
+          page++;
         }
+        fetchedProducts = fetchedProducts.slice(0, MAX_PRODUCTS);
       }
 
-      // ✅ Append products and calculate hasMoreProducts correctly
-      setProducts(prev => {
-        const newProducts = page === 1 ? sortedData : [...prev, ...sortedData];
-        setHasMoreProducts(sortedData.length > 0 && newProducts.length < MAX_PRODUCTS);
-        return newProducts;
-      });
-    } catch {
-      setHasMoreProducts(false);
+      if (fetchedProducts.length > 0) {
+        const newestProduct = fetchedProducts.reduce((latest, prod) =>
+          new Date(prod.date_created) > new Date(latest.date_created) ? prod : latest
+        , fetchedProducts[0]);
+        const olderProducts = fetchedProducts.filter(p => p.id !== newestProduct.id);
+setAllProducts([...olderProducts, newestProduct]);
+      } else {
+        setAllProducts([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setAllProducts([]);
     } finally {
       setLoadingProducts(false);
     }
-  },
-  [selectedCategoryId]
-);
-
-
+  }, []);
 
   // Initial fetch
   useEffect(() => {
-    if (!isHomePage) return;
-    setProducts([]);
-    setProductsPage(1);
-      setVisibleCount(30);  
-    fetchProducts(1, selectedCategoryId);
-    fetchCategories(1);
-  }, [isHomePage, selectedCategoryId, fetchProducts, fetchCategories]);
+    fetchProducts(selectedCategoryId);
+  }, [selectedCategoryId, fetchProducts]);
 
   // Arrow visibility for categories scroll
   const updateArrowVisibility = useCallback(() => {
@@ -229,13 +224,9 @@ const fetchProducts = useCallback(
   }, [categories, updateArrowVisibility]);
 
   // Load more products
-const loadMoreProducts = useCallback(() => {
-  if (loadingProducts || !hasMoreProducts) return;
-  const nextPage = productsPage + 1;
-  setProductsPage(nextPage);
-  fetchProducts(nextPage, selectedCategoryId);
-}, [loadingProducts, hasMoreProducts, productsPage, fetchProducts, selectedCategoryId]);
-
+  const loadMoreProducts = () => {
+    setVisibleCount(prev => Math.min(prev + 30, allProducts.length));
+  };
 
   // Fly to cart animation
   const flyToCart = (e, imgSrc) => {
@@ -266,102 +257,56 @@ const loadMoreProducts = useCallback(() => {
     setTimeout(() => clone.remove(), 800);
   };
 
-  // Handle product click
-  const handleProductClick = (product) => {
-    setProducts((prev) => {
-      if (!prev.length) return prev;
-      const newestProduct = prev[prev.length - 1];
-      const olderProducts = prev.slice(0, prev.length - 1);
-      const newOlderProducts = [product, ...olderProducts.filter((p) => p.id !== product.id)];
-      return [...newOlderProducts, newestProduct];
-    });
-
-    window.open(`/product/${product.slug}`, "_blank");
-  };
-
-  // Merge static + dynamic products
-const getMergedProducts = () => {
-  const merged = [...products];
-  staticPositions.forEach((pos, i) => {
-    if (i < staticProducts.length && pos <= merged.length) {
-      merged.splice(pos, 0, { ...staticProducts[i], isStatic: true });
-    }
-  });
-  return merged;
+const handleProductClick = (product) => {
+  if (product.isStatic) {
+    navigate(product.path || `/products/${product.slug}`);
+  } else {
+    navigate(`/product/${product.slug}`);
+  }
+  window.scrollTo(0, 0);
 };
 
-const selectedCategory = categories.find(c => c.id === selectedCategoryId);
-const showMegaOffer = selectedCategory?.enable_offer;
-  // Render Products
+
+  const getMergedProducts = () => {
+    const merged = [...allProducts];
+    staticPositions.forEach((pos, i) => {
+      if (i < staticProducts.length && pos <= merged.length) {
+        merged.splice(pos, 0, { ...staticProducts[i], isStatic: true });
+      }
+    });
+    return merged;
+  };
+
+
+  
+  const selectedCategory = categories.find(c => c.id === selectedCategoryId);
+  const showMegaOffer = selectedCategory?.enable_offer;
+
   const renderProducts = () => {
     const mergedProducts = getMergedProducts();
-return mergedProducts.slice(0, visibleCount).map((p, index) => {
+    return mergedProducts.slice(0, visibleCount).map((p, index) => {
+      // Static product card
       if (p.isStatic) {
         return (
-          <div
-            key={p.id}
-            className="pcus-prd-card static-product-card"
-            onClick={() => p.path && (window.location.href = p.path)}
-            style={{ cursor: "pointer", position: "relative" }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                top: "8px",
-                right: "8px",
-                backgroundColor: "#ff6207",
-                color: "#fff",
-                fontSize: "10px",
-                fontWeight: "bold",
-                padding: "2px 6px",
-                borderRadius: "4px",
-                zIndex: 2,
-              }}
-            >
-              Fast Moving
-            </div>
-
+          <div key={p.id} className="pcus-prd-card static-product-card"  onClick={() => handleProductClick(p)}  style={{ cursor: "pointer", position: "relative" }}>
+            <div style={{ position: "absolute", top: "8px", right: "8px", backgroundColor: "#ff6207", color: "#fff", fontSize: "10px", fontWeight: "bold", padding: "2px 6px", borderRadius: "4px", zIndex: 2 }}>Fast Moving</div>
             <div className="pcus-image-wrapper" style={{ position: "relative" }}>
-              <img
-                src={p.images[0].src}
-                alt={decodeHTML(p.name)}
-                className="pcus-prd-image1 primary-img"
-              />
+              <img src={p.images[0].src} alt={decodeHTML(p.name)} className="pcus-prd-image1 primary-img" />
             </div>
-
             <div className="pcus-prd-info12">
               <h2 className="pcus-prd-title1">{decodeHTML(p.name)}</h2>
-              <div
-                className="pcus-prd-dummy-reviews"
-                style={{ display: "flex", alignItems: "center", margin: "0px 5px" }}
-              >
-                <div style={{ color: "#FFD700", marginRight: "8px" }}>
-                  {"★".repeat(p.rating)}{"☆".repeat(5 - p.rating)}
-                </div>
-                <div style={{ fontSize: "12px", color: "#666", marginRight: "8px" }}>
-                  ({p.reviews})
-                </div>
+              <div className="pcus-prd-dummy-reviews" style={{ display: "flex", alignItems: "center", margin: "0px 5px" }}>
+                <div style={{ color: "#FFD700", marginRight: "8px" }}>{"★".repeat(p.rating)}{"☆".repeat(5 - p.rating)}</div>
+                <div style={{ fontSize: "12px", color: "#666", marginRight: "8px" }}>({p.reviews})</div>
                 <div style={{ fontSize: "12px", color: "#666" }}>{p.sold} sold</div>
               </div>
-              <div
-                style={{
-                  height: "1px",
-                  width: "100%",
-                  backgroundColor: "lightgrey",
-                  margin: "0px 0 2px 0",
-                  borderRadius: "1px",
-                }}
-              />
+              <div style={{ height: "1px", width: "100%", backgroundColor: "lightgrey", margin: "0px 0 2px 0", borderRadius: "1px" }} />
               <div className="prc-row-abc123">
                 <div className="prc-left-abc123">
-                                  <img src={IconAED} alt="AED" style={{ width: "auto", height: "12px", marginRight: "0px", verticalAlign: "middle" }} />
+                  <img src={IconAED} alt="AED" style={{ width: "auto", height: "12px", marginRight: "0px", verticalAlign: "middle" }} />
                   <Price value={p.sale_price} className="prc-sale-abc123" />
                   <Price value={p.regular_price} className="prc-regular-abc123" />
-                  {p.sale_price < p.regular_price && (
-                    <span className="prc-off-abc123">
-                      {Math.round(((p.regular_price - p.sale_price) / p.regular_price) * 100)}% Off
-                    </span>
-                  )}
+                  {p.sale_price < p.regular_price && <span className="prc-off-abc123">{Math.round(((p.regular_price - p.sale_price) / p.regular_price) * 100)}% Off</span>}
                 </div>
               </div>
               <div className="prc-row-badge-btn">
@@ -373,6 +318,7 @@ return mergedProducts.slice(0, visibleCount).map((p, index) => {
         );
       }
 
+      // Regular product card
       const hasSale = p.sale_price && p.sale_price !== p.regular_price;
       return (
         <div key={p.id} className="pcus-prd-card" onClick={() => handleProductClick(p)} style={{ cursor: "pointer" }}>
@@ -384,11 +330,9 @@ return mergedProducts.slice(0, visibleCount).map((p, index) => {
               <img src={PlaceholderImage} alt={decodeHTML(p.name)} className="pcus-prd-image1 secondary-img" />
             )}
             {hasSale && <span className="pcus-prd-discount-box1">-{Math.round(((parseFloat(p.regular_price) - parseFloat(p.sale_price)) / parseFloat(p.regular_price)) * 100)}% OFF</span>}
-           {showMegaOffer && index === 0 && (
+            {showMegaOffer && index === 0 && (
               <div className="mega-offer-badge">
-                <span className="mega-offer-text" style={{ transform: animate ? "translateY(0)" : "translateY(100%)", opacity: animate ? 1 : 0, display: "inline-block" }}>
-                  {badgeText}
-                </span>
+                <span className="mega-offer-text" style={{ transform: animate ? "translateY(0)" : "translateY(100%)", opacity: animate ? 1 : 0, display: "inline-block" }}>{badgeText}</span>
               </div>
             )}
           </div>
@@ -427,6 +371,14 @@ return mergedProducts.slice(0, visibleCount).map((p, index) => {
       );
     });
   };
+useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
+
+  // Add this useEffect to fetch categories initially
+useEffect(() => {
+  fetchCategories(1);
+}, [fetchCategories]);
 
   return (
     <div className="pcus-wrapper3" style={{ display: "flex" }}>
@@ -438,9 +390,7 @@ return mergedProducts.slice(0, visibleCount).map((p, index) => {
 
         {/* Categories */}
         <div className="pcus-categories-wrapper1 pcus-categories-wrapper3">
-          {canScrollLeft && (
-            <button className="pcus-arrow-btn" onClick={() => categoriesRef.current.scrollBy({ left: -200, behavior: "smooth" })}>‹</button>
-          )}
+          {canScrollLeft && <button className="pcus-arrow-btn" onClick={() => categoriesRef.current.scrollBy({ left: -200, behavior: "smooth" })}>‹</button>}
           <div className="pcus-categories-scroll" ref={categoriesRef}>
             <button className={`pcus-category-btn ${selectedCategoryId === "all" ? "active" : ""}`} onClick={() => setSelectedCategoryId("all")}>Recommended</button>
             {categories.map((cat) => (
@@ -463,51 +413,44 @@ return mergedProducts.slice(0, visibleCount).map((p, index) => {
               </button>
             )}
           </div>
-          {canScrollRight && (
-            <button className="pcus-arrow-btn" onClick={() => categoriesRef.current.scrollBy({ left: 200, behavior: "smooth" })}>›</button>
-          )}
+          {canScrollRight && <button className="pcus-arrow-btn" onClick={() => categoriesRef.current.scrollBy({ left: 200, behavior: "smooth" })}>›</button>}
         </div>
 
         {/* Products */}
-        {loadingProducts && products.length === 0 ? (
-          <div className="pcus-prd-grid001">{Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}</div>
-        ) : products.length === 0 ? (
-          <div className="pcus-no-products" style={{ minHeight: "300px", textAlign: "center", paddingTop: "40px", fontSize: "18px", color: "#666" }}>No products found.</div>
+        {loadingProducts ? (
+          <div className="pcus-prd-grid001">
+            {Array(10).fill(0).map((_, idx) => <SkeletonCard key={idx} />)}
+          </div>
+        ) : allProducts.length === 0 ? (
+          <div className="pcus-no-products" style={{ minHeight: "300px", textAlign: "center", paddingTop: "40px", fontSize: "18px", color: "#666" }}>
+            No products found.
+          </div>
         ) : (
-          <>
-            <div className="pcus-prd-grid001">
-              {renderProducts()}
-              {loadingProducts && products.length > 0 && Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={`skel-${i}`} />)}
-            </div>
-
-            {/* Load More */}
-           {/* Load More */}
-<div className="pcus-load-more-wrapper" style={{ textAlign: "center", margin: "24px 0" }}>
-  {hasMoreProducts ? (
-    <button
-      className="pcus-load-more-btn"
-      onClick={loadMoreProducts}
-      disabled={loadingProducts}
-      style={{
-        padding: "10px 20px",
-        fontSize: "14px",
-        backgroundColor: "#ff6207ff",
-        color: "#fff",
-        border: "none",
-        borderRadius: "50px",
-        cursor: loadingProducts ? "not-allowed" : "pointer"
-      }}
-    >
-      {loadingProducts ? "Loading…" : "Load More"}
-    </button>
-  ) : (
-    <span style={{ color: "#666", fontSize: "14px" }}>No more products</span>
-  )}
-</div>
-
-
-          </>
+          <div className="pcus-prd-grid001">{renderProducts()}</div>
         )}
+
+        {/* Load More */}
+        <div className="pcus-load-more-wrapper" style={{ textAlign: "center", margin: "24px 0" }}>
+          {hasMoreProducts ? (
+            <button
+              className="pcus-load-more-btn"
+              onClick={loadMoreProducts}
+              style={{
+                padding: "10px 20px",
+                fontSize: "14px",
+                backgroundColor: "#ff6207ff",
+                color: "#fff",
+                border: "none",
+                borderRadius: "50px",
+                cursor: "pointer"
+              }}
+            >
+              Load More
+            </button>
+          ) : (
+            <span style={{ color: "#666", fontSize: "14px" }}>No more products</span>
+          )}
+        </div>
       </div>
       <MiniCart />
     </div>

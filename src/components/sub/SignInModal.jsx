@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "../../assets/styles/SignInModal.css";
-import { auth, googleProvider, facebookProvider } from "../../utils/firebase";
-import { signInWithPopup } from "firebase/auth";
 import { useAuth } from "../../contexts/AuthContext";
-import GoogleSignIcon from '../../assets/images/search.png';
-import FacebookIcon from '../../assets/images/facebook.png';
+import GoogleSignIcon from "../../assets/images/search.png";
+import FacebookIcon from "../../assets/images/facebook.png";
+import GoogleSignInButton from '../../components/sub/GoogleSignInButton';
 
 // ===================== Alert Component =====================
 const Alert = ({ children, onClose }) => (
@@ -17,7 +16,7 @@ const Alert = ({ children, onClose }) => (
   </div>
 );
 
-
+// ===================== Parse WordPress Error =====================
 const parseErrorMsg = (rawMsg) => {
   if (!rawMsg) return null;
   const linkMatch = rawMsg.match(/<a [^>]*>([^<]+)<\/a>/);
@@ -45,13 +44,19 @@ const parseErrorMsg = (rawMsg) => {
 const SignInModal = ({ isOpen, onClose, onLogin }) => {
   const { login } = useAuth();
   const [isRegister, setIsRegister] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "", phone: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
+  });
   const [loading, setLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const FRONTEND_URL = "https://store1920.com";
+  const WP_API = "https://db.store1920.com/wp-json";
 
   // ===================== Handlers =====================
   const handleChange = (e) => {
@@ -70,7 +75,8 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     if (!formData.email.trim()) return setErrorMsg("Email is required"), false;
     if (!formData.phone.trim()) return setErrorMsg("Phone number is required"), false;
     if (!formData.password) return setErrorMsg("Password is required"), false;
-    if (formData.password !== formData.confirmPassword) return setErrorMsg("Passwords do not match"), false;
+    if (formData.password !== formData.confirmPassword)
+      return setErrorMsg("Passwords do not match"), false;
     setErrorMsg(null);
     return true;
   };
@@ -89,14 +95,14 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     setErrorMsg(null);
 
     try {
-      const res = await axios.post("https://db.store1920.com/wp-json/custom/v1/register", {
+      const res = await axios.post(`${WP_API}/custom/v1/register`, {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
       });
 
-      const loginRes = await axios.post("https://db.store1920.com/wp-json/jwt-auth/v1/token", {
+      const loginRes = await axios.post(`${WP_API}/jwt-auth/v1/token`, {
         username: formData.email,
         password: formData.password,
       });
@@ -107,7 +113,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
           image: "",
           token: loginRes.data.token,
           id: res.data.id || res.data.user_id,
-          email: formData.email,  // <-- fix: store email
+          email: formData.email,
           user: res.data,
         };
         login(userInfo);
@@ -132,13 +138,13 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     setErrorMsg(null);
 
     try {
-      const res = await axios.post("https://db.store1920.com/wp-json/jwt-auth/v1/token", {
+      const res = await axios.post(`${WP_API}/jwt-auth/v1/token`, {
         username: formData.email,
         password: formData.password,
       });
 
       if (res.data?.token) {
-        const profileRes = await axios.get("https://db.store1920.com/wp-json/wp/v2/users/me", {
+        const profileRes = await axios.get(`${WP_API}/wp/v2/users/me`, {
           headers: { Authorization: `Bearer ${res.data.token}` },
         });
 
@@ -147,7 +153,7 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
           image: "",
           token: res.data.token,
           id: profileRes.data.id,
-          email: formData.email,  // <-- fix: store email
+          email: formData.email,
           user: profileRes.data,
         };
 
@@ -167,41 +173,10 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
     }
   };
 
-  const handleSocialLogin = async (providerType) => {
-    setSocialLoading(true);
-    setErrorMsg(null);
-
-    try {
-      const provider = providerType === "google" ? googleProvider : facebookProvider;
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const idToken = await user.getIdToken();
-
-      const res = await axios.post("https://db.store1920.com/wp-json/firebase/v1/verify_token", { idToken });
-
-      if (res.data?.token) {
-        const userInfo = {
-          name: user.displayName,
-          image: user.photoURL,
-          token: res.data.token,
-          user: { id: res.data.user_id, email: res.data.email },
-          id: res.data.user_id,
-          email: res.data.email,  // <-- fix: store email
-        };
-        login(userInfo);
-        localStorage.setItem("userId", userInfo.id);
-        localStorage.setItem("email", userInfo.email);
-        localStorage.setItem("token", userInfo.token);
-        onLogin?.(userInfo);
-        onClose();
-      } else {
-        setErrorMsg("Could not sync with WordPress");
-      }
-    } catch (err) {
-      setErrorMsg(parseErrorMsg(err.response?.data?.message || err.message || "Social login failed"));
-    } finally {
-      setSocialLoading(false);
-    }
+  // ===================== Social Login (WordPress Nextend) =====================
+  const handleSocialLogin = (provider) => {
+    const baseUrl = "https://db.store1920.com/wp-login.php?loginSocial=";
+    window.location.href = `${baseUrl}${provider}`;
   };
 
   const handleSubmit = (e) => {
@@ -320,10 +295,9 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         </div>
 
         <div className="signin-social-icons">
-          <button onClick={() => handleSocialLogin("google")} disabled={socialLoading}>
-            <img src={GoogleSignIcon} alt="Google" />
-          </button>
-          <button onClick={() => handleSocialLogin("facebook")} disabled={socialLoading}>
+          <GoogleSignInButton onLogin={onLogin} />
+
+          <button onClick={() => handleSocialLogin("facebook")}>
             <img src={FacebookIcon} alt="Facebook" />
           </button>
           <button disabled>
@@ -337,21 +311,30 @@ const SignInModal = ({ isOpen, onClose, onLogin }) => {
         </div>
 
         <div className="signin-terms">
-          By continuing, you agree to our <a href="/terms-0f-use">Terms</a> and <a href="/privacy-policy">Privacy Policy</a>.
+          By continuing, you agree to our{" "}
+          <a href="/terms-0f-use">Terms</a> and <a href="/privacy-policy">Privacy Policy</a>.
         </div>
 
         <div className="signin-toggle-text">
           {isRegister ? (
             <>
               Already have an account?{" "}
-              <button type="button" onClick={() => setIsRegister(false)} className="signin-toggle-link">
+              <button
+                type="button"
+                onClick={() => setIsRegister(false)}
+                className="signin-toggle-link"
+              >
                 Sign In
               </button>
             </>
           ) : (
             <>
               Don’t have an account?{" "}
-              <button type="button" onClick={() => setIsRegister(true)} className="signin-toggle-link">
+              <button
+                type="button"
+                onClick={() => setIsRegister(true)}
+                className="signin-toggle-link"
+              >
                 Register
               </button>
             </>

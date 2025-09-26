@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import staticProducts from "../../data/staticProducts";
 
-const ProgressBarSection = () => {
-  const product = staticProducts[0];
-  const progressItems = product.sectionProgress || [];
+const ProgressBarSection = ({ product: propProduct }) => {
+  // Use passed product OR fallback to first static product
+  const product = propProduct || staticProducts[0];
+  const progressItems = product?.sectionProgress || [];
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -13,8 +14,15 @@ const ProgressBarSection = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  if (!product) return null; // safeguard
+
   return (
-    <div style={{ padding: isMobile ? "24px 16px" : "40px 20px", fontFamily: "Arial, sans-serif" }}>
+    <div
+      style={{
+        padding: isMobile ? "24px 16px" : "40px 20px",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
       <h2
         style={{
           textAlign: "center",
@@ -30,25 +38,31 @@ const ProgressBarSection = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", // ✅ full width on mobile
+          gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
           gap: "24px",
           maxWidth: "1100px",
           margin: "0 auto",
           width: "100%",
         }}
       >
-        {progressItems.map((item, index) => (
+        {progressItems.map((item) => (
           <div
-            key={index}
+            key={item.id || item.title}
             style={{
               background: "#fff",
               padding: isMobile ? "18px" : "24px",
               borderRadius: "16px",
               boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-              width: "100%", // ✅ ensures card fills container
+              width: "100%",
             }}
           >
-            <h3 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "6px" }}>
+            <h3
+              style={{
+                fontSize: "18px",
+                fontWeight: "700",
+                marginBottom: "6px",
+              }}
+            >
               {item.title}
             </h3>
             <p
@@ -61,6 +75,7 @@ const ProgressBarSection = () => {
             >
               {item.desc}
             </p>
+
             <div
               style={{
                 background: "#eee",
@@ -69,7 +84,7 @@ const ProgressBarSection = () => {
                 overflow: "hidden",
                 position: "relative",
                 marginBottom: "10px",
-                width: "100%", // ✅ full width progress bar
+                width: "100%",
               }}
             >
               <div

@@ -87,7 +87,7 @@ const CustomProductDetails = () => {
             style={{
               flexBasis: isMobile ? "100%" : "48%",
               minWidth: "300px",
-                  padding: isMobile ? "0 5px" : "0", // ✅ Add 10px padding only on mobile
+                  padding: isMobile ? "0 5px" : "0", 
     boxSizing: "border-box",
             }}
           >
@@ -106,7 +106,7 @@ const CustomProductDetails = () => {
               bundles={product.bundles}
               selected={selectedBundleIndex}
               setSelected={setSelectedBundleIndex}
-              onAddToCart={handleAddToCart} // ✅ Add to cart function passed
+              onAddToCart={handleAddToCart} 
             />
             <DeliveryInfo />
             <Desciption product={product} />
@@ -115,14 +115,14 @@ const CustomProductDetails = () => {
       </div>
 
       {/* Sections & Sliders */}
-      <Slider />
-      <Section2 />
-      <Section4 />
-      <Review />
-      <ProgressBarSection/>
-      <Comparison/>
-      <Slider2 />
-      <Section3 />
+      <Slider product={product} />
+      <Section2  product={product}/>
+      <Section4  product={product}/>
+      <Review  product={product}/>
+      <ProgressBarSection product={product}/>
+      <Comparison product={product}/>
+      <Slider2  product={product}/>
+      <Section3  product={product}/>
       <ProductGuarantee product={product} />
       <ProductFAQ product={product} />
       {/* <ProductFeatures product={product} /> */}

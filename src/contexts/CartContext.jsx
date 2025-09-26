@@ -8,29 +8,30 @@ const CART_OPEN_KEY = 'myapp_cartIsOpen';
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
     try {
-      const stored = localStorage.getItem(CART_ITEMS_KEY);
+      const stored = sessionStorage.getItem(CART_ITEMS_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
     }
   });
+
   const [isCartOpen, setIsCartOpen] = useState(() => {
     try {
-      const stored = localStorage.getItem(CART_OPEN_KEY);
+      const stored = sessionStorage.getItem(CART_OPEN_KEY);
       return stored ? JSON.parse(stored) : false;
     } catch {
       return false;
     }
   });
 
-  // Save cartItems to localStorage on change
+  // Save cartItems to sessionStorage
   useEffect(() => {
-    localStorage.setItem(CART_ITEMS_KEY, JSON.stringify(cartItems));
+    sessionStorage.setItem(CART_ITEMS_KEY, JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Save isCartOpen to localStorage on change
+  // Save isCartOpen to sessionStorage
   useEffect(() => {
-    localStorage.setItem(CART_OPEN_KEY, JSON.stringify(isCartOpen));
+    sessionStorage.setItem(CART_OPEN_KEY, JSON.stringify(isCartOpen));
   }, [isCartOpen]);
 
   // Auto-close cart if empty
@@ -40,32 +41,28 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems]);
 
-const addToCart = (product, showCart = true) => {
-  setCartItems((prev) => {
-    const existing = prev.find(item => 
-      item.id === product.id &&
-      JSON.stringify(item.variation || []) === JSON.stringify(product.variation || [])
-    );
-
-    if (existing) {
-      // Add the quantity from product.quantity instead of always +1
-      return prev.map(item =>
+  const addToCart = (product, showCart = true) => {
+    setCartItems((prev) => {
+      const existing = prev.find(item =>
         item.id === product.id &&
         JSON.stringify(item.variation || []) === JSON.stringify(product.variation || [])
-          ? { ...item, quantity: item.quantity + (product.quantity || 1) }
-          : item
       );
+
+      if (existing) {
+        return prev.map(item =>
+          item.id === product.id &&
+          JSON.stringify(item.variation || []) === JSON.stringify(product.variation || [])
+            ? { ...item, quantity: item.quantity + (product.quantity || 1) }
+            : item
+        );
+      }
+      return [...prev, { ...product, quantity: product.quantity || 1 }];
+    });
+
+    if (showCart) {
+      setIsCartOpen(true);
     }
-    // Add new product with its specified quantity or default 1
-    return [...prev, { ...product, quantity: product.quantity || 1 }];
-  });
-
-  if (showCart) {
-    setIsCartOpen(true);
-  }
-};
-
-  
+  };
 
   const removeFromCart = (productId) => {
     setCartItems((prev) => prev.filter(item => item.id !== productId));

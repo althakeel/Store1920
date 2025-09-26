@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 
 const ProductFAQ = ({ product }) => {
-  const faqs = [
-    { q: product.Faq1Q, a: product.fAQ1A },
-    { q: product.Faq2Q, a: product.fAQ2A },
-    { q: product.Faq3Q, a: product.fAQ3A },
-  ].filter((f) => f.q);
+  // Dynamically extract FAQ pairs from product
+  const faqs = Object.keys(product)
+    .filter((key) => key.toLowerCase().startsWith("faq") && key.toLowerCase().endsWith("q"))
+    .map((qKey) => {
+      const index = qKey.match(/\d+/)?.[0]; // get number in key, e.g., Faq1Q -> 1
+      const aKey = `fAQ${index}A`; // corresponding answer key
+      return { q: product[qKey], a: product[aKey] };
+    })
+    .filter((f) => f.q && f.a); // only include FAQs with both question & answer
 
   const [openIndex, setOpenIndex] = useState(null);
 
@@ -13,12 +17,12 @@ const ProductFAQ = ({ product }) => {
 
   const sectionStyle = {
     width: "100%",
-    backgroundColor: "#f9f6f3", // full-width background
+    backgroundColor: "#f9f6f3",
     padding: "60px 0",
   };
 
   const containerStyle = {
-    maxWidth: "1400px", // content max width
+    maxWidth: "1400px",
     margin: "0 auto",
     padding: "0 24px",
   };
@@ -59,10 +63,8 @@ const ProductFAQ = ({ product }) => {
   return (
     <div style={sectionStyle}>
       <div style={containerStyle}>
-        {/* Title */}
         <h2 style={titleStyle}>Questions? We’ve Got You Covered</h2>
 
-        {/* FAQ List */}
         <div>
           {faqs.map((faq, idx) => (
             <div
@@ -70,13 +72,10 @@ const ProductFAQ = ({ product }) => {
               style={faqItemStyle}
               onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
             >
-              {/* Question */}
               <div style={questionStyle}>
                 <span>{faq.q}</span>
-<span>{openIndex === idx ? "▲" : "▼"}</span> 
+                <span>{openIndex === idx ? "▲" : "▼"}</span>
               </div>
-
-              {/* Answer with smooth expand */}
               <div style={answerWrapperStyle(openIndex === idx)}>
                 <p style={answerStyle}>{faq.a}</p>
               </div>

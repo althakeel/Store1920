@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import staticProducts from "../../data/staticProducts"; // adjust path if needed
 
-const Section2 = () => {
-  const product = staticProducts[0]; // using first product
+const Section2 = ({ product }) => {   // ✅ take product as prop
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -12,6 +10,8 @@ const Section2 = () => {
   }, []);
 
   const isMobile = windowWidth <= 768;
+
+  if (!product) return null; // ✅ avoid crash if no product passed
 
   return (
     <div
@@ -25,22 +25,45 @@ const Section2 = () => {
         flexWrap: "wrap",
         maxWidth: "1000px",
         margin: "0 auto",
-         fontFamily: "'Poppins', sans-serif",
+        fontFamily: "'Poppins', sans-serif",
       }}
     >
       {/* LEFT SIDE */}
-      <div style={{ flex: 1, minWidth: "300px", textAlign: isMobile ? "center" : "left" }}>
-        <h2 style={{ fontSize: "28px", fontWeight: "700", marginBottom: "15px"  ,fontFamily: "'Poppins', sans-serif", }}>
-  {" "}
-          <span style={{ color: "#d77b7b" }}>{product.section2contentTitle}</span>
+      <div
+        style={{
+          flex: 1,
+          minWidth: "300px",
+          textAlign: isMobile ? "center" : "left",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "28px",
+            fontWeight: "700",
+            marginBottom: "15px",
+            fontFamily: "'Poppins', sans-serif",
+          }}
+        >
+          <span style={{ color: "#d77b7b" }}>
+            {product.section2contentTitle}
+          </span>
         </h2>
 
-        <p style={{ fontSize: "16px", color: "#000000ff", lineHeight: "1.6",fontWeight:'normal', marginBottom: "20px", fontFamily: "'Poppins', sans-serif",}}>
+        <p
+          style={{
+            fontSize: "16px",
+            color: "#000000ff",
+            lineHeight: "1.6",
+            fontWeight: "normal",
+            marginBottom: "20px",
+            fontFamily: "'Poppins', sans-serif",
+          }}
+        >
           {product.section2contentDesc}
         </p>
 
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-          {product.section2list.map((point, index) => (
+          {product.section2list?.map((point, index) => (
             <li
               key={index}
               style={{
@@ -73,37 +96,6 @@ const Section2 = () => {
           }}
         />
       </div>
-
-      {/* ICON ROW BELOW */}
-      {/* <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          alignItems: "center",
-          width: "100%",
-          marginTop: "40px",
-          gap: "20px",
-        }}
-      >
-        {[
-          { icon: "💆‍♀️", text: "Transform your skincare" },
-          { icon: "✔️", text: "Clinically proven results" },
-          { icon: "💧", text: "Enhances product absorption" },
-          { icon: "✨", text: "Radiant, youthful skin" },
-        ].map((item, index) => (
-          <div
-            key={index}
-            style={{
-              textAlign: "center",
-              flex: isMobile ? "1 1 45%" : "1 1 200px",
-            }}
-          >
-            <span style={{ fontSize: "28px", display: "block" }}>{item.icon}</span>
-            <p style={{ marginTop: "10px", fontSize: "14px", color: "#333" }}>{item.text}</p>
-          </div>
-        ))}
-      </div> */}
     </div>
   );
 };

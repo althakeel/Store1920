@@ -7,7 +7,7 @@ import { CompareProvider } from './contexts/CompareContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CookieConsentProvider } from './contexts/CookieConsentContext';
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ThemeProvider } from './contexts/ThemeContext';
 
 // Pages
@@ -69,12 +69,16 @@ import LogoIcon from './assets/images/logo.webp';
 import AdsImage from './assets/images/ads/ads.webp'
 import NewUserBonusPopup from './components/common/newpopup';
 
+
 const AppContent = () => {
   const { isCartOpen, setIsCartOpen, cartItems } = useCart();
   const location = useLocation();
   const path = location.pathname;
   const cartIconRef = useRef(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  const CLIENT_ID = "387544567110-hjjhf6sapjq6k35hgoki34kq5c2b6j51.apps.googleusercontent.com";
+
 
   // Update mobile flag on resize
   useEffect(() => {
@@ -245,8 +249,8 @@ const AppContent = () => {
 
   return (
     <ThemeProvider>
-      <GoogleOAuthProvider clientId="HwYK8fUGicIEYk3RV16SVyvWJN9sctAJoxFhnTsT">
-        <QueryClientProvider client={queryClient}>
+<GoogleOAuthProvider clientId={CLIENT_ID}>
+          <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <>
               {!isMobile && <Topbar />}
@@ -359,7 +363,7 @@ const AppContent = () => {
               </div>
 
               {!isMobile && <PurchasePopup />}
-{!path.startsWith('/products/') && <CookiePopup />}       
+{!path.startsWith('/products/') && !path.startsWith('/checkout') && <CookiePopup />}
        <ChatBot />
 {isHomePage && <NewUserBonusPopup />}
               <Footer />

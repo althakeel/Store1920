@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import DirhamIcon from '../../assets/images/Dirham 2.png';
+import DirhamIcon from "../../assets/images/Dirham 2.png";
 
 const ProductInfo = ({ product }) => {
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
@@ -111,10 +111,15 @@ const ProductInfo = ({ product }) => {
     );
   };
 
+  // Gather subdescriptions
+  const subDescs = ["subdesc", "subdesc1", "subdesc2", "subdesc3", "subdesc4"]
+    .map((key) => product[key])
+    .filter(Boolean);
+
   return (
     <div style={containerStyle}>
       {/* Product Name */}
-      <h1 style={nameStyle}>{product.name}</h1>
+      {product.name && <h1 style={nameStyle}>{product.name}</h1>}
 
       {/* Description */}
       {product.description && (
@@ -132,32 +137,51 @@ const ProductInfo = ({ product }) => {
             <span style={badgeStyle}>{discountPercent}% OFF</span>
           </>
         ) : (
-          <PriceDisplay price={product.price} style={salePriceStyle} />
+          product.price && <PriceDisplay price={product.price} style={salePriceStyle} />
         )}
       </div>
 
-      {/* Sub-descriptions */}
-      <ul
-        style={{
-          listStyleType: "none",
-          padding: "5px 20px",
-          margin: 0,
-          fontFamily: "Montserrat, sans-serif",
-          borderRadius: "8px",
-          maxWidth: "400px",
-        }}
-      >
-        {["subdesc", "subdesc1", "subdesc2", "subdesc3", "subdesc4"].map((key, idx) => (
-          product[key] && (
-            <li key={idx} style={{ padding: "5px 0", color: "#333", fontWeight: 500 }}>
-              <span style={{ color: "darkgreen", marginRight: "8px", fontSize: "18px", fontWeight: "bold" }}>
-                ✓
-              </span>
-              {product[key]}
-            </li>
-          )
-        ))}
-      </ul>
+      {/* Short description */}
+      {/* {product.shortdesc && (
+        <p style={{ ...descStyle, marginTop: "-5px", fontSize: isMobile ? "13px" : descStyle.fontSize }}>
+          {product.shortdesc}
+        </p>
+      )} */}
+
+      {/* Sub-descriptions (only if any exist) */}
+{Array.isArray(subDescs) && subDescs.filter(Boolean).length > 0 && (
+  <ul
+    style={{
+      listStyleType: "none",
+      padding: "5px 20px",
+      margin: 0,
+      fontFamily: "Montserrat, sans-serif",
+      borderRadius: "8px",
+      maxWidth: "400px",
+    }}
+  >
+    {subDescs
+      .filter(text => text && text.trim() !== "") // remove empty or whitespace-only strings
+      .map((text, idx) => (
+        <li
+          key={idx}
+          style={{ padding: "5px 0", color: "#333", fontWeight: 500 }}
+        >
+          <span
+            style={{
+              color: "darkgreen",
+              marginRight: "8px",
+              fontSize: "18px",
+              fontWeight: "bold",
+            }}
+          >
+            ✓
+          </span>
+          {text}
+        </li>
+      ))}
+  </ul>
+)}
     </div>
   );
 };

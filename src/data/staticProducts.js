@@ -1,7 +1,7 @@
-import IconFastDelivery from '../assets/images/staticproducts/Air Bed/7.webp';
-import IconSecurePayment from '../assets/images/staticproducts/Air Bed/7.webp';
-import IconSupport from '../assets/images/staticproducts/Air Bed/7.webp';
-import IconQuality from '../assets/images/staticproducts/Air Bed/7.webp';
+// import IconFastDelivery from '../assets/images/staticproducts/Air Bed/7.webp';
+// import IconSecurePayment from '../assets/images/staticproducts/Air Bed/7.webp';
+// import IconSupport from '../assets/images/staticproducts/Air Bed/7.webp';
+// import IconQuality from '../assets/images/staticproducts/Air Bed/7.webp';
 
 import Product1 from '../assets/images/staticproducts/pressurewasher/1 (8).webp';
 import Product2 from '../assets/images/staticproducts/pressurewasher/2.webp';
@@ -15,6 +15,24 @@ import Product9 from '../assets/images/staticproducts/pressurewasher/9.webp';
 import Product10 from '../assets/images/staticproducts/pressurewasher/10.webp';
 import Product11 from '../assets/images/staticproducts/pressurewasher/11.webp';
 import Product12 from '../assets/images/staticproducts/pressurewasher/12.webp';
+
+
+
+import Product13 from '../assets/images/staticproducts/airbed//10 (2).webp'
+import Product14 from '../assets/images/staticproducts/airbed/2.webp'
+import Product15 from '../assets/images/staticproducts/airbed/3.webp'
+import Product16 from '../assets/images/staticproducts/airbed/4.webp'
+import Product17 from '../assets/images/staticproducts/airbed/5.webp'
+import Product18 from '../assets/images/staticproducts/airbed/6.webp'
+import Product19 from '../assets/images/staticproducts/airbed/7 (2).webp'
+import Product20 from '../assets/images/staticproducts/airbed/9 (2).webp'
+import Product21 from '../assets/images/staticproducts/airbed/8.webp'
+import Product23 from '../assets/images/staticproducts/airbed/11.webp'
+import Product24 from '../assets/images/staticproducts/airbed/1.webp'
+
+
+
+
 
 const staticProducts = [
   {
@@ -116,12 +134,150 @@ comparisonData: {
       { text: 'Much better than I expected. The foam pot makes washing cars fun.', author: 'Hassan Saleh (Ras Al Khaimah, UAE)', stars: 5 },
     ],
 
-    section4Data: [
-      { icon: IconFastDelivery, text: 'Fast Delivery' },
-      { icon: IconSecurePayment, text: 'Secure Payments' },
-      { icon: IconSupport, text: '24/7 Support' },
-      { icon: IconQuality, text: 'Premium Quality' },
+    // section4Data: [
+    //   { icon: IconFastDelivery, text: 'Fast Delivery' },
+    //   { icon: IconSecurePayment, text: 'Secure Payments' },
+    //   { icon: IconSupport, text: '24/7 Support' },
+    //   { icon: IconQuality, text: 'Premium Quality' },
+    // ],
+  },
+
+
+
+    {
+    id: 2,
+    name: 'Twin Size Air Mattress with Built-in Rechargeable Pump – 16 Self-Inflating Blow Up Bed for Home, Camping & Guests',
+    slug: 'twin-size-air-mattress-with-built-in-rechargeable-pump-16-self-inflating-blow-up-bed-for-home-camping-guests',
+    price: 139,
+    description: 'Sleep Comfortably, Anywhere, Anytime',
+    shortdesc: ' Experience the perfect balance of support and convenience with the Single -Size Air Mattress. Whether for guests at home, camping trips, or outdoor adventures — enjoy restful sleep with the touch of a button.',
+    subdesc: ' ',
+    subdesc1: 'Built-in Rechargeable Pump',
+    subdesc2: 'Quick Self-Inflation in Minutes',
+    subdesc3: 'Adjustable Firmness for Any Sleep Style',
+    subdesc4: '',
+   
+
+    image: Product18,
+    thumb1: Product13,
+    thumb2: Product14,
+    thumb3: Product16,
+    thumb4: Product15,
+    thumb4: Product17,
+    thumb5: Product19,
+    thumb6: Product20,
+    // thumb7: Product21,
+    // thumb8: Product14,
+    thumb9: Product23,
+    thumb9: Product24,
+
+
+    bundles: [
+{
+    type: "Buy 1",
+    label: "Buy 1 for Only 139 AED",
+    discount: 0,
+    price: 139,          // total after discount
+    originalPrice: 189,  // original single-item price
+    image: Product24,
+  },
+  {
+    type: "Bundle of 2",
+    label: "Buy 2 & Get 10% Off",
+    discount: 10,
+    price: 250.2,        // (139 * 2) - 10%  = 250.2 total
+    originalPrice: 278,  // 139 * 2
+    note: "Perfect for you & a friend",
+    mostPopular: true,
+    image: Product24,
+  },
+  {
+    type: "Bundle of 3",
+    label: "Buy 3 & Get 20% Off",
+    discount: 20,
+    price: 333.6,        // (139 * 3) - 20%  = 333.6 total
+    originalPrice: 417,  // 139 * 3
+    note: "Best Value",
+    image: Product24,
+  }, ],
+
+    section2contentTitle: 'Comfort & Use Cases',
+    section2contentDesc: 'Your Bed, Wherever You Go Tired of thin sleeping mats or uncomfortable guest beds? The Bestrip Air Mattress transforms any space into a cozy, supportive sleeping environment.',
+    section2list:['Blast away dirt, mud, and grime effortlessly','Wash anywhere with cordless portability','Wash anywhere with cordless portability','Perfect for cars, bikes, gardens, floors, and more'],
+    section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
+    section2image: Product24,
+
+    section3title: 'Experience Comfort & Freedom, Anytime You Need',
+    section3image: Product24,
+    section3points: [
+      'Ultimate Sleep Support',
+      'Compact & Portable',
+      'Quick Inflation Pump',
+      'Multi-Use Convenience',
     ],
+
+    sectionProgressTitle: 'Trusted by Campers,',
+    sectionProgressSubtitle: ' Travelers & Hosts',
+    sectionProgress: [
+      { title: 'Unmatched Comfort', desc: 'Users reported a noticeable improvement in sleep quality after the first night.', percent: 96 },
+      { title: 'Easy & Fast Setup', desc: ' Inflates in under 3 minutes with built-in rechargeable pump.', percent: 93 },
+      { title: 'Versatile Usage', desc: ' Perfect for camping, guests, or travel — indoors and outdoors.', percent: 89 },
+      { title: 'Portable & Space-Saving', desc: 'Folds into the included carry bag for easy storage.', percent: 81 },
+    ],
+
+comparisonData: {
+  title: "What Makes Us Different” Comparison Table",
+  description: "Elevate your sleep routine with the Bestrip Air Mattress. Unlike ordinary inflatable beds, it’s designed with comfort, durability, and versatility in mind.",
+  headers: ['Feature', 'Bestrip Air Mattress', 'Others'],
+  rows: [
+    { feature: 'Built-in Rechargeable Pump', lumineux: true, others: false },
+    { feature: 'Adjustable Firmness', lumineux: true, others: false },
+    { feature: 'Multi-Use (Home, Camping, Travel)', lumineux: true, others: false },
+    { feature: 'Compact Carry Bag Included', lumineux: true, others: false },
+      { feature: '1-Year Manufacturer Warranty', lumineux: true, others: false },
+  ],
+},
+
+
+
+    Guaranteetitle: '1 Year Guarantee',
+    Guranteedesc: 'Full replacement or refund within 1 year.',
+    Faq1Q: ' How long does it take to inflate?',
+    fAQ1A: 'The built-in rechargeable pump inflates the mattress in under 3 minutes. You can also adjust the air for softer or firmer support.',
+    Faq2Q: 'Is the pump removable?',
+    fAQ2A: ' Yes! The rechargeable pump is removable and multifunctional, so you can use it for other inflatables like pools or toys.',
+    Faq3Q: ' What’s included in the box?',
+    fAQ3A:
+      'Every order includes:\n' +
+      '• 1 × Air Mattress\n' +
+      '• 1 × Rechargeable Pump\n' +
+      '• 1 × Type-C Charging Cable\n' +
+      '• 1 × Carry Bag\n' +
+      '• 1-Year Manufacturer Warranty' ,
+
+    reviewsTitle: 'Customer Testimonials for Air Bed',
+    reviewsRating: 4.9,
+    reviews: [
+      { text: 'Super comfortable and easy to set up! I bought it for my guests and they loved it. Inflated in minutes and feels just like a real bed', author: 'Amira K. – Dubai', stars: 5 },
+      { text: 'I used this air bed during a desert camping trip. Very durable, the pump is fast and rechargeable. Honestly the best camping mattress I’ve owned.', author: 'Hassan A. – Abu Dhabi', stars: 5 },
+      { text: 'Perfect for small apartments. I use it as a guest bed, and when not in use it folds into a tiny bag. Huge space saver!', author: 'Leila M. – Sharjah', stars: 5 },
+      { text: 'Wasn’t expecting this much comfort from an inflatable bed. Slept like a baby. Worth every dirham.', author: 'Omar R. – Dubai', stars: 5 },
+      { text: 'The built-in rechargeable pump is a lifesaver. No hassle, just press the button and it’s ready in under 3 minutes.', author: 'Nadia H. – Al Ain', stars: 5 },
+      { text: 'Got it for my kids’ sleepovers. They love it! Sturdy, comfortable, and fun to set up. Highly recommend.', author: 'Yusuf B. – Dubai', stars: 5 },
+      { text: 'Honestly better than some hotel beds. The height (40cm) makes it feel like a real bed, not just an inflatable.', author: 'Fatima S. – Ajman', stars: 5 },
+      { text: 'I’ve tried other air mattresses but they deflate quickly. This one stayed firm all night with no issues. Very impressed.', author: 'Ahmed Z. – Ras Al Khaimah', stars: 5 },
+      { text: 'Used it for my visiting family. They were shocked it was an air bed – thought it was a proper mattress. Amazing product.', author: 'Khalid M. – Dubai', stars: 5 },
+      { text: 'The carry bag makes it so easy to travel with. We used it on a road trip and it was super handy', author: 'Sara P. – Sharjah', stars: 5 },
+      { text: 'Excellent quality, soft top layer and feels really stable. No sinking in the middle like cheap air beds.', author: 'Mariam L. – Fujairah', stars: 5 },
+      { text: 'Great value for money. Quick to inflate, strong build, and comes with a warranty. Definitely buying another one for camping.', author: 'Mohammed D. – Dubai', stars: 5 },
+    ],
+
+    // section4Data: [
+    //   { icon: IconFastDelivery, text: 'Fast Delivery' },
+    //   { icon: IconSecurePayment, text: 'Secure Payments' },
+    //   { icon: IconSupport, text: '24/7 Support' },
+    //   { icon: IconQuality, text: 'Premium Quality' },
+    // ],
   },
 ];
 

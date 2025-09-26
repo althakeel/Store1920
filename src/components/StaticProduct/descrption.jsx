@@ -11,18 +11,33 @@ const Description = ({ product }) => {
 
   if (!product) return null;
 
+  // Collect all subdesc fields and filter out empty/null/whitespace
+  const subdescs = [
+    product.subdesc,
+    product.subdesc1,
+    product.subdesc2,
+    product.subdesc3,
+    product.subdesc4,
+  ].filter((txt) => txt && txt.trim() !== "");
+
   const sections = [
     {
       title: "Description",
       content: (
         <div style={{ marginLeft: "10px" }}>
-          <li style={{ listStyle: "none" }}>{product.description}</li>
-          <ul style={{ margin: "0", paddingLeft: "18px" }}>
-            <li>{product.subdesc}</li>
-            <li>{product.subdesc2}</li>
-            <li>{product.subdesc3}</li>
-            <li>{product.subdesc4}</li>
-          </ul>
+          {/* Only show main description if it's non-empty */}
+          {product.description && (
+            <li style={{ listStyle: "none" }}>{product.description}</li>
+          )}
+
+          {/* Only render the <ul> if at least one subdesc is present */}
+          {subdescs.length > 0 && (
+            <ul style={{ margin: "0", paddingLeft: "18px" }}>
+              {subdescs.map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
+            </ul>
+          )}
         </div>
       ),
     },
@@ -43,7 +58,6 @@ const Description = ({ product }) => {
             marginBottom: "10px",
           }}
         >
-          {/* Header */}
           <button
             onClick={() => toggle(i)}
             style={{
@@ -62,14 +76,12 @@ const Description = ({ product }) => {
             }}
           >
             {sec.title}
-            {/* Proper Font Awesome Arrow */}
             <FontAwesomeIcon
               icon={openIndex === i ? faAngleDown : faAngleRight}
               style={{ fontSize: "18px", color: "#333" }}
             />
           </button>
 
-          {/* Content */}
           {openIndex === i && (
             <div
               style={{

@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import staticProducts from "../../data/staticProducts";
 
-const Section4 = () => {
-  const product = staticProducts[0];
+const Section4 = ({ product: propProduct }) => {
+  // Use passed product OR fallback
+  const product = propProduct || staticProducts[0];
   const [current, setCurrent] = useState(0);
   const startX = useRef(0);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -14,11 +15,13 @@ const Section4 = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  if (!product || !product.reviews) return null; // safeguard
+
   // Determine number of reviews per view
   const getReviewsPerView = () => {
     if (windowWidth >= 1024) return 3; // desktop
     if (windowWidth >= 768) return 2;  // tablet
-    return 1;                            // mobile
+    return 1;                          // mobile
   };
 
   const reviewsPerView = getReviewsPerView();
@@ -45,11 +48,13 @@ const Section4 = () => {
 
   // Get visible reviews based on current index
   const getVisibleReviews = () => {
-    return product.reviews.slice(current, current + reviewsPerView).concat(
-      current + reviewsPerView > product.reviews.length
-        ? product.reviews.slice(0, (current + reviewsPerView) % product.reviews.length)
-        : []
-    );
+    return product.reviews
+      .slice(current, current + reviewsPerView)
+      .concat(
+        current + reviewsPerView > product.reviews.length
+          ? product.reviews.slice(0, (current + reviewsPerView) % product.reviews.length)
+          : []
+      );
   };
 
   const visibleReviews = getVisibleReviews();
@@ -95,12 +100,9 @@ const Section4 = () => {
                   border: "1px solid #eee",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                   textAlign: "center",
-                  maxWidth:'350px'
+                  maxWidth: "350px",
                 }}
               >
-                {/* <h3 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "15px" }}>
-                  {review.header}
-                </h3> */}
                 <p style={{ fontSize: "15px", color: "#555", marginBottom: "20px" }}>
                   {review.text}
                 </p>

@@ -33,8 +33,8 @@ const Breadcrumbs = () => {
           const to = `/${pathnames.slice(0, index + 1).join('/')}`;
           const isLast = index === pathnames.length - 1;
           const name =
-            routeNameMap[segment.toLowerCase()] ||
-            segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
+           routeNameMap[segment.toLowerCase()] ||
+           segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
 
           return (
             <li key={to} aria-current={isLast ? 'page' : undefined}>
