@@ -14,7 +14,7 @@ import { API_BASE, CONSUMER_KEY, CONSUMER_SECRET } from "../../../api/woocommerc
 import ProductCardReviews from "../../temp/productcardreviews";
 import Product1 from '../../../assets/images/staticproducts//pressurewasher/1.webp';
 import Product2 from '../../../assets/images/staticproducts/airbed/1.webp'
-import product3 from '../../../assets/images/staticproducts/paintspray/14.webp'
+import Product3 from '../../../assets/images/staticproducts/paintspray/14.webp'
 
 const PAGE_SIZE = 10;
 const INITIAL_VISIBLE = 30;
@@ -98,7 +98,7 @@ const staticProducts = [
     price: "85.00",
     regular_price: "250.0",
     sale_price: "85.00",
-    images: [{ src:Product2 }],
+    images: [{ src:Product3 }],
     slug: "850w-electric-paint-sprayer-uae",
     path: "/products/850w-electric-paint-sprayer-uae",
     rating: 5,
