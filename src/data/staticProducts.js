@@ -36,7 +36,7 @@ import Product24 from '../assets/images/staticproducts/airbed/1.webp'
 
 const staticProducts = [
   {
-    id: 1,
+    id:  494574,
     name: '68V Cordless Portable Car Wash Pressure Washer Gun with Dual Battery – High Power Cleaning Machine for Cars, Bikes & Home',
     slug: '68v-cordless-portable-car-wash-pressure-washer-gun-with-dual',
     price: 69.9,

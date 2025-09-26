@@ -263,10 +263,46 @@ const handleSaveAddress = async (e) => {
 
           {error && <div style={{ color: 'red', fontWeight: 600 }}>{error}</div>}
 
-          <button type="submit" disabled={saving}
-            style={{ backgroundColor: '#ff5100', color: '#fff', padding: '12px 22px', fontSize: '1.1rem', border: 'none', borderRadius: '8px', cursor: saving ? 'not-allowed' : 'pointer' }}>
-            {saving ? 'Saving...' : 'Save Address'}
-          </button>
+    <div>
+  {/* Inject spin keyframes dynamically */}
+  <style>
+    {`
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `}
+  </style>
+
+  <button type="submit" disabled={saving}
+    style={{
+      backgroundColor: '#ff5100',
+      color: '#fff',
+      padding: '12px 22px',
+      fontSize: '1.1rem',
+      border: 'none',
+      borderRadius: '8px',
+      cursor: saving ? 'not-allowed' : 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    }}
+  >
+    {saving && (
+      <div style={{
+        border: '2px solid #fff',
+        borderTop: '2px solid rgba(255, 255, 255, 0.3)',
+        borderRadius: '50%',
+        width: '16px',
+        height: '16px',
+        animation: 'spin 0.8s linear infinite'
+      }} />
+    )}
+    {saving ? 'Saving...' : 'Save Address'}
+  </button>
+</div>
+
         </form>
       </div>
     </div>

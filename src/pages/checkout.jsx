@@ -289,8 +289,27 @@ useEffect(() => {
       },
       line_items,
       shipping_lines: formData.shippingMethodId ? [{ method_id: formData.shippingMethodId }] : [],
+meta_data: [
+  { key: '_from_react_checkout', value: true },  // instead of '1'
+  { 
+    key: '_react_order_products', 
+    value: JSON.stringify(cartItems.map(i => ({
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity
+    })))
+  },
+  {
+    key: '_react_customer_name',
+    value: `${billing.first_name} ${billing.last_name}`
+  }
+],
+
       ...(userId ? { customer_id: parseInt(userId, 10) } : { create_account: true }),
     };
+    
+      console.log('💡 WooCommerce Order Payload:', payload);
+
 
     const order = await fetchWithAuth('orders', { method: 'POST', body: JSON.stringify(payload) });
     if (!userId && order.customer_id) localStorage.setItem('userId', order.customer_id);

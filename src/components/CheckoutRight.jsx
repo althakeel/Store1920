@@ -56,6 +56,9 @@ function Alert({ message, type = 'info', onClose }) {
   );
 }
 
+
+
+
 // -----------------------------
 // Utility: parse price safely
 // -----------------------------
@@ -116,6 +119,34 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     });
   };
 
+
+
+const captureOrderItems = async (orderId, cartItems, customer) => {
+  const items = cartItems.map(item => ({
+    id: item.id || 0,
+    name: item.name || item.title,
+    price: parseFloat(item.prices?.price ?? item.price ?? 0),
+    quantity: parseInt(item.quantity, 10) || 1
+  }));
+
+  await fetch('https://db.store1920.com/wp-json/custom/v1/capture-order-items', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      order_id: orderId,
+      customer: {
+        first_name: customer.first_name,
+        last_name: customer.last_name,
+        email: customer.email,
+        phone_number: customer.phone_number,
+      },
+      items
+    })
+  });
+};
+
+
+
   // -----------------------------
   // Place order
   // -----------------------------
@@ -125,6 +156,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 
     try {
       const id = orderId || (await createOrder());
+    await captureOrderItems(id, cartItems, formData.shipping || formData.billing || {});
 
       // Cash on Delivery
       if (formData.paymentMethod === 'cod') {
