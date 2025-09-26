@@ -30,6 +30,20 @@ import Product21 from '../assets/images/staticproducts/airbed/8.webp'
 import Product23 from '../assets/images/staticproducts/airbed/11.webp'
 import Product24 from '../assets/images/staticproducts/airbed/1.webp'
 
+import Product31 from '../assets/images/staticproducts/paintspray/1.webp'
+import Product32 from '../assets/images/staticproducts/paintspray/2.webp'
+import Product33 from '../assets/images/staticproducts/paintspray/3.webp'
+import Product34 from '../assets/images/staticproducts/paintspray/4.webp'
+import Product35 from '../assets/images/staticproducts/paintspray/14.webp'
+import Product36 from '../assets/images/staticproducts/paintspray/6.webp'
+import Product37 from '../assets/images/staticproducts/paintspray/7.webp'
+import Product38 from '../assets/images/staticproducts/paintspray/8.webp'
+import Product39 from '../assets/images/staticproducts/paintspray/9.webp'
+import Product40 from '../assets/images/staticproducts/paintspray/10.webp'
+import Product41 from '../assets/images/staticproducts/paintspray/11.webp'
+import Product42 from '../assets/images/staticproducts/paintspray/12.webp'
+import Product43 from '../assets/images/staticproducts/paintspray/13.webp'
+
 
 
 
@@ -231,7 +245,7 @@ bundles: [
 comparisonData: {
   title: "What Makes Us Different” Comparison Table",
   description: "Elevate your sleep routine with the Bestrip Air Mattress. Unlike ordinary inflatable beds, it’s designed with comfort, durability, and versatility in mind.",
-  headers: ['Feature', 'Bestrip Air Mattress', 'Others'],
+  headers: ['Feature', 'Air Mattress', 'Others'],
   rows: [
     { feature: 'Built-in Rechargeable Pump', lumineux: true, others: false },
     { feature: 'Adjustable Firmness', lumineux: true, others: false },
@@ -293,7 +307,7 @@ comparisonData: {
     id: 3,
     name: 'Electric Paint Sprayer',
     slug: '850w-electric-paint-sprayer-uae',
-    price: 249,
+    price: 85,
     description: 'Paint Like a Pro – Anywhere, Anytime',
     shortdesc: 'Transform your DIY projects with the 850W Electric Paint Sprayer. Whether it’s walls, furniture, fences, or your car — enjoy a flawless, even finish with ease. ',
     subdesc: '850W High-Power Motor ',
@@ -302,120 +316,115 @@ comparisonData: {
     subdesc3: ' Perfect for Wood, Metal, and Walls',
     subdesc4: '',
    
+    image: Product35,
+    // thumb1: Product43,
+    thumb2: Product32,
+    thumb3: Product33,
+    thumb4: Product34,
+    thumb4: Product31,
+    thumb5: Product36,
+    thumb6: Product37,
+    thumb7: Product38,
+    thumb8: Product39,
+    thumb9: Product40,
+    thumb9: Product41,
+    thumb9: Product42,
 
-    image: Product18,
-    thumb1: Product13,
-    thumb2: Product14,
-    thumb3: Product16,
-    thumb4: Product15,
-    thumb4: Product17,
-    thumb5: Product19,
-    thumb6: Product20,
-    // thumb7: Product21,
-    // thumb8: Product14,
-    thumb9: Product23,
-    thumb9: Product24,
 
 
-    bundles: [
-{
+  bundles: [
+  {
     type: "Buy 1",
-    label: "Buy 1 for Only 139 AED",
+    label: "Buy 1 for Only 85 AED",
     discount: 0,
-    price: 139,          // total after discount
-    originalPrice: 189,  // original single-item price
-    image: Product24,
+    price: 85,            
+    originalPrice: 250,   
+    image: Product41,
   },
   {
     type: "Bundle of 2",
     label: "Buy 2 & Get 10% Off",
     discount: 10,
-    price: 250.2,        // (139 * 2) - 10%  = 250.2 total
-    originalPrice: 278,  // 139 * 2
+    price: 153,         
+    originalPrice: 250,  
     note: "Perfect for you & a friend",
     mostPopular: true,
-    image: Product24,
+    image: Product35,
   },
   {
     type: "Bundle of 3",
     label: "Buy 3 & Get 20% Off",
     discount: 20,
-    price: 333.6,        // (139 * 3) - 20%  = 333.6 total
-    originalPrice: 417,  // 139 * 3
+    price: 204,           
+    originalPrice: 250,   
     note: "Best Value",
     image: Product24,
   }, ],
 
-    section2contentTitle: 'Comfort & Use Cases',
-    section2contentDesc: 'Your Bed, Wherever You Go Tired of thin sleeping mats or uncomfortable guest beds? The Bestrip Air Mattress transforms any space into a cozy, supportive sleeping environment.',
-    section2list:['Blast away dirt, mud, and grime effortlessly','Wash anywhere with cordless portability','Wash anywhere with cordless portability','Perfect for cars, bikes, gardens, floors, and more'],
+    section2contentTitle: 'One Tool – Endless Projects',
+    section2contentDesc: ' From DIY enthusiasts to car lovers, this paint sprayer makes every project faster and more professional.',
+    section2list:['Refresh old furniture in minutes, mud',' Paint fences, doors & walls with ease','Achieve showroom finish on cars & metal surfaces',' Perfect for cabinets, crafts, and home improvement projects'],
     section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
-    section2image: Product24,
+    section2image: Product36,
 
     section3title: 'Experience Comfort & Freedom, Anytime You Need',
-    section3image: Product24,
+    section3image: Product38,
     section3points: [
-      'Ultimate Sleep Support',
-      'Compact & Portable',
-      'Quick Inflation Pump',
-      'Multi-Use Convenience',
+      'High-Powered Performance',
+      'Compact & Easy to Use',
+      'Adjustable Spray Settings',
+      'Multi-Surface Convenience',
     ],
 
     sectionProgressTitle: 'Trusted by Campers,',
     sectionProgressSubtitle: ' Travelers & Hosts',
     sectionProgress: [
-      { title: 'Unmatched Comfort', desc: 'Users reported a noticeable improvement in sleep quality after the first night.', percent: 96 },
-      { title: 'Easy & Fast Setup', desc: ' Inflates in under 3 minutes with built-in rechargeable pump.', percent: 93 },
-      { title: 'Versatile Usage', desc: ' Perfect for camping, guests, or travel — indoors and outdoors.', percent: 89 },
-      { title: 'Portable & Space-Saving', desc: 'Folds into the included carry bag for easy storage.', percent: 81 },
+      { title: 'Professional Finish', desc: ' Delivers smooth, even coverage with minimal overspray.', percent: 95 },
+      { title: 'Time-Saving Design', desc: '  Covers large surfaces in minutes with powerful 850W spray.', percent: 92 },
+      { title: 'Multi-Surface Versatility', desc: ' Ideal for cars, wood, metal, furniture, cabinets, and walls.', percent: 89 },
+      { title: 'Easy to Use & Clean', desc: 'Quick setup, detachable parts for fast cleaning.', percent: 83 },
     ],
 
 comparisonData: {
   title: "What Makes Us Different” Comparison Table",
-  description: "Elevate your sleep routine with the Bestrip Air Mattress. Unlike ordinary inflatable beds, it’s designed with comfort, durability, and versatility in mind.",
-  headers: ['Feature', 'Bestrip Air Mattress', 'Others'],
+  description: "Upgrade your painting experience with the 850W Electric Paint Sprayer. Unlike cheap sprayers, ours is engineered for power, durability, and precision.",
+  headers: ['Feature', 'Our 850W Sprayer', 'Others'],
   rows: [
-    { feature: 'Built-in Rechargeable Pump', lumineux: true, others: false },
-    { feature: 'Adjustable Firmness', lumineux: true, others: false },
-    { feature: 'Multi-Use (Home, Camping, Travel)', lumineux: true, others: false },
-    { feature: 'Compact Carry Bag Included', lumineux: true, others: false },
-      { feature: '1-Year Manufacturer Warranty', lumineux: true, others: false },
+    { feature: '850W High-Power Motor', lumineux: true, others: false },
+    { feature: 'Copper Nozzles (Durable & Precise)', lumineux: true, others: false },
+    { feature: 'Adjustable Air Regulator', lumineux: true, others: false },
+    { feature: 'Multi-Surface Use', lumineux: true, others: false },
+      { feature: 'Easy Cleaning System', lumineux: true, others: false },
   ],
 },
-section5image:Product24,
+section5image:Product42,
 
 
 
     Guaranteetitle: '1 Year Guarantee',
     Guranteedesc: 'Full replacement or refund within 1 year.',
-    Faq1Q: ' How long does it take to inflate?',
-    fAQ1A: 'The built-in rechargeable pump inflates the mattress in under 3 minutes. You can also adjust the air for softer or firmer support.',
-    Faq2Q: 'Is the pump removable?',
-    fAQ2A: ' Yes! The rechargeable pump is removable and multifunctional, so you can use it for other inflatables like pools or toys.',
-    Faq3Q: ' What’s included in the box?',
+    Faq1Q: ' What surfaces can I use it on?',
+    fAQ1A: 'This sprayer works perfectly on wood, metal, walls, doors, furniture, cabinets, and cars.',
+    Faq2Q: 'Does it come with nozzles?',
+    fAQ2A: ' Yes! It includes durable copper nozzles with adjustable spray patterns for precision.',
+    Faq3Q: '  Is it easy to clean?',
     fAQ3A:
-      'Every order includes:\n' +
-      '• 1 × Air Mattress\n' +
-      '• 1 × Rechargeable Pump\n' +
-      '• 1 × Type-C Charging Cable\n' +
-      '• 1 × Carry Bag\n' +
-      '• 1-Year Manufacturer Warranty' ,
+      'Absolutely — the parts are detachable, making it simple to clean after every project.',
+   
 
     reviewsTitle: 'Customer Testimonials for Air Bed',
     reviewsRating: 4.9,
     reviews: [
-      { text: 'Super comfortable and easy to set up! I bought it for my guests and they loved it. Inflated in minutes and feels just like a real bed', author: 'Amira K. – Dubai', stars: 5 },
-      { text: 'I used this air bed during a desert camping trip. Very durable, the pump is fast and rechargeable. Honestly the best camping mattress I’ve owned.', author: 'Hassan A. – Abu Dhabi', stars: 5 },
-      { text: 'Perfect for small apartments. I use it as a guest bed, and when not in use it folds into a tiny bag. Huge space saver!', author: 'Leila M. – Sharjah', stars: 5 },
-      { text: 'Wasn’t expecting this much comfort from an inflatable bed. Slept like a baby. Worth every dirham.', author: 'Omar R. – Dubai', stars: 5 },
-      { text: 'The built-in rechargeable pump is a lifesaver. No hassle, just press the button and it’s ready in under 3 minutes.', author: 'Nadia H. – Al Ain', stars: 5 },
-      { text: 'Got it for my kids’ sleepovers. They love it! Sturdy, comfortable, and fun to set up. Highly recommend.', author: 'Yusuf B. – Dubai', stars: 5 },
-      { text: 'Honestly better than some hotel beds. The height (40cm) makes it feel like a real bed, not just an inflatable.', author: 'Fatima S. – Ajman', stars: 5 },
-      { text: 'I’ve tried other air mattresses but they deflate quickly. This one stayed firm all night with no issues. Very impressed.', author: 'Ahmed Z. – Ras Al Khaimah', stars: 5 },
-      { text: 'Used it for my visiting family. They were shocked it was an air bed – thought it was a proper mattress. Amazing product.', author: 'Khalid M. – Dubai', stars: 5 },
-      { text: 'The carry bag makes it so easy to travel with. We used it on a road trip and it was super handy', author: 'Sara P. – Sharjah', stars: 5 },
-      { text: 'Excellent quality, soft top layer and feels really stable. No sinking in the middle like cheap air beds.', author: 'Mariam L. – Fujairah', stars: 5 },
-      { text: 'Great value for money. Quick to inflate, strong build, and comes with a warranty. Definitely buying another one for camping.', author: 'Mohammed D. – Dubai', stars: 5 },
+      { text: 'I painted my garden fence in just one afternoon. Smooth coverage and no dripping mess. Much faster than using a brush!', author: 'Ahmed K. – Dubai', stars: 5 },
+      { text: 'I’m a first-time DIY painter, and this sprayer made me feel like a pro. My old wooden furniture now looks brand new.', author: 'Rashid A. – Sharjah', stars: 5 },
+      { text: 'We renovated our kids’ room with this spray gun. The finish was flawless and it saved us hours of work.', author: 'Fatima H. – Abu Dhabi', stars: 5 },
+      { text: 'Strong motor, even spray, and easy to clean. I used it on my metal gate and the results were excellent.', author: 'Naveen S. – Ajman', stars: 5 },
+      { text: 'I run a small workshop, and this sprayer has been a lifesaver for quick jobs on cabinets and shelves.', author: 'Mohammed L. – Dubai', stars: 5 },
+      { text: 'Used it for my living room walls. The coverage was even, no streaks, and I didn’t feel tired after painting.', author: 'Sara J. – Ras Al Khaimah', stars: 5 },
+      { text: 'This sprayer is powerful but easy to control. Painted my car bumper with a smooth finish. Highly recommended.', author: 'John P. – Fujairah', stars: 5 },
+      { text: 'Setup was quick, and the copper nozzles gave me precise spraying. Definitely better than cheaper plastic ones.', author: 'Ali M. – Al Ain', stars: 5 },
+      { text: 'I live in an apartment and used it on my balcony furniture. Portable, no noise, and quick results. Love it!', author: 'Lina R. – Dubai Marina', stars: 5 },
+      { text: 'I’ve tried other paint sprayers before, but this one is by far the easiest to use. Perfect for DIY and home projects.', author: 'Hassan D. – Sharjah', stars: 5 },
     ],
 
     // section4Data: [

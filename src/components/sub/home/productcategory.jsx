@@ -14,6 +14,7 @@ import { API_BASE, CONSUMER_KEY, CONSUMER_SECRET } from "../../../api/woocommerc
 import ProductCardReviews from "../../temp/productcardreviews";
 import Product1 from '../../../assets/images/staticproducts//pressurewasher/1.webp';
 import Product2 from '../../../assets/images/staticproducts/airbed/1.webp'
+import product3 from '../../../assets/images/staticproducts/'
 
 const PAGE_SIZE = 10;
 const INITIAL_VISIBLE = 30;
@@ -91,7 +92,21 @@ const staticProducts = [
     reviews: 45,
     sold: 135,
   },
+   {
+    id: "850w-electric-paint-sprayer-uae",
+    name: "Electric Paint Sprayer",
+    price: "85.00",
+    regular_price: "250.0",
+    sale_price: "85.00",
+    images: [{ src:Product2 }],
+    slug: "850w-electric-paint-sprayer-uae",
+    path: "/products/850w-electric-paint-sprayer-uae",
+    rating: 5,
+    reviews: 454,
+    sold: 195,
+  },
 ];
+
 
 const staticPositions = [2, 11];
 
