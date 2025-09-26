@@ -2,7 +2,7 @@ import React from "react";
 
 const Slider = () => {
 const sentences = [
-  "Fast & Secure Delivery Worldwide",
+  "Fast & Secure Delivery All over UAE",
   "Quality You Can Count On",
   "Easy Returns, Hassle-Free Refunds",
   "Exclusive Deals Updated Daily",

@@ -5,7 +5,7 @@ const sentences = [
   "Fast & Reliable Delivery to Your Doorstep.",
   "Each Item Passes Rigorous Quality Checks.",
   "Safe Packaging to Prevent Any Damage.",
-  "Worldwide Shipping with Hassle-Free Returns.",
+  "All over UAE Shipping with Hassle-Free Returns.",
   "100% Secure Payment & Data Protection.",
   "Money-Back Guarantee if You’re Not Satisfied."
 ];

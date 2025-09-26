@@ -109,19 +109,29 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
     return isValid;
   };
 
-  const handleSaveAddress = (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+const handleSaveAddress = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    // Save to localStorage
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
-    } catch (err) {
-      console.error('Failed to save checkout address:', err);
-    }
+  try {
+    // Save locally
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
 
-    onSubmit(formData); // Call parent handler
-  };
+    // Send to WordPress
+    const res = await fetch('https://db.store1920.com/wp-json/abandoned-checkout/v1/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+    const result = await res.json();
+    console.log('Saved to WordPress:', result);
+  } catch (err) {
+    console.error('Failed to save to WordPress', err);
+  }
+
+  onSubmit(formData); // parent handler
+};
+
 
   const handlePhoneChange = (phone) => {
     const normalizedPhone = phone.replace(/^0+/, '');
@@ -134,7 +144,7 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
     validateField(e.target.name, e.target.value);
   };
 
-  return (
+  return (  
     <div style={{
       position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)',
       display: 'flex', justifyContent: 'center', alignItems: 'center',

@@ -19,6 +19,7 @@ import Slider2 from "../components/StaticProduct/slider2";
 import Review from "../components/StaticProduct/review";
 import Comparison from "../components/StaticProduct/comparison";
 import ProgressBarSection from "../components/StaticProduct/progressbarsection";
+import Section5 from '../components/StaticProduct/section5'
 
 const CustomProductDetails = () => {
   const { slug } = useParams();
@@ -124,6 +125,7 @@ const CustomProductDetails = () => {
       <Slider2  product={product}/>
       <Section3  product={product}/>
       <ProductGuarantee product={product} />
+      <Section5  product={product}/>
       <ProductFAQ product={product} />
       {/* <ProductFeatures product={product} /> */}
     </>
