@@ -39,7 +39,7 @@ const sanitizeField = (value) => (value && value.trim() ? value : 'NA');
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { cartItems: contextCartItems, clearCart } = useCart();
-  const { user } = useAuth(); // current logged-in user
+  const { user } = useAuth(); 
 
     const LOCAL_STORAGE_KEY = 'checkoutFormData';
 
@@ -307,7 +307,7 @@ meta_data: [
 
       ...(userId ? { customer_id: parseInt(userId, 10) } : { create_account: true }),
     };
-    
+
       console.log('💡 WooCommerce Order Payload:', payload);
 
 
