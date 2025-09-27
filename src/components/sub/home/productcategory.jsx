@@ -69,9 +69,9 @@ const staticProducts = [
   {
     id: "68V Cordless Portable Car Wash Pressure Washer Gun with Dual",
     name: "68V Cordless Portable Car Wash Pressure Washer Gun with Dual",
-    price: "89.00",
+    price: "69.00",
     regular_price: "149.90",
-    sale_price: "89.00",
+    sale_price: "69.00",
     images: [{ src: Product1 }],
     slug: "68v-cordless-portable-car-wash-pressure-washer-gun-with-dual",
     path: "/products/68v-cordless-portable-car-wash-pressure-washer-gun-with-dual",
