@@ -102,7 +102,7 @@ const staticProducts = [
     slug: "850w-electric-paint-sprayer-uae",
     path: "/products/850w-electric-paint-sprayer-uae",
     rating: 5,
-    reviews: 454,
+    reviews: 159,
     sold: 195,
   },
 ];
