@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import "../../assets/styles/SignInModal.css";
 import { useAuth } from "../../contexts/AuthContext";
-import GoogleSignIcon from "../../assets/images/search.png";
 import FacebookIcon from "../../assets/images/facebook.png";
 import GoogleSignInButton from '../../components/sub/GoogleSignInButton';
 

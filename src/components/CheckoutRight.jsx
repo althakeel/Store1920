@@ -56,9 +56,6 @@ function Alert({ message, type = 'info', onClose }) {
   );
 }
 
-
-
-
 // -----------------------------
 // Utility: parse price safely
 // -----------------------------
@@ -95,8 +92,16 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     itemsTotal - Math.min(discount, itemsTotal) - Math.min(coinDiscount, itemsTotal)
   );
 
+  // Delivery fee
+  const DELIVERY_THRESHOLD = 100; // AED
+  const DELIVERY_CHARGE = 10;     // AED
+  const deliveryFee = subtotal < DELIVERY_THRESHOLD ? DELIVERY_CHARGE : 0;
+
+  // Total including delivery
+  const totalWithDelivery = subtotal + deliveryFee;
+
   const MIN_PAYMOB_AMOUNT = 0.01;
-  const amountToSend = Math.max(subtotal, MIN_PAYMOB_AMOUNT); // Ensure > 0
+  const amountToSend = Math.max(totalWithDelivery, MIN_PAYMOB_AMOUNT); // Include delivery
 
   // -----------------------------
   // Validate only required fields
@@ -119,33 +124,32 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     });
   };
 
+  // -----------------------------
+  // Capture order items
+  // -----------------------------
+  const captureOrderItems = async (orderId, cartItems, customer) => {
+    const items = cartItems.map(item => ({
+      id: item.id || 0,
+      name: item.name || item.title,
+      price: parseFloat(item.prices?.price ?? item.price ?? 0),
+      quantity: parseInt(item.quantity, 10) || 1
+    }));
 
-
-const captureOrderItems = async (orderId, cartItems, customer) => {
-  const items = cartItems.map(item => ({
-    id: item.id || 0,
-    name: item.name || item.title,
-    price: parseFloat(item.prices?.price ?? item.price ?? 0),
-    quantity: parseInt(item.quantity, 10) || 1
-  }));
-
-  await fetch('https://db.store1920.com/wp-json/custom/v1/capture-order-items', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      order_id: orderId,
-      customer: {
-        first_name: customer.first_name,
-        last_name: customer.last_name,
-        email: customer.email,
-        phone_number: customer.phone_number,
-      },
-      items
-    })
-  });
-};
-
-
+    await fetch('https://db.store1920.com/wp-json/custom/v1/capture-order-items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order_id: orderId,
+        customer: {
+          first_name: customer.first_name,
+          last_name: customer.last_name,
+          email: customer.email,
+          phone_number: customer.phone_number,
+        },
+        items
+      })
+    });
+  };
 
   // -----------------------------
   // Place order
@@ -156,7 +160,7 @@ const captureOrderItems = async (orderId, cartItems, customer) => {
 
     try {
       const id = orderId || (await createOrder());
-    await captureOrderItems(id, cartItems, formData.shipping || formData.billing || {});
+      await captureOrderItems(id, cartItems, formData.shipping || formData.billing || {});
 
       // Cash on Delivery
       if (formData.paymentMethod === 'cod') {
@@ -177,20 +181,20 @@ const captureOrderItems = async (orderId, cartItems, customer) => {
             ? shipping.phone_number
             : `+${shipping.phone_number || '971501234567'}`,
           street: shipping.street?.trim() || '',
-          apartment: shipping.apartment?.trim() || '', // optional
-          floor: shipping.floor?.trim() || '',         // optional
+          apartment: shipping.apartment?.trim() || '',
+          floor: shipping.floor?.trim() || '',
           city: shipping.city?.trim()
             ? shipping.city.charAt(0).toUpperCase() + shipping.city.slice(1)
             : 'Dubai',
           state: shipping.state?.trim() || 'DXB',
           country: 'AE',
-          postal_code: shipping.postal_code?.trim() || '', // optional
+          postal_code: shipping.postal_code?.trim() || '',
         };
 
         checkEmptyFields(normalized);
 
         const payload = {
-          amount: amountToSend, // AED, backend converts to fils
+          amount: amountToSend,
           order_id: id.id || id,
           billing: normalized,
           shipping: normalized,
@@ -205,25 +209,16 @@ const captureOrderItems = async (orderId, cartItems, customer) => {
           ],
         };
 
-        console.log('===== PAYMOB PAYLOAD =====', payload);
-
         try {
-          const res = await fetch(
-            'https://db.store1920.com/wp-json/custom/v1/paymob-intent',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-            }
-          );
+          const res = await fetch('https://db.store1920.com/wp-json/custom/v1/paymob-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
 
           const data = await res.json();
-          console.log('===== PAYMOB RESPONSE =====', data);
-
           if (!res.ok) throw new Error(data.message || 'Failed to initiate Paymob payment.');
           if (!data.checkout_url) throw new Error('Paymob checkout URL not returned.');
-
-          // Redirect to Paymob checkout
           window.location.href = data.checkout_url;
         } catch (err) {
           console.error('❌ PAYMOB FETCH ERROR:', err);
@@ -309,10 +304,12 @@ const captureOrderItems = async (orderId, cartItems, customer) => {
 
       <h2>Order Summary</h2>
       <CouponDiscount onApplyCoupon={handleCoupon} />
-      <div className="summaryRowCR discountCR">
+
+      <div className="summaryRowCR">
         <span>Item(s) total:</span>
         <span>AED {itemsTotal.toFixed(2)}</span>
       </div>
+
       <div className="summaryRow discount" style={{ color: '#fe6c03', fontWeight: 600 }}>
         <span>Item(s) discount:</span>
         <span>-AED {discount.toFixed(2)}</span>
@@ -342,9 +339,17 @@ const captureOrderItems = async (orderId, cartItems, customer) => {
         <span>Subtotal:</span>
         <span>AED {subtotal.toFixed(2)}</span>
       </div>
+
+      {deliveryFee > 0 && (
+        <div className="summaryRowCR" style={{ color: '#fe6c03', fontWeight: 600 }}>
+          <span>Delivery Fee:</span>
+          <span>AED {deliveryFee.toFixed(2)}</span>
+        </div>
+      )}
+
       <div className="summaryRowCR" style={{ fontWeight: 700 }}>
         <span>Total:</span>
-        <span>AED {subtotal.toFixed(2)}</span>
+        <span>AED {totalWithDelivery.toFixed(2)}</span>
       </div>
 
       <p className="checkoutNote">
@@ -373,25 +378,21 @@ const captureOrderItems = async (orderId, cartItems, customer) => {
         <HelpText />
       </div>
 
-      {/* ...other JSX above */}
-{/* Mobile sticky area */}
-<div className="mobileStickyButton">
-  <div className="mobileStickyContent">
-    <span className="mobileSubtotal">AED {subtotal.toFixed(2)}</span>
-    <button
-      className="placeOrderBtnCR"
-      onClick={handlePlaceOrder}
-      disabled={isPlacingOrder}
-      style={getButtonStyle()}
-      aria-disabled={isPlacingOrder}
-    >
-      {getButtonLabel()}
-    </button>
-  </div>
-</div>
-
-{/* ...other JSX below */}
-
+      {/* Mobile sticky area */}
+      <div className="mobileStickyButton">
+        <div className="mobileStickyContent">
+          <span className="mobileSubtotal">AED {totalWithDelivery.toFixed(2)}</span>
+          <button
+            className="placeOrderBtnCR"
+            onClick={handlePlaceOrder}
+            disabled={isPlacingOrder}
+            style={getButtonStyle()}
+            aria-disabled={isPlacingOrder}
+          >
+            {getButtonLabel()}
+          </button>
+        </div>
+      </div>
     </aside>
   );
-}  
+}
