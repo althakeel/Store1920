@@ -56,6 +56,10 @@ const UAE_CITIES = {
 
 const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) => {
   const [formErrors, setFormErrors] = useState({});
+  const [otpSent, setOtpSent] = useState(false);
+const [otp, setOtp] = useState('');
+const [otpVerified, setOtpVerified] = useState(false);
+const [otpLoading, setOtpLoading] = useState(false);
 
   // Load saved address from localStorage on mount
   useEffect(() => {
@@ -76,6 +80,60 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) =
       }
     }
   }, []);
+
+
+
+const sendOtp = async () => {
+  if (!formData.shipping.phone_number) {
+    alert("Enter a valid phone number first");
+    return;
+  }
+  try {
+    setOtpLoading(true);
+    const res = await fetch('https://store1920.com/wp-json/custom/v1/send-whatsapp-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: formData.shipping.phone_number }),
+    });
+    const data = await res.json();
+    setOtpLoading(false);
+    if (data.success) {
+      alert("OTP sent to your WhatsApp!");
+      setOtpSent(true);
+    } else {
+      alert("Failed to send OTP");
+    }
+  } catch (err) {
+    setOtpLoading(false);
+    console.error(err);
+    alert("Error sending OTP");
+  }
+};
+
+const verifyOtp = async () => {
+  try {
+    setOtpLoading(true);
+    const res = await fetch('https://store1920.com/wp-json/custom/v1/verify-whatsapp-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: formData.shipping.phone_number, otp }),
+    });
+    const data = await res.json();
+    setOtpLoading(false);
+    if (data.success) {
+      alert("Phone verified!");
+      setOtpVerified(true);
+    } else {
+      alert("Invalid OTP, try again.");
+      setOtpVerified(false);
+    }
+  } catch (err) {
+    setOtpLoading(false);
+    console.error(err);
+    alert("Error verifying OTP");
+  }
+};
+
 
   const validateField = (name, value) => {
     let error = '';
@@ -200,8 +258,10 @@ const handleSaveAddress = async (e) => {
                 inputStyle={{ width: '100%', height: '42px', borderRadius: '6px', border: '1px solid #ccc', paddingLeft: '48px' }}
                 buttonStyle={{ pointerEvents: 'none', backgroundColor: '#fff' }}
                 enableSearch={false} countryCodeEditable={false} />
+                
               {formErrors.phone_number && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.phone_number}</span>}
             </label>
+
 
             {/* Street */}
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>

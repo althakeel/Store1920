@@ -72,6 +72,7 @@ const parsePrice = (raw) => {
 // -----------------------------
 export default function CheckoutRight({ cartItems, formData, createOrder, clearCart, orderId }) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
+  const [hoverMessage, setHoverMessage] = useState('');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [coinDiscount, setCoinDiscount] = useState(0);
@@ -99,30 +100,24 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 
   // Total including delivery
   const totalWithDelivery = subtotal + deliveryFee;
-
   const MIN_PAYMOB_AMOUNT = 0.01;
-  const amountToSend = Math.max(totalWithDelivery, MIN_PAYMOB_AMOUNT); // Include delivery
+  const amountToSend = Math.max(totalWithDelivery, MIN_PAYMOB_AMOUNT);
 
   // -----------------------------
-  // Validate only required fields
+  // Check if required address fields are complete
   // -----------------------------
-  const checkEmptyFields = (data) => {
-    const requiredFields = [
-      'first_name',
-      'last_name',
-      'email',
-      'phone_number',
-      'street',
-      'city',
-      'country',
-    ];
-
-    requiredFields.forEach((field) => {
-      if (!data[field]) {
-        console.warn(`⚠️ Missing required field: ${field}`);
-      }
-    });
-  };
+  const requiredFields = [
+    'first_name',
+    'last_name',
+    'email',
+    'phone_number',
+    'street',
+    'city',
+    'country',
+  ];
+  const shippingOrBilling = formData.shipping || formData.billing || {};
+  const isAddressComplete = requiredFields.every(field => shippingOrBilling[field]?.trim());
+  const canPlaceOrder = isAddressComplete;
 
   // -----------------------------
   // Capture order items
@@ -172,7 +167,6 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       // Paymob/Card
       if (['paymob', 'card'].includes(formData.paymentMethod)) {
         const shipping = formData.shipping || {};
-
         const normalized = {
           first_name: shipping.first_name?.trim() || 'First',
           last_name: shipping.last_name?.trim() || 'Last',
@@ -183,15 +177,18 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
           street: shipping.street?.trim() || '',
           apartment: shipping.apartment?.trim() || '',
           floor: shipping.floor?.trim() || '',
-          city: shipping.city?.trim()
-            ? shipping.city.charAt(0).toUpperCase() + shipping.city.slice(1)
-            : 'Dubai',
+          city: shipping.city?.trim() ? shipping.city.charAt(0).toUpperCase() + shipping.city.slice(1) : 'Dubai',
           state: shipping.state?.trim() || 'DXB',
           country: 'AE',
           postal_code: shipping.postal_code?.trim() || '',
         };
 
-        checkEmptyFields(normalized);
+        // Validation logic
+        if (!isAddressComplete) {
+          showAlert('Please fill all required address fields.', 'error');
+          setIsPlacingOrder(false);
+          return;
+        }
 
         const payload = {
           amount: amountToSend,
@@ -199,14 +196,12 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
           billing: normalized,
           shipping: normalized,
           billingSameAsShipping: true,
-          items: [
-            {
-              name: `Order ${id.id || id}`,
-              amount: amountToSend,
-              quantity: 1,
-              description: 'Order from store1920.com',
-            },
-          ],
+          items: [{
+            name: `Order ${id.id || id}`,
+            amount: amountToSend,
+            quantity: 1,
+            description: 'Order from store1920.com',
+          }],
         };
 
         try {
@@ -215,7 +210,6 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           });
-
           const data = await res.json();
           if (!res.ok) throw new Error(data.message || 'Failed to initiate Paymob payment.');
           if (!data.checkout_url) throw new Error('Paymob checkout URL not returned.');
@@ -250,7 +244,6 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
         : parseFloat(couponData.amount);
 
     discountAmount = Math.min(discountAmount, itemsTotal);
-
     setDiscount(discountAmount);
     showAlert(`Coupon applied! You saved AED ${discountAmount.toFixed(2)}`, 'success');
   };
@@ -317,10 +310,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 
       <CoinBalance onCoinRedeem={handleCoinRedemption} />
       {coinDiscount > 0 && (
-        <div
-          className="summaryRow"
-          style={{ color: 'green', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-        >
+        <div className="summaryRow" style={{ color: 'green', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <span>Coin discount:</span>
             <span style={{ marginLeft: 8 }}>-AED {coinDiscount.toFixed(2)}</span>
@@ -363,15 +353,39 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
         <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
       </p>
 
-      <button
-        className="placeOrderBtnCR"
-        onClick={handlePlaceOrder}
-        disabled={isPlacingOrder}
-        style={getButtonStyle()}
-        aria-disabled={isPlacingOrder}
-      >
-        {getButtonLabel()}
-      </button>
+      {/* Place Order Button with Hover Tooltip */}
+      <div style={{ position: 'relative', display: 'inline-block' }}>
+        <button
+          className="placeOrderBtnCR"
+          onClick={handlePlaceOrder}
+          disabled={isPlacingOrder || !canPlaceOrder}
+          style={getButtonStyle()}
+          aria-disabled={isPlacingOrder || !canPlaceOrder}
+          onMouseEnter={() => !canPlaceOrder && setHoverMessage('Please fill all required address fields.')}
+          onMouseLeave={() => setHoverMessage('')}
+        >
+          {getButtonLabel()}
+        </button>
+        {hoverMessage && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '-28px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: '#dc3545',
+              color: '#fff',
+              padding: '4px 10px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              whiteSpace: 'nowrap',
+              zIndex: 10,
+            }}
+          >
+            {hoverMessage}
+          </div>
+        )}
+      </div>
 
       <TrustSection />
       <div className="mobile-only">
