@@ -188,17 +188,17 @@ useEffect(() => {
     if (!contextCartItems.length) return setCartItems([]);
     const fetchProducts = async () => {
       try {
-        const details = await Promise.all(
-          contextCartItems.map(async (item) => {
-            const prod = await fetchWithAuth(`products/${item.id}`);
-            return {
-              ...item,
-              price: parseFloat(prod.price) || 0,
-              inStock: prod.stock_quantity > 0,
-              name: prod.name,
-            };
-          })
-        );
+       const details = await Promise.all(
+  contextCartItems.map(async (item) => {
+    const prod = await fetchWithAuth(`products/${item.id}`);
+    return {
+      ...item,
+      price: parseFloat(prod.price) || 0,
+      inStock: prod.stock_quantity > 0,
+      name: prod.name,
+    };
+  })
+);
         setCartItems(details);
       } catch {
         setCartItems(contextCartItems.map(i => ({ ...i, price: i.price || 0, inStock: true })));

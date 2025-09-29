@@ -1,85 +1,65 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/styles/checkoutleft/itemlist.css';
 import { useCart } from '../../contexts/CartContext';
 
+// Utility: convert product name to slug
 const slugify = (text) =>
   text
-    .toString()
+    ?.toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')        // spaces to hyphens
-    .replace(/[^\w\-]+/g, '')    // remove non-word chars
-    .replace(/\-\-+/g, '-');     // collapse multiple hyphens
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-') || '';
 
-const ItemList = ({ items, onRemove }) => {
+const ItemList = ({ items = [], onRemove }) => {
   const navigate = useNavigate();
-const { removeFromCart } = useCart(); // optional fallback to context
+  const { removeFromCart } = useCart();
 
-  if (!items || items.length === 0) {
-    return <p>Your cart is empty.</p>;
-  }
+  if (!items.length) return <p className="empty-cart-msg">Your cart is empty.</p>;
 
-  const handleItemClick = (product) => {
-    if (product.name) {
-      const slug = slugify(product.name);
-      navigate(`/product/${slug}`);
-    }
+  const handleItemClick = (item) => {
+    if (!item || !item.name) return;
+    navigate(`/product/${slugify(item.name)}`);
   };
 
-  const handleRemove = (itemId) => {
-    if (onRemove) {
-      onRemove(itemId);
-    } else {
-      removeFromCart?.(itemId);
-    }
+  const handleRemove = (id) => {
+    if (onRemove) onRemove(id);
+    else removeFromCart?.(id);
   };
 
   return (
     <div className="cart-summary">
-      <h3>Items in Cart ({items.length})</h3>
+      <h3 className="cart-title">Items in Cart ({items.length})</h3>
       <div className="cart-grid">
         {items.map((item, index) => {
-          const imageUrl =
-            item.images?.[0]?.src ||
-            item.images?.[0]?.url ||
-            item.image ||
-            '';
+          const key = item.id ?? item.product_id ?? index;
+          const imageUrl = item.images?.[0]?.src || item.images?.[0]?.url || item.image || '';
+          const rawPrice = item.prices?.price ?? item.price ?? 0;
+          const price = parseFloat(rawPrice).toFixed(1);
 
-          const rawPrice = item.prices?.price ?? item.price ?? '';
-          const priceFloat = parseFloat(rawPrice);
-          const price = !isNaN(priceFloat) ? priceFloat.toFixed(3) : '';
+          const hasStockInfo = ['stock_quantity', 'in_stock', 'is_in_stock', 'stock_status'].some(
+            (key) => Object.prototype.hasOwnProperty.call(item, key)
+          );
 
-          const hasStockInfo =
-            item.hasOwnProperty('stock_quantity') ||
-            item.hasOwnProperty('in_stock') ||
-            item.hasOwnProperty('is_in_stock') ||
-            item.hasOwnProperty('stock_status');
-
-          const stockOutByQuantity =
-            typeof item.stock_quantity === 'number' && item.stock_quantity <= 0;
-
+          const stockOutByQuantity = typeof item.stock_quantity === 'number' && item.stock_quantity <= 0;
           const stockOutByFlag =
             (typeof item.in_stock === 'boolean' && !item.in_stock) ||
             (typeof item.is_in_stock === 'boolean' && !item.is_in_stock) ||
             (typeof item.stock_status === 'string' && item.stock_status.toLowerCase() !== 'instock');
 
-          const isOutOfStock =
-            (!price || priceFloat === 0) || (hasStockInfo && (stockOutByQuantity || stockOutByFlag));
-
-          const key = item.id || item.product_id || index;
+          const isOutOfStock = (!price || parseFloat(price) <= 0) || (hasStockInfo && (stockOutByQuantity || stockOutByFlag));
 
           return (
             <div
-              className={`cart-grid-item ${isOutOfStock ? 'out-of-stock' : ''}`}
               key={key}
+              className={`cart-grid-item ${isOutOfStock ? 'out-of-stock' : ''}`}
               onClick={() => !isOutOfStock && handleItemClick(item)}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
-                if ((e.key === 'Enter' || e.key === ' ') && !isOutOfStock) {
-                  handleItemClick(item);
-                }
+                if ((e.key === 'Enter' || e.key === ' ') && !isOutOfStock) handleItemClick(item);
               }}
               aria-disabled={isOutOfStock}
             >
@@ -95,24 +75,20 @@ const { removeFromCart } = useCart(); // optional fallback to context
                 <div className="cart-item-placeholder">No image</div>
               )}
 
-              {isOutOfStock && (
-                <div className="out-of-stock-badge" aria-label="Out of stock">
-                  Out of Stock
-                </div>
-              )}
+              {isOutOfStock && <div className="out-of-stock-badge">Out of Stock</div>}
 
-              <div className="cart-item-price">
-                AED {price || 'N/A'} × {item.quantity ?? 1}
+              <div className="cart-item-info">
+                <p className="cart-item-name">{item.name}</p>
+                <p className="cart-item-price">AED {price} × {item.quantity ?? 1}</p>
               </div>
 
               <button
                 className="cart-item-remove-btn"
                 onClick={(e) => {
                   e.stopPropagation();
-                  const itemId = item.id ?? item.product_id ?? item.sku ?? index;
-                  handleRemove(itemId);
+                  handleRemove(item.id ?? item.product_id ?? item.sku ?? index);
                 }}
-                aria-label={`Remove ${item.name || 'item'} from cart`}
+                aria-label={`Remove ${item.name ?? 'item'} from cart`}
               >
                 ×
               </button>

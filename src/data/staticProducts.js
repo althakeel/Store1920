@@ -160,7 +160,7 @@ section5image:Product24,
 
 
     {
-    id: 2,
+    id: 494595,
     name: 'Twin Size Air Mattress with Built-in Rechargeable Pump – 16 Self-Inflating Blow Up Bed for Home, Camping & Guests',
     slug: 'twin-size-air-mattress-with-built-in-rechargeable-pump-16-self-inflating-blow-up-bed-for-home-camping-guests',
     price: 139,
@@ -304,7 +304,7 @@ comparisonData: {
 
 
     {
-    id: 3,
+    id: 494590,
     name: 'Electric Paint Sprayer',
     slug: '850w-electric-paint-sprayer-uae',
     price: 85,

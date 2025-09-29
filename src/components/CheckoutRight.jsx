@@ -19,6 +19,7 @@ function Alert({ message, type = 'info', onClose }) {
   if (!message) return null;
 
   const colors = { info: '#2f86eb', success: '#28a745', error: '#dc3545' };
+
   return (
     <div
       style={{
@@ -80,7 +81,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   const showAlert = (message, type = 'info') => setAlert({ message, type });
 
   // -----------------------------
-  // Calculate totals
+  // Totals
   // -----------------------------
   const itemsTotal = cartItems.reduce((acc, item) => {
     const price = parsePrice(item.prices?.price ?? item.price);
@@ -88,23 +89,37 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     return acc + price * quantity;
   }, 0);
 
-  const subtotal = Math.max(
-    0,
-    itemsTotal - Math.min(discount, itemsTotal) - Math.min(coinDiscount, itemsTotal)
-  );
+const subtotal = Math.max(
+  0,
+  itemsTotal - Math.min(discount, itemsTotal) - Math.min(coinDiscount, itemsTotal)
+);
 
+
+  // -----------------------------
   // Delivery fee
+  // -----------------------------
   const DELIVERY_THRESHOLD = 100; // AED
-  const DELIVERY_CHARGE = 10;     // AED
-  const deliveryFee = subtotal < DELIVERY_THRESHOLD ? DELIVERY_CHARGE : 0;
+  const DELIVERY_CHARGE = 0;     // AED
+  const FREE_SHIPPING_STATIC_IDS = [494574, 494595, 494590];
 
-  // Total including delivery
+  // Any item matches free shipping
+const isFreeShippingProduct = cartItems.some(item =>
+  FREE_SHIPPING_STATIC_IDS.includes(item.id)
+);
+
+
+const deliveryFee = isFreeShippingProduct
+  ? 0
+  : subtotal < DELIVERY_THRESHOLD
+  ? DELIVERY_CHARGE
+  : 0;
+
   const totalWithDelivery = subtotal + deliveryFee;
   const MIN_PAYMOB_AMOUNT = 0.01;
   const amountToSend = Math.max(totalWithDelivery, MIN_PAYMOB_AMOUNT);
 
   // -----------------------------
-  // Check if required address fields are complete
+  // Address validation
   // -----------------------------
   const requiredFields = [
     'first_name',
@@ -116,7 +131,9 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     'country',
   ];
   const shippingOrBilling = formData.shipping || formData.billing || {};
-  const isAddressComplete = requiredFields.every(field => shippingOrBilling[field]?.trim());
+  const isAddressComplete = requiredFields.every(field =>
+    shippingOrBilling[field]?.trim()
+  );
   const canPlaceOrder = isAddressComplete;
 
   // -----------------------------
@@ -127,7 +144,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       id: item.id || 0,
       name: item.name || item.title,
       price: parseFloat(item.prices?.price ?? item.price ?? 0),
-      quantity: parseInt(item.quantity, 10) || 1
+      quantity: parseInt(item.quantity, 10) || 1,
     }));
 
     await fetch('https://db.store1920.com/wp-json/custom/v1/capture-order-items', {
@@ -141,8 +158,8 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
           email: customer.email,
           phone_number: customer.phone_number,
         },
-        items
-      })
+        items,
+      }),
     });
   };
 
@@ -155,35 +172,33 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 
     try {
       const id = orderId || (await createOrder());
-      await captureOrderItems(id, cartItems, formData.shipping || formData.billing || {});
+      await captureOrderItems(id, cartItems, shippingOrBilling);
 
-      // Cash on Delivery
       if (formData.paymentMethod === 'cod') {
         clearCart();
         window.location.href = `/order-success?order_id=${id.id || id}`;
         return;
       }
 
-      // Paymob/Card
       if (['paymob', 'card'].includes(formData.paymentMethod)) {
-        const shipping = formData.shipping || {};
         const normalized = {
-          first_name: shipping.first_name?.trim() || 'First',
-          last_name: shipping.last_name?.trim() || 'Last',
-          email: shipping.email?.trim() || formData.billing?.email || 'customer@example.com',
-          phone_number: shipping.phone_number?.startsWith('+')
-            ? shipping.phone_number
-            : `+${shipping.phone_number || '971501234567'}`,
-          street: shipping.street?.trim() || '',
-          apartment: shipping.apartment?.trim() || '',
-          floor: shipping.floor?.trim() || '',
-          city: shipping.city?.trim() ? shipping.city.charAt(0).toUpperCase() + shipping.city.slice(1) : 'Dubai',
-          state: shipping.state?.trim() || 'DXB',
+          first_name: shippingOrBilling.first_name?.trim() || 'First',
+          last_name: shippingOrBilling.last_name?.trim() || 'Last',
+          email: shippingOrBilling.email?.trim() || formData.billing?.email || 'customer@example.com',
+          phone_number: shippingOrBilling.phone_number?.startsWith('+')
+            ? shippingOrBilling.phone_number
+            : `+${shippingOrBilling.phone_number || '971501234567'}`,
+          street: shippingOrBilling.street?.trim() || '',
+          apartment: shippingOrBilling.apartment?.trim() || '',
+          floor: shippingOrBilling.floor?.trim() || '',
+          city: shippingOrBilling.city?.trim()
+            ? shippingOrBilling.city.charAt(0).toUpperCase() + shippingOrBilling.city.slice(1)
+            : 'Dubai',
+          state: shippingOrBilling.state?.trim() || 'DXB',
           country: 'AE',
-          postal_code: shipping.postal_code?.trim() || '',
+          postal_code: shippingOrBilling.postal_code?.trim() || '',
         };
 
-        // Validation logic
         if (!isAddressComplete) {
           showAlert('Please fill all required address fields.', 'error');
           setIsPlacingOrder(false);
@@ -196,12 +211,14 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
           billing: normalized,
           shipping: normalized,
           billingSameAsShipping: true,
-          items: [{
-            name: `Order ${id.id || id}`,
-            amount: amountToSend,
-            quantity: 1,
-            description: 'Order from store1920.com',
-          }],
+          items: [
+            {
+              name: `Order ${id.id || id}`,
+              amount: amountToSend,
+              quantity: 1,
+              description: 'Order from store1920.com',
+            },
+          ],
         };
 
         try {
@@ -262,7 +279,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   };
 
   // -----------------------------
-  // Button styles and label
+  // Button styles & label
   // -----------------------------
   const getButtonStyle = () => {
     const base = {
@@ -297,7 +314,6 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 
       <h2>Order Summary</h2>
       <CouponDiscount onApplyCoupon={handleCoupon} />
-
       <div className="summaryRowCR">
         <span>Item(s) total:</span>
         <span>AED {itemsTotal.toFixed(2)}</span>
@@ -310,7 +326,16 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 
       <CoinBalance onCoinRedeem={handleCoinRedemption} />
       {coinDiscount > 0 && (
-        <div className="summaryRow" style={{ color: 'green', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div
+          className="summaryRow"
+          style={{
+            color: 'green',
+            fontWeight: 600,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <div>
             <span>Coin discount:</span>
             <span style={{ marginLeft: 8 }}>-AED {coinDiscount.toFixed(2)}</span>
@@ -330,12 +355,12 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
         <span>AED {subtotal.toFixed(2)}</span>
       </div>
 
-      {deliveryFee > 0 && (
-        <div className="summaryRowCR" style={{ color: '#fe6c03', fontWeight: 600 }}>
-          <span>Delivery Fee:</span>
-          <span>AED {deliveryFee.toFixed(2)}</span>
-        </div>
-      )}
+    {deliveryFee > 0 && (
+  <div className="summaryRowCR" style={{ color: '#fe6c03', fontWeight: 600 }}>
+    <span>Delivery Fee:</span>
+    <span>AED {deliveryFee.toFixed(2)}</span>
+  </div>
+)}
 
       <div className="summaryRowCR" style={{ fontWeight: 700 }}>
         <span>Total:</span>
@@ -348,12 +373,11 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 
       <p className="checkoutTerms">
         By submitting your order, you agree to our{' '}
-        <a href="/terms-0f-use" target="_blank" rel="noopener noreferrer">Terms of Use</a>{' '}
-        and{' '}
+        <a href="/terms-0f-use" target="_blank" rel="noopener noreferrer">Terms of Use</a> and{' '}
         <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
       </p>
 
-      {/* Place Order Button with Hover Tooltip */}
+      {/* Place Order Button */}
       <div style={{ position: 'relative', display: 'inline-block' }}>
         <button
           className="placeOrderBtnCR"

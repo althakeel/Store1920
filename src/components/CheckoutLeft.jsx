@@ -35,13 +35,6 @@ export default function CheckoutLeft({
   const { removeFromCart } = useCart();
 
   // -------------------------------
-  // Initialize cart items on mount
-  // -------------------------------
-  useEffect(() => {
-    setFormData(prev => ({ ...prev, cartItems: cartItems || [] }));
-  }, [cartItems]);
-
-  // -------------------------------
   // Handle field changes
   // -------------------------------
   const handleFieldChange = (e, section) => {
@@ -60,13 +53,6 @@ export default function CheckoutLeft({
   // Remove cart item
   // -------------------------------
   const handleRemoveItem = (itemId) => {
-    setFormData(prev => {
-      const newCartItems = (prev.cartItems || []).filter(i => {
-        const id = i.id ?? i.product_id ?? i.sku ?? i.slug ?? null;
-        return id !== itemId;
-      });
-      return { ...prev, cartItems: newCartItems };
-    });
     removeFromCart(itemId);
   };
 
@@ -89,17 +75,12 @@ export default function CheckoutLeft({
   // -------------------------------
   // Auto-open form if no shipping address
   // -------------------------------
-useEffect(() => {
-  const hasAddress = formData?.shipping?.street?.trim() &&
-                     formData?.shipping?.first_name?.trim() &&
-                     formData?.shipping?.last_name?.trim();
-  
-  // Only show form initially if no address
-  if (!hasAddress) {
-    setShowForm(true);
-  }
-}, []); 
-
+  useEffect(() => {
+    const hasAddress = formData?.shipping?.street?.trim() &&
+                       formData?.shipping?.first_name?.trim() &&
+                       formData?.shipping?.last_name?.trim();
+    if (!hasAddress) setShowForm(true);
+  }, []);
 
   // -------------------------------
   // Shipping method handling
@@ -155,8 +136,7 @@ useEffect(() => {
       billing: formData.billingSameAsShipping ? formatAddress(formData.shipping) : formatAddress(formData.billing),
       billingSameAsShipping: formData.billingSameAsShipping,
       shippingMethodId: formData.shippingMethodId || null,
-        save_as_default: formData.saveAsDefault || false, // <-- Add this
-
+      save_as_default: formData.saveAsDefault || false,
     };
 
     try {
@@ -241,7 +221,7 @@ useEffect(() => {
 
       {/* Cart Items */}
       <div className="section-block">
-        <ItemList items={formData.cartItems || []} onRemove={handleRemoveItem} />
+        <ItemList items={cartItems || []} onRemove={handleRemoveItem} />
       </div>
 
       {/* Payment Methods */}
