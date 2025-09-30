@@ -507,15 +507,15 @@ const staticProducts = [
     thumb7: Product58,
     thumb8: Product59,
     thumb9: Product60,
-    thumb9: Product61,
+    // thumb9: Product61,
     thumb9: Product62,
-    thumb10: Product63,
-    thumb11: Product64,
-    thumb12: Product65,
-    thumb13: Product66,
-    thumb14: Product67,
-    thumb15: Product68,
-    thumb16: Product69,
+    // thumb10: Product63,
+    // thumb11: Product64,
+    // thumb12: Product65,
+    // thumb13: Product66,
+    // thumb14: Product67,
+    // thumb15: Product68,
+    // thumb16: Product69,
 
 
 
@@ -569,16 +569,16 @@ const staticProducts = [
     sectionProgressTitle: ' Trusted by Gardeners &',
     sectionProgressSubtitle: '  Farmers for Reliable Performance',
     sectionProgress: [
-      { title: 'Relive the Classics', desc: '', percent: 95 },
-      { title: 'Plug & Play Simplicity ', desc: '', percent: 92 },
-      { title: 'Multiplayer Ready ', desc: ' ', percent: 89 },
-      { title: 'Next-Level Visuals', desc: '', percent: 93 },
+      { title: 'Report Faster Workflows', desc: '', percent: 95 },
+      { title: 'Notice Cleaner Cuts', desc: '', percent: 92 },
+      { title: 'Experience Less Fatigue', desc: ' ', percent: 89 },
+      { title: ' Value Long Battery Life', desc: '', percent: 93 },
     ],
 
     comparisonData: {
-      title: " Why Choose Retro Game Stick™ Over Others?",
-      description: " Tired of boring consoles that limit your gaming experience? With Retro Game Stick™, you get access to a huge gaming library, modern 4K visuals, and hassle-free plug-and-play setup — all in one compact device.",
-      headers: ['Feature', 'Retro Game Stick', 'Others'],
+      title: " Why Choose PowerCut™ Electric Pruner Over Others?",
+      description: " Stop struggling with dull manual shears that slow you down! With PowerCut™, you get professional-grade cutting power, designed for gardeners and farmers who demand efficiency, safety, and comfort.",
+      headers: ['Feature', 'TrimPro™ ', 'Others'],
       rows: [
         { feature: 'Powerful Brushless Motor', lumineux: true, others: false },
         { feature: 'Up to 6000 Cuts/Charge ', lumineux: true, others: false },
@@ -647,7 +647,7 @@ const staticProducts = [
     thumb3: Product73,
     thumb4: Product74,
     thumb4: Product75,
-    thumb5: Product76,
+    // thumb5: Product76,
     thumb6: Product77,
     thumb7: Product78,
     thumb8: Product79,
@@ -705,10 +705,10 @@ const staticProducts = [
     sectionProgressTitle: '  Trusted by Gamers Worldwide',
     sectionProgressSubtitle: ' for Endless Entertainment',
     sectionProgress: [
-      { title: 'Report Faster Workflows', desc: 'Save hours compared to manual pruning', percent: 96 },
-      { title: 'Notice Cleaner Cuts', desc: 'Protects plants from damage & disease', percent: 92 },
-      { title: 'Experience Less Fatigue', desc: '  Ergonomic handle & cordless freedom.', percent: 89 },
-      { title: 'Value Long Battery Life', desc: 'Continuous cutting without interruption', percent: 94 },
+      { title: 'Relive the Classics', desc: '', percent: 96 },
+      { title: 'Plug & Play Simplicity', desc: '', percent: 92 },
+      { title: 'Multiplayer Ready', desc: '  ', percent: 89 },
+      { title: 'Next-Level Visuals', desc: '', percent: 94 },
     ],
 
     comparisonData: {
