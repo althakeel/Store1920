@@ -669,7 +669,7 @@ const staticProducts = [
     type: "Bundle of 2",
     label: "Buy 2 & Get 15% Off",
     discount: 15,
-    price: +(69.9 * 2 * 0.85).toFixed(2), // ≈ 118.83 AED
+    price: 119, // ≈ 118.83 AED
     originalPrice: +(69.9 * 2).toFixed(2), // 139.8 AED
     note: "Perfect for you & a friend",
     mostPopular: true,
@@ -679,7 +679,7 @@ const staticProducts = [
     type: "Bundle of 3",
     label: "Buy 3 & Get 25% Off",
     discount: 25,
-    price: +(69.9 * 3 * 0.75).toFixed(2), // ≈ 157.28 AED
+    price: 159.00, // ≈ 157.28 AED
     originalPrice: +(69.9 * 3).toFixed(2), // 209.7 AED
     note: "Best Value",
     image: Product82,
