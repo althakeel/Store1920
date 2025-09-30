@@ -44,13 +44,49 @@ import Product41 from '../assets/images/staticproducts/paintspray/11.webp'
 import Product42 from '../assets/images/staticproducts/paintspray/12.webp'
 import Product43 from '../assets/images/staticproducts/paintspray/13.webp'
 
+import Product51 from '../assets/images/staticproducts/pruningmachine/1.webp'
+import Product52 from '../assets/images/staticproducts/pruningmachine/2.webp'
+import Product53 from '../assets/images/staticproducts/pruningmachine/3.webp'
+import Product54 from '../assets/images/staticproducts/pruningmachine/4.webp'
+import Product55 from '../assets/images/staticproducts/pruningmachine/5.webp'
+import Product56 from '../assets/images/staticproducts/pruningmachine/6.webp'
+import Product57 from '../assets/images/staticproducts/pruningmachine/7.webp'
+import Product58 from '../assets/images/staticproducts/pruningmachine/8.webp'
+import Product59 from '../assets/images/staticproducts/pruningmachine/9.webp'
+import Product60 from '../assets/images/staticproducts/pruningmachine/10.webp'
+import Product61 from '../assets/images/staticproducts/pruningmachine/11.webp'
+import Product62 from '../assets/images/staticproducts/pruningmachine/12.webp'
+import Product63 from '../assets/images/staticproducts/pruningmachine/13.webp'
+import Product64 from '../assets/images/staticproducts/pruningmachine/14.webp'
+import Product65 from '../assets/images/staticproducts/pruningmachine/15.webp'
+import Product66 from '../assets/images/staticproducts/pruningmachine/16.webp'
+import Product67 from '../assets/images/staticproducts/pruningmachine/17.webp'
+import Product68 from '../assets/images/staticproducts/pruningmachine/18.webp'
+import Product69 from '../assets/images/staticproducts/pruningmachine/19.webp'
+
+
+
+import Product71 from '../assets/images/staticproducts/gamekit/1.webp'
+import Product72 from '../assets/images/staticproducts/gamekit/2.webp'
+import Product73 from '../assets/images/staticproducts/gamekit/3.webp'
+import Product74 from '../assets/images/staticproducts/gamekit/4.webp'
+import Product75 from '../assets/images/staticproducts/gamekit/5.webp'
+import Product76 from '../assets/images/staticproducts/gamekit/6.webp'
+import Product77 from '../assets/images/staticproducts/gamekit/7.webp'
+import Product78 from '../assets/images/staticproducts/gamekit/8.webp'
+import Product79 from '../assets/images/staticproducts/gamekit/9.webp'
+import Product80 from '../assets/images/staticproducts/gamekit/10.webp'
+import Product81 from '../assets/images/staticproducts/gamekit/11.webp'
+import Product82 from '../assets/images/staticproducts/gamekit/ad 1.png'
+import Product83 from '../assets/images/staticproducts/gamekit/ad 2.png'
+import Product84 from '../assets/images/staticproducts/gamekit/ad 3.png'
 
 
 
 
 const staticProducts = [
   {
-    id:  494574,
+    id: 494574,
     name: '68V Cordless Portable Car Wash Pressure Washer Gun with Dual Battery – High Power Cleaning Machine for Cars, Bikes & Home',
     slug: '68v-cordless-portable-car-wash-pressure-washer-gun-with-dual',
     price: 69.9,
@@ -76,14 +112,14 @@ const staticProducts = [
     thumb11: Product12,
 
     bundles: [
-      { type: 'Buy 1', discount: 0, price: 69.9, originalPrice: 69.9,image: Product1 },
+      { type: 'Buy 1', discount: 0, price: 69.9, originalPrice: 69.9, image: Product1 },
       { type: 'Bundle of 2', discount: 10, price: 125.8, originalPrice: 139.8, note: 'Perfect for you & a friend', mostPopular: true, image: Product3 },
       { type: 'Bundle of 3', discount: 25, price: 157.2, originalPrice: 209.7, note: 'Get 25% OFF', image: Product3 },
     ],
 
     section2contentTitle: 'Reveal the Power of Clean, Anytime, Anywhere',
     section2contentDesc: 'Transform the way you wash your car, bike, and home surfaces with the 68V Portable Car Wash Gun. Say goodbye to stubborn dirt, messy hoses, and expensive car wash visits — enjoy professional-level cleaning right at home.',
-    section2list:['Blast away dirt, mud, and grime effortlessly','Wash anywhere with cordless portability','Wash anywhere with cordless portability','Perfect for cars, bikes, gardens, floors, and more'],
+    section2list: ['Blast away dirt, mud, and grime effortlessly', 'Wash anywhere with cordless portability', 'Wash anywhere with cordless portability', 'Perfect for cars, bikes, gardens, floors, and more'],
     section2contentPoints: ['All Over UAE', '24/7 Support', 'Verified Quality Only', 'Hassle-free Returns'],
     section2image: Product3,
 
@@ -104,20 +140,20 @@ const staticProducts = [
       { title: 'Multi-Surface Versatility', desc: 'Cars, bikes, driveways, garden furniture — one tool, endless uses.', percent: 79 },
     ],
 
-comparisonData: {
-  title: "What Makes Us Different” Comparison Table",
-  description: "Elevate your car wash routine with the 68V Portable Pressure Washer. Unlike traditional washers, it’s cordless, portable, and designed for maximum performance at home or on the go.",
-  headers: ['Feature', 'Our 68V Cordless Washer', 'Others'],
-  rows: [
-    { feature: 'Dual Battery', lumineux: true, others: false },
-    { feature: 'Multi-Use (Car, Bike, Garden)', lumineux: true, others: false },
-    { feature: 'Portable & Cordless', lumineux: true, others: false },
-    { feature: 'Foam Pot for Deep Cleaning', lumineux: true, others: false },
-      { feature: '12-Month Warranty', lumineux: true, others: false },
-  ],
-},
+    comparisonData: {
+      title: "What Makes Us Different” Comparison Table",
+      description: "Elevate your car wash routine with the 68V Portable Pressure Washer. Unlike traditional washers, it’s cordless, portable, and designed for maximum performance at home or on the go.",
+      headers: ['Feature', 'Our 68V Cordless Washer', 'Others'],
+      rows: [
+        { feature: 'Dual Battery', lumineux: true, others: false },
+        { feature: 'Multi-Use (Car, Bike, Garden)', lumineux: true, others: false },
+        { feature: 'Portable & Cordless', lumineux: true, others: false },
+        { feature: 'Foam Pot for Deep Cleaning', lumineux: true, others: false },
+        { feature: '12-Month Warranty', lumineux: true, others: false },
+      ],
+    },
 
-section5image:Product24,
+    section5image: Product24,
 
 
     Guaranteetitle: '1 Year Guarantee',
@@ -159,7 +195,7 @@ section5image:Product24,
 
 
 
-    {
+  {
     id: 494595,
     name: 'Twin Size Air Mattress with Built-in Rechargeable Pump – 16 Self-Inflating Blow Up Bed for Home, Camping & Guests',
     slug: 'twin-size-air-mattress-with-built-in-rechargeable-pump-16-self-inflating-blow-up-bed-for-home-camping-guests',
@@ -171,7 +207,7 @@ section5image:Product24,
     subdesc2: 'Quick Self-Inflation in Minutes',
     subdesc3: 'Adjustable Firmness for Any Sleep Style',
     subdesc4: '',
-   
+
 
     image: Product18,
     thumb1: Product13,
@@ -187,40 +223,40 @@ section5image:Product24,
     thumb9: Product24,
 
 
-bundles: [
-  {
-    type: "Buy 1",
-    label: "Buy 1 for Only 139 AED",
-    discount: 54,          // (300 - 139) / 300 * 100 = 53.67% ≈ 54%
-    price: 139,            // total after discount
-    originalPrice: 300,    // original single-item price
-    image: Product24,
-  },
-  {
-    type: "Bundle of 2",
-    label: "Buy 2 & Get 58% Off",
-    discount: 58,          // (600 - 250.2) / 600 * 100 = 58.3% ≈ 58%
-    price: 250.2,          // total after discount
-    originalPrice: 600,    // 300 * 2
-    note: "Perfect for you & a friend",
-    mostPopular: true,
-    image: Product24,
-  },
-  {
-    type: "Bundle of 3",
-    label: "Buy 3 & Get 63% Off",
-    discount: 63,          // (900 - 333.6) / 900 * 100 = 62.93% ≈ 63%
-    price: 333.6,          // total after discount
-    originalPrice: 900,    // 300 * 3
-    note: "Best Value",
-    image: Product24,
-  },
-],
+    bundles: [
+      {
+        type: "Buy 1",
+        label: "Buy 1 for Only 139 AED",
+        discount: 54,          // (300 - 139) / 300 * 100 = 53.67% ≈ 54%
+        price: 139,            // total after discount
+        originalPrice: 300,    // original single-item price
+        image: Product24,
+      },
+      {
+        type: "Bundle of 2",
+        label: "Buy 2 & Get 58% Off",
+        discount: 58,          // (600 - 250.2) / 600 * 100 = 58.3% ≈ 58%
+        price: 250.2,          // total after discount
+        originalPrice: 600,    // 300 * 2
+        note: "Perfect for you & a friend",
+        mostPopular: true,
+        image: Product24,
+      },
+      {
+        type: "Bundle of 3",
+        label: "Buy 3 & Get 63% Off",
+        discount: 63,          // (900 - 333.6) / 900 * 100 = 62.93% ≈ 63%
+        price: 333.6,          // total after discount
+        originalPrice: 900,    // 300 * 3
+        note: "Best Value",
+        image: Product24,
+      },
+    ],
 
 
     section2contentTitle: 'Comfort & Use Cases',
     section2contentDesc: 'Your Bed, Wherever You Go Tired of thin sleeping mats or uncomfortable guest beds? The Bestrip Air Mattress transforms any space into a cozy, supportive sleeping environment.',
-    section2list:['Blast away dirt, mud, and grime effortlessly','Wash anywhere with cordless portability','Wash anywhere with cordless portability','Perfect for cars, bikes, gardens, floors, and more'],
+    section2list: ['Blast away dirt, mud, and grime effortlessly', 'Wash anywhere with cordless portability', 'Wash anywhere with cordless portability', 'Perfect for cars, bikes, gardens, floors, and more'],
     section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
     section2image: Product24,
 
@@ -242,18 +278,18 @@ bundles: [
       { title: 'Portable & Space-Saving', desc: 'Folds into the included carry bag for easy storage.', percent: 81 },
     ],
 
-comparisonData: {
-  title: "What Makes Us Different” Comparison Table",
-  description: "Elevate your sleep routine with the Bestrip Air Mattress. Unlike ordinary inflatable beds, it’s designed with comfort, durability, and versatility in mind.",
-  headers: ['Feature', 'Air Mattress', 'Others'],
-  rows: [
-    { feature: 'Built-in Rechargeable Pump', lumineux: true, others: false },
-    { feature: 'Adjustable Firmness', lumineux: true, others: false },
-    { feature: 'Multi-Use (Home, Camping, Travel)', lumineux: true, others: false },
-    { feature: 'Compact Carry Bag Included', lumineux: true, others: false },
-      { feature: '1-Year Manufacturer Warranty', lumineux: true, others: false },
-  ],
-},
+    comparisonData: {
+      title: "What Makes Us Different” Comparison Table",
+      description: "Elevate your sleep routine with the Bestrip Air Mattress. Unlike ordinary inflatable beds, it’s designed with comfort, durability, and versatility in mind.",
+      headers: ['Feature', 'Air Mattress', 'Others'],
+      rows: [
+        { feature: 'Built-in Rechargeable Pump', lumineux: true, others: false },
+        { feature: 'Adjustable Firmness', lumineux: true, others: false },
+        { feature: 'Multi-Use (Home, Camping, Travel)', lumineux: true, others: false },
+        { feature: 'Compact Carry Bag Included', lumineux: true, others: false },
+        { feature: '1-Year Manufacturer Warranty', lumineux: true, others: false },
+      ],
+    },
 
 
 
@@ -270,7 +306,7 @@ comparisonData: {
       '• 1 × Rechargeable Pump\n' +
       '• 1 × Type-C Charging Cable\n' +
       '• 1 × Carry Bag\n' +
-      '• 1-Year Manufacturer Warranty' ,
+      '• 1-Year Manufacturer Warranty',
 
     reviewsTitle: 'Customer Testimonials for Air Bed',
     reviewsRating: 4.9,
@@ -288,7 +324,7 @@ comparisonData: {
       { text: 'Excellent quality, soft top layer and feels really stable. No sinking in the middle like cheap air beds.', author: 'Mariam L. – Fujairah', stars: 5 },
       { text: 'Great value for money. Quick to inflate, strong build, and comes with a warranty. Definitely buying another one for camping.', author: 'Mohammed D. – Dubai', stars: 5 },
     ],
-    section5image:Product16,
+    section5image: Product16,
 
 
     // section4Data: [
@@ -303,7 +339,7 @@ comparisonData: {
 
 
 
-    {
+  {
     id: 494590,
     name: 'Electric Paint Sprayer',
     slug: '850w-electric-paint-sprayer-uae',
@@ -315,7 +351,7 @@ comparisonData: {
     subdesc2: 'Adjustable Airflow & Spray Modes',
     subdesc3: ' Perfect for Wood, Metal, and Walls',
     subdesc4: '',
-   
+
     image: Product35,
     // thumb1: Product43,
     thumb2: Product32,
@@ -332,38 +368,38 @@ comparisonData: {
 
 
 
-  bundles: [
-  {
-    type: "Buy 1",
-    label: "Buy 1 for Only 85 AED",
-    discount: 0,
-    price: 85,            
-    originalPrice: 250,   
-    image: Product41,
-  },
-  {
-    type: "Bundle of 2",
-    label: "Buy 2 & Get 10% Off",
-    discount: 10,
-    price: 153,         
-    originalPrice: 250,  
-    note: "Perfect for you & a friend",
-    mostPopular: true,
-    image: Product35,
-  },
-  {
-    type: "Bundle of 3",
-    label: "Buy 3 & Get 20% Off",
-    discount: 20,
-    price: 204,           
-    originalPrice: 250,   
-    note: "Best Value",
-    image: Product24,
-  }, ],
+    bundles: [
+      {
+        type: "Buy 1",
+        label: "Buy 1 for Only 85 AED",
+        discount: 0,
+        price: 85,
+        originalPrice: 250,
+        image: Product41,
+      },
+      {
+        type: "Bundle of 2",
+        label: "Buy 2 & Get 10% Off",
+        discount: 10,
+        price: 153,
+        originalPrice: 250,
+        note: "Perfect for you & a friend",
+        mostPopular: true,
+        image: Product35,
+      },
+      {
+        type: "Bundle of 3",
+        label: "Buy 3 & Get 20% Off",
+        discount: 20,
+        price: 204,
+        originalPrice: 250,
+        note: "Best Value",
+        image: Product24,
+      },],
 
     section2contentTitle: 'One Tool – Endless Projects',
     section2contentDesc: ' From DIY enthusiasts to car lovers, this paint sprayer makes every project faster and more professional.',
-    section2list:['Refresh old furniture in minutes, mud',' Paint fences, doors & walls with ease','Achieve showroom finish on cars & metal surfaces',' Perfect for cabinets, crafts, and home improvement projects'],
+    section2list: ['Refresh old furniture in minutes, mud', ' Paint fences, doors & walls with ease', 'Achieve showroom finish on cars & metal surfaces', ' Perfect for cabinets, crafts, and home improvement projects'],
     section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
     section2image: Product36,
 
@@ -385,19 +421,19 @@ comparisonData: {
       { title: 'Easy to Use & Clean', desc: 'Quick setup, detachable parts for fast cleaning.', percent: 83 },
     ],
 
-comparisonData: {
-  title: "What Makes Us Different” Comparison Table",
-  description: "Upgrade your painting experience with the 850W Electric Paint Sprayer. Unlike cheap sprayers, ours is engineered for power, durability, and precision.",
-  headers: ['Feature', 'Our 850W Sprayer', 'Others'],
-  rows: [
-    { feature: '850W High-Power Motor', lumineux: true, others: false },
-    { feature: 'Copper Nozzles (Durable & Precise)', lumineux: true, others: false },
-    { feature: 'Adjustable Air Regulator', lumineux: true, others: false },
-    { feature: 'Multi-Surface Use', lumineux: true, others: false },
-      { feature: 'Easy Cleaning System', lumineux: true, others: false },
-  ],
-},
-section5image:Product42,
+    comparisonData: {
+      title: "What Makes Us Different” Comparison Table",
+      description: "Upgrade your painting experience with the 850W Electric Paint Sprayer. Unlike cheap sprayers, ours is engineered for power, durability, and precision.",
+      headers: ['Feature', 'Our 850W Sprayer', 'Others'],
+      rows: [
+        { feature: '850W High-Power Motor', lumineux: true, others: false },
+        { feature: 'Copper Nozzles (Durable & Precise)', lumineux: true, others: false },
+        { feature: 'Adjustable Air Regulator', lumineux: true, others: false },
+        { feature: 'Multi-Surface Use', lumineux: true, others: false },
+        { feature: 'Easy Cleaning System', lumineux: true, others: false },
+      ],
+    },
+    section5image: Product42,
 
 
 
@@ -410,7 +446,7 @@ section5image:Product42,
     Faq3Q: '  Is it easy to clean?',
     fAQ3A:
       'Absolutely — the parts are detachable, making it simple to clean after every project.',
-   
+
 
     reviewsTitle: 'Customer Testimonials for Air Bed',
     reviewsRating: 4.9,
@@ -434,6 +470,294 @@ section5image:Product42,
     //   { icon: IconQuality, text: 'Premium Quality' },
     // ],
   },
+
+
+
+
+
+
+
+
+  // product4
+
+
+
+
+  {
+    id: 49469,
+    name: 'TrimPro™ 21V Cordless Electric Pruning Shears',
+    slug: 'trimpro-21v-cordless-electric-pruning-shears',
+    price: 109.9,
+    description: 'Paint Like a Pro – Anywhere, Anytime',
+    shortdesc: 'Save time and effort with our upgraded electric pruning shears. Built for gardeners, orchard owners, and farm workers who need sharp, powerful, and safe tools. ',
+    subdesc: '2 Rechargeable Batteries (21V, 2Ah)',
+    subdesc1: ' Cuts up to 30mm (1.2 inch) branches in seconds',
+    subdesc2: 'Lightweight, ergonomic & cordless design',
+    subdesc3: '6-Month Warranty + Free Delivery UAE',
+    subdesc4: '',
+
+    image: Product51,
+    // thumb1: Product43,
+    thumb2: Product52,
+    thumb3: Product53,
+    thumb4: Product54,
+    thumb4: Product55,
+    thumb5: Product56,
+    thumb6: Product57,
+    thumb7: Product58,
+    thumb8: Product59,
+    thumb9: Product60,
+    thumb9: Product61,
+    thumb9: Product62,
+    thumb10: Product63,
+    thumb11: Product64,
+    thumb12: Product65,
+    thumb13: Product66,
+    thumb14: Product67,
+    thumb15: Product68,
+    thumb16: Product69,
+
+
+
+
+
+ bundles: [
+  {
+    type: "Buy 1",
+    label: "Buy 1 for Only 109.9 AED",
+    discount: 0,
+    price: 109.9,
+    originalPrice: 109.9,
+    image: Product53,
+  },
+  {
+    type: "Bundle of 2",
+    label: "Buy 2 & Get 15% Off",
+    discount: 15,
+    price: 185.0, // 109.9 * 2 * 0.85 ≈ 186.42
+    originalPrice: 219.8, // 109.9 * 2
+    note: "Perfect for you & a friend",
+    mostPopular: true,
+    image: Product61,
+  },
+  {
+    type: "Bundle of 3",
+    label: "Buy 3 & Get 25% Off",
+    discount: 25,
+    price: 245.0, // 109.9 * 3 * 0.75 ≈ 247.43
+    originalPrice: 329.7, // 109.9 * 3
+    note: "Best Value",
+    image: Product68,
+  },
+],
+
+    section2contentTitle: 'Why Choose Our Electric Pruning Shears?',
+    section2contentDesc: ' ',
+    section2list: ['Sharp & Durable Blades – Forged from Swiss SK5 high carbon steel for clean, rust-free cuts.', ' Strong Brushless Motor – High torque motor delivers 8–10X faster pruning vs. manual shears.', 'Dual Lithium Batteries – Each charge cuts up to 6000 branches; recharge in just 1.5 hours.', 'Ergonomic & Anti-Slip Handle – Work longer without fatigue.', 'Safety First – Built-in double trigger safety switch prevents accidental activation.'],
+    section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
+    section2image: Product56,
+
+    section3title: 'Experience Comfort & Freedom, Anytime You Need',
+    section3image: Product59,
+    section3points: [
+      'Effortless Branch Cutting',
+      'Long Battery Life',
+      'Cordless Power & Portability',
+      'Safe & Ergonomic Design',
+    ],
+
+    sectionProgressTitle: ' Trusted by Gardeners &',
+    sectionProgressSubtitle: '  Farmers for Reliable Performance',
+    sectionProgress: [
+      { title: 'Relive the Classics', desc: '', percent: 95 },
+      { title: 'Plug & Play Simplicity ', desc: '', percent: 92 },
+      { title: 'Multiplayer Ready ', desc: ' ', percent: 89 },
+      { title: 'Next-Level Visuals', desc: '', percent: 93 },
+    ],
+
+    comparisonData: {
+      title: " Why Choose Retro Game Stick™ Over Others?",
+      description: " Tired of boring consoles that limit your gaming experience? With Retro Game Stick™, you get access to a huge gaming library, modern 4K visuals, and hassle-free plug-and-play setup — all in one compact device.",
+      headers: ['Feature', 'Retro Game Stick', 'Others'],
+      rows: [
+        { feature: 'Powerful Brushless Motor', lumineux: true, others: false },
+        { feature: 'Up to 6000 Cuts/Charge ', lumineux: true, others: false },
+        { feature: '30mm Cutting Capacity', lumineux: true, others: false },
+        { feature: 'Ergonomic & Anti-Slip Grip', lumineux: true, others: false },
+        { feature: ' Safety Switch Design', lumineux: true, others: false },
+      ],
+    },
+    section5image: Product63,
+
+
+
+    Guaranteetitle: '1 Year Guarantee',
+    Guranteedesc: 'Full replacement or refund within 1 year.',
+    Faq1Q: ' How long does the battery last?',
+    fAQ1A: ' Each fully charged battery cuts about 6000 branches. With 2 included batteries, you can work all day..',
+    Faq2Q: 'Can it cut thick tree branches?',
+    fAQ2A: ' Yes, it easily cuts branches up to 30mm (1.2 inches) without damage.',
+    Faq3Q: '  Is it safe to use?',
+    fAQ3A:
+      ' Absolutely. It features a double trigger safety switch to prevent accidental activation.',
+
+
+    reviewsTitle: 'Customer Testimonials for Retro Game Stick',
+    reviewsRating: 4.9,
+    reviews: [
+      { text: 'Cuts branches in seconds! I used it on my grape farm, saved me hours of work.', author: 'Ali K., Dubai ', stars: 5 },
+      { text: 'Lightweight but powerful. The safety switch gives me peace of mind when kids are around.', author: 'Fatima R., Abu Dhabi', stars: 5 },
+      { text: 'Battery lasts long, love that it comes with two. Great value for money!', author: 'Rajesh P., Sharjah ', stars: 5 },
+    ],
+
+    // section4Data: [
+    //   { icon: IconFastDelivery, text: 'Fast Delivery' },
+    //   { icon: IconSecurePayment, text: 'Secure Payments' },
+    //   { icon: IconSupport, text: '24/7 Support' },
+    //   { icon: IconQuality, text: 'Premium Quality' },
+    // ],
+  },
+
+
+
+
+
+
+  // product5
+
+
+
+  
+  {
+    id: 49469,
+    name: 'GameBox 64 Retro Console – 20,000+ Preloaded Games with 4K HDMI & Wireless Controllers',
+    slug: 'gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllers',
+    price: 69.9,
+    description: 'Turn Your TV into the Ultimate Retro Gaming Console',
+    shortdesc: ' 20,000+ classic games | 64GB storage | Plug & Play | Stunning 4K visuals ',
+    subdesc: ' Massive Game Library – 20,000+ titles included',
+    subdesc1: '4K HDMI Output – Crisp, clear visuals',
+    subdesc2: 'Plug & Play – Connect in seconds',
+    subdesc3: 'Two Wireless Controllers Included',
+    subdesc4: '',
+
+    image: Product71,
+    // thumb1: Product43,
+    thumb2: Product72,
+    thumb3: Product73,
+    thumb4: Product74,
+    thumb4: Product75,
+    thumb5: Product76,
+    thumb6: Product77,
+    thumb7: Product78,
+    thumb8: Product79,
+    thumb9: Product80,
+    thumb9: Product81,
+
+
+
+ bundles: [
+  {
+    type: "Buy 1",
+    label: "Buy 1 for Only 69.9 AED",
+    discount: 0,
+    price: 69.9,
+    originalPrice: 69.9,
+    image: Product73,
+  },
+  {
+    type: "Bundle of 2",
+    label: "Buy 2 & Get 15% Off",
+    discount: 15,
+    price: +(69.9 * 2 * 0.85).toFixed(2), // ≈ 118.83 AED
+    originalPrice: +(69.9 * 2).toFixed(2), // 139.8 AED
+    note: "Perfect for you & a friend",
+    mostPopular: true,
+    image: Product79,
+  },
+  {
+    type: "Bundle of 3",
+    label: "Buy 3 & Get 25% Off",
+    discount: 25,
+    price: +(69.9 * 3 * 0.75).toFixed(2), // ≈ 157.28 AED
+    originalPrice: +(69.9 * 3).toFixed(2), // 209.7 AED
+    note: "Best Value",
+    image: Product82,
+  },
+],
+
+
+    section2contentTitle: 'Why Choose Retro Game Stick?',
+    section2contentDesc: ' ',
+    section2list: ['Massive Game Library – 20,000+ preloaded games across classic consoles.', '4K HDMI Output – Enjoy your favorite retro titles in stunning modern clarity.', 'Wireless Controllers – Comes with two ergonomic controllers for multiplayer fun.', 'Plug & Play Setup – Just connect to TV via HDMI and start gaming instantly.', 'Compact & Portable – Take it anywhere for gaming nights, parties, or family fun.'],
+    section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
+    section2image: Product73,
+
+    section3title: 'Experience Comfort & Freedom, Anytime You Need',
+    section3image: Product74,
+    section3points: [
+      'Families & Kids',
+      ' Gamers',
+      ' Friends & Parties',
+      ' Gift Idea',
+    ],
+
+    sectionProgressTitle: '  Trusted by Gamers Worldwide',
+    sectionProgressSubtitle: ' for Endless Entertainment',
+    sectionProgress: [
+      { title: 'Report Faster Workflows', desc: 'Save hours compared to manual pruning', percent: 96 },
+      { title: 'Notice Cleaner Cuts', desc: 'Protects plants from damage & disease', percent: 92 },
+      { title: 'Experience Less Fatigue', desc: '  Ergonomic handle & cordless freedom.', percent: 89 },
+      { title: 'Value Long Battery Life', desc: 'Continuous cutting without interruption', percent: 94 },
+    ],
+
+    comparisonData: {
+      title: " Why Choose Retro Game Stick™ Over Others?",
+      description: " Tired of boring consoles that limit your gaming experience? With Retro Game Stick™, you get access to a huge gaming library, modern 4K visuals, and hassle-free plug-and-play setup — all in one compact device.",
+      headers: ['Feature', 'Retro Game Stick', 'Others'],
+      rows: [
+        { feature: 'Massive Game Library', lumineux: true, others: false },
+        { feature: '4K HDMI Output ', lumineux: true, others: false },
+        { feature: 'Instant Setup', lumineux: true, others: false },
+        { feature: 'Dual Wireless Controllers', lumineux: true, others: false },
+        { feature: ' 64GB Storage', lumineux: true, others: false },
+      ],
+    },
+    section5image: Product79,
+
+
+
+    Guaranteetitle: '1 Year Guarantee',
+    Guranteedesc: 'Full replacement or refund within 1 year.',
+    Faq1Q: ' How many games are included?',
+    fAQ1A: 'Over 20,000 games preloaded with 64GB storage.',
+    Faq2Q: 'Do I need internet to play?',
+    fAQ2A: 'No – all games are preloaded. Just plug in and play',
+    Faq3Q: ' Can I save progress in games?',
+    fAQ3A:
+      ' Yes, built-in storage allows saving game progress.',
+
+
+    reviewsTitle: 'Customer Testimonials for GameBox',
+    reviewsRating: 4.9,
+    reviews: [
+      { text: 'Best purchase ever! My kids and I play Mario every night. Setup took less than 2 minutes', author: 'Hassan M., Dubai ', stars: 5 },
+      { text: 'The nostalgia is real! Street Fighter, Contra, Tekken – all in one box. Worth every dirham.', author: 'Ahmed K., Sharjah', stars: 5 },
+      { text: 'Perfect gift for my brother. We spent hours playing old-school games, graphics are super clear.', author: 'Fatima R., Abu Dhabi  ', stars: 5 },
+    ],
+
+    // section4Data: [
+    //   { icon: IconFastDelivery, text: 'Fast Delivery' },
+    //   { icon: IconSecurePayment, text: 'Secure Payments' },
+    //   { icon: IconSupport, text: '24/7 Support' },
+    //   { icon: IconQuality, text: 'Premium Quality' },
+    // ],
+  },
+
+
+
+
+
 
 
 ];

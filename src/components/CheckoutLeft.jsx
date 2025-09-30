@@ -257,6 +257,7 @@ export default function CheckoutLeft({
           onClose={() => setShowForm(false)}
           saving={saving}
           error={error}
+           cartItems={cartItems} 
         />
       )}
 

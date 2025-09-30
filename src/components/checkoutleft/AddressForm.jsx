@@ -54,7 +54,7 @@ const UAE_CITIES = {
 };
 
 
-const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error }) => {
+const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error, cartItems  }) => {
   const [formErrors, setFormErrors] = useState({});
   const [otpSent, setOtpSent] = useState(false);
 const [otp, setOtp] = useState('');
@@ -175,12 +175,25 @@ const handleSaveAddress = async (e) => {
     // Save locally
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
 
+    // Build payload with cart items
+    const payload = {
+      ...formData,
+      cart: cartItems?.map(item => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        subtotal: item.price * item.quantity,
+      })),
+    };
+
     // Send to WordPress
     const res = await fetch('https://db.store1920.com/wp-json/abandoned-checkout/v1/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
     });
+
     const result = await res.json();
     console.log('Saved to WordPress:', result);
   } catch (err) {
@@ -189,7 +202,6 @@ const handleSaveAddress = async (e) => {
 
   onSubmit(formData); // parent handler
 };
-
 
   const handlePhoneChange = (phone) => {
     const normalizedPhone = phone.replace(/^0+/, '');

@@ -15,6 +15,8 @@ import ProductCardReviews from "../../temp/productcardreviews";
 import Product1 from '../../../assets/images/staticproducts//pressurewasher/1.webp';
 import Product2 from '../../../assets/images/staticproducts/airbed/1.webp'
 import Product3 from '../../../assets/images/staticproducts/paintspray/14.webp'
+import Product4 from '../../../assets/images/staticproducts/pruningmachine/10.webp'
+import Product5 from '../../../assets/images/staticproducts//gamekit/1.webp'
 
 const PAGE_SIZE = 10;
 const INITIAL_VISIBLE = 30;
@@ -105,10 +107,36 @@ const staticProducts = [
     reviews: 159,
     sold: 195,
   },
+     {
+    id: "5",
+    name: "TrimPro™ 21V Cordless Electric Pruning Shears",
+    price: "109.9",
+    regular_price: "250.0",
+    sale_price: "109.9",
+    images: [{ src:Product4 }],
+    slug: "trimpro-21v-cordless-electric-pruning-shears",
+    path: "/products/trimpro-21v-cordless-electric-pruning-shears",
+    rating: 5,
+    reviews: 169,
+    sold: 225,
+  },
+     {
+    id: "6",
+    name: "GameBox 64 Retro Console – 20,000+ Preloaded Games with 4K HDMI & Wireless Controllers",
+    price: "96.00",
+    regular_price: "96.0",
+    sale_price: "69.9",
+    images: [{ src:Product5 }],
+    slug: "gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllerse",
+    path: "/products/gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllers",
+    rating: 5,
+    reviews: 110,
+    sold: 185,
+  },
 ];
  
 
-const staticPositions = [2, 11 ,15 ];
+const staticPositions = [2, 11, 15, 19, 24];
 
 const ProductCategory = () => {
   const { addToCart, cartItems } = useCart();
@@ -281,16 +309,16 @@ const handleProductClick = (product) => {
   window.scrollTo(0, 0);
 };
 
-
-  const getMergedProducts = () => {
-    const merged = [...allProducts];
-    staticPositions.forEach((pos, i) => {
-      if (i < staticProducts.length && pos <= merged.length) {
-        merged.splice(pos, 0, { ...staticProducts[i], isStatic: true });
-      }
-    });
-    return merged;
-  };
+const getMergedProducts = () => {
+  const merged = [...allProducts];
+  staticPositions.forEach((pos, i) => {
+    if (i < staticProducts.length) {
+      const insertPos = Math.min(pos, merged.length); // safe position
+      merged.splice(insertPos, 0, { ...staticProducts[i], isStatic: true });
+    }
+  });
+  return merged;
+};
 
 
   
