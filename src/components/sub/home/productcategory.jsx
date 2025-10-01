@@ -227,15 +227,11 @@ const ProductCategory = () => {
         fetchedProducts = fetchedProducts.slice(0, MAX_PRODUCTS);
       }
 
-      if (fetchedProducts.length > 0) {
-        const newestProduct = fetchedProducts.reduce((latest, prod) =>
-          new Date(prod.date_created) > new Date(latest.date_created) ? prod : latest
-        , fetchedProducts[0]);
-        const olderProducts = fetchedProducts.filter(p => p.id !== newestProduct.id);
-setAllProducts([...olderProducts, newestProduct]);
-      } else {
-        setAllProducts([]);
-      }
+     if (fetchedProducts.length > 0) {
+  setAllProducts(shuffleArray(fetchedProducts));
+} else {
+  setAllProducts([]);
+}
     } catch (err) {
       console.error(err);
       setAllProducts([]);
@@ -325,95 +321,97 @@ const getMergedProducts = () => {
   const selectedCategory = categories.find(c => c.id === selectedCategoryId);
   const showMegaOffer = selectedCategory?.enable_offer;
 
-  const renderProducts = () => {
-    const mergedProducts = getMergedProducts();
-    return mergedProducts.slice(0, visibleCount).map((p, index) => {
-      // Static product card
-      if (p.isStatic) {
-        return (
-          <div key={p.id} className="pcus-prd-card static-product-card"  onClick={() => handleProductClick(p)}  style={{ cursor: "pointer", position: "relative" }}>
-            <div style={{ position: "absolute", top: "8px", right: "8px", backgroundColor: "#ff6207", color: "#fff", fontSize: "10px", fontWeight: "bold", padding: "2px 6px", borderRadius: "4px", zIndex: 2 }}>Fast Moving</div>
-            <div className="pcus-image-wrapper" style={{ position: "relative" }}>
-              <img src={p.images[0].src} alt={decodeHTML(p.name)} className="pcus-prd-image1 primary-img" />
-            </div>
-            <div className="pcus-prd-info12">
-              <h2 className="pcus-prd-title1">{decodeHTML(p.name)}</h2>
-              <div className="pcus-prd-dummy-reviews" style={{ display: "flex", alignItems: "center", margin: "0px 5px" }}>
-                <div style={{ color: "#FFD700", marginRight: "8px" }}>{"★".repeat(p.rating)}{"☆".repeat(5 - p.rating)}</div>
-                <div style={{ fontSize: "12px", color: "#666", marginRight: "8px" }}>({p.reviews})</div>
-                <div style={{ fontSize: "12px", color: "#666" }}>{p.sold} sold</div>
-              </div>
-              <div style={{ height: "1px", width: "100%", backgroundColor: "lightgrey", margin: "0px 0 2px 0", borderRadius: "1px" }} />
-              <div className="prc-row-abc123">
-                <div className="prc-left-abc123">
-                  <img src={IconAED} alt="AED" style={{ width: "auto", height: "12px", marginRight: "0px", verticalAlign: "middle" }} />
-                  <Price value={p.sale_price} className="prc-sale-abc123" />
-                  <Price value={p.regular_price} className="prc-regular-abc123" />
-                  {p.sale_price < p.regular_price && <span className="prc-off-abc123">{Math.round(((p.regular_price - p.sale_price) / p.regular_price) * 100)}% Off</span>}
-                </div>
-              </div>
-              <div className="prc-row-badge-btn">
-                <div className="prc-badge-abc123">Fast Moving Product</div>
-                <button className="prc-btn-abc123">Buy Now</button>
-              </div>
-            </div>
-          </div>
-        );
-      }
+const renderProducts = () => {
+  const productsToShow = selectedCategoryId === "all" ? getMergedProducts() : allProducts;
 
-      // Regular product card
-      const hasSale = p.sale_price && p.sale_price !== p.regular_price;
+  return productsToShow.slice(0, visibleCount).map((p, index) => {
+    // Static product card
+    if (p.isStatic) {
       return (
-        <div key={p.id} className="pcus-prd-card" onClick={() => handleProductClick(p)} style={{ cursor: "pointer" }}>
-          <div className="pcus-image-wrapper1">
-            <img src={p.images?.[0]?.src || PlaceholderImage} alt={decodeHTML(p.name)} className="pcus-prd-image1 primary-img" loading="lazy" decoding="async" />
-            {p.images?.[1] ? (
-              <img src={p.images[1].src} alt={decodeHTML(p.name)} className="pcus-prd-image1 secondary-img" loading="lazy" decoding="async" />
-            ) : (
-              <img src={PlaceholderImage} alt={decodeHTML(p.name)} className="pcus-prd-image1 secondary-img" />
-            )}
-            {hasSale && <span className="pcus-prd-discount-box1">-{Math.round(((parseFloat(p.regular_price) - parseFloat(p.sale_price)) / parseFloat(p.regular_price)) * 100)}% OFF</span>}
-            {showMegaOffer && index === 0 && (
-              <div className="mega-offer-badge">
-                <span className="mega-offer-text" style={{ transform: animate ? "translateY(0)" : "translateY(100%)", opacity: animate ? 1 : 0, display: "inline-block" }}>{badgeText}</span>
-              </div>
-            )}
+        <div key={p.id} className="pcus-prd-card static-product-card" onClick={() => handleProductClick(p)} style={{ cursor: "pointer", position: "relative" }}>
+          <div style={{ position: "absolute", top: "8px", right: "8px", backgroundColor: "#ff6207", color: "#fff", fontSize: "10px", fontWeight: "bold", padding: "2px 6px", borderRadius: "4px", zIndex: 2 }}>Fast Moving</div>
+          <div className="pcus-image-wrapper" style={{ position: "relative" }}>
+            <img src={p.images[0].src} alt={decodeHTML(p.name)} className="pcus-prd-image1 primary-img" />
           </div>
-
           <div className="pcus-prd-info12">
             <h2 className="pcus-prd-title1">{decodeHTML(p.name)}</h2>
-            <ProductCardReviews productId={p.id} />
+            <div className="pcus-prd-dummy-reviews" style={{ display: "flex", alignItems: "center", margin: "0px 5px" }}>
+              <div style={{ color: "#FFD700", marginRight: "8px" }}>{"★".repeat(p.rating)}{"☆".repeat(5 - p.rating)}</div>
+              <div style={{ fontSize: "12px", color: "#666", marginRight: "8px" }}>({p.reviews})</div>
+              <div style={{ fontSize: "12px", color: "#666" }}>{p.sold} sold</div>
+            </div>
             <div style={{ height: "1px", width: "100%", backgroundColor: "lightgrey", margin: "0px 0 2px 0", borderRadius: "1px" }} />
-            <div className="pcus-prd-price-cart1">
-              <div className="pcus-prd-prices1">
+            <div className="prc-row-abc123">
+              <div className="prc-left-abc123">
                 <img src={IconAED} alt="AED" style={{ width: "auto", height: "12px", marginRight: "0px", verticalAlign: "middle" }} />
-                {hasSale ? (
-                  <>
-                    <Price value={p.sale_price} className="pcus-prd-sale-price12" />
-                    <Price value={p.regular_price} className="pcus-prd-regular-price12" />
-                  </>
-                ) : (
-                  <Price value={p.price} className="price1" />
-                )}
+                <Price value={p.sale_price} className="prc-sale-abc123" />
+                <Price value={p.regular_price} className="prc-regular-abc123" />
+                {p.sale_price < p.regular_price && <span className="prc-off-abc123">{Math.round(((p.regular_price - p.sale_price) / p.regular_price) * 100)}% Off</span>}
               </div>
-              <button
-                className={`pcus-prd-add-cart-btn ${cartItems.some((item) => item.id === p.id) ? "added-to-cart" : ""}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  flyToCart(e, p.images?.[0]?.src);
-                  addToCart(p, true);
-                }}
-                aria-label={`Add ${decodeHTML(p.name)} to cart`}
-              >
-                <img src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCarticon} alt="cart icon" className="pcus-prd-add-cart-icon-img" />
-              </button>
-              <div id="cart-icon" ref={cartIconRef} style={{ position: "fixed", top: 20, right: 20, zIndex: 1000, cursor: "pointer" }} />
+            </div>
+            <div className="prc-row-badge-btn">
+              <div className="prc-badge-abc123">Fast Moving Product</div>
+              <button className="prc-btn-abc123">Buy Now</button>
             </div>
           </div>
         </div>
       );
-    });
-  };
+    }
+
+
+      // Regular product card
+const hasSale = p.sale_price && p.sale_price !== p.regular_price;
+    return (
+      <div key={p.id} className="pcus-prd-card" onClick={() => handleProductClick(p)} style={{ cursor: "pointer" }}>
+        <div className="pcus-image-wrapper1">
+          <img src={p.images?.[0]?.src || PlaceholderImage} alt={decodeHTML(p.name)} className="pcus-prd-image1 primary-img" loading="lazy" decoding="async" />
+          {p.images?.[1] ? (
+            <img src={p.images[1].src} alt={decodeHTML(p.name)} className="pcus-prd-image1 secondary-img" loading="lazy" decoding="async" />
+          ) : (
+            <img src={PlaceholderImage} alt={decodeHTML(p.name)} className="pcus-prd-image1 secondary-img" />
+          )}
+          {hasSale && <span className="pcus-prd-discount-box1">-{Math.round(((parseFloat(p.regular_price) - parseFloat(p.sale_price)) / parseFloat(p.regular_price)) * 100)}% OFF</span>}
+          {showMegaOffer && index === 0 && (
+            <div className="mega-offer-badge">
+              <span className="mega-offer-text" style={{ transform: animate ? "translateY(0)" : "translateY(100%)", opacity: animate ? 1 : 0, display: "inline-block" }}>{badgeText}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="pcus-prd-info12">
+          <h2 className="pcus-prd-title1">{decodeHTML(p.name)}</h2>
+          <ProductCardReviews productId={p.id} />
+          <div style={{ height: "1px", width: "100%", backgroundColor: "lightgrey", margin: "0px 0 2px 0", borderRadius: "1px" }} />
+          <div className="pcus-prd-price-cart1">
+            <div className="pcus-prd-prices1">
+              <img src={IconAED} alt="AED" style={{ width: "auto", height: "12px", marginRight: "0px", verticalAlign: "middle" }} />
+              {hasSale ? (
+                <>
+                  <Price value={p.sale_price} className="pcus-prd-sale-price12" />
+                  <Price value={p.regular_price} className="pcus-prd-regular-price12" />
+                </>
+              ) : (
+                <Price value={p.price} className="price1" />
+              )}
+            </div>
+            <button
+              className={`pcus-prd-add-cart-btn ${cartItems.some((item) => item.id === p.id) ? "added-to-cart" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                flyToCart(e, p.images?.[0]?.src);
+                addToCart(p, true);
+              }}
+              aria-label={`Add ${decodeHTML(p.name)} to cart`}
+            >
+              <img src={cartItems.some((item) => item.id === p.id) ? AddedToCartIcon : AddCarticon} alt="cart icon" className="pcus-prd-add-cart-icon-img" />
+            </button>
+            <div id="cart-icon" ref={cartIconRef} style={{ position: "fixed", top: 20, right: 20, zIndex: 1000, cursor: "pointer" }} />
+          </div>
+        </div>
+      </div>
+    );
+  });
+};
 useEffect(() => {
   window.scrollTo(0, 0);
 }, []);
