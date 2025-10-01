@@ -661,8 +661,8 @@ const staticProducts = [
     type: "Buy 1",
     label: "Buy 1 for Only 69.9 AED",
     discount: 0,
-    price: 69.9,
-    originalPrice: 69.9,
+    price: 69.0,
+    originalPrice: 69.0,
     image: Product73,
   },
   {

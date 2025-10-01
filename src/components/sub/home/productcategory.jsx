@@ -22,6 +22,8 @@ const PAGE_SIZE = 10;
 const INITIAL_VISIBLE = 30;
 const PRODUCT_FETCH_LIMIT = 20;
 const MAX_PRODUCTS = 5000;
+const PAGE_LIMIT = 20;
+
 
 // Utility to decode HTML entities
 const decodeHTML = (html) => {
@@ -71,9 +73,9 @@ const staticProducts = [
   {
     id: "68V Cordless Portable Car Wash Pressure Washer Gun with Dual",
     name: "68V Cordless Portable Car Wash Pressure Washer Gun with Dual",
-    price: "69.00",
+    price: "69.90",
     regular_price: "149.90",
-    sale_price: "69.00",
+    sale_price: "69.90",
     images: [{ src: Product1 }],
     slug: "68v-cordless-portable-car-wash-pressure-washer-gun-with-dual",
     path: "/products/68v-cordless-portable-car-wash-pressure-washer-gun-with-dual",
@@ -125,7 +127,7 @@ const staticProducts = [
     name: "GameBox 64 Retro Console – 20,000+ Preloaded Games with 4K HDMI & Wireless Controllers",
     price: "96.00",
     regular_price: "96.0",
-    sale_price: "69.9",
+    sale_price: "69.0",
     images: [{ src:Product5 }],
     slug: "gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllerse",
     path: "/products/gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllers",
@@ -162,6 +164,11 @@ const ProductCategory = () => {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const hasMoreProducts = visibleCount < allProducts.length;
+
+
+  const [categoryProducts, setCategoryProducts] = useState([]); // products for selected category
+const [categoryPage, setCategoryPage] = useState(1);
+const [categoryHasMore, setCategoryHasMore] = useState(true);
 
   // Fetch categories
   const fetchCategories = useCallback(async (page = 1) => {
