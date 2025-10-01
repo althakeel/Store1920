@@ -60,6 +60,10 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error, car
 const [otp, setOtp] = useState('');
 const [otpVerified, setOtpVerified] = useState(false);
 const [otpLoading, setOtpLoading] = useState(false);
+const isFormValid = () => {
+  const requiredFields = ['first_name', 'last_name', 'email', 'phone_number', 'street', 'state', 'city'];
+  return requiredFields.every(field => validateField(field, formData.shipping[field]) === '');
+};
 
   // Load saved address from localStorage on mount
   useEffect(() => {
@@ -135,28 +139,28 @@ const verifyOtp = async () => {
 };
 
 
-  const validateField = (name, value) => {
-    let error = '';
-    switch (name) {
-      case 'first_name':
-      case 'last_name':
-      case 'street':
-      case 'city':
-      case 'state':
-        if (!value || value.trim() === '') error = 'This field is required';
-        break;
-      case 'phone_number':
-        if (!value || value.length < 9) error = 'Invalid phone number';
-        break;
-      case 'email':
-        if (!value || !/\S+@\S+\.\S+/.test(value)) error = 'Invalid email';
-        break;
-      default:
-        break;
-    }
-    setFormErrors((prev) => ({ ...prev, [name]: error }));
-    return error === '';
-  };
+const validateField = (name, value) => {
+  switch (name) {
+    case 'first_name':
+    case 'last_name':
+    case 'street':
+    case 'city':
+    case 'state':
+      if (!value || value.trim() === '') return 'This field is required';
+      break;
+    case 'phone_number':
+      if (!value || value.length < 9) return 'Invalid phone number';
+      break;
+    case 'email':
+      if (!value || !/\S+@\S+\.\S+/.test(value)) return 'Invalid email';
+      break;
+    default:
+      return '';
+  }
+  return '';
+};
+
+
 
   const validateForm = () => {
     let isValid = true;
@@ -167,15 +171,26 @@ const verifyOtp = async () => {
     return isValid;
   };
 
-const handleSaveAddress = async (e) => {
+const saveAddress = async (e) => {
   e.preventDefault();
-  if (!validateForm()) return;
+
+  // 1️⃣ Validate all fields and collect errors
+  const errors = {};
+  Object.keys(formData.shipping).forEach((field) => {
+    const errorMsg = validateField(field, formData.shipping[field]);
+    if (errorMsg) errors[field] = errorMsg;
+  });
+
+  setFormErrors(errors); // update form errors state
+
+  // Stop if there are validation errors
+  if (Object.keys(errors).length > 0) return;
 
   try {
-    // Save locally
+    // 2️⃣ Save to localStorage
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
 
-    // Build payload with cart items
+    // 3️⃣ Build payload including cart items
     const payload = {
       ...formData,
       cart: cartItems?.map(item => ({
@@ -187,7 +202,7 @@ const handleSaveAddress = async (e) => {
       })),
     };
 
-    // Send to WordPress
+    // 4️⃣ Send payload to WordPress REST API
     const res = await fetch('https://db.store1920.com/wp-json/abandoned-checkout/v1/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -196,23 +211,29 @@ const handleSaveAddress = async (e) => {
 
     const result = await res.json();
     console.log('Saved to WordPress:', result);
+
+    // 5️⃣ Call parent submit handler
+    onSubmit(formData);
+
   } catch (err) {
     console.error('Failed to save to WordPress', err);
+    alert('Something went wrong while saving your address.');
   }
-
-  onSubmit(formData); // parent handler
 };
 
-  const handlePhoneChange = (phone) => {
-    const normalizedPhone = phone.replace(/^0+/, '');
-    onChange({ target: { name: 'phone_number', value: normalizedPhone } }, 'shipping');
-    validateField('phone_number', normalizedPhone);
-  };
 
-  const handleFieldChange = (e) => {
-    onChange(e, 'shipping');
-    validateField(e.target.name, e.target.value);
-  };
+const handlePhoneChange = (phone) => {
+  const normalizedPhone = phone.replace(/^0+/, '');
+  onChange({ target: { name: 'phone_number', value: normalizedPhone } }, 'shipping');
+  const errorMsg = validateField('phone_number', normalizedPhone);
+  setFormErrors(prev => ({ ...prev, phone_number: errorMsg }));
+};
+
+const handleFieldChange = (e) => {
+  onChange(e, 'shipping');
+  const errorMsg = validateField(e.target.name, e.target.value);
+  setFormErrors(prev => ({ ...prev, [e.target.name]: errorMsg }));
+};
 
   return (  
     <div style={{
@@ -236,7 +257,7 @@ const handleSaveAddress = async (e) => {
           Shipping Address
         </h2>
 
-        <form onSubmit={handleSaveAddress} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+<form onSubmit={saveAddress} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '18px' }}>
             {/* First Name */}
             <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
@@ -346,33 +367,33 @@ const handleSaveAddress = async (e) => {
     `}
   </style>
 
-  <button type="submit" disabled={saving}
-    style={{
-      backgroundColor: '#ff5100',
-      color: '#fff',
-      padding: '12px 22px',
-      fontSize: '1.1rem',
-      border: 'none',
-      borderRadius: '8px',
-      cursor: saving ? 'not-allowed' : 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px'
-    }}
-  >
-    {saving && (
-      <div style={{
-        border: '2px solid #fff',
-        borderTop: '2px solid rgba(255, 255, 255, 0.3)',
-        borderRadius: '50%',
-        width: '16px',
-        height: '16px',
-        animation: 'spin 0.8s linear infinite'
-      }} />
-    )}
-    {saving ? 'Saving...' : 'Save Address'}
-  </button>
+<button type="submit" disabled={saving || !isFormValid()}
+  style={{
+    backgroundColor: '#ff5100',
+    color: '#fff',
+    padding: '12px 22px',
+    fontSize: '1.1rem',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: saving ||  !isFormValid() ? 'not-allowed' : 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px'
+  }}
+>
+  {saving && (
+    <div style={{
+      border: '2px solid #fff',
+      borderTop: '2px solid rgba(255, 255, 255, 0.3)',
+      borderRadius: '50%',
+      width: '16px',
+      height: '16px',
+      animation: 'spin 0.8s linear infinite'
+    }} />
+  )}
+  {saving ? 'Saving...' : 'Save Address'}
+</button>
 </div>
 
         </form>
