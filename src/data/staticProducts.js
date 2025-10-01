@@ -226,6 +226,7 @@ const staticProducts = [
     bundles: [
       {
         type: "Buy 1",
+        name: "twin-size-air-matt",
         label: "Buy 1 for Only 139 AED",
         discount: 54,          // (300 - 139) / 300 * 100 = 53.67% ≈ 54%
         price: 139,            // total after discount
@@ -234,6 +235,7 @@ const staticProducts = [
       },
       {
         type: "Bundle of 2",
+        name: "twin-size-air-matt",
         label: "Buy 2 & Get 58% Off",
         discount: 58,          // (600 - 250.2) / 600 * 100 = 58.3% ≈ 58%
         price: 250.2,          // total after discount
@@ -244,6 +246,7 @@ const staticProducts = [
       },
       {
         type: "Bundle of 3",
+        name: "twin-size-air-matt",
         label: "Buy 3 & Get 63% Off",
         discount: 63,          // (900 - 333.6) / 900 * 100 = 62.93% ≈ 63%
         price: 333.6,          // total after discount
@@ -371,6 +374,7 @@ const staticProducts = [
     bundles: [
       {
         type: "Buy 1",
+          name: "Electric Paint Sprayer",
         label: "Buy 1 for Only 85 AED",
         discount: 0,
         price: 85,
@@ -379,6 +383,7 @@ const staticProducts = [
       },
       {
         type: "Bundle of 2",
+          name: "Electric Paint Sprayer",
         label: "Buy 2 & Get 10% Off",
         discount: 10,
         price: 153,
@@ -389,6 +394,7 @@ const staticProducts = [
       },
       {
         type: "Bundle of 3",
+          name: "Electric Paint Sprayer",
         label: "Buy 3 & Get 20% Off",
         discount: 20,
         price: 204,
@@ -501,14 +507,14 @@ const staticProducts = [
     thumb2: Product52,
     thumb3: Product53,
     thumb4: Product54,
-    thumb4: Product55,
-    thumb5: Product56,
-    thumb6: Product57,
-    thumb7: Product58,
-    thumb8: Product59,
-    thumb9: Product60,
+    thumb5: Product55,
+    thumb6: Product56,
+    thumb7: Product57,
+    thumb8: Product58,
+    thumb9: Product59,
+    thumb10: Product60,
     // thumb9: Product61,
-    thumb9: Product62,
+    thumb11: Product62,
     // thumb10: Product63,
     // thumb11: Product64,
     // thumb12: Product65,
@@ -524,6 +530,7 @@ const staticProducts = [
  bundles: [
   {
     type: "Buy 1",
+     name: "TrimPro™ 21V Cordless Electric",
     label: "Buy 1 for Only 109.9 AED",
     discount: 0,
     price: 109.9,
@@ -532,6 +539,7 @@ const staticProducts = [
   },
   {
     type: "Bundle of 2",
+     name: "TrimPro™ 21V Cordless Electric",
     label: "Buy 2 & Get 15% Off",
     discount: 15,
     price: 185.0, // 109.9 * 2 * 0.85 ≈ 186.42
@@ -542,6 +550,7 @@ const staticProducts = [
   },
   {
     type: "Bundle of 3",
+     name: "TrimPro™ 21V Cordless Electric",
     label: "Buy 3 & Get 25% Off",
     discount: 25,
     price: 245.0, // 109.9 * 3 * 0.75 ≈ 247.43
@@ -632,7 +641,7 @@ const staticProducts = [
     id: 49469,
     name: 'GameBox 64 Retro Console – 20,000+ Preloaded Games with 4K HDMI & Wireless Controllers',
     slug: 'gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllers',
-    price: 69.9,
+    price: 69.0,
     description: 'Turn Your TV into the Ultimate Retro Gaming Console',
     shortdesc: ' 20,000+ classic games | 64GB storage | Plug & Play | Stunning 4K visuals ',
     subdesc: ' Massive Game Library – 20,000+ titles included',
@@ -659,6 +668,7 @@ const staticProducts = [
  bundles: [
   {
     type: "Buy 1",
+      name: "GameBox 64 Retro Console",
     label: "Buy 1 for Only 69.9 AED",
     discount: 0,
     price: 69.0,
@@ -667,6 +677,7 @@ const staticProducts = [
   },
   {
     type: "Bundle of 2",
+      name: "GameBox 64 Retro Console",
     label: "Buy 2 & Get 15% Off",
     discount: 15,
     price: 119, // ≈ 118.83 AED
@@ -677,6 +688,7 @@ const staticProducts = [
   },
   {
     type: "Bundle of 3",
+      name: "GameBox 64 Retro Console",
     label: "Buy 3 & Get 25% Off",
     discount: 25,
     price: 159.00, // ≈ 157.28 AED

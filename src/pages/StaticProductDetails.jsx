@@ -45,15 +45,19 @@ const CustomProductDetails = () => {
   }
 
   // ✅ Add to cart handler
-  const handleAddToCart = (bundleWithVariants) => {
-    const cartItem = {
-      ...product,
-      bundle: bundleWithVariants,
-      quantity: 1,
-    };
-    addToCart(cartItem);
-    alert("Product added to cart!");
+const handleAddToCart = (bundleWithVariants) => {
+  const cartItem = {
+    productId: product.id,
+    name: product.name, // explicitly pass the product name
+    price: bundleWithVariants.price,
+    originalPrice: bundleWithVariants.originalPrice,
+    discount: bundleWithVariants.discount,
+bundleType: `${bundleWithVariants.type} - ${product.name}`,
+    quantity: 1,
   };
+  addToCart(cartItem);
+  alert("Product added to cart!");
+};
 
   return (
     <>
