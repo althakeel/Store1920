@@ -112,9 +112,9 @@ const staticProducts = [
     thumb11: Product12,
 
     bundles: [
-      { type: 'Buy 1', discount: 0, price: 69.9, originalPrice: 69.9, image: Product1 },
-      { type: 'Bundle of 2', discount: 10, price: 125.8, originalPrice: 139.8, note: 'Perfect for you & a friend', mostPopular: true, image: Product3 },
-      { type: 'Bundle of 3', discount: 25, price: 157.2, originalPrice: 209.7, note: 'Get 25% OFF', image: Product3 },
+      { type: 'Buy 1',productName :"68V Cordless Portable Car Wash Pressur", discount: 0, price: 69.9, originalPrice: 69.9, image: Product1 },
+      { type: 'Bundle of 2',productName :"68V Cordless Portable Car Wash Pressur", discount: 10, price: 125.8, originalPrice: 139.8, note: 'Perfect for you & a friend', mostPopular: true, image: Product3 },
+      { type: 'Bundle of 3',productName :"68V Cordless Portable Car Wash Pressur", discount: 25, price: 157.2, originalPrice: 209.7, note: 'Get 25% OFF', image: Product3 },
     ],
 
     section2contentTitle: 'Reveal the Power of Clean, Anytime, Anywhere',
@@ -529,7 +529,7 @@ const staticProducts = [
 
  bundles: [
   {
-    type: "Buy 1",
+    type: "Buy 1-TrimPro™",
      name: "TrimPro™ 21V Cordless Electric",
     label: "Buy 1 for Only 109.9 AED",
     discount: 0,
@@ -538,7 +538,7 @@ const staticProducts = [
     image: Product53,
   },
   {
-    type: "Bundle of 2",
+    type: "Bundle of 2-TrimPro™",
      name: "TrimPro™ 21V Cordless Electric",
     label: "Buy 2 & Get 15% Off",
     discount: 15,
@@ -549,7 +549,7 @@ const staticProducts = [
     image: Product61,
   },
   {
-    type: "Bundle of 3",
+    type: "Bundle of 3-TrimPro™",
      name: "TrimPro™ 21V Cordless Electric",
     label: "Buy 3 & Get 25% Off",
     discount: 25,
@@ -641,7 +641,7 @@ const staticProducts = [
     id: 49469,
     name: 'GameBox 64 Retro Console – 20,000+ Preloaded Games with 4K HDMI & Wireless Controllers',
     slug: 'gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllers',
-    price: 69.0,
+    price: 69.99,
     description: 'Turn Your TV into the Ultimate Retro Gaming Console',
     shortdesc: ' 20,000+ classic games | 64GB storage | Plug & Play | Stunning 4K visuals ',
     subdesc: ' Massive Game Library – 20,000+ titles included',
@@ -671,8 +671,8 @@ const staticProducts = [
       name: "GameBox 64 Retro Console",
     label: "Buy 1 for Only 69.9 AED",
     discount: 0,
-    price: 69.0,
-    originalPrice: 69.0,
+    price: 69.99,
+    originalPrice: 69.99,
     image: Product73,
   },
   {

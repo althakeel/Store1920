@@ -89,11 +89,10 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     return acc + price * quantity;
   }, 0);
 
-const subtotal = Math.max(
-  0,
-  itemsTotal - Math.min(discount, itemsTotal) - Math.min(coinDiscount, itemsTotal)
-);
-
+  const subtotal = Math.max(
+    0,
+    itemsTotal - Math.min(discount, itemsTotal) - Math.min(coinDiscount, itemsTotal)
+  );
 
   // -----------------------------
   // Delivery fee
@@ -103,16 +102,15 @@ const subtotal = Math.max(
   const FREE_SHIPPING_STATIC_IDS = [494574, 494595, 494590];
 
   // Any item matches free shipping
-const isFreeShippingProduct = cartItems.some(item =>
-  FREE_SHIPPING_STATIC_IDS.includes(item.id)
-);
+  const isFreeShippingProduct = cartItems.some(item =>
+    FREE_SHIPPING_STATIC_IDS.includes(item.id)
+  );
 
-
-const deliveryFee = isFreeShippingProduct
-  ? 0
-  : subtotal < DELIVERY_THRESHOLD
-  ? DELIVERY_CHARGE
-  : 0;
+  const deliveryFee = isFreeShippingProduct
+    ? 0
+    : subtotal < DELIVERY_THRESHOLD
+      ? DELIVERY_CHARGE
+      : 0;
 
   const totalWithDelivery = subtotal + deliveryFee;
   const MIN_PAYMOB_AMOUNT = 0.01;
@@ -167,6 +165,11 @@ const deliveryFee = isFreeShippingProduct
   // Place order
   // -----------------------------
   const handlePlaceOrder = async () => {
+
+      if (!canPlaceOrder) {
+    showAlert('Please fill all required address fields.', 'error');
+    return;
+  }
     if (!formData.paymentMethod) return showAlert('Select a payment method', 'error');
     setIsPlacingOrder(true);
 
@@ -174,13 +177,21 @@ const deliveryFee = isFreeShippingProduct
       const id = orderId || (await createOrder());
       await captureOrderItems(id, cartItems, shippingOrBilling);
 
+      // COD flow
       if (formData.paymentMethod === 'cod') {
         clearCart();
         window.location.href = `/order-success?order_id=${id.id || id}`;
         return;
       }
 
-      if (['paymob', 'card'].includes(formData.paymentMethod)) {
+      // Paymob / Card / Tabby / Tamara flow
+      if (['paymob', 'card', 'tabby', 'tamara'].includes(formData.paymentMethod)) {
+        if (!isAddressComplete) {
+          showAlert('Please fill all required address fields.', 'error');
+          setIsPlacingOrder(false);
+          return;
+        }
+
         const normalized = {
           first_name: shippingOrBilling.first_name?.trim() || 'First',
           last_name: shippingOrBilling.last_name?.trim() || 'Last',
@@ -190,20 +201,11 @@ const deliveryFee = isFreeShippingProduct
             : `+${shippingOrBilling.phone_number || '971501234567'}`,
           street: shippingOrBilling.street?.trim() || '',
           apartment: shippingOrBilling.apartment?.trim() || '',
-          floor: shippingOrBilling.floor?.trim() || '',
-          city: shippingOrBilling.city?.trim()
-            ? shippingOrBilling.city.charAt(0).toUpperCase() + shippingOrBilling.city.slice(1)
-            : 'Dubai',
+          city: shippingOrBilling.city?.trim() || 'Dubai',
           state: shippingOrBilling.state?.trim() || 'DXB',
           country: 'AE',
           postal_code: shippingOrBilling.postal_code?.trim() || '',
         };
-
-        if (!isAddressComplete) {
-          showAlert('Please fill all required address fields.', 'error');
-          setIsPlacingOrder(false);
-          return;
-        }
 
         const payload = {
           amount: amountToSend,
@@ -219,6 +221,7 @@ const deliveryFee = isFreeShippingProduct
               description: 'Order from store1920.com',
             },
           ],
+          provider: formData.paymentMethod, // 👈 important: tells backend which Paymob integration to use
         };
 
         try {
@@ -295,12 +298,14 @@ const deliveryFee = isFreeShippingProduct
       case 'cod': return { ...base, backgroundColor: '#f97316' };
       case 'paymob': return { ...base, backgroundColor: '#22c55e' };
       case 'card': return { ...base, backgroundColor: '#2563eb' };
+      case 'tabby': return { ...base, backgroundColor: '#077410d4' };
+      case 'tamara': return { ...base, backgroundColor: '#ec4899' };
       default: return { ...base, backgroundColor: '#10b981' };
     }
   };
 
   const getButtonLabel = () => {
-    const labels = { cod: 'Cash on Delivery', card: 'Card', apple_pay: 'Apple Pay', paymob: 'Paymob' };
+    const labels = { cod: 'Cash on Delivery', card: 'Card', apple_pay: 'Apple Pay', paymob: 'Paymob', tabby: 'Tabby', tamara: 'Tamara' };
     const label = labels[formData.paymentMethod] || 'Order';
     return isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with ${label}`;
   };
@@ -314,6 +319,7 @@ const deliveryFee = isFreeShippingProduct
 
       <h2>Order Summary</h2>
       <CouponDiscount onApplyCoupon={handleCoupon} />
+
       <div className="summaryRowCR">
         <span>Item(s) total:</span>
         <span>AED {itemsTotal.toFixed(2)}</span>
@@ -342,7 +348,14 @@ const deliveryFee = isFreeShippingProduct
           </div>
           <button
             onClick={handleRemoveCoinDiscount}
-            style={{ background: 'transparent', border: 'none', color: '#dc3545', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#dc3545',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+            }}
             aria-label="Remove coin discount"
           >
             ×
@@ -355,12 +368,12 @@ const deliveryFee = isFreeShippingProduct
         <span>AED {subtotal.toFixed(2)}</span>
       </div>
 
-    {deliveryFee > 0 && (
-  <div className="summaryRowCR" style={{ color: '#fe6c03', fontWeight: 600 }}>
-    <span>Delivery Fee:</span>
-    <span>AED {deliveryFee.toFixed(2)}</span>
-  </div>
-)}
+      {deliveryFee > 0 && (
+        <div className="summaryRowCR" style={{ color: '#fe6c03', fontWeight: 600 }}>
+          <span>Delivery Fee:</span>
+          <span>AED {deliveryFee.toFixed(2)}</span>
+        </div>
+      )}
 
       <div className="summaryRowCR" style={{ fontWeight: 700 }}>
         <span>Total:</span>
@@ -380,7 +393,7 @@ const deliveryFee = isFreeShippingProduct
       {/* Place Order Button */}
       <div style={{ position: 'relative', display: 'inline-block' }}>
         <button
-          className="placeOrderBtnCR"
+          className="placeOrderBtnCR  desktopStickyButton"
           onClick={handlePlaceOrder}
           disabled={isPlacingOrder || !canPlaceOrder}
           style={getButtonStyle()}
@@ -417,20 +430,18 @@ const deliveryFee = isFreeShippingProduct
       </div>
 
       {/* Mobile sticky area */}
-      <div className="mobileStickyButton">
-        <div className="mobileStickyContent">
-          <span className="mobileSubtotal">AED {totalWithDelivery.toFixed(2)}</span>
-          <button
-            className="placeOrderBtnCR"
-            onClick={handlePlaceOrder}
-            disabled={isPlacingOrder}
-            style={getButtonStyle()}
-            aria-disabled={isPlacingOrder}
-          >
-            {getButtonLabel()}
-          </button>
-        </div>
-      </div>
+<div className="mobileStickyButton">
+  <span className="mobileSubtotal">AED {totalWithDelivery.toFixed(2)}</span>
+  <button
+    className="placeOrderBtnCR"
+    onClick={handlePlaceOrder}
+    disabled={isPlacingOrder || !canPlaceOrder}
+    style={getButtonStyle()}
+    aria-disabled={isPlacingOrder || !canPlaceOrder}
+  >
+    {getButtonLabel()}
+  </button>
+</div>
     </aside>
   );
 }

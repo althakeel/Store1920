@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../assets/styles/checkoutleft/itemlist.css';
 import { useCart } from '../../contexts/CartContext';
 
 // Utility: convert product name to slug
@@ -13,11 +12,11 @@ const slugify = (text) =>
     .replace(/[^\w\-]+/g, '')
     .replace(/\-\-+/g, '-') || '';
 
-const ItemList = ({ items = [], onRemove }) => {
+const ItemList = ({ items = [], onRemove, onUpdateQuantity }) => {
   const navigate = useNavigate();
-  const { removeFromCart } = useCart();
+  const { removeFromCart, updateQuantity } = useCart();
 
-  if (!items.length) return <p className="empty-cart-msg">Your cart is empty.</p>;
+  if (!items.length) return <p style={{ textAlign: 'center', marginTop: 20 }}>Your cart is empty.</p>;
 
   const handleItemClick = (item) => {
     if (!item || !item.name) return;
@@ -29,75 +28,178 @@ const ItemList = ({ items = [], onRemove }) => {
     else removeFromCart?.(id);
   };
 
+  const handleUpdateQuantity = (item, newQuantity) => {
+    const id = item.id ?? item.product_id ?? item.sku;
+    if (newQuantity <= 0) return handleRemove(id);
+
+    if (onUpdateQuantity) onUpdateQuantity(id, newQuantity);
+    else if (updateQuantity) updateQuantity(id, newQuantity);
+  };
+
+  const quantityStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+  };
+
+  const qtyButtonStyle = {
+    width: 28,
+    height: 28,
+    border: '1px solid #ccc',
+    borderRadius: 4,
+    background: '#fff',
+    cursor: 'pointer',
+    fontSize: 18,
+    fontWeight: 'bold',
+    lineHeight: 1,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  };
+
+  const qtyNumberStyle = {
+    minWidth: 24,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  };
+
   return (
-    <div className="cart-summary">
-      <h3 className="cart-title">Items in Cart ({items.length})</h3>
- <div className="cart-grid">
-  {items.map((item, index) => {
-    const key = item.id ?? item.product_id ?? index;
-    const imageUrl = item.images?.[0]?.src || item.images?.[0]?.url || item.image || '';
-    const rawPrice = item.prices?.price ?? item.price ?? 0;
-    const price = parseFloat(rawPrice).toFixed(1);
+    <div style={{ padding:"16px 5px" }}>
+      <h3 style={{ marginBottom: 16 }}>Items in Cart ({items.length})</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
+        {items.map((item, index) => {
+          const key = `${item.id ?? item.product_id ?? 'item'}-${index}`;
+          const imageUrl = item.images?.[0]?.src || item.images?.[0]?.url || item.image || '';
+          const rawPrice = item.prices?.price ?? item.price ?? 0;
+          const price = parseFloat(rawPrice).toFixed(1);
 
-    const hasStockInfo = ['stock_quantity', 'in_stock', 'is_in_stock', 'stock_status'].some(
-      (key) => Object.prototype.hasOwnProperty.call(item, key)
-    );
+          const hasStockInfo = ['stock_quantity', 'in_stock', 'is_in_stock', 'stock_status'].some(
+            (key) => Object.prototype.hasOwnProperty.call(item, key)
+          );
 
-    const stockOutByQuantity = typeof item.stock_quantity === 'number' && item.stock_quantity <= 0;
-    const stockOutByFlag =
-      (typeof item.in_stock === 'boolean' && !item.in_stock) ||
-      (typeof item.is_in_stock === 'boolean' && !item.is_in_stock) ||
-      (typeof item.stock_status === 'string' && item.stock_status.toLowerCase() !== 'instock');
+          const stockOutByQuantity =
+            typeof item.stock_quantity === 'number' && item.stock_quantity <= 0;
+          const stockOutByFlag =
+            (typeof item.in_stock === 'boolean' && !item.in_stock) ||
+            (typeof item.is_in_stock === 'boolean' && !item.is_in_stock) ||
+            (typeof item.stock_status === 'string' &&
+              item.stock_status.toLowerCase() !== 'instock');
 
-    const isOutOfStock = (!price || parseFloat(price) <= 0) || (hasStockInfo && (stockOutByQuantity || stockOutByFlag));
+          const isOutOfStock =
+            (!price || parseFloat(price) <= 0) &&
+            (hasStockInfo && (stockOutByQuantity || stockOutByFlag));
 
-    return (
-      <div
-        key={key}
-        className={`cart-grid-item ${isOutOfStock ? 'out-of-stock' : ''}`}
-        onClick={() => !isOutOfStock && handleItemClick(item)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if ((e.key === 'Enter' || e.key === ' ') && !isOutOfStock) handleItemClick(item);
-        }}
-        aria-disabled={isOutOfStock}
-      >
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={item.name || 'Product image'}
-            className="cart-item-image"
-            loading="lazy"
-            draggable={false}
-          />
-        ) : (
-          <div className="cart-item-placeholder">No image</div>
-        )}
+          return (
+            <div
+              key={key}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                padding: 12,
+                border: '1px solid #eee',
+                borderRadius: 8,
+                position: 'relative',
+                opacity: isOutOfStock ? 0.6 : 1,
+              }}
+            >
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={item.name || 'Product image'}
+                  style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 6 }}
+                  loading="lazy"
+                  draggable={false}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 80,
+                    height: 80,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    background: '#f0f0f0',
+                    borderRadius: 6,
+                    color: '#888',
+                  }}
+                >
+                  No image
+                </div>
+              )}
 
-        {isOutOfStock && <div className="out-of-stock-badge">Out of Stock</div>}
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: 0, fontWeight: 600 }}>{item.name}</p>
+                <p style={{ margin: '4px 0' }}>AED {price} × <span style={{fontWeight:"bold"}}>{item.quantity ?? 1}</span></p>
 
-        <div className="cart-item-info">
-          <p className="cart-item-name">{item.name}</p>
-          <p className="cart-item-slug">{slugify(item.name)}</p> {/* slug displayed */}
-          <p className="cart-item-price">AED {price} × {item.quantity ?? 1}</p>
-        </div>
+                <div style={quantityStyle}>
+                  <button
+                    style={qtyButtonStyle}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUpdateQuantity(item, (item.quantity ?? 1) - 1);
+                    }}
+                  >
+                    −
+                  </button>
 
-        <button
-          className="cart-item-remove-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleRemove(item.id ?? item.product_id ?? item.sku ?? index);
-          }}
-          aria-label={`Remove ${item.name ?? 'item'} from cart`}
-        >
-          ×
-        </button>
+                  <span style={qtyNumberStyle}><span style={{color:"#dd5405ff",fontWeight:"bold"}}>{item.quantity ?? 1}</span></span>
+
+                  <button
+                    style={qtyButtonStyle}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUpdateQuantity(item, (item.quantity ?? 1) + 1);
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+                
+              </div>
+                
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemove(item.id ?? item.product_id ?? item.sku ?? index);
+                }}
+                style={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  border: 'none',
+                  background: 'transparent',
+                  fontSize: 35,
+                  cursor: 'pointer',
+                  color: '#888',
+                }}
+              >
+                ×
+              </button>
+
+              {isOutOfStock && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    background: 'rgba(255,0,0,0.8)',
+                    color: '#fff',
+                    padding: '4px 8px',
+                    borderRadius: 4,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Out of Stock
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
-    );
-  })}
-</div>
-
     </div>
   );
 };

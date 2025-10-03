@@ -77,6 +77,8 @@
   color: #fff;
   cursor: pointer;
   width: 100%;
+  min-width: 300px;
+
   margin-top: 20px;
   transition: background-color 0.3s ease, transform 0.15s ease;
   user-select: none;
@@ -223,43 +225,57 @@
 }
 
 /* Mobile: stick button to bottom */
+/* Mobile: stick button to bottom */
 @media (max-width: 768px) {
   .mobileStickyButton {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    background: #fff;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    padding: 0px 16px 15px; /* reduced padding */
-  }
-
-  .mobileStickyContent {
+    background-color: #ffffff; /* full background */
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+    padding: -0px 16px 18px ; /* slightly smaller for mobile */
+    z-index: 10000; /* high z-index */
     display: flex;
     justify-content: space-between;
-    align-items: center; /* vertical centering */
-    gap: 12px;
+    align-items: center;
+    box-sizing: border-box; /* ensure padding doesn't exceed width */
   }
 
-  .mobileSubtotal {
+  .mobileStickyButton .mobileSubtotal {
     font-weight: 700;
     font-size: 16px;
-    color: #000000;
-    display: flex;
-    align-items: center; /* vertical center */
-    margin-top: 20px;
+    color: #111827;
+    margin-right: 8px;
+    flex-shrink: 0;
+    margin-top: 15px;
   }
 
   .mobileStickyButton .placeOrderBtnCR {
-    flex: 1;
+    flex: 1; /* allow it to take remaining space */
+    max-width: calc(100% - 100px); /* leave room for subtotal */
+    padding: 12px 20px;
     border-radius: 25px;
-    padding: 5px 0; /* reduced height */
-    text-align: center;
+    font-size: 0.8rem;
+    min-width: 0;
   }
 
-  /* Ensure content above the button is not hidden */
+  /* prevent container content from being hidden under sticky button */
   .checkoutRightContainer {
-    padding-bottom: 60px; /* adjusted for reduced height */
+    padding-bottom: 80px; /* slightly smaller than sticky height */
+  }
+
+  /* hide desktop button */
+  .desktopStickyButton {
+    display: none !important;
+  }
+}
+
+
+
+@media (min-width:768px){
+  .mobileStickyButton{
+
+    display: none !important;
   }
 }

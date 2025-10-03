@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from "../../contexts/CartContext";
 
-const Bundle = ({ bundles, selected, setSelected }) => {
+const Bundle = ({ product, bundles, selected, setSelected }) => {
   const [variants, setVariants] = useState({});
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const { addToCart } = useCart();
