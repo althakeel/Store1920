@@ -127,7 +127,7 @@ const staticProducts = [
     name: "GameBox 64 Retro Console – 20,000+ Preloaded Games with 4K HDMI & Wireless Controllers",
     price: "96.00",
     regular_price: "96.0",
-    sale_price: "69.0",
+    sale_price: "69.99",
     images: [{ src:Product5 }],
     slug: "gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllerse",
     path: "/products/gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllers",
