@@ -61,6 +61,8 @@ const extractAddress = (place) => {
   };
 
   // Detect user location
+// Detect user location
+// Detect user location
 const detectLocation = () => {
   if (!navigator.geolocation) return alert("Geolocation not supported");
 
@@ -75,15 +77,14 @@ const detectLocation = () => {
       if (status === "OK" && results[0]) {
         address = { ...extractAddress(results[0]), lat: pos.lat, lng: pos.lng };
       }
-      setDetectedAddress(address);
-      setShowConfirmButton(true);
 
-      // Scroll the button into view so user sees it
-      const confirmBtn = document.getElementById("confirm-address-btn");
-      if (confirmBtn) confirmBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+      setDetectedAddress(address);
+      setShowConfirmButton(false); // 🚫 hide confirm button
+      onPlaceSelected?.(address);  // ✅ auto-pass to parent
     });
   });
 };
+
 
 
 const handleConfirmAddress = () => {
