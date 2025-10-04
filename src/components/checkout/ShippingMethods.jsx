@@ -12,13 +12,13 @@ const ShippingMethods = ({ selectedMethodId, onSelect, subtotal }) => {
       description: 'Free for orders above AED 100',
       eligible: subtotal >= 100,
     },
-    {
-      id: 'fixed_shipping',
-      title: 'Standard Shipping',
-      cost: FIXED_AMOUNT,
-      description: 'Delivered within 5-7 business days',
-      eligible: true,
-    },
+    // {
+    //   id: 'fixed_shipping',
+    //   title: 'Standard Shipping',
+    //   cost: FIXED_AMOUNT,
+    //   description: 'Delivered within 5-7 business days',
+    //   eligible: true,
+    // },
   ];
 
   // Auto-select default method
