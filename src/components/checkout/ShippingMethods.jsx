@@ -5,12 +5,19 @@ const ShippingMethods = ({ selectedMethodId, onSelect, subtotal }) => {
   const FIXED_AMOUNT = 10;
 
   const methods = [
-    {
+    // {
+    //   id: 'free_shipping',
+    //   title: 'Free Shipping',
+    //   cost: 0,
+    //   description: 'Free for orders above AED 100',
+    //   eligible: subtotal >= 100,
+    // },
+     {
       id: 'free_shipping',
       title: 'Free Shipping',
       cost: 0,
-      description: 'Free for orders above AED 100',
-      eligible: subtotal >= 100,
+      description: 'Enjoy free delivery',
+      eligible: true,
     },
     // {
     //   id: 'fixed_shipping',
