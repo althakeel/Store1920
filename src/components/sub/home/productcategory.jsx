@@ -17,6 +17,7 @@ import Product2 from '../../../assets/images/staticproducts/airbed/1.webp'
 import Product3 from '../../../assets/images/staticproducts/paintspray/14.webp'
 import Product4 from '../../../assets/images/staticproducts/pruningmachine/10.webp'
 import Product5 from '../../../assets/images/staticproducts//gamekit/1.webp'
+import Product7 from '../../../assets/images/staticproducts/Air Blower/1.webp'
 
 const PAGE_SIZE = 10;
 const INITIAL_VISIBLE = 30;
@@ -135,10 +136,23 @@ const staticProducts = [
     reviews: 110,
     sold: 185,
   },
+       {
+    id: "7",
+    name: "Cordless 2-in-1 Leaf Blower & Vacuum",
+    price: "55.90",
+    regular_price: "189.00",
+    sale_price: "55.90",
+    images: [{ src:Product7 }],
+    slug: "cordless-2-in-1-leaf-blower-vacuum",
+    path: "/products/cordless-2-in-1-leaf-blower-vacuum",
+    rating: 5,
+    reviews: 195,
+    sold: 285,
+  },
 ];
  
 
-const staticPositions = [2, 11, 15, 19, 24];
+const staticPositions = [2, 11, 15, 19, 24,28];
 
 const ProductCategory = () => {
   const { addToCart, cartItems } = useCart();
