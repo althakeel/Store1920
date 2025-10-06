@@ -83,6 +83,20 @@ import Product84 from '../assets/images/staticproducts/gamekit/ad 3.png'
 
 
 
+import Product91 from '../assets/images/staticproducts/Air Blower/1.webp'
+import Product92 from '../assets/images/staticproducts/Air Blower/2.webp'
+import Product93 from '../assets/images/staticproducts/Air Blower/3.webp'
+import Product94 from '../assets/images/staticproducts/Air Blower/4.webp'
+import Product95 from '../assets/images/staticproducts/Air Blower/5.webp'
+import Product96 from '../assets/images/staticproducts/Air Blower/6.webp'
+import Product97 from '../assets/images/staticproducts/Air Blower/7.webp'
+import Product98 from '../assets/images/staticproducts/Air Blower/8.webp'
+import Product99 from '../assets/images/staticproducts/Air Blower/10.webp'
+import Product100 from '../assets/images/staticproducts/Air Blower/11.webp'
+import Product101 from '../assets/images/staticproducts/Air Blower/12.webp'
+
+
+
 
 const staticProducts = [
   {
@@ -112,9 +126,9 @@ const staticProducts = [
     thumb11: Product12,
 
     bundles: [
-      { type: 'Buy 1',productName :"68V Cordless Portable Car Wash Pressur", discount: 0, price: 69.9, originalPrice: 69.9, image: Product1 },
-      { type: 'Bundle of 2',productName :"68V Cordless Portable Car Wash Pressur", discount: 10, price: 125.8, originalPrice: 139.8, note: 'Perfect for you & a friend', mostPopular: true, image: Product3 },
-      { type: 'Bundle of 3',productName :"68V Cordless Portable Car Wash Pressur", discount: 25, price: 157.2, originalPrice: 209.7, note: 'Get 25% OFF', image: Product3 },
+      { type: 'Buy 1', id: 494574,productName :"68V Cordless Portable Car Wash Pressur", discount: 0, price: 69.9, originalPrice: 89.9, image: Product1 },
+      { type: 'Bundle of 2', id: 523374,productName :"68V Cordless Portable Car Wash Pressur", discount: 10, price: 125.8, originalPrice: 139.8, note: 'Perfect for you & a friend', mostPopular: true, image: Product3 },
+      { type: 'Bundle of 3', id: 523376 ,productName :"68V Cordless Portable Car Wash Pressur", discount: 25, price: 157.2, originalPrice: 209.7, note: 'Get 25% OFF', image: Product3 },
     ],
 
     section2contentTitle: 'Reveal the Power of Clean, Anytime, Anywhere',
@@ -196,7 +210,7 @@ const staticProducts = [
 
 
   {
-    id: 494595,
+    id: 522826,
     name: 'Twin Size Air Mattress with Built-in Rechargeable Pump – 16 Self-Inflating Blow Up Bed for Home, Camping & Guests',
     slug: 'twin-size-air-mattress-with-built-in-rechargeable-pump-16-self-inflating-blow-up-bed-for-home-camping-guests',
     price: 139,
@@ -226,6 +240,7 @@ const staticProducts = [
     bundles: [
       {
         type: "Buy 1",
+        id: 522826 ,
         name: "twin-size-air-matt",
         label: "Buy 1 for Only 139 AED",
         discount: 54,          // (300 - 139) / 300 * 100 = 53.67% ≈ 54%
@@ -235,6 +250,7 @@ const staticProducts = [
       },
       {
         type: "Bundle of 2",
+        id: 523380 ,
         name: "twin-size-air-matt",
         label: "Buy 2 & Get 58% Off",
         discount: 58,          // (600 - 250.2) / 600 * 100 = 58.3% ≈ 58%
@@ -246,6 +262,7 @@ const staticProducts = [
       },
       {
         type: "Bundle of 3",
+        id: 523381 ,
         name: "twin-size-air-matt",
         label: "Buy 3 & Get 63% Off",
         discount: 63,          // (900 - 333.6) / 900 * 100 = 62.93% ≈ 63%
@@ -343,7 +360,7 @@ const staticProducts = [
 
 
   {
-    id: 494590,
+    id: 522827,
     name: 'Electric Paint Sprayer',
     slug: '850w-electric-paint-sprayer-uae',
     price: 85,
@@ -374,6 +391,7 @@ const staticProducts = [
     bundles: [
       {
         type: "Buy 1",
+          id: 522827,
           name: "Electric Paint Sprayer",
         label: "Buy 1 for Only 85 AED",
         discount: 0,
@@ -383,22 +401,24 @@ const staticProducts = [
       },
       {
         type: "Bundle of 2",
+          id: 523384,
           name: "Electric Paint Sprayer",
         label: "Buy 2 & Get 10% Off",
         discount: 10,
         price: 153,
-        originalPrice: 250,
+        originalPrice: 500,
         note: "Perfect for you & a friend",
         mostPopular: true,
         image: Product35,
       },
       {
         type: "Bundle of 3",
+          id: 523385,
           name: "Electric Paint Sprayer",
         label: "Buy 3 & Get 20% Off",
         discount: 20,
         price: 204,
-        originalPrice: 250,
+        originalPrice: 750,
         note: "Best Value",
         image: Product24,
       },],
@@ -490,7 +510,7 @@ const staticProducts = [
 
 
   {
-    id: 49469,
+    id: 523089 ,
     name: 'TrimPro™ 21V Cordless Electric Pruning Shears',
     slug: 'trimpro-21v-cordless-electric-pruning-shears',
     price: 109.9,
@@ -529,32 +549,35 @@ const staticProducts = [
 
  bundles: [
   {
-    type: "Buy 1-TrimPro™",
+    type: "Buy 1",
+        id: 523089,
      name: "TrimPro™ 21V Cordless Electric",
     label: "Buy 1 for Only 109.9 AED",
     discount: 0,
     price: 109.9,
-    originalPrice: 109.9,
+    originalPrice: 280,
     image: Product53,
   },
   {
-    type: "Bundle of 2-TrimPro™",
+    type: "Bundle of 2",
+        id: 523388,
      name: "TrimPro™ 21V Cordless Electric",
     label: "Buy 2 & Get 15% Off",
     discount: 15,
     price: 185.0, // 109.9 * 2 * 0.85 ≈ 186.42
-    originalPrice: 219.8, // 109.9 * 2
+    originalPrice: 560, // 109.9 * 2
     note: "Perfect for you & a friend",
     mostPopular: true,
     image: Product61,
   },
   {
-    type: "Bundle of 3-TrimPro™",
+    type: "Bundle of 3",
+        id: 523389,
      name: "TrimPro™ 21V Cordless Electric",
     label: "Buy 3 & Get 25% Off",
     discount: 25,
     price: 245.0, // 109.9 * 3 * 0.75 ≈ 247.43
-    originalPrice: 329.7, // 109.9 * 3
+    originalPrice: 1140, // 109.9 * 3
     note: "Best Value",
     image: Product68,
   },
@@ -638,7 +661,7 @@ const staticProducts = [
 
   
   {
-    id: 49469,
+    id: 523106,
     name: 'GameBox 64 Retro Console – 20,000+ Preloaded Games with 4K HDMI & Wireless Controllers',
     slug: 'gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllers',
     price: 69.99,
@@ -668,15 +691,17 @@ const staticProducts = [
  bundles: [
   {
     type: "Buy 1",
+       id: 523106,
       name: "GameBox 64 Retro Console",
     label: "Buy 1 for Only 69.9 AED",
     discount: 0,
     price: 69.99,
-    originalPrice: 69.99,
+    originalPrice: 89.99,
     image: Product73,
   },
   {
     type: "Bundle of 2",
+       id: 523392,
       name: "GameBox 64 Retro Console",
     label: "Buy 2 & Get 15% Off",
     discount: 15,
@@ -688,11 +713,12 @@ const staticProducts = [
   },
   {
     type: "Bundle of 3",
+       id: 523396,
       name: "GameBox 64 Retro Console",
     label: "Buy 3 & Get 25% Off",
     discount: 25,
     price: 159.00, // ≈ 157.28 AED
-    originalPrice: +(69.9 * 3).toFixed(2), // 209.7 AED
+    originalPrice: +(69.9 * 3).toFixed(2),
     note: "Best Value",
     image: Product82,
   },
@@ -765,6 +791,289 @@ const staticProducts = [
     //   { icon: IconQuality, text: 'Premium Quality' },
     // ],
   },
+
+// product 6
+
+
+  
+  {
+    id: 523106,
+    name: 'Steam Cleaner DF-A001 – Japan Technology',
+    slug: 'steam-cleaner-df-a001-japan-technology',
+    price: 69.99,
+    description: 'Powerful 1000W | Multi-Surface Cleaning | Portable & Chemical-Free',
+    shortdesc: 'Removes stubborn grease and dirt',
+    subdesc: ' Massive Game Library – 20,000+ titles included',
+    subdesc1: ' Sanitizes with 100°C+ hot steam',
+    subdesc2: 'Safe for kitchens, bathrooms & fabrics',
+    subdesc3: 'Compact & handheld for easy use',
+    subdesc4: '',
+
+    image: Product71,
+    // thumb1: Product43,
+    thumb2: Product72,
+    thumb3: Product73,
+    thumb4: Product74,
+    thumb4: Product75,
+    // thumb5: Product76,
+    thumb6: Product77,
+    thumb7: Product78,
+    thumb8: Product79,
+    thumb9: Product80,
+    thumb9: Product81,
+
+
+
+ bundles: [
+  {
+    type: "Buy 1",
+       id: 523106,
+      name: "GameBox 64 Retro Console",
+    label: "Buy 1 for Only 69.9 AED",
+    discount: 0,
+    price: 89.90,
+    originalPrice: 250,
+    image: Product73,
+  },
+  {
+    type: "Bundle of 2",
+       id: 523392,
+      name: "GameBox 64 Retro Console",
+    label: "Buy 2 & Get 15% Off",
+    discount: 15,
+    price: +(89.9 * 2 * 0.85).toFixed(2), // 15% off on 2 items
+    originalPrice: 500, // 139.80 AED
+    note: "Perfect for you & a friend",
+    mostPopular: true,
+    image: Product79,
+  },
+  {
+    type: "Bundle of 3",
+       id: 523396,
+      name: "GameBox 64 Retro Console",
+    label: "Buy 3 & Get 25% Off",
+    discount: 25,
+   price: +(89.9 * 3 * 0.75).toFixed(2), // 25% off on 3 items
+    originalPrice: 750, // 269.70 AED
+    note: "Best Value",
+    image: Product82,
+  },
+],
+
+
+    section2contentTitle: 'Why Choose Retro Game Stick?',
+    section2contentDesc: ' ',
+  section2list: ['99% Germ Removal, Eliminates bacteria and viruses with natural steam.', 'Powerful Deep Cleaning, Cuts through grease, grime, and soap scum easily.', 'Multi-Surface Use,Perfect for stovetops, tiles, sinks, windows & more.', 'Portable & Lightweight, Ergonomic handheld design for hassle-free cleaning.',],
+      section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
+    section2image: Product73,
+
+    section3title: 'Experience Comfort & Freedom, Anytime You Need',
+    section3image: Product74,
+    section3points: [
+      'Families & Kids',
+      ' Gamers',
+      ' Friends & Parties',
+      ' Gift Idea',
+    ],
+
+    sectionProgressTitle: '  Trusted by Families',
+    sectionProgressSubtitle: ' for a Safer Home',
+    sectionProgress: [
+      { title: 'Report Cleaner Homes Faster', desc: '', percent: 96 },
+      { title: 'Say It Cuts Through Grease Easily', desc: '', percent: 92 },
+      { title: 'Experience Healthier Living', desc: '  ', percent: 89 },
+      { title: 'Value Multi-Surface Attachments', desc: '', percent: 94 },
+    ],
+
+    comparisonData: {
+      title: " What Makes Us Different?",
+      description: "Ordinary cleaners rely on harsh chemicals and endless scrubbing. With DF-A001 Japan Technology Steam Cleaner, you get professional-grade cleaning right at home",
+      headers: ['Feature', 'DF-A001™', 'Others'],
+      rows: [
+        { feature: 'High-Pressure 1000W Steam', lumineux: true, others: false },
+        { feature: 'Multi-Surface Attachments ', lumineux: true, others: false },
+        { feature: 'Chemical-Free Cleaning', lumineux: true, others: false },
+        { feature: 'Compact & Portable', lumineux: true, others: false },
+        { feature: 'Japan Technology Build', lumineux: true, others: false },
+      ],
+    },
+    section5image: Product79,
+
+
+
+    Guaranteetitle: '1 Year Guarantee',
+    Guranteedesc: 'Full replacement or refund within 1 year.',
+    Faq1Q: ' Can it remove stubborn grease?',
+    fAQ1A: 'Yes! The 1000W high-pressure steam easily breaks down grease and grime.',
+    Faq2Q: ' Is it safe for fabrics?',
+    fAQ2A: ' Yes, it can be used for curtains, sofas, and clothes with proper attachment.',
+    Faq3Q: ' Do I need cleaning chemicals?',
+    fAQ3A:
+      ' No. It cleans and sanitizes with just tap water.',
+
+
+    reviewsTitle: 'Customer Testimonials for GameBox',
+    reviewsRating: 4.9,
+    reviews: [
+      { text: 'Best cleaning tool I’ve ever used. My stovetop and tiles look brand new!', author: 'Aisha M., Dubai ', stars: 5 },
+      { text: 'Powerful steam, no chemicals needed. I use it in the kitchen and bathroom every week.', author: 'Hassan A., Sharjah', stars: 5 },
+      { text: 'So easy to use and lightweight. The attachments make it super versatile.', author: 'Fatima R., Abu Dhabi ', stars: 5 },
+    ],
+
+    // section4Data: [
+    //   { icon: IconFastDelivery, text: 'Fast Delivery' },
+    //   { icon: IconSecurePayment, text: 'Secure Payments' },
+    //   { icon: IconSupport, text: '24/7 Support' },
+    //   { icon: IconQuality, text: 'Premium Quality' },
+    // ],
+  },
+
+
+
+
+
+
+
+
+
+
+
+  // product 7///////////////////////
+    
+  {
+    id: 523106,
+    name: 'Cordless 2-in-1 Leaf Blower & Vacuum',
+    slug: 'cordless-2-in-1-leaf-blower-vacuum',
+    price: 55.90,
+    description: '17000 RPM | Battery Powered | Wireless | Lightweight & Portable',
+    shortdesc: 'Blow, Vacuum, and Clean — All with One Tool',
+    subdesc: ' 2-in-1 Blower & Vacuum function',
+    subdesc1: ' Up to 17000 RPM turbo power',
+    subdesc2: 'Lightweight (1.5kg) and ergonomic',
+    subdesc3: ' Long battery life (up to 40 minutes)',
+    subdesc4: ' Perfect for lawns, garages, cars, and patios',
+
+    image: Product92,
+    // thumb1: Product43,
+    thumb2: Product91,
+    thumb3: Product93,
+    thumb4: Product94,
+    thumb4: Product95,
+    thumb5: Product96,
+    thumb6: Product97,
+    thumb7: Product98,
+    thumb8: Product99,
+    thumb9: Product100,
+    thumb9: Product101,
+
+
+
+ bundles: [
+  {
+    type: "Buy 1",
+       id: 523404 ,
+      name: "Cordless 2-in-1 Leaf Blower & Vacuum",
+    label: "Buy 1 for Only 69.9 AED",
+    discount: 0,
+    price: 55.90,
+    originalPrice: 189,
+    image: Product96,
+  },
+  {
+    type: "Bundle of 2",
+       id: 523417 ,
+      name: "Cordless 2-in-1 Leaf Blower & Vacuum",
+    label: "Buy 2 & Get 15% Off",
+    discount: 15,
+    price: 95, // 15% off on 2 items
+    originalPrice: 378, // 139.80 AED
+    note: "Perfect for you & a friend",
+    mostPopular: true,
+    image: Product99,
+  },
+  {
+    type: "Bundle of 3",
+       id: 523418 ,
+      name: "Cordless 2-in-1 Leaf Blower & Vacuum",
+    label: "Buy 3 & Get 25% Off",
+    discount: 25,
+    price:125, // 25% off on 3 items
+    originalPrice: 567, // 269.70 AED
+    note: "Best Value",
+    image: Product93,
+  },
+],
+
+
+    section2contentTitle: 'Super Strong Wind Power – 17000 RPM Turbo Motor',
+    section2contentDesc: 'Built with boost turbofan technology and a durable all-copper motor, this blower delivers up to 4m³/min air volume for maximum performance. Easily control airflow with the variable power trigger – light press for low speed, heavy press for high speed. ',
+  section2list: ['Leaves, dust, snow & grass clippings', 'Car engine cleaning', 'Workshop & home use'],
+      section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
+    section2image: Product93,
+
+    section3title: 'Perfect for Any Cleaning Task',
+    section3image: Product94,
+    section3points: [
+      'Home & Garage Cleaning',
+      'Lawn, Patio, and Garden Leaves',
+      '  Car Engine Dust & Interior Vacuuming',
+      '  Pet Hair & Light Debris Removal',
+    ],
+
+    sectionProgressTitle: '  Trusted by Homeowners ',
+    sectionProgressSubtitle: '& Car Enthusiasts',
+    sectionProgress: [
+      { title: 'Report Cleaner Homes Faster', desc: '', percent: 96 },
+      { title: 'Loved the Power & Portability', desc: '', percent: 93 },
+      { title: 'Use it Weekly for Home & Car', desc: '  ', percent: 90 },
+      { title: 'Recommend It to Family & Friends.', desc: '', percent: 94 },
+    ],
+
+    comparisonData: {
+      title: "Why Choose Our Leaf Blower?",
+      description: "",
+      headers: ['Feature', 'Our Leaf Blower™', 'Others'],
+      rows: [
+        { feature: '2-in-1 Blower & Vacuum Design', lumineux: true, others: false },
+        { feature: '17000 RPM Turbo Power', lumineux: true, others: false },
+        { feature: 'Dual Batteries + Fast Charger', lumineux: true, others: false },
+        { feature: 'Lightweight (1.5kg)', lumineux: true, others: false },
+        { feature: 'Multi-purpose Home & Car Use', lumineux: true, others: false },
+      ],
+    },
+    section5image: Product99,
+
+
+
+    Guaranteetitle: '1 Year Guarantee',
+    Guranteedesc: 'Full replacement or refund within 1 year.',
+    Faq1Q: ' How long does the battery last?',
+    fAQ1A: 'Each charge provides up to 40 minutes of continuous use in high-speed mode.',
+    Faq2Q: '  Can it vacuum pet hair and dust?',
+    fAQ2A: 'Yes! The vacuum mode is perfect for pet hair, dust, and car interiors.',
+    Faq3Q: ' Is it suitable for outdoor use?',
+    fAQ3A:
+      ' Absolutely – great for driveways, gardens, patios, and parks.',
+
+
+    reviewsTitle: 'Customer Reviews',
+    reviewsRating: 5,
+    reviews: [
+      { text: 'Excellent power for such a lightweight blower! Works great for both yard and car cleaning.', author: 'Mohammed R., Dubai  ', stars: 5 },
+      { text: 'Love the vacuum function. Cleans pet hair from sofa and car in minutes.', author: 'Fatima A., Sharjah', stars: 5 },
+      { text: 'The dual batteries last long enough for my whole garden. Easy to use and super powerful.', author: 'Ali K., Abu Dhabi ', stars: 5 },
+    ],
+
+    // section4Data: [
+    //   { icon: IconFastDelivery, text: 'Fast Delivery' },
+    //   { icon: IconSecurePayment, text: 'Secure Payments' },
+    //   { icon: IconSupport, text: '24/7 Support' },
+    //   { icon: IconQuality, text: 'Premium Quality' },
+    // ],
+  },
+
+
+
 
 
 

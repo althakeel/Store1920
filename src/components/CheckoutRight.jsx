@@ -139,7 +139,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   // -----------------------------
   const captureOrderItems = async (orderId, cartItems, customer) => {
     const items = cartItems.map(item => ({
-      id: item.id || 0,
+ id: item.wooId || item.id || 0,
       name: item.name || item.title,
       price: parseFloat(item.prices?.price ?? item.price ?? 0),
       quantity: parseInt(item.quantity, 10) || 1,

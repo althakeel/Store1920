@@ -32,7 +32,7 @@ const handleBuyNow = () => {
   const bundleImage = bundle.image || bundle.images?.[0] || bundle.productImage || null;
 
   const bundleToCart = {
-    id: bundle.id || `bundle-${selected}`,
+  id: bundle.wooId || bundle.id || 0, // make sure this is 523369, 523370, or 523371
     name: bundle.type,
     price: bundle.price,
     originalPrice: bundle.originalPrice,

@@ -48,6 +48,7 @@ const CustomProductDetails = () => {
 const handleAddToCart = (bundleWithVariants) => {
   const cartItem = {
     productId: product.id,
+     wooId: product.wooId, 
     name: product.name, // explicitly pass the product name
     price: bundleWithVariants.price,
     originalPrice: bundleWithVariants.originalPrice,

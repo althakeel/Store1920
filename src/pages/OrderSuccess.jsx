@@ -9,17 +9,48 @@ export default function OrderSuccess() {
 
   const queryParams = new URLSearchParams(location.search);
   const orderId = queryParams.get("order_id");
-  const [trackingId, setTrackingId] = useState(orderId || "");
-  const [showPopup, setShowPopup] = useState(false);
+
   const [animate, setAnimate] = useState(false);
+  const [seconds, setSeconds] = useState(10);
 
   useEffect(() => {
+    // ✅ if user manually opens this page or no order_id present
+    if (!orderId) {
+      navigate("/", { replace: true });
+      return;
+    }
+
     setAnimate(true);
-  }, []);
+
+    // ✅ Prevent going back entirely
+    const blockBack = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+
+    // Push a dummy state and keep re-pushing if back is attempted
+    blockBack();
+    window.addEventListener("popstate", blockBack);
+
+    // ✅ Auto redirect after countdown
+    const interval = setInterval(() => {
+      setSeconds((prev) => {
+        if (prev <= 1) {
+          navigate("/", { replace: true });
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("popstate", blockBack);
+    };
+  }, [navigate, orderId]);
 
   const handleTrackOrder = () => {
-    if (!trackingId) return;
-    navigate(`/track-order?order_id=${trackingId}`);
+    if (orderId) navigate(`/track-order?order_id=${orderId}`);
   };
 
   return (
@@ -48,7 +79,6 @@ export default function OrderSuccess() {
           transition: "all 0.5s ease-out",
         }}
       >
-        {/* Animated Success Icon */}
         <div
           style={{
             fontSize: 60,
@@ -81,41 +111,37 @@ export default function OrderSuccess() {
           Thank you for shopping with us.
         </p>
 
-        {/* Track Button */}
         <button
           onClick={handleTrackOrder}
-          disabled={!trackingId}
           style={{
             padding: "14px 28px",
             fontSize: 16,
             fontWeight: "600",
-            color: trackingId ? "#fff" : "#aaa",
-            background: trackingId ? "linear-gradient(90deg, #ff9800, #ffb74d)" : "#eee",
+            color: "#fff",
+            background: "linear-gradient(90deg, #ff9800, #ffb74d)",
             border: "none",
             borderRadius: 10,
-            cursor: trackingId ? "pointer" : "not-allowed",
-            boxShadow: trackingId ? "0 5px 15px rgba(255, 152, 0, 0.4)" : "none",
+            cursor: "pointer",
+            boxShadow: "0 5px 15px rgba(255, 152, 0, 0.4)",
             transition: "all 0.3s ease",
           }}
-          onMouseEnter={(e) =>
-            trackingId && (e.currentTarget.style.transform = "scale(1.05)")
-          }
-          onMouseLeave={(e) =>
-            trackingId && (e.currentTarget.style.transform = "scale(1)")
-          }
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           Track Your Order
         </button>
 
-        {/* Guest Notice */}
         {!user && (
           <p style={{ marginTop: 20, fontSize: 14, color: "#555" }}>
             Note: Guests can only track their order. Updates will be sent via WhatsApp.
           </p>
         )}
-      </div>
 
-      {/* Optional login popup can be added here if needed */}
+        <p style={{ marginTop: 30, fontSize: 14, color: "#777" }}>
+          You will be redirected to the homepage in{" "}
+          <strong>{seconds}</strong> seconds...
+        </p>
+      </div>
     </div>
   );
 }

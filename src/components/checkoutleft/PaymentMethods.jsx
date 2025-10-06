@@ -24,7 +24,7 @@ const PaymentMethods = ({ selectedMethod, onMethodSelect, subtotal }) => {
     { id: 'cod', title: 'Cash On Delivery', description: 'Pay with cash on delivery', img: CashIcon },
     { id: 'card', title: 'Credit/Debit Card', description: 'Pay securely with card', img: CardIcon },
     { id: 'tabby', title: 'Tabby', description: 'Pay in 4 installments', img: TabbyIcon },
-    // { id: 'tamara', title: 'Tamara', description: 'Pay later in 14 days', img: TamaraIcon },
+    { id: 'tamara', title: 'Tamara', description: 'Pay later in 14 days', img: TamaraIcon },
   ];
     
   const renderExtraInfo = (method) => {
