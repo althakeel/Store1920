@@ -1,72 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import '../../assets/styles/checkout/ShippingMethods.css';
 
-const ShippingMethods = ({ selectedMethodId, onSelect, customerAddress, parcels }) => {
-  const [methods, setMethods] = useState([
+const ShippingMethods = ({ selectedMethodId, onSelect }) => {
+  const [methods] = useState([
     {
-      id: 'shipa_delivery',
-      title: 'Shipa Delivery',
-      description: 'Shipa Delivery method',
-      cost: null, // null means price not yet loaded
+      id: 'free_shipping',
+      title: 'Free Shipping',
+      description: 'Delivered within 2–5 business days',
+      cost: 0,
       eligible: true,
     },
   ]);
 
-  const [loading, setLoading] = useState(true);
-
-  // Fetch Shipa Delivery rate dynamically
-  useEffect(() => {
-    if (!customerAddress) return;
-
-    const fetchShipaRate = async () => {
-      try {
-        setLoading(true);
-
-        const response = await axios.post(
-          'https://api.shipadelivery.com/v1/rates',
-          {
-            pickup_address: {
-              street: 'Warehouse Street',
-              city: 'Dubai',
-              country: 'AE',
-              zip: '',
-            },
-            delivery_address: {
-              street: customerAddress.street,
-              city: customerAddress.city,
-              country: customerAddress.country,
-              zip: customerAddress.zip,
-            },
-            parcels: parcels || [{ weight: 1, length: 10, width: 10, height: 10 }],
-          },
-          {
-            headers: {
-              Authorization: 'Bearer YOUR_SHIPA_API_KEY',
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        const rate = response.data?.rates?.[0]?.total || 0;
-
-        setMethods(prev =>
-          prev.map(m => (m.id === 'shipa_delivery' ? { ...m, cost: rate } : m))
-        );
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching Shipa rate:', error);
-        setMethods(prev =>
-          prev.map(m => (m.id === 'shipa_delivery' ? { ...m, cost: 0 } : m))
-        );
-        setLoading(false);
-      }
-    };
-
-    fetchShipaRate();
-  }, [customerAddress, parcels]);
-
-  // Auto-select Shipa Delivery by default
+  // Auto-select Free Shipping by default
   useEffect(() => {
     if (methods.length > 0 && !selectedMethodId) {
       onSelect(methods[0].id);
@@ -79,12 +25,7 @@ const ShippingMethods = ({ selectedMethodId, onSelect, customerAddress, parcels 
       <form>
         {methods.map(method => {
           const isSelected = selectedMethodId === method.id;
-          const price =
-            method.cost === null
-              ? 'Calculating...'
-              : method.cost > 0
-              ? `AED ${parseFloat(method.cost).toFixed(2)}`
-              : 'Free';
+          const price = method.cost > 0 ? `AED ${method.cost.toFixed(2)}` : 'Free';
 
           return (
             <label
