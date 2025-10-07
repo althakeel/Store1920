@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from "../../contexts/CartContext";
 
+
 const Bundle = ({ product, bundles, selected, setSelected }) => {
   const [variants, setVariants] = useState({});
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -59,36 +60,7 @@ const handleBuyNow = () => {
   return (
     <div style={{ padding: "16px", fontFamily: "Arial, sans-serif" }}>
       {/* Title */}
-      <h3
-        style={{
-          display: "flex",
-          alignItems: "center",
-          textAlign: "center",
-          fontWeight: 700,
-          fontSize: "16px",
-          color: "#c6817e",
-          margin: "20px 0",
-          textTransform: "uppercase",
-        }}
-      >
-        <span
-          style={{
-            flex: 1,
-            height: "3px",
-            backgroundColor: "#c6817e",
-            marginRight: "10px",
-          }}
-        />
-        BUNDLE AND SAVE MORE!
-        <span
-          style={{
-            flex: 1,
-            height: "3px",
-            backgroundColor: "#c6817e",
-            marginLeft: "10px",
-          }}
-        />
-      </h3>
+
 
       {/* Bundles */}
       {bundles.map((bundle, index) => {

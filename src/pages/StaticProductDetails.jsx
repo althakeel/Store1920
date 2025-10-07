@@ -19,15 +19,16 @@ import Slider2 from "../components/StaticProduct/slider2";
 import Review from "../components/StaticProduct/review";
 import Comparison from "../components/StaticProduct/comparison";
 import ProgressBarSection from "../components/StaticProduct/progressbarsection";
-import Section5 from '../components/StaticProduct/section5'
+import Section5 from '../components/StaticProduct/section5';
 
 const CustomProductDetails = () => {
   const { slug } = useParams();
   const product = staticProducts.find((p) => p.slug === slug);
+
   const [selectedBundleIndex, setSelectedBundleIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  const { addToCart } = useCart(); // Get addToCart function from your cart context
+  const { addToCart } = useCart(); // Cart context function
 
   // Handle screen resize
   useEffect(() => {
@@ -44,27 +45,32 @@ const CustomProductDetails = () => {
     );
   }
 
-  // ✅ Add to cart handler
-const handleAddToCart = (bundleWithVariants) => {
-  const cartItem = {
-    productId: product.id,
-     wooId: product.wooId, 
-    name: product.name, // explicitly pass the product name
-    price: bundleWithVariants.price,
-    originalPrice: bundleWithVariants.originalPrice,
-    discount: bundleWithVariants.discount,
-bundleType: `${bundleWithVariants.type} - ${product.name}`,
-    quantity: 1,
+  // Add selected bundle to cart
+  const handleAddToCart = (bundleWithVariants) => {
+    const cartItem = {
+      productId: product.id,
+      wooId: product.wooId,
+      name: product.name,
+      price: bundleWithVariants.price,
+      originalPrice: bundleWithVariants.originalPrice,
+      discount: bundleWithVariants.discount,
+      bundleType: `${bundleWithVariants.type} - ${product.name}`,
+      quantity: 1,
+    };
+    addToCart(cartItem);
+    alert("Product added to cart!");
   };
-  addToCart(cartItem);
-  alert("Product added to cart!");
-};
+
+  const selectedBundle =
+    product.bundles && product.bundles[selectedBundleIndex]
+      ? product.bundles[selectedBundleIndex]
+      : null;
 
   return (
     <>
       <div
         style={{
-          padding: "20px 0px",
+          padding: "20px 0",
           maxWidth: "1400px",
           margin: "0 auto",
           boxSizing: "border-box",
@@ -93,27 +99,61 @@ bundleType: `${bundleWithVariants.type} - ${product.name}`,
             style={{
               flexBasis: isMobile ? "100%" : "48%",
               minWidth: "300px",
-                  padding: isMobile ? "0 5px" : "0", 
-    boxSizing: "border-box",
+              padding: isMobile ? "0 5px" : "0",
+              boxSizing: "border-box",
             }}
           >
             <ProductInfo
               product={{
                 ...product,
-                salePrice:
-                  product.bundles[selectedBundleIndex]?.price ??
-                  product.salePrice,
+                salePrice: selectedBundle?.price ?? product.salePrice,
                 regularPrice:
-                  product.bundles[selectedBundleIndex]?.originalPrice ??
-                  product.regularPrice,
+                  selectedBundle?.originalPrice ?? product.regularPrice,
               }}
             />
+
+            {/* Bundle Title Separator */}
+            <h3
+              style={{
+                display: "flex",
+                alignItems: "center",
+                textAlign: "center",
+                fontWeight: 700,
+                fontSize: "16px",
+                color: "#c6817e",
+                margin: "20px 0 5px",
+                textTransform: "uppercase",
+              }}
+            >
+              <span
+                style={{
+                  flex: 1,
+                  height: "3px",
+                  backgroundColor: "#c6817e",
+                  marginRight: "10px",
+                }}
+              />
+            
+                {selectedBundle?.bundleTitle || product.BundleTitle || "Bundle"}
+             
+              <span
+                style={{
+                  flex: 1,
+                  height: "3px",
+                  backgroundColor: "#c6817e",
+                  marginLeft: "10px",
+                }}
+              />
+            </h3>
+
+            {/* Bundle Selector */}
             <Bundle
               bundles={product.bundles}
               selected={selectedBundleIndex}
               setSelected={setSelectedBundleIndex}
-              onAddToCart={handleAddToCart} 
+              onAddToCart={handleAddToCart}
             />
+
             <DeliveryInfo />
             <Desciption product={product} />
           </div>
@@ -122,15 +162,15 @@ bundleType: `${bundleWithVariants.type} - ${product.name}`,
 
       {/* Sections & Sliders */}
       <Slider product={product} />
-      <Section2  product={product}/>
-      <Section4  product={product}/>
-      <Review  product={product}/>
-      <ProgressBarSection product={product}/>
-      <Comparison product={product}/>
-      <Slider2  product={product}/>
-      <Section3  product={product}/>
+      <Section2 product={product} />
+      <Section4 product={product} />
+      <Review product={product} />
+      <ProgressBarSection product={product} />
+      <Comparison product={product} />
+      <Slider2 product={product} />
+      <Section3 product={product} />
       <ProductGuarantee product={product} />
-      <Section5  product={product}/>
+      <Section5 product={product} />
       <ProductFAQ product={product} />
       {/* <ProductFeatures product={product} /> */}
     </>

@@ -130,6 +130,7 @@ const staticProducts = [
       { type: 'Bundle of 2', id: 523374,productName :"68V Cordless Portable Car Wash Pressur", discount: 10, price: 125.8, originalPrice: 139.8, note: 'Perfect for you & a friend', mostPopular: true, image: Product3 },
       { type: 'Bundle of 3', id: 523376 ,productName :"68V Cordless Portable Car Wash Pressur", discount: 25, price: 157.2, originalPrice: 209.7, note: 'Get 25% OFF', image: Product3 },
     ],
+       BundleTitle:"BUNDLE AND SAVE MORE!",
 
     section2contentTitle: 'Reveal the Power of Clean, Anytime, Anywhere',
     section2contentDesc: 'Transform the way you wash your car, bike, and home surfaces with the 68V Portable Car Wash Gun. Say goodbye to stubborn dirt, messy hoses, and expensive car wash visits — enjoy professional-level cleaning right at home.',
@@ -239,7 +240,7 @@ const staticProducts = [
 
     bundles: [
       {
-        type: "Buy 1",
+        type: "Air Bed Single ",
         id: 522826 ,
         name: "twin-size-air-matt",
         label: "Buy 1 for Only 139 AED",
@@ -247,32 +248,23 @@ const staticProducts = [
         price: 139,            // total after discount
         originalPrice: 300,    // original single-item price
         image: Product24,
+        note:'Dimensions: 190 cm (L) × 100 cm (W) × 40 cm (H)',
       },
       {
-        type: "Bundle of 2",
+        type: "Air Bed Double",
         id: 523380 ,
         name: "twin-size-air-matt",
-        label: "Buy 2 & Get 58% Off",
+        label: "Dimensions: 190 cm (L) × 100 cm (W) × 40 cm (H)",
         discount: 58,          // (600 - 250.2) / 600 * 100 = 58.3% ≈ 58%
-        price: 250.2,          // total after discount
-        originalPrice: 600,    // 300 * 2
-        note: "Perfect for you & a friend",
+        price: 199,          // total after discount
+        originalPrice: 690,    // 300 * 2
+        note: "Dimensions: 200 cm (L) × 150 cm (W) × 40 cm (H)",
         mostPopular: true,
         image: Product24,
       },
-      {
-        type: "Bundle of 3",
-        id: 523381 ,
-        name: "twin-size-air-matt",
-        label: "Buy 3 & Get 63% Off",
-        discount: 63,          // (900 - 333.6) / 900 * 100 = 62.93% ≈ 63%
-        price: 333.6,          // total after discount
-        originalPrice: 900,    // 300 * 3
-        note: "Best Value",
-        image: Product24,
-      },
-    ],
 
+    ],
+    BundleTitle:"Choose Your Air Bed Size!",
 
     section2contentTitle: 'Comfort & Use Cases',
     section2contentDesc: 'Your Bed, Wherever You Go Tired of thin sleeping mats or uncomfortable guest beds? The Bestrip Air Mattress transforms any space into a cozy, supportive sleeping environment.',
@@ -377,14 +369,14 @@ const staticProducts = [
     thumb2: Product32,
     thumb3: Product33,
     thumb4: Product34,
-    thumb4: Product31,
-    thumb5: Product36,
-    thumb6: Product37,
+    thumb5: Product31,
+    thumb6: Product36,
+    thumb10: Product37,
     thumb7: Product38,
     thumb8: Product39,
-    thumb9: Product40,
-    thumb9: Product41,
-    thumb9: Product42,
+    thumb11: Product40,
+    thumb12: Product41,
+    thumb13: Product42,
 
 
 
@@ -423,7 +415,11 @@ const staticProducts = [
         image: Product24,
       },],
 
-    section2contentTitle: 'One Tool – Endless Projects',
+
+
+   BundleTitle:"BUNDLE AND SAVE MORE!",
+   
+   section2contentTitle: 'One Tool – Endless Projects',
     section2contentDesc: ' From DIY enthusiasts to car lovers, this paint sprayer makes every project faster and more professional.',
     section2list: ['Refresh old furniture in minutes, mud', ' Paint fences, doors & walls with ease', 'Achieve showroom finish on cars & metal surfaces', ' Perfect for cabinets, crafts, and home improvement projects'],
     section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
@@ -583,6 +579,8 @@ const staticProducts = [
   },
 ],
 
+   BundleTitle:"BUNDLE AND SAVE MORE!",
+
     section2contentTitle: 'Why Choose Our Electric Pruning Shears?',
     section2contentDesc: ' ',
     section2list: ['Sharp & Durable Blades – Forged from Swiss SK5 high carbon steel for clean, rust-free cuts.', ' Strong Brushless Motor – High torque motor delivers 8–10X faster pruning vs. manual shears.', 'Dual Lithium Batteries – Each charge cuts up to 6000 branches; recharge in just 1.5 hours.', 'Ergonomic & Anti-Slip Handle – Work longer without fatigue.', 'Safety First – Built-in double trigger safety switch prevents accidental activation.'],
@@ -723,7 +721,7 @@ const staticProducts = [
     image: Product82,
   },
 ],
-
+   BundleTitle:"BUNDLE AND SAVE MORE!",
 
     section2contentTitle: 'Why Choose Retro Game Stick?',
     section2contentDesc: ' ',
@@ -860,7 +858,7 @@ const staticProducts = [
   },
 ],
 
-
+   BundleTitle:"BUNDLE AND SAVE MORE!",
     section2contentTitle: 'Why Choose Retro Game Stick?',
     section2contentDesc: ' ',
   section2list: ['99% Germ Removal, Eliminates bacteria and viruses with natural steam.', 'Powerful Deep Cleaning, Cuts through grease, grime, and soap scum easily.', 'Multi-Surface Use,Perfect for stovetops, tiles, sinks, windows & more.', 'Portable & Lightweight, Ergonomic handheld design for hassle-free cleaning.',],
@@ -1003,7 +1001,7 @@ const staticProducts = [
     image: Product93,
   },
 ],
-
+   BundleTitle:"BUNDLE AND SAVE MORE!",
 
     section2contentTitle: 'Super Strong Wind Power – 17000 RPM Turbo Motor',
     section2contentDesc: 'Built with boost turbofan technology and a durable all-copper motor, this blower delivers up to 4m³/min air volume for maximum performance. Easily control airflow with the variable power trigger – light press for low speed, heavy press for high speed. ',
