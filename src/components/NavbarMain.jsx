@@ -17,6 +17,7 @@ import LogoMain from '../assets/images/Logo/3.webp';
 import Dirham from '../assets/images/language/aed (1).png';
 import Dollor from '../assets/images/language/dollor.png';
 import aeFlag from '../assets/images/language/aed (3).png';
+import truck from '../assets/images/common/truck.png'
 
 import '../assets/styles/Navbar.css';
 
@@ -248,64 +249,63 @@ const messages = [
               </div>
    
    
-
 <div style={{ position: 'relative', display: 'inline-block', fontFamily: 'sans-serif' }}>
   {/* Animated Floating Badge */}
-<div
-  style={{
-    position: 'absolute',
-    top: '-30px', // move up a bit for arrow
-    left: '0px',
-    background: '#ff9900e5',
-    color: '#fff',
-    padding: '10px 15px 15px',
-    borderRadius: '5px',
-    fontSize: '11px',
-    fontWeight: '600',
-    boxShadow: '0 2px 8px rgba(255,71,87,0.4)',
-    zIndex: 2,
-    overflow: 'visible', // allow arrow to show
-    height: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }}
->
-  <span key={currentMessage} className="animatedBadgeText">
-    {currentMessage}
-  </span>
-
-  {/* Arrow pointing down */}
   <div
     style={{
       position: 'absolute',
-      bottom: '-5px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: '0',
-      height: '0',
-      borderLeft: '6px solid transparent',
-      borderRight: '6px solid transparent',
-      borderTop: '6px solid #ff4757',
+      top: '-30px', // move up a bit for arrow
+      left: '0px',
+      background: '#ff9900e5',
+      color: '#fff',
+      padding: '10px 15px 15px',
+      borderRadius: '5px',
+      fontSize: '11px',
+      fontWeight: '600',
+      boxShadow: '0 2px 8px rgba(255,71,87,0.4)',
+      zIndex: 2,
+      overflow: 'visible', // allow arrow to show
+      height: '20px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     }}
-  />
+  >
+    <span key={currentMessage} className="animatedBadgeText">
+      {currentMessage}
+    </span>
 
-  <style>
-    {`
-      .animatedBadgeText {
-        display: inline-block;
-        animation: slideInTop 0.6s ease forwards;
-      }
+    {/* Arrow pointing down */}
+    <div
+      style={{
+        position: 'absolute',
+        bottom: '-5px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '0',
+        height: '0',
+        borderLeft: '6px solid transparent',
+        borderRight: '6px solid transparent',
+        borderTop: '6px solid #ff4757',
+      }}
+    />
 
-      @keyframes slideInTop {
-        0% { transform: translateY(-100%); opacity: 0; }
-        60% { transform: translateY(10%); opacity: 1; }
-        80% { transform: translateY(-3%); }
-        100% { transform: translateY(0); }
-      }
-    `}
-  </style>
-</div>
+    <style>
+      {`
+        .animatedBadgeText {
+          display: inline-block;
+          animation: slideInTop 0.6s ease forwards;
+        }
+
+        @keyframes slideInTop {
+          0% { transform: translateY(-100%); opacity: 0; }
+          60% { transform: translateY(10%); opacity: 1; }
+          80% { transform: translateY(-3%); }
+          100% { transform: translateY(0); }
+        }
+      `}
+    </style>
+  </div>
 
   {/* Main Button */}
   <div
@@ -313,7 +313,7 @@ const messages = [
     style={{
       background: 'transparent',
       color: '#ffffff',
-      padding: '8px 12px',
+      padding: '8px 10px',
       border: '1px solid #ffffff2c',
       borderRadius: '30px',
       display: 'flex',
@@ -351,17 +351,71 @@ const messages = [
         zIndex: 0,
       }}
     />
-    <img src={Newicon} alt="ShipXpress" style={{ width: '18px', height: '18px', zIndex: 1 }} />
-    <span style={{ zIndex: 1 }}>ShipXpress</span>
+    {/* Truck Image with jerk animation */}
 
-    <style>
-      {`
-        @keyframes shine {
-          0% { left: -80%; }
-          100% { left: 130%; }
-        }
-      `}
-    </style>
+    {/* Truck */}
+<img
+  src={truck}
+  alt="ShipXpress"
+  style={{
+    width: "26px",
+    height: "26px",
+    zIndex: 2,
+    position: "relative",
+    animation: "truckOneSideSlow 10s linear infinite",
+  }}
+/>
+
+<div
+  style={{
+    position: "absolute",
+    left: "0px",
+    width: "14px",
+    height: "14px",
+    background: "radial-gradient(circle, rgba(220,220,220,0.8) 0%, rgba(220,220,220,0) 70%)",
+    borderRadius: "50%",
+    opacity: 0,
+    filter: "blur(3px)",
+    animation: "fogPuff 10s ease-in-out infinite",
+    zIndex: 0,
+  }}
+></div>
+
+
+  <span
+    style={{
+      color: "#fff",
+      fontWeight: "700",
+      fontSize: "14px",
+      zIndex: 1,
+      position: "relative",
+    }}
+  >
+    ShipXpress
+  </span>
+
+<style>
+{`
+  @keyframes truckOneSideSlow {
+    0%   { transform: translateX(0); opacity:1; }          /* near text */
+    20%  { transform: translateX(45px); opacity:1; }       /* drive right fast */
+    30%  { transform: translateX(80px); opacity:0; }       /* fade out offscreen */
+    60%  { transform: translateX(-80px); opacity:0; }      /* off left */
+    70%  { transform: translateX(-20px); opacity:1; }      /* start slow left approach */
+    80%  { transform: translateX(0); opacity:1; }          /* stop near text */
+    100% { transform: translateX(0); opacity:1; }
+  }
+
+  @keyframes fogPuff {
+    0%, 70% { opacity:0; transform: scale(0.8); }
+    75%     { opacity:0.7; transform: scale(1.3); }  /* visible puff */
+    85%     { opacity:0.3; transform: scale(1.8); }  /* fade out */
+    100%    { opacity:0; transform: scale(0.8); }
+  }
+`}
+</style>
+
+
   </div>
 </div>
 
