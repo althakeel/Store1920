@@ -49,6 +49,7 @@ import PaymobCheckoutPage from './pages/PaymobCheckoutPage';
 import StaticProductDetails from './pages/StaticProductDetails';
 import ProductRouteWrapper from './pages/ProductRouteWrapper '
 import CustomCheckout from './pages/adcheckout'
+import Fastdelivery from './pages/Fastdelivery';
 
 
 // Components
@@ -350,6 +351,8 @@ const AppContent = () => {
                     <Route path="*" element={<NotFound />} />
                     <Route path="contact" element={<Contact />} />
                     <Route path="search" element={<Search />} />
+
+                    <Route path="fast-delivery" element={<Fastdelivery />} />
                     <Route path="/payment-success" element={<PaymobSuccess />} />
                     <Route path="/paymob-checkout" element={<PaymobCheckoutPage />} />
                         <Route path="/adscheckout" element={<CustomCheckout />} />

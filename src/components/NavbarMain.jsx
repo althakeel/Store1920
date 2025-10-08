@@ -48,11 +48,17 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
 
   const { isCartOpen, cartItems } = useCart();
   const navigate = useNavigate();
+const [currentMessage, setCurrentMessage] = useState('🚀 Fast Delivery');
+
 
   const timeoutRef = useRef(null);
   const supportTimeoutRef = useRef(null);
   const userTimeoutRef = useRef(null);
   const langTimeoutRef = useRef(null);
+
+    const fastDeliveryRef = useRef(null);
+  const buttonRef = useRef(null);
+
 
   const totalQuantity = cartItems?.reduce((acc, item) => acc + (Number(item.quantity) || 0), 0) || 0;
 
@@ -60,11 +66,70 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
     if (!name) return '';
     return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
   };
+const messages = [
+  '🚀 Fast Delivery',
+  '📦 Within 2 days',
+
+];
 
   const capitalizeFirst = (str) => {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
+
+
+
+  
+  useEffect(() => {
+    const showFastDelivery = () => {
+      if (fastDeliveryRef.current) {
+        fastDeliveryRef.current.style.opacity = '1';
+        fastDeliveryRef.current.style.transform = 'rotate(0deg) scale(1.05)';
+        setTimeout(() => {
+          if (fastDeliveryRef.current) {
+            fastDeliveryRef.current.style.opacity = '0';
+            fastDeliveryRef.current.style.transform = 'rotate(-2deg) scale(1)';
+          }
+        }, 1500);
+      }
+    };
+
+    const interval = setInterval(showFastDelivery, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
+
+
+    useEffect(() => {
+    if (buttonRef.current && !buttonRef.current.dataset.gradientCycle) {
+      buttonRef.current.dataset.gradientCycle = 'true';
+      const gradients = [
+        'linear-gradient(90deg, #ff7a00, #ff4800)',
+        'linear-gradient(90deg, #ff5e00, #ff0080)',
+        'linear-gradient(90deg, #ff0080, #8000ff)',
+        'linear-gradient(90deg, #00c6ff, #0072ff)',
+        'linear-gradient(90deg, #00b09b, #96c93d)',
+      ];
+      let i = 0;
+      setInterval(() => {
+        i = (i + 1) % gradients.length;
+        buttonRef.current.style.background = gradients[i];
+      }, 5000);
+    }
+  }, []);
+
+   useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessage(prev => {
+        const currentIndex = messages.indexOf(prev);
+        return messages[(currentIndex + 1) % messages.length];
+      });
+    }, 3000); // change text every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+
 
   // Auto logout after 30 minutes
   useEffect(() => {
@@ -181,6 +246,128 @@ const NavbarWithMegaMenu = ({ cartIconRef, openCart }) => {
                 <img src={Newicon} alt="New" className="icon-small" />
                 <span>New</span>
               </div>
+   
+   
+
+<div style={{ position: 'relative', display: 'inline-block', fontFamily: 'sans-serif' }}>
+  {/* Animated Floating Badge */}
+<div
+  style={{
+    position: 'absolute',
+    top: '-30px', // move up a bit for arrow
+    left: '0px',
+    background: '#ff9900e5',
+    color: '#fff',
+    padding: '10px 15px 15px',
+    borderRadius: '5px',
+    fontSize: '11px',
+    fontWeight: '600',
+    boxShadow: '0 2px 8px rgba(255,71,87,0.4)',
+    zIndex: 2,
+    overflow: 'visible', // allow arrow to show
+    height: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }}
+>
+  <span key={currentMessage} className="animatedBadgeText">
+    {currentMessage}
+  </span>
+
+  {/* Arrow pointing down */}
+  <div
+    style={{
+      position: 'absolute',
+      bottom: '-5px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '0',
+      height: '0',
+      borderLeft: '6px solid transparent',
+      borderRight: '6px solid transparent',
+      borderTop: '6px solid #ff4757',
+    }}
+  />
+
+  <style>
+    {`
+      .animatedBadgeText {
+        display: inline-block;
+        animation: slideInTop 0.6s ease forwards;
+      }
+
+      @keyframes slideInTop {
+        0% { transform: translateY(-100%); opacity: 0; }
+        60% { transform: translateY(10%); opacity: 1; }
+        80% { transform: translateY(-3%); }
+        100% { transform: translateY(0); }
+      }
+    `}
+  </style>
+</div>
+
+  {/* Main Button */}
+  <div
+    onClick={() => navigate('/fast-delivery')}
+    style={{
+      background: 'transparent',
+      color: '#ffffff',
+      padding: '8px 12px',
+      border: '1px solid #ffffff2c',
+      borderRadius: '30px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      cursor: 'pointer',
+      fontWeight: '700',
+      fontSize: '14px',
+      letterSpacing: '0.5px',
+      overflow: 'hidden',
+      position: 'relative',
+      isolation: 'isolate',
+      transition: 'all 0.3s ease',
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'scale(1.05)';
+      e.currentTarget.style.boxShadow = '0 0 12px rgba(255,255,255,0.5)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'scale(1)';
+      e.currentTarget.style.boxShadow = 'none';
+    }}
+  >
+    {/* Shine effect */}
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: '-80%',
+        width: '50%',
+        height: '100%',
+        background: 'linear-gradient(120deg, rgba(255,255,255,0.5), rgba(255,255,255,0))',
+        transform: 'skewX(-25deg)',
+        animation: 'shine 2s infinite',
+        zIndex: 0,
+      }}
+    />
+    <img src={Newicon} alt="ShipXpress" style={{ width: '18px', height: '18px', zIndex: 1 }} />
+    <span style={{ zIndex: 1 }}>ShipXpress</span>
+
+    <style>
+      {`
+        @keyframes shine {
+          0% { left: -80%; }
+          100% { left: 130%; }
+        }
+      `}
+    </style>
+  </div>
+</div>
+
+
+
+
               <div className="nav-icon-with-text star-rating" onClick={() => navigate('/rated')}>
                 <img src={Star} alt="5 Star rated" className="icon-star" />
                 <span>5-Star Rated</span>
