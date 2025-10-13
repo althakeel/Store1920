@@ -395,7 +395,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
         <button
           className="placeOrderBtnCR  desktopStickyButton"
           onClick={handlePlaceOrder}
-          disabled={isPlacingOrder || !canPlaceOrder}
+          disabled={isPlacingOrder || !canPlaceOrder || totalWithDelivery <= 0}
           style={getButtonStyle()}
           aria-disabled={isPlacingOrder || !canPlaceOrder}
           onMouseEnter={() => !canPlaceOrder && setHoverMessage('Please fill all required address fields.')}
@@ -433,14 +433,14 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 <div className="mobileStickyButton">
   <span className="mobileSubtotal">AED {totalWithDelivery.toFixed(2)}</span>
   <button
-    className="placeOrderBtnCR"
-    onClick={handlePlaceOrder}
-    disabled={isPlacingOrder || !canPlaceOrder}
-    style={getButtonStyle()}
-    aria-disabled={isPlacingOrder || !canPlaceOrder}
-  >
-    {getButtonLabel()}
-  </button>
+  className="placeOrderBtnCR"
+  onClick={handlePlaceOrder}
+  disabled={isPlacingOrder || !canPlaceOrder || totalWithDelivery <= 0}
+  style={getButtonStyle()}
+  aria-disabled={isPlacingOrder || !canPlaceOrder || totalWithDelivery <= 0}
+>
+  {getButtonLabel()}
+</button>
 </div>
     </aside>
   );
