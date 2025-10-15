@@ -96,6 +96,20 @@ import Product100 from '../assets/images/staticproducts/Air Blower/11.webp'
 import Product101 from '../assets/images/staticproducts/Air Blower/12.webp'
 
 
+import Products111 from '../assets/images/staticproducts/AIR BLOWER MINI/1.webp'
+import Products112 from '../assets/images/staticproducts/AIR BLOWER MINI/2.webp'
+import Products113 from '../assets/images/staticproducts/AIR BLOWER MINI/3.webp'
+import Products114 from '../assets/images/staticproducts/AIR BLOWER MINI/4.webp'
+import Products115 from '../assets/images/staticproducts/AIR BLOWER MINI/5.webp'
+import Products116 from '../assets/images/staticproducts/AIR BLOWER MINI/6.webp'
+import Products117 from '../assets/images/staticproducts/AIR BLOWER MINI/7.webp'
+import Products118 from '../assets/images/staticproducts/AIR BLOWER MINI/8.webp'
+import Products119 from '../assets/images/staticproducts/AIR BLOWER MINI/9.webp'
+import Products120 from '../assets/images/staticproducts/AIR BLOWER MINI/10.webp'
+import Products121 from '../assets/images/staticproducts/AIR BLOWER MINI/11.webp'
+import Products122 from '../assets/images/staticproducts/AIR BLOWER MINI/12.webp'
+
+
 
 
 const staticProducts = [
@@ -1070,7 +1084,133 @@ const staticProducts = [
     // ],
   },
 
+///////////////////////////////
 
+
+
+  {
+    id: 523759,
+    name: 'Turbo Cordless Leaf Blower – 21V Power for Every Task',
+    slug: 'turbo-cordless-leaf-blower-21v-power-for-every-task',
+    price: 49.99,
+    description: 'Lightweight | Powerful Turbine Motor | Dual Battery Option | Adjustable Speed',
+    shortdesc: 'Introducing the Turbo Cordless Leaf Blower — your all-in-one solution for cleaning driveways, patios, cars, and gardens.',
+    subdesc: ' Lightweight & easy to handle',
+    subdesc1: 'Available in Single or Dual Battery models',
+    subdesc2: 'Powerful turbine motor for maximum airflow',
+    subdesc3: ' Adjustable speed for precision cleaning',
+    subdesc4: 'Ideal for homes, gardens & car drying',
+
+    image: Products119,
+    // thumb1: Product43,
+    thumb2: Products112,
+    thumb3: Products113,
+    thumb4: Products114,
+    thumb4: Products115,
+    thumb5: Products116,
+    thumb6: Products117,
+    thumb7: Products118,
+    thumb8: Products111,
+    thumb9: Products120,
+    thumb8: Products121,
+    thumb9: Products122,
+
+
+
+ bundles: [
+  {
+    type: "Single Battery Model",
+       id: 523759 ,
+      name: "Turbo Cordless Leaf Blower – 21V Power for Every Task - Single Battery",
+    label: "Ideal for quick cleanups & small areas.",
+    discount: 27,
+    price: 49.9,
+    originalPrice:99.98,
+    image: Products118,
+    
+  },
+  {
+    type: "Dual Battery Model",
+       id: 523773  ,
+      name: "Turbo Cordless Leaf Blower – 21V Power for Every Task - Double Battery",
+    label: "Extended runtime for large spaces & heavy use. Each battery is 21V large-capacity lithium, offering efficient, long-lasting power.",
+    discount: 38,
+    price: 59.99, 
+    originalPrice: 129.0, 
+    note: "",
+    mostPopular: true,
+    image: Products120,
+  },
+  
+],
+   BundleTitle:"CHOOSE YOUR BATTERY QUANTITY!",
+
+    section2contentTitle: ' Lightweight, Portable & Ergonomic Design',
+    section2contentDesc: 'At just 1.6kg, the Turbo Blower is designed for comfort.',
+  section2list: ['One-hand operation', 'Non-slip ergonomic grip', 'Easy storage and transport'],
+      section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
+    section2image: Products114,
+
+    section3title: ' What’s in the Box?',
+    section3image: Products113,
+    section3points: [
+      '1x Turbo Cordless Leaf Blower',
+      '1x or 2x 21V Lithium Batteries (based on selection)',
+      '1x Fast Charger',
+      '1x User Manual',
+    ],
+
+    sectionProgressTitle: 'Trusted by Homeowners Across UAE ',
+    sectionProgressSubtitle: 'UAE',
+    sectionProgress: [
+      { title: 'Report Faster Cleaning', desc: '', percent: 96 },
+      { title: 'Loved Its Portability', desc: '', percent: 92 },
+      { title: 'Use It Weekly', desc: '  ', percent: 89 },
+      { title: 'Recommend to Friends & Family', desc: '', percent: 94 },
+    ],
+
+    comparisonData: {
+      title: "Why Choose Turbo Cordless Blower?",
+      description: "",
+      headers: ['Feature', 'Turbo Cordless Blower™', 'Others'],
+      rows: [
+        { feature: '21V High-Capacity Battery', lumineux: true, others: false },
+        { feature: 'Lightweight (Less than 1 Kg)', lumineux: true, others: false },
+        { feature: 'Adjustable Airflow Speed', lumineux: true, others: false },
+        { feature: 'Dual Battery Option Available', lumineux: true, others: false },
+        { feature: 'Multi-Use for Car, Lawn & Home', lumineux: true, others: false },
+      ],
+    },
+    section5image: Products116,
+
+
+
+    Guaranteetitle: '1 Year Guarantee',
+    Guranteedesc: 'How long does one battery last?',
+    Faq1Q: ' Does the camera work at night?',
+    fAQ1A: 'Each 21V battery provides up to 30–40 minutes of continuous use.',
+    Faq2Q: ' Is it suitable for indoor cleaning?',
+    fAQ2A: 'Yes! Perfect for blowing dust, pet hair, or small debris.',
+    Faq3Q: 'an it dry cars?',
+    fAQ3A:
+      ' Absolutely. It’s powerful enough to dry vehicles safely and quickly.',
+
+
+    reviewsTitle: 'Customer Reviews',
+    reviewsRating: 5,
+    reviews: [
+      { text: 'Extremely powerful for its size! I use it to dry my car after washing — amazing airflow.', author: 'Hassan A., Dubai ', stars: 5 },
+      { text: 'Lightweight and easy to use. The dual battery option lasts for my whole garden!', author: 'Fatima R., Sharjah', stars: 5 },
+      { text: 'Worth every dirham. Compact, strong, and super reliable.', author: 'Omar K., Abu Dhabi', stars: 5 },
+    ],
+
+    // section4Data: [
+    //   { icon: IconFastDelivery, text: 'Fast Delivery' },
+    //   { icon: IconSecurePayment, text: 'Secure Payments' },
+    //   { icon: IconSupport, text: '24/7 Support' },
+    //   { icon: IconQuality, text: 'Premium Quality' },
+    // ],
+  },
 
 
 
