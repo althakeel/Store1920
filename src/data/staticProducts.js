@@ -110,6 +110,18 @@ import Products121 from '../assets/images/staticproducts/AIR BLOWER MINI/11.webp
 import Products122 from '../assets/images/staticproducts/AIR BLOWER MINI/12.webp'
 
 
+import Product132 from '../assets/images/staticproducts/Steamer/1.webp'
+import Product133 from '../assets/images/staticproducts/Steamer/2.webp'
+import Product134 from '../assets/images/staticproducts/Steamer/3.webp'
+import Product135 from '../assets/images/staticproducts/Steamer/4.webp'
+import Product136 from '../assets/images/staticproducts/Steamer/5.webp'
+import Product137 from '../assets/images/staticproducts/Steamer/6.webp'
+import Product138 from '../assets/images/staticproducts/Steamer/7.webp'
+import Product139 from '../assets/images/staticproducts/Steamer/8.webp'
+import Product140 from '../assets/images/staticproducts/Steamer/9.webp'
+import Product141 from '../assets/images/staticproducts/Steamer/10.webp'
+import Product142 from '../assets/images/staticproducts/Steamer/11.webp'
+import Product143 from '../assets/images/staticproducts/Steamer/12.webp'
 
 
 const staticProducts = [
@@ -810,11 +822,11 @@ const staticProducts = [
   
   {
     id: 523106,
-    name: 'Steam Cleaner DF-A001 – Japan Technology',
-    slug: 'steam-cleaner-df-a001-japan-technology',
+    name: 'GameBox 64 Retro Console – 20,000+ Preloaded Games with 4K HDMI & Wireless Controllers',
+    slug: 'gamebox-64-retro-console-20000-preloaded-games-4k-hdmi-wireless-controllers',
     price: 69.99,
-    description: 'Powerful 1000W | Multi-Surface Cleaning | Portable & Chemical-Free',
-    shortdesc: 'Removes stubborn grease and dirt',
+    description: 'Turn Your TV into the Ultimate Retro Gaming Console',
+    shortdesc: '',
     subdesc: ' Massive Game Library – 20,000+ titles included',
     subdesc1: ' Sanitizes with 100°C+ hot steam',
     subdesc2: 'Safe for kitchens, bathrooms & fabrics',
@@ -1215,7 +1227,139 @@ const staticProducts = [
 
 
 
+///////////////|
+////////////
+/////////////////
 
+
+
+ {
+    id: 523106,
+    name: 'Steam Cleaner DF-A001 – Japan Technology',
+    slug: 'steam-cleaner-df-a001-japan-technology',
+    price: 89.90,
+    description: 'Powerful 1000W | Multi-Surface Cleaning | Portable & Chemical-Free',
+    shortdesc: 'Imagine a spotless kitchen, bathroom, and home — all cleaned without harsh chemicals. With DF-A001 Handheld Steam Cleaner, experience the power of high-pressure steam for deep cleaning and sanitizing.',
+    subdesc: ' Removes stubborn grease and dirt',
+    subdesc1: 'Sanitizes with 100°C+ hot steam',
+    subdesc2: 'Safe for kitchens, bathrooms & fabrics',
+    subdesc3: ' Compact & handheld for easy use',
+
+    image: Product132,
+    // thumb1: Product43,
+    thumb2: Product133,
+    thumb3: Product134,
+    thumb4: Product135,
+    thumb4: Product136,
+    thumb5: Product137,
+    thumb6: Product138,
+    thumb7: Product139,
+    thumb8: Product140,
+    thumb9: Product141,
+    thumb9: Product142,
+    thumb10:Product143,
+
+
+
+ bundles: [
+  {
+    type: "Buy 1",
+    id: 523404,
+    name: "Steam Cleaner DF-A001 – Japan Technology",
+    label: "Buy 1 for Only 89.9 AED",
+    discount: 0,
+    price: 89.9,
+    originalPrice: 89.9,
+    image: Product136,
+  },
+  {
+    type: "Bundle of 2",
+    id: 523417,
+    name: "Steam Cleaner DF-A001 – Japan Technology",
+    label: "Buy 2 & Get 10% Off",
+    discount: 10,
+    price: 161.82, // 10% off on total 179.8
+    originalPrice: 179.8,
+    note: "Perfect for you & a friend",
+    mostPopular: true,
+    image: Product138,
+  },
+  {
+    type: "Bundle of 3",
+    id: 523418,
+    name: "Steam Cleaner DF-A001 – Japan Technology",
+    label: "Buy 3 & Get 25% Off",
+    discount: 25,
+    price: 202.28, // 25% off on total 269.7
+    originalPrice: 269.7,
+    note: "Best Value",
+    image: Product142,
+  },
+]
+,
+   BundleTitle:"BUNDLE AND SAVE MORE!",
+
+    section2contentTitle: 'Deep Cleaning Power, Anytime You Need It',
+    section2contentDesc: 'Powered by 1000W Japan Technology, this handheld steam cleaner produces high-pressure steam that cuts through grease, grime, and bacteria — without using harsh chemicals.',
+  section2list: ['Removes grease, oil, and dirt from kitchen surfaces', 'Cleans and sanitizes bathrooms, tiles, and fabrics', ' Ideal for windows, ovens, and car interiors'],
+      section2contentPoints: ['Free UAE Shipping', '24/7 Support', '1-Year Warranty', ' Easy to Store & Carry'],
+    section2image: Product134,
+
+    section3title: 'Join the Movement of Easy Cleaning',
+    section3image: Product136,
+    section3points: [
+      '99% Germ Removal',
+      'Powerful Deep Cleaning',
+      ' Multi-Surface Use',
+      ' Portable & Lightweight',
+    ],
+
+    sectionProgressTitle: ' Trusted by Families for a',
+    sectionProgressSubtitle: 'Safer Home',
+    sectionProgress: [
+      { title: 'Report Cleaner Homes Faster', desc: '', percent: 96 },
+      { title: ' Say It Cuts Through Grease Easily', desc: '', percent: 92 },
+      { title: 'Experience Healthier Living', desc: '  ', percent: 89 },
+      { title: 'Value Multi-Surface Attachments', desc: '', percent: 94 },
+    ],
+
+    comparisonData: {
+      title: "What Makes Us Different",
+      description: " Ordinary cleaners rely on harsh chemicals and endless scrubbing.With DF-A001 Japan Technology Steam Cleaner, you get professional-grade cleaning right at home.",
+      headers: ['Feature', 'DF-A001™', 'Others'],
+      rows: [
+        { feature: 'High-Pressure 1000W Steam', lumineux: true, others: false },
+        { feature: 'Multi-Surface Attachmen', lumineux: true, others: false },
+        { feature: 'Chemical-Free Cleaning', lumineux: true, others: false },
+        { feature: 'Compact & Portable', lumineux: true, others: false },
+        { feature: 'Japan Technology Build', lumineux: true, others: false },
+      ],
+    },
+    section5image: Product137,
+
+
+
+    Guaranteetitle: '1 Year Guarantee',
+    Guranteedesc: 'Full replacement or refund within 1 year.',
+    Faq1Q: 'Can it remove stubborn grease?',
+    fAQ1A: ' Yes! The 1000W high-pressure steam easily breaks down grease and grime.',
+    Faq2Q: ' Is it safe for fabrics?',
+    fAQ2A: ' Yes, it can be used for curtains, sofas, and clothes with proper attachment.',
+    Faq3Q: 'Do I need cleaning chemicals?',
+    fAQ3A:
+      '  No. It cleans and sanitizes with just tap water.',
+
+
+    reviewsTitle: 'Customer Reviews',
+    reviewsRating: 5,
+    reviews: [
+      { text: 'Best cleaning tool I’ve ever used. My stovetop and tiles look brand new!', author: 'Aisha M., Dubai ', stars: 5 },
+      { text: 'Powerful steam, no chemicals needed. I use it in the kitchen and bathroom every week.', author: 'Hassan A., Sharjah ', stars: 5 },
+      { text: 'So easy to use and lightweight. The attachments make it super versatile.', author: 'Fatima R., Abu Dhabi ', stars: 5 },
+    ],
+
+
+  },
 
 
 

@@ -6,6 +6,8 @@ import Product3 from '../assets/images/staticproducts/paintspray/14.webp';
 import Product4 from '../assets/images/staticproducts/pruningmachine/10.webp';
 import Product5 from '../assets/images/staticproducts/gamekit/1.webp';
 import Product7 from '../assets/images/staticproducts/Air Blower/1.webp';
+import Product8 from '../assets/images/staticproducts/AIR BLOWER MINI/9.webp'
+import Product9 from '../assets/images/staticproducts/Steamer/1.webp'
 
 const staticProducts = [
   {
@@ -79,6 +81,30 @@ const staticProducts = [
     rating: 5,
     reviews: 195,
     sold: 285,
+  },
+    {
+    id: "8",
+    name: "Turbo Cordless Leaf Blower – 21V Power for Every Task",
+    price: "49.90",
+    regular_price: "99.98",
+    sale_price: "49.90",
+    images: [{ src: Product8 }],
+    path: "/products/turbo-cordless-leaf-blower-21v-power-for-every-task",
+    rating: 5,
+    reviews: 169,
+    sold: 225,
+  },
+      {
+    id: "9",
+    name: "Steam Cleaner DF-A001 – Japan Technology",
+    price: "89.90",
+    regular_price: "129.70",
+    sale_price: "89.90",
+    images: [{ src: Product9 }],
+    path: "/products/steam-cleaner-df-a001-japan-technology",
+    rating: 5,
+    reviews: 139,
+    sold: 295,
   },
 ];
 

@@ -149,10 +149,37 @@ const staticProducts = [
     reviews: 195,
     sold: 285,
   },
+
+      {
+    id: "7",
+ name: "Turbo Cordless Leaf Blower – 21V Power for Every Task",
+    price: "49.90",
+    regular_price: "99.98",
+    sale_price: "49.90",
+    images: [{ src:Product7 }],
+    slug: "turbo-cordless-leaf-blower-21v-power-for-every-task",
+    path: "/products/turbo-cordless-leaf-blower-21v-power-for-every-task",
+    rating: 5,
+    reviews: 125,
+    sold: 299,
+  },
+     {
+    id: "7",
+    name: "Steam Cleaner DF-A001 – Japan Technology",
+    price: "89.90",
+    regular_price: "129.98",
+    sale_price: "89.90",
+    images: [{ src:Product7 }],
+    slug: "steam-cleaner-df-a001-japan-technology",
+    path: "/products/steam-cleaner-df-a001-japan-technology",
+    rating: 5,
+    reviews: 125,
+    sold: 299,
+  },
 ];
  
 
-const staticPositions = [2, 11, 15, 19, 24,28];
+const staticPositions = [2, 11, 15, 19, 24,28, 32, 39];
 
 const ProductCategory = () => {
   const { addToCart, cartItems } = useCart();
