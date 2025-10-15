@@ -44,7 +44,7 @@ const Description = ({ product }) => {
     {
       title: "Processing & Shipping",
       content:
-        "We offer Free Express Shipping on all orders! Please allow 1-2 Business Days for us to process and ship your order. Estimated Arrival Time: 7-12 business days.",
+        "Enjoy free express shipping with fast 2–3 day delivery across the UAE — orders are processed and shipped within 24 hours.",
     },
   ];
 

@@ -1132,7 +1132,7 @@ const staticProducts = [
  bundles: [
   {
     type: "Single Battery Model",
-       id: 523759 ,
+       id: 523759,
       name: "Turbo Cordless Leaf Blower – 21V Power for Every Task - Single Battery",
     label: "Ideal for quick cleanups & small areas.",
     discount: 27,
@@ -1143,7 +1143,7 @@ const staticProducts = [
   },
   {
     type: "Dual Battery Model",
-       id: 523773  ,
+       id: 523773,
       name: "Turbo Cordless Leaf Blower – 21V Power for Every Task - Double Battery",
     label: "Extended runtime for large spaces & heavy use. Each battery is 21V large-capacity lithium, offering efficient, long-lasting power.",
     discount: 38,
@@ -1234,7 +1234,7 @@ const staticProducts = [
 
 
  {
-    id: 523106,
+    id: 523794,
     name: 'Steam Cleaner DF-A001 – Japan Technology',
     slug: 'steam-cleaner-df-a001-japan-technology',
     price: 89.90,
@@ -1264,7 +1264,7 @@ const staticProducts = [
  bundles: [
   {
     type: "Buy 1",
-    id: 523404,
+    id: 523794,
     name: "Steam Cleaner DF-A001 – Japan Technology",
     label: "Buy 1 for Only 89.9 AED",
     discount: 0,
@@ -1274,11 +1274,11 @@ const staticProducts = [
   },
   {
     type: "Bundle of 2",
-    id: 523417,
+    id: 523781,
     name: "Steam Cleaner DF-A001 – Japan Technology",
     label: "Buy 2 & Get 10% Off",
     discount: 10,
-    price: 161.82, // 10% off on total 179.8
+    price: 160.00, // 10% off on total 179.8
     originalPrice: 179.8,
     note: "Perfect for you & a friend",
     mostPopular: true,
@@ -1286,11 +1286,11 @@ const staticProducts = [
   },
   {
     type: "Bundle of 3",
-    id: 523418,
+    id: 523795,
     name: "Steam Cleaner DF-A001 – Japan Technology",
     label: "Buy 3 & Get 25% Off",
     discount: 25,
-    price: 202.28, // 25% off on total 269.7
+    price: 200.00, // 25% off on total 269.7
     originalPrice: 269.7,
     note: "Best Value",
     image: Product142,
