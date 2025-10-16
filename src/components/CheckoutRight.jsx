@@ -1,4 +1,3 @@
-// src/components/checkout/CheckoutRight.jsx
 import React, { useState, useEffect } from 'react';
 import '../assets/styles/checkout/CheckoutRight.css';
 import TrustSection from './checkout/TrustSection';
@@ -17,7 +16,6 @@ function Alert({ message, type = 'info', onClose }) {
   }, [message, onClose]);
 
   if (!message) return null;
-
   const colors = { info: '#2f86eb', success: '#28a745', error: '#dc3545' };
 
   return (
@@ -47,7 +45,6 @@ function Alert({ message, type = 'info', onClose }) {
           fontWeight: 'bold',
           fontSize: '16px',
           cursor: 'pointer',
-          lineHeight: 1,
         }}
         aria-label="Close alert"
       >
@@ -58,7 +55,7 @@ function Alert({ message, type = 'info', onClose }) {
 }
 
 // -----------------------------
-// Utility: parse price safely
+// Utility function
 // -----------------------------
 const parsePrice = (raw) => {
   if (typeof raw === 'object' && raw !== null) {
@@ -73,7 +70,6 @@ const parsePrice = (raw) => {
 // -----------------------------
 export default function CheckoutRight({ cartItems, formData, createOrder, clearCart, orderId }) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
-  const [hoverMessage, setHoverMessage] = useState('');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [coinDiscount, setCoinDiscount] = useState(0);
@@ -89,57 +85,25 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     return acc + price * quantity;
   }, 0);
 
-  const subtotal = Math.max(
-    0,
-    itemsTotal - Math.min(discount, itemsTotal) - Math.min(coinDiscount, itemsTotal)
-  );
-
-  // -----------------------------
-  // Delivery fee
-  // -----------------------------
-  const DELIVERY_THRESHOLD = 100; // AED
-  const DELIVERY_CHARGE = 0;     // AED
-  const FREE_SHIPPING_STATIC_IDS = [494574, 494595, 494590];
-
-  // Any item matches free shipping
-  const isFreeShippingProduct = cartItems.some(item =>
-    FREE_SHIPPING_STATIC_IDS.includes(item.id)
-  );
-
-  const deliveryFee = isFreeShippingProduct
-    ? 0
-    : subtotal < DELIVERY_THRESHOLD
-      ? DELIVERY_CHARGE
-      : 0;
-
+  const subtotal = Math.max(0, itemsTotal - discount - coinDiscount);
+  const deliveryFee = subtotal < 100 ? 0 : 0;
   const totalWithDelivery = subtotal + deliveryFee;
-  const MIN_PAYMOB_AMOUNT = 0.01;
-  const amountToSend = Math.max(totalWithDelivery, MIN_PAYMOB_AMOUNT);
+  const amountToSend = Math.max(totalWithDelivery, 0.01);
 
   // -----------------------------
   // Address validation
   // -----------------------------
-  const requiredFields = [
-    'first_name',
-    'last_name',
-    'email',
-    'phone_number',
-    'street',
-    'city',
-    'country',
-  ];
+  const requiredFields = ['first_name', 'last_name', 'email', 'phone_number', 'street', 'city', 'country'];
   const shippingOrBilling = formData.shipping || formData.billing || {};
-  const isAddressComplete = requiredFields.every(field =>
-    shippingOrBilling[field]?.trim()
-  );
+  const isAddressComplete = requiredFields.every((f) => shippingOrBilling[f]?.trim());
   const canPlaceOrder = isAddressComplete;
 
   // -----------------------------
-  // Capture order items
+  // Capture Order Items
   // -----------------------------
   const captureOrderItems = async (orderId, cartItems, customer) => {
-    const items = cartItems.map(item => ({
- id: item.wooId || item.id || 0,
+    const items = cartItems.map((item) => ({
+      id: item.wooId || item.id || 0,
       name: item.name || item.title,
       price: parseFloat(item.prices?.price ?? item.price ?? 0),
       quantity: parseInt(item.quantity, 10) || 1,
@@ -148,101 +112,81 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     await fetch('https://db.store1920.com/wp-json/custom/v1/capture-order-items', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        order_id: orderId,
-        customer: {
-          first_name: customer.first_name,
-          last_name: customer.last_name,
-          email: customer.email,
-          phone_number: customer.phone_number,
-        },
-        items,
-      }),
+      body: JSON.stringify({ order_id: orderId, customer, items }),
     });
   };
 
   // -----------------------------
-  // Place order
+  // Place Order
   // -----------------------------
   const handlePlaceOrder = async () => {
-
-      if (!canPlaceOrder) {
-    showAlert('Please fill all required address fields.', 'error');
-    return;
-  }
+    if (!canPlaceOrder) return showAlert('Please fill all required address fields.', 'error');
     if (!formData.paymentMethod) return showAlert('Select a payment method', 'error');
-    setIsPlacingOrder(true);
 
+    setIsPlacingOrder(true);
     try {
       const id = orderId || (await createOrder());
       await captureOrderItems(id, cartItems, shippingOrBilling);
 
-      // COD flow
+      // COD
       if (formData.paymentMethod === 'cod') {
         clearCart();
         window.location.href = `/order-success?order_id=${id.id || id}`;
         return;
       }
 
-      // Paymob / Card / Tabby / Tamara flow
+      // Stripe Checkout
+     // Stripe Checkout
+if (formData.paymentMethod === 'stripe') {
+  const normalized = {
+    first_name: shippingOrBilling.first_name || 'First',
+    last_name: shippingOrBilling.last_name || 'Last',
+    email: shippingOrBilling.email || 'customer@example.com',
+  };
+
+  const payload = {
+    amount: amountToSend,
+    order_id: id.id || id,
+    customer: normalized,
+    success_url: 'http://localhost:3000/order-success?session_id={CHECKOUT_SESSION_ID}',
+    cancel_url: 'http://localhost:3000/checkout?cancelled=true',
+  };
+
+  // 👇 FIXED ROUTE VERSION
+  const res = await fetch('https://db.store1920.com/wp-json/custom/v3/stripe-direct', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  console.log('✅ Stripe SessionDATA =>', data.checkout_url);
+
+  if (!res.ok) throw new Error(data.message || 'Failed to start Stripe session.');
+  if (!data.checkout_url) throw new Error('Stripe checkout URL missing.');
+
+  window.location.href = data.checkout_url;
+  return;
+}
+
+
+      // Paymob
       if (['paymob', 'card', 'tabby', 'tamara'].includes(formData.paymentMethod)) {
-        if (!isAddressComplete) {
-          showAlert('Please fill all required address fields.', 'error');
-          setIsPlacingOrder(false);
-          return;
-        }
-
-        const normalized = {
-          first_name: shippingOrBilling.first_name?.trim() || 'First',
-          last_name: shippingOrBilling.last_name?.trim() || 'Last',
-          email: shippingOrBilling.email?.trim() || formData.billing?.email || 'customer@example.com',
-          phone_number: shippingOrBilling.phone_number?.startsWith('+')
-            ? shippingOrBilling.phone_number
-            : `+${shippingOrBilling.phone_number || '971501234567'}`,
-          street: shippingOrBilling.street?.trim() || '',
-          apartment: shippingOrBilling.apartment?.trim() || '',
-          city: shippingOrBilling.city?.trim() || 'Dubai',
-          state: shippingOrBilling.state?.trim() || 'DXB',
-          country: 'AE',
-          postal_code: shippingOrBilling.postal_code?.trim() || '',
-        };
-
-        const payload = {
-          amount: amountToSend,
-          order_id: id.id || id,
-          billing: normalized,
-          shipping: normalized,
-          billingSameAsShipping: true,
-          items: [
-            {
-              name: `Order ${id.id || id}`,
-              amount: amountToSend,
-              quantity: 1,
-              description: 'Order from store1920.com',
-            },
-          ],
-          provider: formData.paymentMethod, // 👈 important: tells backend which Paymob integration to use
-        };
-
-        try {
-          const res = await fetch('https://db.store1920.com/wp-json/custom/v1/paymob-intent', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || 'Failed to initiate Paymob payment.');
-          if (!data.checkout_url) throw new Error('Paymob checkout URL not returned.');
-          window.location.href = data.checkout_url;
-        } catch (err) {
-          console.error('❌ PAYMOB FETCH ERROR:', err);
-          showAlert(err.message || 'Failed to initiate Paymob payment.', 'error');
-        }
-      } else {
-        showAlert('Selected payment method not supported yet.', 'error');
+        const payload = { amount: amountToSend, order_id: id.id || id, provider: formData.paymentMethod };
+        const res = await fetch('https://db.store1920.com/wp-json/custom/v1/paymob-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to initiate payment.');
+        window.location.href = data.checkout_url || data.payment_url;
+        return;
       }
+
+      showAlert('Selected payment method not supported yet.', 'error');
     } catch (err) {
-      console.error('❌ ORDER PLACEMENT ERROR:', err);
+      console.error('❌ STRIPE FETCH ERROR:', err);
       showAlert(err.message || 'Failed to place order.', 'error');
     } finally {
       setIsPlacingOrder(false);
@@ -250,27 +194,18 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   };
 
   // -----------------------------
-  // Coupon handling
+  // Coupon & Coins
   // -----------------------------
   const handleCoupon = (couponData) => {
-    if (!couponData) {
-      setDiscount(0);
-      return showAlert('Coupon removed or invalid.', 'error');
-    }
-
-    let discountAmount =
+    if (!couponData) return showAlert('Coupon invalid or removed.', 'error');
+    const discountAmount =
       couponData.discount_type === 'percent'
         ? (itemsTotal * parseFloat(couponData.amount)) / 100
         : parseFloat(couponData.amount);
-
-    discountAmount = Math.min(discountAmount, itemsTotal);
-    setDiscount(discountAmount);
+    setDiscount(Math.min(discountAmount, itemsTotal));
     showAlert(`Coupon applied! You saved AED ${discountAmount.toFixed(2)}`, 'success');
   };
 
-  // -----------------------------
-  // Coin handling
-  // -----------------------------
   const handleCoinRedemption = ({ coinsUsed, discountAED }) => {
     setCoinDiscount(Math.min(discountAED, itemsTotal));
     showAlert(`You redeemed ${coinsUsed} coins for AED ${discountAED}`, 'success');
@@ -282,7 +217,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   };
 
   // -----------------------------
-  // Button styles & label
+  // Button Styles
   // -----------------------------
   const getButtonStyle = () => {
     const base = {
@@ -293,155 +228,50 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       padding: '14px 36px',
       cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
     };
-    switch (formData.paymentMethod) {
-      case 'apple_pay': return { ...base, backgroundColor: '#000' };
-      case 'cod': return { ...base, backgroundColor: '#f97316' };
-      case 'paymob': return { ...base, backgroundColor: '#22c55e' };
-      case 'card': return { ...base, backgroundColor: '#2563eb' };
-      case 'tabby': return { ...base, backgroundColor: '#077410d4' };
-      case 'tamara': return { ...base, backgroundColor: '#ec4899' };
-      default: return { ...base, backgroundColor: '#10b981' };
-    }
+    const colors = {
+      cod: '#f97316',
+      paymob: '#22c55e',
+      stripe: '#2563eb',
+      tabby: '#077410d4',
+      tamara: '#ec4899',
+      default: '#10b981',
+    };
+    return { ...base, backgroundColor: colors[formData.paymentMethod] || colors.default };
   };
 
   const getButtonLabel = () => {
-    const labels = { cod: 'Cash on Delivery', card: 'Card', apple_pay: 'Apple Pay', paymob: 'Paymob', tabby: 'Tabby', tamara: 'Tamara' };
+    const labels = { cod: 'Cash on Delivery', stripe: 'Stripe', paymob: 'Paymob', tabby: 'Tabby', tamara: 'Tamara' };
     const label = labels[formData.paymentMethod] || 'Order';
     return isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with ${label}`;
   };
 
   // -----------------------------
-  // Render JSX
+  // JSX
   // -----------------------------
   return (
     <aside className="checkoutRightContainer">
       <Alert message={alert.message} type={alert.type} onClose={() => setAlert({ message: '', type: 'info' })} />
-
       <h2>Order Summary</h2>
+
       <CouponDiscount onApplyCoupon={handleCoupon} />
 
-      <div className="summaryRowCR">
-        <span>Item(s) total:</span>
-        <span>AED {itemsTotal.toFixed(2)}</span>
-      </div>
-
-      <div className="summaryRow discount" style={{ color: '#fe6c03', fontWeight: 600 }}>
-        <span>Item(s) discount:</span>
-        <span>-AED {discount.toFixed(2)}</span>
-      </div>
-
-      <CoinBalance onCoinRedeem={handleCoinRedemption} />
+      <div className="summaryRowCR"><span>Item(s) total:</span><span>AED {itemsTotal.toFixed(2)}</span></div>
+      {discount > 0 && <div className="summaryRowCR" style={{ color: '#fe6c03' }}>Discount: -AED {discount.toFixed(2)}</div>}
       {coinDiscount > 0 && (
-        <div
-          className="summaryRow"
-          style={{
-            color: 'green',
-            fontWeight: 600,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <div>
-            <span>Coin discount:</span>
-            <span style={{ marginLeft: 8 }}>-AED {coinDiscount.toFixed(2)}</span>
-          </div>
-          <button
-            onClick={handleRemoveCoinDiscount}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#dc3545',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-            }}
-            aria-label="Remove coin discount"
-          >
-            ×
-          </button>
+        <div className="summaryRowCR" style={{ color: 'green' }}>
+          Coin discount: -AED {coinDiscount.toFixed(2)}{' '}
+          <button onClick={handleRemoveCoinDiscount} style={{ color: '#dc3545', marginLeft: 10 }}>×</button>
         </div>
       )}
+      <div className="summaryRowCR"><span>Subtotal:</span><span>AED {subtotal.toFixed(2)}</span></div>
+      <div className="summaryRowCR" style={{ fontWeight: 700 }}><span>Total:</span><span>AED {totalWithDelivery.toFixed(2)}</span></div>
 
-      <div className="summaryRowCR">
-        <span>Subtotal:</span>
-        <span>AED {subtotal.toFixed(2)}</span>
-      </div>
-
-      {deliveryFee > 0 && (
-        <div className="summaryRowCR" style={{ color: '#fe6c03', fontWeight: 600 }}>
-          <span>Delivery Fee:</span>
-          <span>AED {deliveryFee.toFixed(2)}</span>
-        </div>
-      )}
-
-      <div className="summaryRowCR" style={{ fontWeight: 700 }}>
-        <span>Total:</span>
-        <span>AED {totalWithDelivery.toFixed(2)}</span>
-      </div>
-
-      <p className="checkoutNote">
-        All fees and applicable taxes are included, and no additional charges will apply.
-      </p>
-
-      <p className="checkoutTerms">
-        By submitting your order, you agree to our{' '}
-        <a href="/terms-0f-use" target="_blank" rel="noopener noreferrer">Terms of Use</a> and{' '}
-        <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
-      </p>
-
-      {/* Place Order Button */}
-      <div style={{ position: 'relative', display: 'inline-block' }}>
-        <button
-          className="placeOrderBtnCR  desktopStickyButton"
-          onClick={handlePlaceOrder}
-          disabled={isPlacingOrder || !canPlaceOrder || totalWithDelivery <= 0}
-          style={getButtonStyle()}
-          aria-disabled={isPlacingOrder || !canPlaceOrder}
-          onMouseEnter={() => !canPlaceOrder && setHoverMessage('Please fill all required address fields.')}
-          onMouseLeave={() => setHoverMessage('')}
-        >
-          {getButtonLabel()}
-        </button>
-        {hoverMessage && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '-28px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              backgroundColor: '#dc3545',
-              color: '#fff',
-              padding: '4px 10px',
-              borderRadius: '4px',
-              fontSize: '12px',
-              whiteSpace: 'nowrap',
-              zIndex: 10,
-            }}
-          >
-            {hoverMessage}
-          </div>
-        )}
-      </div>
+      <button className="placeOrderBtnCR" onClick={handlePlaceOrder} disabled={isPlacingOrder || !canPlaceOrder} style={getButtonStyle()}>
+        {getButtonLabel()}
+      </button>
 
       <TrustSection />
-      <div className="mobile-only">
-        <HelpText />
-      </div>
-
-      {/* Mobile sticky area */}
-<div className="mobileStickyButton">
-  <span className="mobileSubtotal">AED {totalWithDelivery.toFixed(2)}</span>
-  <button
-  className="placeOrderBtnCR"
-  onClick={handlePlaceOrder}
-  disabled={isPlacingOrder || !canPlaceOrder || totalWithDelivery <= 0}
-  style={getButtonStyle()}
-  aria-disabled={isPlacingOrder || !canPlaceOrder || totalWithDelivery <= 0}
->
-  {getButtonLabel()}
-</button>
-</div>
+      <HelpText />
     </aside>
   );
 }

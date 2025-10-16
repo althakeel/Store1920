@@ -106,6 +106,7 @@ export default function CheckoutLeft({
   // Select payment
   // -------------------------------
   const handlePaymentSelect = (id, title) => {
+   
     setFormData(prev => ({ ...prev, paymentMethod: id, paymentMethodTitle: title }));
   };
 
