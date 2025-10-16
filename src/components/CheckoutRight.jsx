@@ -5,9 +5,6 @@ import CouponDiscount from './sub/account/CouponDiscount';
 import CoinBalance from './sub/account/CoinBalace';
 import HelpText from './HelpText';
 
-// -----------------------------
-// Alert Component
-// -----------------------------
 function Alert({ message, type = 'info', onClose }) {
   useEffect(() => {
     if (!message) return;
@@ -30,7 +27,6 @@ function Alert({ message, type = 'info', onClose }) {
         boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
       }}
       role="alert"
-      aria-live="assertive"
     >
       {message}
       <button
@@ -46,7 +42,6 @@ function Alert({ message, type = 'info', onClose }) {
           fontSize: '16px',
           cursor: 'pointer',
         }}
-        aria-label="Close alert"
       >
         ×
       </button>
@@ -54,20 +49,13 @@ function Alert({ message, type = 'info', onClose }) {
   );
 }
 
-// -----------------------------
-// Utility function
-// -----------------------------
 const parsePrice = (raw) => {
-  if (typeof raw === 'object' && raw !== null) {
+  if (typeof raw === 'object' && raw !== null)
     raw = raw.price ?? raw.regular_price ?? raw.sale_price ?? 0;
-  }
   const cleaned = String(raw).replace(/,/g, '').replace(/[^\d.-]/g, '');
   return parseFloat(cleaned) || 0;
 };
 
-// -----------------------------
-// CheckoutRight Component
-// -----------------------------
 export default function CheckoutRight({ cartItems, formData, createOrder, clearCart, orderId }) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -76,30 +64,23 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 
   const showAlert = (message, type = 'info') => setAlert({ message, type });
 
-  // -----------------------------
-  // Totals
-  // -----------------------------
   const itemsTotal = cartItems.reduce((acc, item) => {
     const price = parsePrice(item.prices?.price ?? item.price);
-    const quantity = parseInt(item.quantity, 10) || 1;
-    return acc + price * quantity;
+    const qty = parseInt(item.quantity, 10) || 1;
+    return acc + price * qty;
   }, 0);
 
   const subtotal = Math.max(0, itemsTotal - discount - coinDiscount);
-  const deliveryFee = subtotal < 100 ? 0 : 0;
-  const totalWithDelivery = subtotal + deliveryFee;
+  const totalWithDelivery = subtotal;
   const amountToSend = Math.max(totalWithDelivery, 0.01);
 
-  // -----------------------------
-  // Address validation
-  // -----------------------------
   const requiredFields = ['first_name', 'last_name', 'email', 'phone_number', 'street', 'city', 'country'];
   const shippingOrBilling = formData.shipping || formData.billing || {};
   const isAddressComplete = requiredFields.every((f) => shippingOrBilling[f]?.trim());
   const canPlaceOrder = isAddressComplete;
 
   // -----------------------------
-  // Capture Order Items
+  // Capture order items
   // -----------------------------
   const captureOrderItems = async (orderId, cartItems, customer) => {
     const items = cartItems.map((item) => ({
@@ -117,7 +98,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   };
 
   // -----------------------------
-  // Place Order
+  // Stripe Checkout Flow
   // -----------------------------
   const handlePlaceOrder = async () => {
     if (!canPlaceOrder) return showAlert('Please fill all required address fields.', 'error');
@@ -128,63 +109,39 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       const id = orderId || (await createOrder());
       await captureOrderItems(id, cartItems, shippingOrBilling);
 
-      // COD
       if (formData.paymentMethod === 'cod') {
         clearCart();
         window.location.href = `/order-success?order_id=${id.id || id}`;
         return;
       }
 
-      // Stripe Checkout
-     // Stripe Checkout
-if (formData.paymentMethod === 'stripe') {
-  const normalized = {
-    first_name: shippingOrBilling.first_name || 'First',
-    last_name: shippingOrBilling.last_name || 'Last',
-    email: shippingOrBilling.email || 'customer@example.com',
-  };
+      if (formData.paymentMethod === 'stripe') {
+        const normalized = {
+          first_name: shippingOrBilling.first_name || 'First',
+          last_name: shippingOrBilling.last_name || 'Last',
+          email: shippingOrBilling.email || 'customer@example.com',
+        };
 
-  const payload = {
-    amount: amountToSend,
-    order_id: id.id || id,
-    customer: normalized,
-    success_url: 'http://localhost:3000/order-success?session_id={CHECKOUT_SESSION_ID}',
-    cancel_url: 'http://localhost:3000/checkout?cancelled=true',
-  };
+        const payload = {
+          amount: amountToSend,
+          order_id: id.id || id,
+          billing: normalized,
+        };
 
-  // 👇 FIXED ROUTE VERSION
-  const res = await fetch('https://db.store1920.com/wp-json/custom/v3/stripe-direct', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  const data = await res.json();
-  console.log('✅ Stripe SessionDATA =>', data.checkout_url);
-
-  if (!res.ok) throw new Error(data.message || 'Failed to start Stripe session.');
-  if (!data.checkout_url) throw new Error('Stripe checkout URL missing.');
-
-  window.location.href = data.checkout_url;
-  return;
-}
-
-
-      // Paymob
-      if (['paymob', 'card', 'tabby', 'tamara'].includes(formData.paymentMethod)) {
-        const payload = { amount: amountToSend, order_id: id.id || id, provider: formData.paymentMethod };
-        const res = await fetch('https://db.store1920.com/wp-json/custom/v1/paymob-intent', {
+        const res = await fetch('https://db.store1920.com/wp-json/custom/v3/stripe-direct', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || 'Failed to initiate payment.');
-        window.location.href = data.checkout_url || data.payment_url;
-        return;
-      }
 
-      showAlert('Selected payment method not supported yet.', 'error');
+        const data = await res.json();
+        console.log('✅ Stripe Session =>', data);
+
+        if (!res.ok) throw new Error(data.message || 'Failed to start Stripe session.');
+        if (!data.checkout_url) throw new Error('Stripe checkout URL missing.');
+
+        window.location.href = data.checkout_url;
+      }
     } catch (err) {
       console.error('❌ STRIPE FETCH ERROR:', err);
       showAlert(err.message || 'Failed to place order.', 'error');
@@ -193,11 +150,8 @@ if (formData.paymentMethod === 'stripe') {
     }
   };
 
-  // -----------------------------
-  // Coupon & Coins
-  // -----------------------------
   const handleCoupon = (couponData) => {
-    if (!couponData) return showAlert('Coupon invalid or removed.', 'error');
+    if (!couponData) return showAlert('Invalid coupon.', 'error');
     const discountAmount =
       couponData.discount_type === 'percent'
         ? (itemsTotal * parseFloat(couponData.amount)) / 100
@@ -211,43 +165,22 @@ if (formData.paymentMethod === 'stripe') {
     showAlert(`You redeemed ${coinsUsed} coins for AED ${discountAED}`, 'success');
   };
 
-  const handleRemoveCoinDiscount = () => {
-    setCoinDiscount(0);
-    showAlert('Coin discount removed.', 'info');
-  };
-
-  // -----------------------------
-  // Button Styles
-  // -----------------------------
-  const getButtonStyle = () => {
-    const base = {
-      color: '#fff',
-      border: 'none',
-      borderRadius: '25px',
-      fontWeight: 600,
-      padding: '14px 36px',
-      cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
-    };
-    const colors = {
-      cod: '#f97316',
-      paymob: '#22c55e',
-      stripe: '#2563eb',
-      tabby: '#077410d4',
-      tamara: '#ec4899',
-      default: '#10b981',
-    };
-    return { ...base, backgroundColor: colors[formData.paymentMethod] || colors.default };
-  };
+  const getButtonStyle = () => ({
+    color: '#fff',
+    border: 'none',
+    borderRadius: '25px',
+    fontWeight: 600,
+    padding: '14px 36px',
+    cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
+    backgroundColor: formData.paymentMethod === 'stripe' ? '#2563eb' : '#10b981',
+  });
 
   const getButtonLabel = () => {
-    const labels = { cod: 'Cash on Delivery', stripe: 'Stripe', paymob: 'Paymob', tabby: 'Tabby', tamara: 'Tamara' };
+    const labels = { cod: 'Cash on Delivery', stripe: 'Stripe' };
     const label = labels[formData.paymentMethod] || 'Order';
     return isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with ${label}`;
   };
 
-  // -----------------------------
-  // JSX
-  // -----------------------------
   return (
     <aside className="checkoutRightContainer">
       <Alert message={alert.message} type={alert.type} onClose={() => setAlert({ message: '', type: 'info' })} />
@@ -257,16 +190,16 @@ if (formData.paymentMethod === 'stripe') {
 
       <div className="summaryRowCR"><span>Item(s) total:</span><span>AED {itemsTotal.toFixed(2)}</span></div>
       {discount > 0 && <div className="summaryRowCR" style={{ color: '#fe6c03' }}>Discount: -AED {discount.toFixed(2)}</div>}
-      {coinDiscount > 0 && (
-        <div className="summaryRowCR" style={{ color: 'green' }}>
-          Coin discount: -AED {coinDiscount.toFixed(2)}{' '}
-          <button onClick={handleRemoveCoinDiscount} style={{ color: '#dc3545', marginLeft: 10 }}>×</button>
-        </div>
-      )}
-      <div className="summaryRowCR"><span>Subtotal:</span><span>AED {subtotal.toFixed(2)}</span></div>
-      <div className="summaryRowCR" style={{ fontWeight: 700 }}><span>Total:</span><span>AED {totalWithDelivery.toFixed(2)}</span></div>
+      {coinDiscount > 0 && <div className="summaryRowCR" style={{ color: 'green' }}>Coins: -AED {coinDiscount.toFixed(2)}</div>}
 
-      <button className="placeOrderBtnCR" onClick={handlePlaceOrder} disabled={isPlacingOrder || !canPlaceOrder} style={getButtonStyle()}>
+      <div className="summaryRowCR"><span>Total:</span><span>AED {totalWithDelivery.toFixed(2)}</span></div>
+
+      <button
+        className="placeOrderBtnCR"
+        onClick={handlePlaceOrder}
+        disabled={isPlacingOrder || !canPlaceOrder}
+        style={getButtonStyle()}
+      >
         {getButtonLabel()}
       </button>
 
