@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import CustomMap from '../../components/checkoutleft/CustomMap';
-import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '../../utils/firebase'; // adjust path
-
-
+import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '../../utils/firebase';
 
 const LOCAL_STORAGE_KEY = 'checkoutAddressData';
 
@@ -31,13 +29,12 @@ const UAE_CITIES = {
 const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error, cartItems }) => {
   const [formErrors, setFormErrors] = useState({});
   const [markerPosition, setMarkerPosition] = useState(null);
-  const [mapSelected, setMapSelected] = useState(false); // track if map is selected
-  const [verificationId, setVerificationId] = useState(null);
-  const [otp, setOtp] = useState('');
-  const [isVerified, setIsVerified] = useState(false);
+  const [mapSelected, setMapSelected] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-  // Load saved address from localStorage
+  // --------------------------
+  // Load saved address
+  // --------------------------
   useEffect(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
@@ -57,6 +54,9 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error, car
     }
   }, []);
 
+  // --------------------------
+  // Validation Logic
+  // --------------------------
   const validateField = (name, value) => {
     switch (name) {
       case 'first_name':
@@ -67,10 +67,9 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error, car
         if (!value || value.trim() === '') return 'This field is required';
         break;
       case 'phone_number':
-      if (!value || value.trim() === '') return 'Phone number is required';
-      // UAE phone numbers are 9 digits without country code, 12 with '971'
-      if (value.length < 12) return 'Invalid phone number';
-      break;
+        if (!value || value.trim() === '') return 'Phone number is required';
+        if (value.length < 12) return 'Invalid phone number';
+        break;
       case 'email':
         if (!value || !/\S+@\S+\.\S+/.test(value)) return 'Invalid email';
         break;
@@ -80,22 +79,15 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error, car
     return '';
   };
 
-
-
-
-
-
-
-
-
-  
-
   const handleFieldChange = (e) => {
     onChange(e, 'shipping');
     const errorMsg = validateField(e.target.name, e.target.value);
     setFormErrors((prev) => ({ ...prev, [e.target.name]: errorMsg }));
   };
 
+  // --------------------------
+  // PHONE FIX: reliable update
+  // --------------------------
   const handlePhoneChange = (phone) => {
     const normalizedPhone = phone.replace(/\D/g, '');
     onChange({ target: { name: 'phone_number', value: normalizedPhone } }, 'shipping');
@@ -103,20 +95,35 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error, car
     setFormErrors((prev) => ({ ...prev, phone_number: errorMsg }));
   };
 
-  // Called when user selects a location from the map
-const handlePlaceSelected = ({ street, city, state, country, lat, lng }) => {
-  // Find code by state name
-  const stateObj = UAE_EMIRATES.find((s) => s.name.toLowerCase() === state?.toLowerCase());
-  const stateCode = stateObj ? stateObj.code : '';
+  // --------------------------
+  // Handle Map Selection
+  // --------------------------
+  const handlePlaceSelected = ({ street, city, state, lat, lng }) => {
+    const stateObj = UAE_EMIRATES.find((s) => s.name.toLowerCase() === state?.toLowerCase());
+    const stateCode = stateObj ? stateObj.code : '';
+    onChange({ target: { name: 'street', value: street } }, 'shipping');
+    onChange({ target: { name: 'city', value: city } }, 'shipping');
+    onChange({ target: { name: 'state', value: stateCode } }, 'shipping');
+    setMarkerPosition({ lat, lng });
+    setMapSelected(true);
+  };
 
-  onChange({ target: { name: 'street', value: street } }, 'shipping');
-  onChange({ target: { name: 'city', value: city } }, 'shipping');
-  onChange({ target: { name: 'state', value: stateCode } }, 'shipping'); // use code
-  setMarkerPosition({ lat, lng });
-  setMapSelected(true);
-};
+  // --------------------------
+  // SAVE ADDRESS (fixed)
+  // --------------------------
   const saveAddress = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // Prevent double clicks
+    setIsSubmitting(true);
+
+    // Force fresh phone validation (fixes "971" issue)
+    const phone = formData.shipping.phone_number?.trim() || '';
+    if (!phone || phone.length < 12) {
+      alert('Please enter a valid phone number before submitting.');
+      setFormErrors((prev) => ({ ...prev, phone_number: 'Invalid or incomplete phone number' }));
+      setIsSubmitting(false);
+      return;
+    }
 
     const errors = {};
     const requiredFields = ['first_name', 'last_name', 'email', 'phone_number', 'street', 'state', 'city'];
@@ -128,6 +135,7 @@ const handlePlaceSelected = ({ street, city, state, country, lat, lng }) => {
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) {
       alert('Please fill all required fields correctly.');
+      setIsSubmitting(false);
       return;
     }
 
@@ -145,6 +153,9 @@ const handlePlaceSelected = ({ street, city, state, country, lat, lng }) => {
         })),
       };
 
+      // small delay to ensure react-phone-input updates last digit
+      await new Promise((res) => setTimeout(res, 200));
+
       const res = await fetch('https://db.store1920.com/wp-json/abandoned-checkout/v1/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,9 +168,14 @@ const handlePlaceSelected = ({ street, city, state, country, lat, lng }) => {
     } catch (err) {
       console.error('Failed to save address', err);
       alert('Something went wrong while saving your address.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  // --------------------------
+  // RENDER
+  // --------------------------
   return (
     <div
       style={{
@@ -209,44 +225,24 @@ const handlePlaceSelected = ({ street, city, state, country, lat, lng }) => {
           Shipping Address
         </h2>
 
-        {/* Always show the map first */}
         <CustomMap initialPosition={markerPosition} onPlaceSelected={handlePlaceSelected} />
 
-        {/* Show the form only after map is selected */}
         {mapSelected && (
           <form onSubmit={saveAddress} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '18px' }}>
-              {/* Email */}
-              
-
-              {/* First Name */}
-              <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              <label>
                 First Name*
-                <input
-                  type="text"
-                  name="first_name"
-                  value={formData.shipping.first_name}
-                  onChange={handleFieldChange}
-                  style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-                />
-                {formErrors.first_name && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.first_name}</span>}
+                <input type="text" name="first_name" value={formData.shipping.first_name} onChange={handleFieldChange} />
+                {formErrors.first_name && <span style={{ color: 'red' }}>{formErrors.first_name}</span>}
               </label>
 
-              {/* Last Name */}
-              <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              <label>
                 Last Name*
-                <input
-                  type="text"
-                  name="last_name"
-                  value={formData.shipping.last_name}
-                  onChange={handleFieldChange}
-                  style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-                />
-                {formErrors.last_name && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.last_name}</span>}
+                <input type="text" name="last_name" value={formData.shipping.last_name} onChange={handleFieldChange} />
+                {formErrors.last_name && <span style={{ color: 'red' }}>{formErrors.last_name}</span>}
               </label>
 
-              {/* Phone */}
-              <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444', gap: 5 }}>
+              <label>
                 Phone Number*
                 <PhoneInput
                   country="ae"
@@ -257,55 +253,33 @@ const handlePlaceSelected = ({ street, city, state, country, lat, lng }) => {
                   buttonStyle={{ pointerEvents: 'none', backgroundColor: '#fff' }}
                   enableSearch={false}
                   countryCodeEditable={false}
+                  disableDropdown={true}
                 />
-                {formErrors.phone_number && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.phone_number}</span>}
-              </label>
-              <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
-                Email*
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.shipping.email}
-                  onChange={handleFieldChange}
-                  style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-                />
-                {formErrors.email && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.email}</span>}
+                {formErrors.phone_number && <span style={{ color: 'red' }}>{formErrors.phone_number}</span>}
               </label>
 
-              {/* Street */}
-              <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+        
+
+              <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}> 
+               Email*
+                <input type="email" name="email" value={formData.shipping.email} onChange={handleFieldChange} 
+                style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }} />
+                 {formErrors.email && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.email}</span>} 
+                 </label>
+              <label>
                 Street*
-                <input
-                  type="text"
-                  name="street"
-                  value={formData.shipping.street}
-                  onChange={handleFieldChange}
-                  style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-                />
-                {formErrors.street && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.street}</span>}
+                <input type="text" name="street" value={formData.shipping.street} onChange={handleFieldChange} />
+                {formErrors.street && <span style={{ color: 'red' }}>{formErrors.street}</span>}
               </label>
 
-              {/* Apartment */}
-              <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              <label>
                 Apartment / Floor
-                <input
-                  type="text"
-                  name="apartment"
-                  value={formData.shipping.apartment}
-                  onChange={handleFieldChange}
-                  style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-                />
+                <input type="text" name="apartment" value={formData.shipping.apartment} onChange={handleFieldChange} />
               </label>
 
-              {/* Emirates */}
-              <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              <label>
                 Province / Emirates*
-                <select
-                  name="state"
-                  value={formData.shipping.state}
-                  onChange={handleFieldChange}
-                  style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-                >
+                <select name="state" value={formData.shipping.state} onChange={handleFieldChange}>
                   <option value="">Select state</option>
                   {UAE_EMIRATES.map((state) => (
                     <option key={state.code} value={state.code}>
@@ -313,18 +287,12 @@ const handlePlaceSelected = ({ street, city, state, country, lat, lng }) => {
                     </option>
                   ))}
                 </select>
-                {formErrors.state && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.state}</span>}
+                {formErrors.state && <span style={{ color: 'red' }}>{formErrors.state}</span>}
               </label>
 
-              {/* City */}
-              <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              <label>
                 City / Area*
-                <select
-                  name="city"
-                  value={formData.shipping.city}
-                  onChange={handleFieldChange}
-                  style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc' }}
-                >
+                <select name="city" value={formData.shipping.city} onChange={handleFieldChange}>
                   <option value="">Select city</option>
                   {UAE_CITIES[formData.shipping.state]?.map((city) => (
                     <option key={city} value={city}>
@@ -332,23 +300,16 @@ const handlePlaceSelected = ({ street, city, state, country, lat, lng }) => {
                     </option>
                   ))}
                 </select>
-                {formErrors.city && <span style={{ color: 'red', fontSize: '0.85rem' }}>{formErrors.city}</span>}
+                {formErrors.city && <span style={{ color: 'red' }}>{formErrors.city}</span>}
               </label>
 
-              {/* Country */}
-              <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, color: '#444' }}>
+              <label>
                 Country
-                <input
-                  type="text"
-                  value="United Arab Emirates"
-                  readOnly
-                  style={{ marginTop: '6px', padding: '10px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }}
-                />
+                <input type="text" value="United Arab Emirates" readOnly />
               </label>
             </div>
 
-            {/* Save as default */}
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 500, color: '#444' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <input
                 type="checkbox"
                 name="saveAsDefault"
@@ -362,7 +323,7 @@ const handlePlaceSelected = ({ street, city, state, country, lat, lng }) => {
 
             <button
               type="submit"
-              disabled={saving}
+              disabled={isSubmitting || saving}
               style={{
                 backgroundColor: '#ff5100',
                 color: '#fff',
@@ -370,10 +331,10 @@ const handlePlaceSelected = ({ street, city, state, country, lat, lng }) => {
                 fontSize: '1.1rem',
                 border: 'none',
                 borderRadius: '8px',
-                cursor: saving ? 'not-allowed' : 'pointer',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
               }}
             >
-              {saving ? 'Saving...' : 'Save Address'}
+              {isSubmitting ? 'Saving...' : 'Save Address'}
             </button>
           </form>
         )}

@@ -13,7 +13,7 @@ import CashIcon from '../../assets/images/Footer icons/13.webp';
 import CardIcon from '../../assets/images/tabby/creditcard.webp';
 
 import AppleIcon from '../../assets/images/Footer icons/2.webp';
-import VisaIcon from '../../assets/images/Footer icons/11.webp';
+import VisaIcon from '../../assets/images/Footer icons/17.webp';
 import MasterIcon from '../../assets/images/Footer icons/16.webp';
 import GPayIcon from '../../assets/images/Footer icons/12.webp';
 import PayPalIcon from '../../assets/images/Footer icons/20.webp';
@@ -22,6 +22,7 @@ import AmexIcon from '../../assets/images/Footer icons/11.webp';
 const PaymentMethods = ({ selectedMethod, onMethodSelect, subtotal }) => {
   const paymentOptions = [
     { id: 'cod', title: 'Cash On Delivery', description: 'Pay with cash on delivery', img: CashIcon },
+    // { id: 'stripe', title: 'Stripe', description: 'Pay securely with card', img: CardIcon },
     { id: 'card', title: 'Credit/Debit Card', description: 'Pay securely with card', img: CardIcon },
     { id: 'tabby', title: 'Tabby', description: 'Pay in 4 installments', img: TabbyIcon },
     { id: 'tamara', title: 'Tamara', description: 'Pay later in 14 days', img: TamaraIcon },
@@ -87,7 +88,9 @@ const PaymentMethods = ({ selectedMethod, onMethodSelect, subtotal }) => {
       <h3>Payment Method</h3>
       <div className="pm-cards">
         {paymentOptions.map((method) => (
+          
           <div key={method.id} className="pm-card-wrapper">
+            
             <div
               className={`pm-card ${selectedMethod === method.id ? 'selected' : ''}`}
               onClick={() => onMethodSelect(method.id, method.title)}
@@ -99,16 +102,27 @@ const PaymentMethods = ({ selectedMethod, onMethodSelect, subtotal }) => {
                   {method.description}
                   {method.id === 'card' && (
                     <div className="card-icons">
-                      <img src={AppleIcon} alt="Apple Pay" />
                       <img src={VisaIcon} alt="Visa" />
                       <img src={MasterIcon} alt="MasterCard" />
-                      <img src={GPayIcon} alt="GPay" />
-                      <img src={PayPalIcon} alt="PayPal" />
-                      <img src={AmexIcon} alt="Amex" />
                     </div>
                   )}
+
+
+                  {/* {method.id === 'stripe' && (
+                      <div className="card-icons">
+                        <img src={AppleIcon} alt="Apple Pay" />
+                        <img src={VisaIcon} alt="Visa" />
+                        <img src={MasterIcon} alt="MasterCard" />
+                        <img src={GPayIcon} alt="GPay" />
+                        <img src={PayPalIcon} alt="PayPal" />
+                        <img src={AmexIcon} alt="Amex" />
+                      </div>
+                                    )} */}
                 </span>
               </div>
+
+
+              
               {selectedMethod === method.id && <span className="checkmark">&#10003;</span>}
             </div>
             {selectedMethod === method.id && (method.id === 'tabby' || method.id === 'tamara') && (
