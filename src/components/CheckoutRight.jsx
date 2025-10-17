@@ -1,3 +1,4 @@
+// src/components/checkout/CheckoutRight.jsx
 import React, { useState, useEffect } from 'react';
 import '../assets/styles/checkout/CheckoutRight.css';
 import TrustSection from './checkout/TrustSection';
@@ -5,6 +6,9 @@ import CouponDiscount from './sub/account/CouponDiscount';
 import CoinBalance from './sub/account/CoinBalace';
 import HelpText from './HelpText';
 
+// -----------------------------
+// Alert Component
+// -----------------------------
 function Alert({ message, type = 'info', onClose }) {
   useEffect(() => {
     if (!message) return;
@@ -49,15 +53,23 @@ function Alert({ message, type = 'info', onClose }) {
   );
 }
 
+// -----------------------------
+// Utility: parse price safely
+// -----------------------------
 const parsePrice = (raw) => {
-  if (typeof raw === 'object' && raw !== null)
+  if (typeof raw === 'object' && raw !== null) {
     raw = raw.price ?? raw.regular_price ?? raw.sale_price ?? 0;
+  }
   const cleaned = String(raw).replace(/,/g, '').replace(/[^\d.-]/g, '');
   return parseFloat(cleaned) || 0;
 };
 
+// -----------------------------
+// CheckoutRight Component
+// -----------------------------
 export default function CheckoutRight({ cartItems, formData, createOrder, clearCart, orderId }) {
   const [alert, setAlert] = useState({ message: '', type: 'info' });
+  const [hoverMessage, setHoverMessage] = useState('');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [coinDiscount, setCoinDiscount] = useState(0);
@@ -66,22 +78,28 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
 
   const itemsTotal = cartItems.reduce((acc, item) => {
     const price = parsePrice(item.prices?.price ?? item.price);
-    const qty = parseInt(item.quantity, 10) || 1;
-    return acc + price * qty;
+    const quantity = parseInt(item.quantity, 10) || 1;
+    return acc + price * quantity;
   }, 0);
 
   const subtotal = Math.max(0, itemsTotal - discount - coinDiscount);
   const totalWithDelivery = subtotal;
   const amountToSend = Math.max(totalWithDelivery, 0.01);
 
-  const requiredFields = ['first_name', 'last_name', 'email', 'phone_number', 'street', 'city', 'country'];
+  const requiredFields = [
+    'first_name',
+    'last_name',
+    'email',
+    'phone_number',
+    'street',
+    'city',
+    'country',
+  ];
   const shippingOrBilling = formData.shipping || formData.billing || {};
   const isAddressComplete = requiredFields.every((f) => shippingOrBilling[f]?.trim());
   const canPlaceOrder = isAddressComplete;
 
-  // -----------------------------
   // Capture order items
-  // -----------------------------
   const captureOrderItems = async (orderId, cartItems, customer) => {
     const items = cartItems.map((item) => ({
       id: item.wooId || item.id || 0,
@@ -93,28 +111,39 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     await fetch('https://db.store1920.com/wp-json/custom/v1/capture-order-items', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ order_id: orderId, customer, items }),
+      body: JSON.stringify({
+        order_id: orderId,
+        customer: {
+          first_name: customer.first_name,
+          last_name: customer.last_name,
+          email: customer.email,
+          phone_number: customer.phone_number,
+        },
+        items,
+      }),
     });
   };
 
   // -----------------------------
-  // Stripe Checkout Flow
+  // Place Order
   // -----------------------------
   const handlePlaceOrder = async () => {
     if (!canPlaceOrder) return showAlert('Please fill all required address fields.', 'error');
     if (!formData.paymentMethod) return showAlert('Select a payment method', 'error');
-
     setIsPlacingOrder(true);
+
     try {
       const id = orderId || (await createOrder());
       await captureOrderItems(id, cartItems, shippingOrBilling);
 
+      // COD
       if (formData.paymentMethod === 'cod') {
         clearCart();
         window.location.href = `/order-success?order_id=${id.id || id}`;
         return;
       }
 
+      // ✅ STRIPE FLOW
       if (formData.paymentMethod === 'stripe') {
         const normalized = {
           first_name: shippingOrBilling.first_name || 'First',
@@ -126,73 +155,141 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
           amount: amountToSend,
           order_id: id.id || id,
           billing: normalized,
+          frontend_success: window.location.origin + '/order-success',
         };
 
-        const res = await fetch('https://db.store1920.com/wp-json/custom/v3/stripe-direct', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+        try {
+          const res = await fetch('https://db.store1920.com/wp-json/custom/v3/stripe-direct', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          console.log('✅ Stripe Session =>', data);
+          if (!res.ok || !data.checkout_url) {
+            throw new Error(data.error || 'Failed to start Stripe session.');
+          }
+          window.location.href = data.checkout_url;
+          return;
+        } catch (err) {
+          console.error('❌ STRIPE FETCH ERROR:', err);
+          showAlert(err.message || 'Failed to initiate Stripe payment.', 'error');
+        }
+      }
 
-        const data = await res.json();
-        console.log('✅ Stripe Session =>', data);
+      // ✅ PAYMOB / TABBY / TAMARA / CARD FLOW
+      if (['paymob', 'card', 'tabby', 'tamara'].includes(formData.paymentMethod)) {
+        const normalized = {
+          first_name: shippingOrBilling.first_name?.trim() || 'First',
+          last_name: shippingOrBilling.last_name?.trim() || 'Last',
+          email:
+            shippingOrBilling.email?.trim() ||
+            formData.billing?.email ||
+            'customer@example.com',
+          phone_number: shippingOrBilling.phone_number?.startsWith('+')
+            ? shippingOrBilling.phone_number
+            : `+${shippingOrBilling.phone_number || '971501234567'}`,
+          street: shippingOrBilling.street?.trim() || '',
+          city: shippingOrBilling.city?.trim() || 'Dubai',
+          country: 'AE',
+        };
 
-        if (!res.ok) throw new Error(data.message || 'Failed to start Stripe session.');
-        if (!data.checkout_url) throw new Error('Stripe checkout URL missing.');
+        const payload = {
+          amount: amountToSend,
+          order_id: id.id || id,
+          billing: normalized,
+          shipping: normalized,
+          billingSameAsShipping: true,
+          items: [
+            {
+              name: `Order ${id.id || id}`,
+              amount: amountToSend,
+              quantity: 1,
+              description: 'Order from store1920.com',
+            },
+          ],
+          provider: formData.paymentMethod,
+        };
 
-        window.location.href = data.checkout_url;
+        try {
+          const res = await fetch('https://db.store1920.com/wp-json/custom/v1/paymob-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          console.log('✅ Paymob Response =>', data);
+
+          if (!res.ok) throw new Error(data.message || 'Failed to initiate payment.');
+          if (!data.checkout_url && !data.payment_url)
+            throw new Error('Paymob checkout URL missing.');
+          window.location.href = data.checkout_url || data.payment_url;
+          return;
+        } catch (err) {
+          console.error('❌ PAYMOB FETCH ERROR:', err);
+          showAlert(err.message || 'Failed to initiate Paymob payment.', 'error');
+        }
       }
     } catch (err) {
-      console.error('❌ STRIPE FETCH ERROR:', err);
+      console.error('❌ ORDER ERROR:', err);
       showAlert(err.message || 'Failed to place order.', 'error');
     } finally {
       setIsPlacingOrder(false);
     }
   };
 
-  const handleCoupon = (couponData) => {
-    if (!couponData) return showAlert('Invalid coupon.', 'error');
-    const discountAmount =
-      couponData.discount_type === 'percent'
-        ? (itemsTotal * parseFloat(couponData.amount)) / 100
-        : parseFloat(couponData.amount);
-    setDiscount(Math.min(discountAmount, itemsTotal));
-    showAlert(`Coupon applied! You saved AED ${discountAmount.toFixed(2)}`, 'success');
+  // -----------------------------
+  // UI helpers
+  // -----------------------------
+  const getButtonStyle = () => {
+    const base = {
+      color: '#fff',
+      border: 'none',
+      borderRadius: '25px',
+      fontWeight: 600,
+      padding: '14px 36px',
+      cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
+    };
+    switch (formData.paymentMethod) {
+      case 'stripe':
+        return { ...base, backgroundColor: '#2563eb' };
+      case 'paymob':
+        return { ...base, backgroundColor: '#22c55e' };
+      case 'cod':
+        return { ...base, backgroundColor: '#f97316' };
+      default:
+        return { ...base, backgroundColor: '#10b981' };
+    }
   };
-
-  const handleCoinRedemption = ({ coinsUsed, discountAED }) => {
-    setCoinDiscount(Math.min(discountAED, itemsTotal));
-    showAlert(`You redeemed ${coinsUsed} coins for AED ${discountAED}`, 'success');
-  };
-
-  const getButtonStyle = () => ({
-    color: '#fff',
-    border: 'none',
-    borderRadius: '25px',
-    fontWeight: 600,
-    padding: '14px 36px',
-    cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
-    backgroundColor: formData.paymentMethod === 'stripe' ? '#2563eb' : '#10b981',
-  });
 
   const getButtonLabel = () => {
-    const labels = { cod: 'Cash on Delivery', stripe: 'Stripe' };
+    const labels = {
+      cod: 'Cash on Delivery',
+      stripe: 'Stripe',
+      paymob: 'Paymob',
+      card: 'Card',
+      tabby: 'Tabby',
+      tamara: 'Tamara',
+    };
     const label = labels[formData.paymentMethod] || 'Order';
     return isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with ${label}`;
   };
 
   return (
     <aside className="checkoutRightContainer">
-      <Alert message={alert.message} type={alert.type} onClose={() => setAlert({ message: '', type: 'info' })} />
+      <Alert
+        message={alert.message}
+        type={alert.type}
+        onClose={() => setAlert({ message: '', type: 'info' })}
+      />
       <h2>Order Summary</h2>
 
-      <CouponDiscount onApplyCoupon={handleCoupon} />
+      <CouponDiscount onApplyCoupon={() => {}} />
 
-      <div className="summaryRowCR"><span>Item(s) total:</span><span>AED {itemsTotal.toFixed(2)}</span></div>
-      {discount > 0 && <div className="summaryRowCR" style={{ color: '#fe6c03' }}>Discount: -AED {discount.toFixed(2)}</div>}
-      {coinDiscount > 0 && <div className="summaryRowCR" style={{ color: 'green' }}>Coins: -AED {coinDiscount.toFixed(2)}</div>}
-
-      <div className="summaryRowCR"><span>Total:</span><span>AED {totalWithDelivery.toFixed(2)}</span></div>
+      <div className="summaryRowCR">
+        <span>Total:</span>
+        <span>AED {totalWithDelivery.toFixed(2)}</span>
+      </div>
 
       <button
         className="placeOrderBtnCR"
