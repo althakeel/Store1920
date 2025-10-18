@@ -8,6 +8,7 @@ import Product5 from '../assets/images/staticproducts/gamekit/1.webp';
 import Product7 from '../assets/images/staticproducts/Air Blower/1.webp';
 import Product8 from '../assets/images/staticproducts/AIR BLOWER MINI/9.webp'
 import Product9 from '../assets/images/staticproducts/Steamer/1.webp'
+import Product10 from '../assets/images/staticproducts/Peeler/1.webp'
 
 const staticProducts = [
   {
@@ -105,6 +106,18 @@ const staticProducts = [
     rating: 5,
     reviews: 139,
     sold: 295,
+  },
+  {
+    id: "10",
+    name: "Electric Grape & Garlic Peeling Machine",
+    price: "89.00",
+    regular_price: "100",
+    sale_price: "89.00",
+    images: [{ src: Product10 }],
+    path: "/products/electric-grape-garlic-peeling-machine",
+    rating: 5,
+    reviews: 199,
+    sold: 305,
   },
 ];
 

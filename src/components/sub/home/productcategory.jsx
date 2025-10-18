@@ -18,6 +18,11 @@ import Product3 from '../../../assets/images/staticproducts/paintspray/14.webp'
 import Product4 from '../../../assets/images/staticproducts/pruningmachine/10.webp'
 import Product5 from '../../../assets/images/staticproducts//gamekit/1.webp'
 import Product7 from '../../../assets/images/staticproducts/Air Blower/1.webp'
+import Product8 from '../../../assets/images/staticproducts//AIR BLOWER MINI/1.webp'
+import Product9 from '../../../assets/images/staticproducts/Steamer/1.webp'
+import Product6 from '../../../assets/images/staticproducts/Peeler/1.webp'
+// import Product8 from '../../../assets/images/staticproducts/'
+
 
 const PAGE_SIZE = 10;
 const INITIAL_VISIBLE = 30;
@@ -151,12 +156,12 @@ const staticProducts = [
   },
 
       {
-    id: "7",
+    id: "8",
  name: "Turbo Cordless Leaf Blower – 21V Power for Every Task",
     price: "49.90",
     regular_price: "99.98",
     sale_price: "49.90",
-    images: [{ src:Product7 }],
+    images: [{ src:Product8 }],
     slug: "turbo-cordless-leaf-blower-21v-power-for-every-task",
     path: "/products/turbo-cordless-leaf-blower-21v-power-for-every-task",
     rating: 5,
@@ -164,22 +169,35 @@ const staticProducts = [
     sold: 299,
   },
      {
-    id: "7",
+    id: "9",
     name: "Steam Cleaner DF-A001 – Japan Technology",
     price: "89.90",
     regular_price: "129.98",
     sale_price: "89.90",
-    images: [{ src:Product7 }],
+    images: [{ src:Product9 }],
     slug: "steam-cleaner-df-a001-japan-technology",
     path: "/products/steam-cleaner-df-a001-japan-technology",
     rating: 5,
     reviews: 125,
     sold: 299,
   },
+  {
+    id: "10",
+    name: "Electric Grape & Garlic Peeling Machine",
+    price: "89.00",
+    regular_price: "100.00",
+    sale_price: "89.0",
+    images: [{ src:Product6 }],
+    slug: "electric-grape-garlic-peeling-machine",
+    path: "/products/electric-grape-garlic-peeling-machine",
+    rating: 5,
+    reviews: 199,
+    sold: 305,
+  },
 ];
  
 
-const staticPositions = [2, 11, 15, 19, 24,28, 32, 39];
+const staticPositions = [2,5, 11, 15, 19, 24,28, 32, 39,22,];
 
 const ProductCategory = () => {
   const { addToCart, cartItems } = useCart();
