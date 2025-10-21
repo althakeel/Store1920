@@ -71,16 +71,24 @@ const MiniCart = ({ navbarColor }) => {
   console.log('Cart items:', cartItems);
 }, [cartItems]);
 
-const onCheckoutClick = () => {
-  const storedUserId = localStorage.getItem('userId');
+// const onCheckoutClick = () => {
+//   const storedUserId = localStorage.getItem('userId');
 
-  if (!storedUserId) {
-    setSignInOpen(true);
-    return;
-  }
+//   if (!storedUserId) {
+//     setSignInOpen(true);
+//     return;
+//   }
+//   setIsCartOpen(false);
+//   navigate('/checkout');
+// };
+// hide the sign in minicart
+
+
+const onCheckoutClick = () => {
   setIsCartOpen(false);
   navigate('/checkout');
 };
+
 
 useEffect(() => {
   console.log('Cart items:', cartItems);
