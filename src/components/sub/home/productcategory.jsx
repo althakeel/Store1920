@@ -105,9 +105,9 @@ const staticProducts = [
    {
     id: "850w-electric-paint-sprayer-uae",
     name: "Electric Paint Sprayer",
-    price: "85.00",
+    price: "99.99",
     regular_price: "250.0",
-    sale_price: "85.00",
+    sale_price: "99.99",
     images: [{ src:Product3 }],
     slug: "850w-electric-paint-sprayer-uae",
     path: "/products/850w-electric-paint-sprayer-uae",
