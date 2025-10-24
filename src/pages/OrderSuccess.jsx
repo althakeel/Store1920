@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
+
 
 export default function OrderSuccess() {
   const navigate = useNavigate();
@@ -12,14 +14,20 @@ export default function OrderSuccess() {
 
   const [animate, setAnimate] = useState(false);
   const [seconds, setSeconds] = useState(10);
+    const { clearCart } = useCart();
+     useEffect(() => {
+    //Clear cart when success page loads
+    clearCart();
+  }, [clearCart]);
 
   useEffect(() => {
     // ✅ if user manually opens this page or no order_id present
     if (!orderId) {
       navigate("/", { replace: true });
+    
       return;
     }
-
+   
     setAnimate(true);
 
     // ✅ Prevent going back entirely
