@@ -1250,7 +1250,7 @@ const staticProducts = [
     slug: "cordless-2-in-1-leaf-blower-vacuum",
     price: 55.9,
     description:
-      "17000 RPM | Battery Powered | Wireless | Lightweight & Portable",
+      "17000 RPM |Single Battery Powered | Wireless | Lightweight & Portable",
     shortdesc: "Blow, Vacuum, and Clean — All with One Tool",
     subdesc: " 2-in-1 Blower & Vacuum function",
     subdesc1: " Up to 17000 RPM turbo power",
