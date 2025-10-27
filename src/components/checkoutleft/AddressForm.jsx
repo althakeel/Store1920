@@ -156,7 +156,7 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error, car
       // small delay to ensure react-phone-input updates last digit
       await new Promise((res) => setTimeout(res, 200));
 
-      const res = await fetch('https://db.store1920.com/wp-json/abandoned-checkout/v1/save', {
+      const res = await fetch('https://db.store1920.com/wp-json/abandoned-checkouts/v1/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
