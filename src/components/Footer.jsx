@@ -166,7 +166,9 @@ const Footer = () => {
             transition: "width 0.3s ease",
           }}
         >
-          <p>&copy; 2022 – 2025 Al Thakeel Group. All rights reserved.</p>
+<p>
+  &copy; {new Date().getFullYear()} Al Thakeel Holdings. All rights reserved.
+</p>
           <ul className="legal-links">
             <li><Link to="/Terms-0f-use">Terms of Use</Link></li>
             <li><Link to="/privacy-policy">Privacy Policy</Link></li>
