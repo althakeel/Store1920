@@ -4,7 +4,8 @@ import '../assets/styles/checkout/CheckoutRight.css';
 import TrustSection from './checkout/TrustSection';
 import CouponDiscount from './sub/account/CouponDiscount';
 import CoinBalance from './sub/account/CoinBalace';
-import HelpText from './HelpText';
+import Tabby from '../assets/images/Footer icons/3.webp'
+import Tamara from '../assets/images/Footer icons/6.webp'
 
 // -----------------------------
 // Alert Component
@@ -243,23 +244,25 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   // -----------------------------
   const getButtonStyle = () => {
     const base = {
-      color: '#fff',
-      border: 'none',
+      color: '#333',
+      backgroundColor: '#ffffff',
+      border: '1px solid #d1d5db',
       borderRadius: '25px',
       fontWeight: 600,
       padding: '14px 36px',
       cursor: isPlacingOrder ? 'not-allowed' : 'pointer',
+      transition: 'all 0.2s ease',
     };
-    switch (formData.paymentMethod) {
-      case 'stripe':
-        return { ...base, backgroundColor: '#2563eb' };
-      case 'paymob':
-        return { ...base, backgroundColor: '#22c55e' };
-      case 'cod':
-        return { ...base, backgroundColor: '#f97316' };
-      default:
-        return { ...base, backgroundColor: '#10b981' };
-    }
+    
+    // Add hover effect styling
+    const hoverStyle = {
+      ':hover': {
+        borderColor: '#9ca3af',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      }
+    };
+
+    return base;
   };
 
   const getButtonLabel = () => {
@@ -271,6 +274,84 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       tabby: 'Tabby',
       tamara: 'Tamara',
     };
+
+    const logoUrls = {
+      tabby: Tabby,
+      tamara: Tamara,
+    };
+    
+    // For Tabby and Tamara, use the image URLs
+    if ((formData.paymentMethod === 'tabby' || formData.paymentMethod === 'tamara')) {
+      const logoUrl = logoUrls[formData.paymentMethod];
+      const label = labels[formData.paymentMethod];
+      const loadingText = isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with `;
+      
+      // Add background colors for better visibility
+      const logoStyle = {
+        height: '38px',
+        width: '60px',
+        objectFit: 'contain',
+        padding: '2px 4px',
+        borderRadius: '4px',
+      };
+      
+      return (
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+          {loadingText}
+          {!isPlacingOrder && logoUrl && (
+            <img 
+              src={logoUrl} 
+              alt={label}
+              style={logoStyle}
+            />
+          )}
+          {isPlacingOrder && label}
+        </span>
+      );
+    }
+
+    // Always show logo if we have one for other payment methods
+    if (formData.paymentMethodLogo) {
+      const label = labels[formData.paymentMethod] || 'Order';
+      const loadingText = isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with `;
+      
+      // Add background colors for COD and Card
+      let logoStyle = {
+        height: '32px',
+        width: 'auto',
+        objectFit: 'contain',
+        padding: '2px 4px',
+        borderRadius: '4px',
+      };
+
+      // Set background color based on payment method
+      if (formData.paymentMethod === 'cod') {
+        logoStyle.backgroundColor = '#fff7ed';
+        logoStyle.border = '1px solid #f97316';
+      } else if (formData.paymentMethod === 'card') {
+        logoStyle.backgroundColor = '#f0fdf4';
+        logoStyle.border = '1px solid #22c55e';
+      } else {
+        logoStyle.backgroundColor = '#f9fafb';
+        logoStyle.border = '1px solid #d1d5db';
+      }
+      
+      return (
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          {loadingText}
+          {!isPlacingOrder && (
+            <img 
+              src={formData.paymentMethodLogo} 
+              alt={label}
+              style={logoStyle}
+            />
+          )}
+          {isPlacingOrder && label}
+        </span>
+      );
+    }
+    
+    // Default text for other payment methods without logo
     const label = labels[formData.paymentMethod] || 'Order';
     return isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with ${label}`;
   };
@@ -301,7 +382,6 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       </button>
 
       <TrustSection />
-      <HelpText />
     </aside>
   );
 }

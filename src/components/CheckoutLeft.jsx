@@ -230,6 +230,7 @@ export default function CheckoutLeft({
         selectedMethod={formData.paymentMethod || 'cod'}
         onMethodSelect={handlePaymentSelect}
         subtotal={subtotal}
+        cartItems={cartItems || []}
         orderId={orderId}
       />
 
