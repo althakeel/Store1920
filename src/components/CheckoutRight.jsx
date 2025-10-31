@@ -243,10 +243,25 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   // UI helpers
   // -----------------------------
   const getButtonStyle = () => {
+    let backgroundColor = '#ff9800'; // Default orange
+    let borderColor = '#f57c00';
+    let hoverBorderColor = '#ef6c00';
+    
+    // Use exact brand colors for specific payment methods
+    if (formData.paymentMethod === 'tabby') {
+      backgroundColor = '#50C878'; // Tabby's exact teal/mint color
+      borderColor = '#45B369';
+      hoverBorderColor = '#3A9E5A';
+    } else if (formData.paymentMethod === 'tamara') {
+      backgroundColor = '#39B54A'; // Tamara's exact green color
+      borderColor = '#2E9338';
+      hoverBorderColor = '#237A2C';
+    }
+    
     const base = {
-      color: '#333',
-      backgroundColor: '#ffffff',
-      border: '1px solid #d1d5db',
+      color: '#ffffff',
+      backgroundColor: backgroundColor,
+      border: `1px solid ${borderColor}`,
       borderRadius: '25px',
       fontWeight: 600,
       padding: '14px 36px',
@@ -257,7 +272,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
     // Add hover effect styling
     const hoverStyle = {
       ':hover': {
-        borderColor: '#9ca3af',
+        borderColor: hoverBorderColor,
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
       }
     };

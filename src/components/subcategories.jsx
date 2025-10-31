@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Recomendedicon from '../assets/images/grid.png';
 
 // WooCommerce helper functions
-import { getCategories, getProductsByCategory, getProductReviews } from '../api/woocommerce';
+import { getCategories, getProductsByCategory } from '../api/woocommerce';
 
 const PAGE_SIZE = 10;
 const PRODUCTS_PER_PAGE = 10;
@@ -44,9 +44,8 @@ const ReviewPills = ({ productId }) => {
   useEffect(() => {
     let isMounted = true;
 
-    getProductReviews(productId)
-      .then((data) => isMounted && setReviews(data || []))
-      .catch((err) => console.error('Review fetch error', err));
+    // getProductReviews disabled
+    setReviews([]);
 
     return () => { isMounted = false; };
   }, [productId]);

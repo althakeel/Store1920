@@ -1,4 +1,8 @@
+
 import axios from "axios";
+// ===== Simple In-Memory Cache for Categories and Products =====
+const _categoryCache = {};
+const _productCache = {};
 
 export const API_BASE = "https://db.store1920.com/wp-json/wc/v3";
 export const CONSUMER_KEY = "ck_f44feff81d804619a052d7bbdded7153a1f45bdd";
@@ -25,15 +29,134 @@ export const getCategoryBySlug = (slug) => fetchAPI(`/products/categories?slug=$
 export const getChildCategories = (parentId) => fetchAPI(`/products/categories?parent=${parentId}`);
 export const getCategories = () => fetchAPI(`/products/categories?per_page=100`);
 
+// ===================== Enhanced Category Fetching by Slug =====================
+export const getCategoryBySlugAdvanced = async (slug) => {
+  try {
+    console.log('🔍 Starting advanced category fetch for slug:', slug);
+    
+    // 1️⃣ Try custom Store1920 endpoint first (most reliable)
+    try {
+      const customUrl = `https://db.store1920.com/wp-json/store1920/v1/category/${slug}`;
+      console.log('🌐 Trying custom endpoint:', customUrl);
+      
+      const response = await axios.get(customUrl);
+      console.log('✅ Custom endpoint response:', response.data);
+      
+      if (response.data && !response.data.code && response.data.id) {
+        console.log('✅ Found category via custom endpoint:', response.data);
+        return response.data;
+      }
+    } catch (customError) {
+      console.log('❌ Custom endpoint failed:', customError.message);
+    }
+    
+    // 2️⃣ Fallback to standard WooCommerce API
+    console.log('🔄 Trying standard WooCommerce API as fallback');
+    const standardData = await getCategoryBySlug(slug);
+    
+    if (standardData && Array.isArray(standardData) && standardData.length > 0) {
+      console.log('✅ Found category via standard API:', standardData[0]);
+      return standardData[0];
+    }
+    
+    // 3️⃣ Try hardcoded category mappings (backup)
+    const knownCategories = {
+      'automotive-motorcycle': { id: 6531, name: 'Automotive & Motorcycle', slug: 'automotive-motorcycle' },
+      'accessories': { id: 6525, name: 'Accessories', slug: 'accessories' },
+      'beauty-personal-care': { id: 6526, name: 'Beauty & Personal Care', slug: 'beauty-personal-care' },
+      'electronics-smart-devices': { id: 498, name: 'Electronics & Smart Devices', slug: 'electronics-smart-devices' },
+      'furniture-home-living': { id: 6521, name: 'Furniture & Home Living', slug: 'furniture-home-living' },
+      'home-appliances': { id: 6519, name: 'Home Appliances', slug: 'home-appliances' },
+      'mens-clothing': { id: 6522, name: "Men's Clothing", slug: 'mens-clothing' },
+      'womens-clothing': { id: 6523, name: "Women's Clothing", slug: 'womens-clothing' },
+      'pet-supplies': { id: 6533, name: 'Pet Supplies', slug: 'pet-supplies' },
+      'sports-outdoors-hobbies': { id: 6530, name: 'Sports, Outdoors & Hobbies', slug: 'sports-outdoors-hobbies' },
+      'lingerie-loungewear': { id: 6524, name: 'Lingerie & Loungewear', slug: 'lingerie-loungewear' },
+      'shoes-footwear': { id: 6527, name: 'Shoes & Footwear', slug: 'shoes-footwear' },
+      'baby-kids-maternity': { id: 6528, name: 'Baby, Kids & Maternity', slug: 'baby-kids-maternity' },
+      'toys-games-entertainment': { id: 6529, name: 'Toys, Games & Entertainment', slug: 'toys-games-entertainment' },
+      'security-safety': { id: 6532, name: 'Security & Safety', slug: 'security-safety' },
+      'home-improvement-tools': { id: 6520, name: 'Home Improvement & Tools', slug: 'home-improvement-tools' }
+    };
+    
+    if (knownCategories[slug]) {
+      console.log('🎯 Using hardcoded category mapping for:', slug);
+      console.log('✅ Found category via hardcoded mapping:', knownCategories[slug]);
+      return knownCategories[slug];
+    }
+    
+    // 4️⃣ Try to find similar categories
+    console.log('🔍 Searching for similar categories...');
+    try {
+      const allCategories = await getCategories();
+      if (allCategories && Array.isArray(allCategories)) {
+        const similarCategory = allCategories.find(c => 
+          c.slug.includes(slug) || 
+          slug.includes(c.slug) ||
+          c.name.toLowerCase().includes(slug.replace(/-/g, ' ').toLowerCase())
+        );
+        
+        if (similarCategory) {
+          console.log('🎯 Found similar category:', similarCategory);
+          return similarCategory;
+        }
+      }
+    } catch (searchError) {
+      console.log('❌ Could not search for similar categories:', searchError.message);
+    }
+    
+    console.log('❌ No category found for slug:', slug);
+    return null;
+    
+  } catch (error) {
+    console.error('❌ Error in getCategoryBySlugAdvanced:', error);
+    return null;
+  }
+};
+
 // ===================== Products =====================
 export const getProductsByCategory = (categoryId, page = 1, perPage = 42) =>
   // Remove _fields to allow custom fields like enable_saving_badge
   fetchAPI(`/products?category=${categoryId}&per_page=${perPage}&page=${page}&orderby=date&order=desc`);
 
+// ===================== Enhanced Products by Category Slug =====================
+export const getProductsByCategorySlugAdvanced = async (slug, page = 1, perPage = 8) => {
+  try {
+    // Check cache for category
+    let category = _categoryCache[slug];
+    if (!category) {
+      category = await getCategoryBySlugAdvanced(slug);
+      if (category && category.id) _categoryCache[slug] = category;
+    }
+    if (!category || !category.id) {
+      return { products: [], category: null, hasMore: false };
+    }
+
+    // Cache key for products
+    const cacheKey = `${category.id}_${page}_${perPage}`;
+    if (_productCache[cacheKey]) {
+      return { products: _productCache[cacheKey], category, hasMore: _productCache[cacheKey].length >= perPage };
+    }
+
+    // Fetch products for this category
+    const products = await getProductsByCategory(category.id, page, perPage);
+    if (products) _productCache[cacheKey] = products;
+    const hasMore = products && products.length >= perPage;
+    return {
+      products: products || [],
+      category: category,
+      hasMore: hasMore
+    }; 
+  } catch (error) {
+    // Only log error, not full response
+    console.error('❌ Error in getProductsByCategorySlugAdvanced:', error);
+    return { products: [], category: null, hasMore: false };
+  }
+};
+
 export const getProductsByCategories = (categoryIds = [], page = 1, perPage = 42, order = "desc") => {
   if (!Array.isArray(categoryIds) || !categoryIds.length) return [];
-  return fetchAPI(`/products?category=${categoryIds.join(",")}&per_page=${perPage}&page=${page}&orderby=date&order=${order}&_fields=id,name,slug,images,price,total_sales,enable_saving_badge
-`);
+  return fetchAPI(`/products?category=${categoryIds.join(",")}&per_page=12&page=${page}&orderby=date&order=${order}&_fields=id,name,slug,images,price,total_sales,enable_saving_badge,categories`);
 };
 
 export const getProductBySlug = async (slug) => {
@@ -95,22 +218,22 @@ export const getCurrencySymbol = async () => {
 };
 
 // ===================== Reviews =====================
-export const getProductReviews = (productId, perPage = 20) =>
-  fetchAPI(`/products/${productId}/reviews?per_page=${perPage}`);
+// export const getProductReviews = (productId, perPage = 20) =>
+//   fetchAPI(`/products/${productId}/reviews?per_page=${perPage}`);
 
-export const addProductReview = async (productId, { review, reviewer, reviewer_email, rating = 5 }) => {
-  try {
-    const res = await fetch(`${API_BASE}/products/${productId}/reviews?${authParams}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ review, reviewer, reviewer_email, rating }),
-    });
-    if (!res.ok) throw new Error(`Failed to submit review: ${res.status}`);
-    return await res.json();
-  } catch {
-    return null;
-  }
-};
+// export const addProductReview = async (productId, { review, reviewer, reviewer_email, rating = 5 }) => {
+//   try {
+//     const res = await fetch(`${API_BASE}/products/${productId}/reviews?${authParams}`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ review, reviewer, reviewer_email, rating }),
+//     });
+//     if (!res.ok) throw new Error(`Failed to submit review: ${res.status}`);
+//     return await res.json();
+//   } catch {
+//     return null;
+//   }
+// };
 
 // ===================== Other APIs =====================
 export const getFastProducts = async (limit = 4) => {
@@ -136,7 +259,40 @@ export const getPromo = async () => {
 };
 
 // ===================== Orders =====================
-export const getOrderById = (orderId) => (orderId ? fetchAPI(`/orders/${orderId}`) : null);
+export const getOrderById = async (orderId) => {
+  if (!orderId) return null;
+  
+  try {
+    // Fetch the order data
+    const order = await fetchAPI(`/orders/${orderId}`);
+    if (!order) return null;
+
+    // Enhance line items with product images
+    const enhancedLineItems = await Promise.all(
+      order.line_items.map(async (item) => {
+        try {
+          // Fetch product details to get images
+          const product = await fetchAPI(`/products/${item.product_id}`);
+          return {
+            ...item,
+            image: product?.images?.[0] || null
+          };
+        } catch (error) {
+          console.error(`Error fetching product ${item.product_id}:`, error);
+          return item;
+        }
+      })
+    );
+
+    return {
+      ...order,
+      line_items: enhancedLineItems
+    };
+  } catch (error) {
+    console.error("getOrderById error:", error);
+    return null;
+  }
+};
 
 export const getOrdersByEmail = (email, perPage = 20) =>
   email ? fetchAPI(`/orders?customer=${email}&per_page=${perPage}&orderby=date&order=desc`) : [];
