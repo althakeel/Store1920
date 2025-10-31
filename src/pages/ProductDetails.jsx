@@ -284,11 +284,42 @@ export default function ProductDetails() {
 
       {/* Related Products */}
       <div style={{ maxWidth: 1400, margin: '40px auto', padding: '0 10px' }}>
-        <Suspense fallback={<div>Loading related products...</div>}>
+        <Suspense fallback={
+          <div style={{ padding: '20px 0' }}>
+            <h2 style={{ marginBottom: '15px', color: '#333' }}>Similar Products</h2>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px', marginTop: '-10px' }}>
+              Loading products from the same categories...
+            </p>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+              gap: '20px',
+              maxWidth: '1400px'
+            }}>
+              {[...Array(10)].map((_, i) => (
+                <div key={i} style={{
+                  background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+                  backgroundSize: '200% 100%',
+                  borderRadius: '12px',
+                  minHeight: '320px',
+                  animation: 'shimmer 1.5s infinite',
+                  border: '1px solid #eee'
+                }}>
+                  <style>
+                    {`
+                      @keyframes shimmer {
+                        0% { background-position: -200% 0; }
+                        100% { background-position: 200% 0; }
+                      }
+                    `}
+                  </style>
+                </div>
+              ))}
+            </div>
+          </div>
+        }>
           <RelatedProducts
             productId={product.id}
-            categories={product.categories || []}
-            tags={product.tags || []}
           />
         </Suspense>
       </div>

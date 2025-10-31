@@ -1,4 +1,4 @@
-// src/components/ProductCategory.jsx
+﻿// src/components/ProductCategory.jsx
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../../../assets/styles/ProductCategory.css";
@@ -7,7 +7,7 @@ import MiniCart from "../../MiniCart";
 import AddCarticon from "../../../assets/images/addtocart.png";
 import AddedToCartIcon from "../../../assets/images/added-cart.png";
 import IconAED from "../../../assets/images/Dirham 2.png";
-import TitleImage from "../../../assets/images/bACK TO SCHOOL BANNER.webp";
+import TitleImage from "../../../assets/images/seasontitle/Halloween mini banner.webp";
 import PlaceholderImage from "../../../assets/images/common/Placeholder.png";
 import { throttle } from "lodash";
 import { API_BASE, CONSUMER_KEY, CONSUMER_SECRET } from "../../../api/woocommerce";

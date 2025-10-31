@@ -15,9 +15,9 @@ const LightningBanner = () => {
      >
       <div className="lightning-banner__content">
         <span className="icon">⚡</span>
-        <strong className="title">Lightning deals</strong>
-        <span className="subtitle">Limited time offer</span>
-        <span className="arrow">›</span>
+        <strong className="title"></strong>
+        <span className="subtitle"></span>
+        <span className="arrow"></span>
       </div>
     </div>
   );

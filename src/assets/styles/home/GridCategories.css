@@ -43,14 +43,14 @@
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 15px;
-  color: #000;
+  color: #ffffff;
 }
 
 /* ==============================
    LEFT - CATEGORIES
    ============================== */
 .gcx-left {
-  background: #8cc8f0;
+  background: #222222;
   border-radius: 12px;
   padding: 15px 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -114,7 +114,7 @@
    CENTER - PRODUCTS
    ============================== */
 .gcx-middle {
-  background: #f7d4c5;
+  background: #FF4D4D;
   border-radius: 12px;
   padding: 15px 10px;
 }
@@ -130,14 +130,16 @@
 .gcx-mega-title {
   font-size: 20px;
   font-weight: 900;
-  background: linear-gradient(90deg, #ff0080, #ff6600);
+  /* background: linear-gradient(90deg, #ff0080, #ff6600);
+   */
+   background-color: #fff;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gcx-featured-countdown {
   font-weight: 700;
-  color: #e60023;
+  color: #ffffff;
   background: rgba(255, 0, 0, 0.1);
   padding: 4px 8px;
   border-radius: 6px;

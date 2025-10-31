@@ -6,7 +6,7 @@ import mobileBg from '../../assets/images/homepopup/PopupBG.jpg'
 
 const NewUserBonusPopup = () => {
   const [claimed, setClaimed] = useState(false);
-  const [visible, setVisible] = useState(false); // show after 3s
+  const [visible, setVisible] = useState(false);
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState(5);
 
@@ -21,10 +21,31 @@ useEffect(() => {
 }, []);
 
 
-  /** Show popup after 3s */
+  /** Check if popup should be shown */
   useEffect(() => {
-    const delayTimer = setTimeout(() => setVisible(true), 3000);
-    return () => clearTimeout(delayTimer);
+    const lastShownTime = localStorage.getItem('newUserBonusPopupLastShown');
+    const popupShownThisSession = sessionStorage.getItem('popupShownThisSession');
+    const currentTime = Date.now();
+    const fiveMinutesInMs = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+    // Don't show if already shown in this session
+    if (popupShownThisSession === 'true') {
+      return;
+    }
+
+    // If no record exists or 5 minutes have passed since last shown
+    if (!lastShownTime || (currentTime - parseInt(lastShownTime)) >= fiveMinutesInMs) {
+      // Show popup after 3 seconds delay
+      const delayTimer = setTimeout(() => {
+        setVisible(true);
+        // Record the time when popup is shown
+        localStorage.setItem('newUserBonusPopupLastShown', currentTime.toString());
+        // Mark as shown in this session
+        sessionStorage.setItem('popupShownThisSession', 'true');
+      }, 3000);
+      
+      return () => clearTimeout(delayTimer);
+    }
   }, []);
 
   /** Auto-close after 30s */
@@ -52,7 +73,21 @@ useEffect(() => {
 
   /** Handlers */
   const handleOverlayClick = (e) => {
-    if (e.target.id === "popup-overlay") setVisible(false);
+    if (e.target.id === "popup-overlay") {
+      setVisible(false);
+      // Update the timestamp when user closes the popup
+      localStorage.setItem('newUserBonusPopupLastShown', Date.now().toString());
+      // Mark as shown in this session
+      sessionStorage.setItem('popupShownThisSession', 'true');
+    }
+  };
+
+  const handleClose = () => {
+    setVisible(false);
+    // Update the timestamp when user closes the popup
+    localStorage.setItem('newUserBonusPopupLastShown', Date.now().toString());
+    // Mark as shown in this session
+    sessionStorage.setItem('popupShownThisSession', 'true');
   };
 
   const handleClaim = () => setClaimed(true);
@@ -107,7 +142,7 @@ useEffect(() => {
         >
           {/* Close Button */}
           <button
-            onClick={() => setVisible(false)}
+            onClick={handleClose}
             style={{
               position: "absolute",
               top: "10px",

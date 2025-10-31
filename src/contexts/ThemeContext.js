@@ -39,12 +39,21 @@ export const ThemeProvider = ({ children }) => {
           // Get current theme ID from localStorage to ensure we have the latest value
           const currentThemeFromStorage = parseInt(localStorage.getItem('currentThemeId')) || 1;
           const themeIds = Object.keys(themes).map(Number);
-          // Filter out the current theme to ensure we get a different theme
-          const availableThemes = themeIds.filter(id => id !== currentThemeFromStorage);
-          const randomThemeId = availableThemes[Math.floor(Math.random() * availableThemes.length)];
           
-          setCurrentThemeId(randomThemeId);
-          localStorage.setItem('currentThemeId', randomThemeId.toString());
+          // If only one theme is available, just keep using it
+          if (themeIds.length <= 1) {
+            setCurrentThemeId(1);
+            localStorage.setItem('currentThemeId', '1');
+          } else {
+            // Filter out the current theme to ensure we get a different theme
+            const availableThemes = themeIds.filter(id => id !== currentThemeFromStorage);
+            const randomThemeId = availableThemes.length > 0 
+              ? availableThemes[Math.floor(Math.random() * availableThemes.length)]
+              : 1; // fallback to theme 1
+            
+            setCurrentThemeId(randomThemeId);
+            localStorage.setItem('currentThemeId', randomThemeId.toString());
+          }
         }
         // If closed for less than 30 seconds, keep the same theme (do nothing)
       }

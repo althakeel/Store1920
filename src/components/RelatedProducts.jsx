@@ -9,7 +9,7 @@ import Dirham from '../assets/images/Dirham 2.png';
 import PlaceHolderImage from '../assets/images/common/Placeholder.png';
 
 // WooCommerce helper
-import { getProductById, getProductsByIds } from '../api/woocommerce';
+import { getProductById, getProductsByIds, getProductsByCategories, fetchAPI } from '../api/woocommerce';
 
 // ---------------- Skeleton Loader ----------------
 function SkeletonCard() {
@@ -89,7 +89,7 @@ function Toast({ message, visible }) {
 }
 
 // ---------------- Horizontal Related Products ----------------
-export default function HorizontalRelatedProducts({ productId }) {
+const HorizontalRelatedProducts = memo(({ productId }) => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ message: '', visible: false });
@@ -102,46 +102,68 @@ export default function HorizontalRelatedProducts({ productId }) {
 
     const fetchRelated = async () => {
       setLoading(true);
+      console.log('🚀 Fast loading similar products for productId:', productId);
+      
+      // Set a timeout to ensure we don't load forever
+      const timeoutId = setTimeout(() => {
+        setLoading(false);
+        setRelatedProducts([]); // Show empty state after 5 seconds
+      }, 5000);
+
       try {
         const product = await getProductById(productId);
         if (!product) return;
 
-        let related = [];
+        let allRelated = [];
 
-        // 1️⃣ Related IDs
+        // 1️⃣ Quick related products fetch (limit for speed)
         if (product.related_ids?.length) {
-          const relatedData = await getProductsByIds(product.related_ids);
-          related = relatedData.filter(p => p?.id && p.id !== productId);
+          try {
+            const relatedData = await getProductsByIds(product.related_ids.slice(0, 5)); // Limit to 5
+            const relatedProducts = relatedData.filter(p => p?.id && p.id !== productId);
+            allRelated.push(...relatedProducts);
+          } catch (err) {
+            // Silent fail, continue
+          }
         }
 
-        // 2️⃣ Category fallback
-        if (!related.length && product.categories?.length) {
-          const categoryIds = product.categories.map(c => c.id);
-          const categoryProducts = await Promise.all(
-            categoryIds.map(id => getProductsByIds([id]))
-          );
-          related = categoryProducts.flat().filter(p => p.id !== productId);
+        // 2️⃣ Fast category fetch (use only primary category)
+        if (allRelated.length < 10 && product.categories?.length) {
+          try {
+            const primaryCategory = product.categories[0]; // Use only first category for speed
+            const categoryProducts = await getProductsByCategories([primaryCategory.id], 1, 12);
+            const filteredCategory = categoryProducts.filter(p => 
+              p.id !== productId && !allRelated.some(existing => existing.id === p.id)
+            );
+            allRelated.push(...filteredCategory);
+          } catch (err) {
+            // Silent fail, continue
+          }
         }
 
-        // 3️⃣ Tag fallback
-        if (!related.length && product.tags?.length) {
-          const tagIds = product.tags.map(t => t.id);
-          const tagProducts = await Promise.all(
-            tagIds.map(id => getProductsByIds([id]))
-          );
-          related = tagProducts.flat().filter(p => p.id !== productId);
+        // 3️⃣ Quick fallback if still not enough
+        if (allRelated.length < 8) {
+          try {
+            const quickFallback = await fetchAPI('/products?per_page=10&orderby=total_sales&order=desc');
+            const fallbackFiltered = quickFallback.filter(p => 
+              p.id !== productId && !allRelated.some(existing => existing.id === p.id)
+            );
+            allRelated.push(...fallbackFiltered);
+          } catch (err) {
+            // Silent fail, continue
+          }
         }
 
-        // 4️⃣ Latest fallback
-        if (!related.length) {
-          const latest = await getProductsByIds([]);
-          related = latest.filter(p => p.id !== productId);
-        }
+        // Quick finish - take first 10, no complex sorting
+        const finalProducts = allRelated.slice(0, 10);
 
-        setRelatedProducts(related.slice(0, 10)); // limit to 10
+        setRelatedProducts(finalProducts);
       } catch (err) {
-        console.error('Error fetching related products:', err);
+        console.error('❌ Fast load failed:', err);
+        // Set empty array to avoid infinite loading
+        setRelatedProducts([]);
       } finally {
+        clearTimeout(timeoutId); // Clear the timeout
         setLoading(false);
       }
     };
@@ -211,7 +233,18 @@ export default function HorizontalRelatedProducts({ productId }) {
   }
 
   if (!relatedProducts.length) {
-    return <p style={{ textAlign: 'center' }}>No related products found.</p>;
+    return (
+      <div style={{ 
+        textAlign: 'center', 
+        padding: '40px 20px',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '8px',
+        margin: '20px 0'
+      }}>
+        <h3 style={{ color: '#666', marginBottom: '10px' }}>No Related Products Found</h3>
+        <p style={{ color: '#999', fontSize: '14px' }}>We couldn't find any related products for this item.</p>
+      </div>
+    );
   }
 
   const formatPrice = (price) => {
@@ -227,7 +260,10 @@ export default function HorizontalRelatedProducts({ productId }) {
   return (
     <>
       <div className="horizontal-related-wrapper">
-        <h2 className="hr-heading">Recommended for You</h2>
+        <h2 className="hr-heading">Similar Products</h2>
+        <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px', marginTop: '-10px' }}>
+          Products from the same categories and with similar tags
+        </p>
         <div className="horizontal-related-list">
           {relatedProducts.map((prod) => {
             const image = prod.images?.[0]?.src || PlaceHolderImage;
@@ -314,4 +350,6 @@ export default function HorizontalRelatedProducts({ productId }) {
       <Toast message={toast.message} visible={toast.visible} />
     </>
   );
-}
+});
+
+export default HorizontalRelatedProducts;
