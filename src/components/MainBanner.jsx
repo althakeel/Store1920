@@ -21,7 +21,7 @@ const MainBanner = ({ banners = [], bannerKey }) => {
   }, [banners]);
 
  const handleClick = () => {
-    navigate('/fest-sale'); // 👈 Always redirect here
+    navigate('/season-sale'); 
   };
 
 

@@ -37,6 +37,7 @@ import Terms0fuse from './pages/TermsOfuse';
 import OrderSuccess from './pages/OrderSuccess';
 import TrackOrder from './pages/track-order';
 import Festsale from './pages/Festsale';
+import SeasonSale from './pages/seasonsale';
 import CookiesSettings from './pages/CookiesSettingsPage';
 import LostPassword from './pages/lost-password';
 import MyCoins from './pages/my-coins';
@@ -232,6 +233,7 @@ const AppContent = () => {
   const isHomePage = path === '/';
   const isSupportPage = path === '/support';
   const isFestSalePage = path === '/fest-sale';
+  const isSeasonSalePage = path === '/season-sale';
   const onCheckoutPage = path === '/checkout' || path.startsWith('/checkout/');
 
   const queryClient = new QueryClient();
@@ -282,7 +284,7 @@ const AppContent = () => {
                     background: '#fff',
                   }}
                 >
-                  {!isHomePage && !isFestSalePage && !isSupportPage && <Breadcrumbs />}
+                  {!isHomePage && !isFestSalePage && !isSeasonSalePage && !isSupportPage && <Breadcrumbs />}
 
                   <Routes>
                     <Route path="/" element={<Home />} />
@@ -344,6 +346,7 @@ const AppContent = () => {
                     <Route path="/order-success" element={<OrderSuccess />} />
                     <Route path="/track-order" element={<TrackOrder />} />
                     <Route path="/fest-sale" element={<Festsale />} />
+                    <Route path="/season-sale" element={<SeasonSale />} />
                     <Route path="/cookies-settings" element={<CookiesSettings />} />
                     <Route path="/lost-password" element={<LostPassword />} />
                     <Route path="/my-coins" element={<MyCoins />} />
