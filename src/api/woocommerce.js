@@ -146,7 +146,7 @@ export const getProductsByCategorySlugAdvanced = async (slug, page = 1, perPage 
       products: products || [],
       category: category,
       hasMore: hasMore
-    };
+    }; 
   } catch (error) {
     // Only log error, not full response
     console.error('❌ Error in getProductsByCategorySlugAdvanced:', error);
