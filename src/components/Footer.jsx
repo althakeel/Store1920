@@ -167,7 +167,10 @@ const Footer = () => {
           }}
         >
 <p>
+
   &copy; {new Date().getFullYear()} Al Thakeel General Trading LLC. All rights reserved.
+
+
 </p>
           <ul className="legal-links">
             <li><Link to="/Terms-0f-use">Terms of Use</Link></li>

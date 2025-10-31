@@ -176,7 +176,7 @@ const PaymentMethods = ({ selectedMethod, onMethodSelect, subtotal, cartItems = 
         }}>
           ℹ️ Cash on Delivery is only available for selected products. Your cart contains items that require online payment.
         </div>
-      )}
+      )} 
       
       <div className="payment-methods-list">
         {/* Credit/Debit Card */}
