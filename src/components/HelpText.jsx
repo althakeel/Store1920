@@ -6,13 +6,13 @@ const HelpText = () => {
       style={{
         backgroundColor: "#ffffff",
         border: "1px solid #e0e0e0",
-        padding: "20px",
-        marginTop: "30px",
-        borderRadius: "10px",
+        padding: "12px 16px",
+        marginTop: "20px",
+        borderRadius: "8px",
         fontSize: "12px",
         color: "#333",
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
-        lineHeight: "1.7",
+        lineHeight: "1.5",
       }}
     >
       <p>
@@ -39,7 +39,7 @@ const HelpText = () => {
         {/* . */}
       </p>
       <p>
-        If there's an issue charging your selected payment method, we may use another valid method from your account. You can update your preferences on the payments page.
+         If there's an issue charging your selected payment method, we may use another valid method from your account. You can update your preferences on the payments page.
       </p>
       <p>
         When you click “Place Order”, we’ll confirm it by email. The purchase contract is only finalized after shipment.

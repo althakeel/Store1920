@@ -24,12 +24,22 @@ const fetchWithAuth = async (endpoint, options = {}) => {
     },
   };
 
-  const res = await fetch(url, fetchOptions);
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.message || `Request failed with status ${res.status}`);
+  try {
+    const res = await fetch(url, fetchOptions);
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      console.warn(`API Error [${endpoint}]:`, errData.message || `Status ${res.status}`);
+      throw new Error(errData.message || `Request failed with status ${res.status}`);
+    }
+    return res.json();
+  } catch (error) {
+    // Log network errors but don't show them to users
+    if (error.message.includes('fetch')) {
+      console.warn(`Network error for ${endpoint}:`, error.message);
+      throw new Error('Network connection issue. Please check your internet connection.');
+    }
+    throw error;
   }
-  return res.json();
 };
 
 
@@ -77,6 +87,7 @@ export default function CheckoutPage() {
     billingSameAsShipping: true,
     paymentMethod: 'cod',
     paymentMethodTitle: 'Cash On Delivery',
+    paymentMethodLogo: null,
     shippingMethodId: null,
   });
 
@@ -168,6 +179,7 @@ useEffect(() => {
           billingSameAsShipping: true,
           paymentMethod: 'cod',
           paymentMethodTitle: 'Cash On Delivery',
+          paymentMethodLogo: null,
           shippingMethodId: null,
         };
 
@@ -175,7 +187,8 @@ useEffect(() => {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(fetchedData));
       }
     } catch (err) {
-      console.error('Failed to fetch saved addresses from WooCommerce:', err);
+      console.warn('Could not load saved addresses:', err.message);
+      // Silently fail - use default form data
     }
   };
 
@@ -218,7 +231,10 @@ useEffect(() => {
         setCountries(countriesData);
         setPaymentMethods(paymentsData);
       } catch (err) {
-        setError(err.message || 'Failed to load checkout data.');
+        console.warn('Failed to load checkout data:', err.message);
+        // Set default values instead of showing error to user
+        setCountries([]);
+        setPaymentMethods([]);
       } finally {
         setLoading(false);
       }
@@ -247,8 +263,13 @@ useEffect(() => {
     }
   }, []);
 
-  const handlePaymentSelect = (id, title) => {
-    setFormData(prev => ({ ...prev, paymentMethod: id, paymentMethodTitle: title }));
+  const handlePaymentSelect = (id, title, logo) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      paymentMethod: id, 
+      paymentMethodTitle: title,
+      paymentMethodLogo: logo 
+    }));
   };
 
   const createOrder = async () => {

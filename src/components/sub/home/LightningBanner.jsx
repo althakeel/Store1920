@@ -12,9 +12,10 @@ const LightningBanner = () => {
   return (
     <div className="lightning-banner"
     //  onClick={handleClick}
+     style={{ maxWidth: '1400px', margin: '0 auto' }}
      >
-      <div className="lightning-banner__content">
-        <span className="icon">⚡</span>
+      <div className="lightning-banner__content"  >
+        <span className="icon"> </span>
         <strong className="title"></strong>
         <span className="subtitle"></span>
         <span className="arrow"></span>
