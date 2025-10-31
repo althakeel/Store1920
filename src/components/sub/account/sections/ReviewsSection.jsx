@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getProductReviews } from '../../../../api/woocommerce'; // import from your helper
+// import { getProductReviews } from '../../../../api/woocommerce'; // import from your helper
 import '../../../../assets/styles/myaccount/reviewSection.css';
 
 const ReviewSection = ({ customerEmail }) => {
@@ -14,15 +14,8 @@ const ReviewSection = ({ customerEmail }) => {
       }
 
       try {
-        // Fetch all reviews (WooCommerce API supports filtering by email)
-        const allReviews = await getProductReviews(); // fetchAPI returns all reviews
-        // Filter by reviewer email
-        const filteredReviews = allReviews.filter(
-          (review) => review.reviewer_email === customerEmail
-        );
-
-        console.log('Fetched Reviews:', filteredReviews);
-        setReviews(filteredReviews);
+        // Review fetching disabled
+        setReviews([]);
       } catch (error) {
         console.error('Error fetching reviews:', error);
       } finally {

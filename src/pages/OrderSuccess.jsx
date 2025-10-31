@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
-
+import { getOrderById } from "../api/woocommerce";
+import "../assets/styles/OrderSuccess.css";
 
 export default function OrderSuccess() {
   const navigate = useNavigate();
@@ -13,18 +14,33 @@ export default function OrderSuccess() {
   const orderId = queryParams.get("order_id");
 
   const [animate, setAnimate] = useState(false);
-  const [seconds, setSeconds] = useState(10);
-    const { clearCart } = useCart();
-     useEffect(() => {
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { clearCart } = useCart();
+  
+  useEffect(() => {
     //Clear cart when success page loads
     clearCart();
   }, [clearCart]);
 
   useEffect(() => {
+    async function fetchOrder() {
+      if (!orderId) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      const data = await getOrderById(orderId);
+      setOrder(data);
+      setLoading(false);
+    }
+    fetchOrder();
+  }, [orderId]);
+
+  useEffect(() => {
     // ✅ if user manually opens this page or no order_id present
     if (!orderId) {
       navigate("/", { replace: true });
-    
       return;
     }
    
@@ -39,20 +55,7 @@ export default function OrderSuccess() {
     blockBack();
     window.addEventListener("popstate", blockBack);
 
-    // ✅ Auto redirect after countdown
-    const interval = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          navigate("/", { replace: true });
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
     return () => {
-      clearInterval(interval);
       window.removeEventListener("popstate", blockBack);
     };
   }, [navigate, orderId]);
@@ -61,94 +64,189 @@ export default function OrderSuccess() {
     if (orderId) navigate(`/track-order?order_id=${orderId}`);
   };
 
+  const handleCopyOrderId = () => {
+    navigator.clipboard.writeText(orderId);
+    alert('Order ID copied to clipboard!');
+  };
+
+  if (loading) {
+    return (
+      <div className="order-success-container">
+        <div className="order-success-card">
+          <div className="loading-spinner">Loading order details...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!order || !orderId) {
+    return (
+      <div className="order-success-container">
+        <div className="order-success-card">
+          <div className="error-message">Order not found.</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      style={{
-        minHeight: "60vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "linear-gradient(120deg, #fef9f9, #e0f7fa)",
-        padding: 20,
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 20,
-          padding: "50px 35px",
-          maxWidth: 500,
-          width: "100%",
-          boxShadow: "0 15px 40px rgba(0,0,0,0.15)",
-          textAlign: "center",
-          transform: animate ? "scale(1)" : "scale(0.8)",
-          opacity: animate ? 1 : 0,
-          transition: "all 0.5s ease-out",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 60,
-            color: "#4caf50",
-            marginBottom: 20,
-            animation: "bounce 1s",
-          }}
-        >
-          ✅
+    <div className="order-success-container">
+      <div className="order-success-card">
+        {/* Header Section */}
+        <div className="order-header">
+          <div className="success-icon">✓</div>
+          <h1 className="thank-you-title">Thank you</h1>
+          <p className="thank-you-subtitle">Thank you. Your order has been received.</p>
+          
+          <button className="order-btn" onClick={() => navigate('/orders')}>
+            Order no.
+          </button>
         </div>
 
-        <h2
-          style={{
-            color: "#333",
-            marginBottom: 16,
-            fontSize: 24,
-            fontWeight: 700,
-          }}
-        >
-          Order Placed Successfully!
-        </h2>
-
-        {orderId && (
-          <p style={{ fontSize: 18, margin: "10px 0" }}>
-            Your Order ID: <strong>#{orderId}</strong>
+        {/* Order Number Section */}
+        <div className="order-number-section">
+          <h2 className="order-id" onClick={handleCopyOrderId}>
+            #S{order.id}
+          </h2>
+          <p className="copy-order-text" onClick={handleCopyOrderId}>
+            📋 Copy order number
           </p>
-        )}
+        </div>
 
-        <p style={{ fontSize: 16, color: "#555", marginBottom: 30 }}>
-          Thank you for shopping with us.
-        </p>
+        {/* Order Details Tabs */}
+        <div className="order-tabs">
+          <button className="tab-btn active">Order details</button>
+        </div>
 
-        <button
-          onClick={handleTrackOrder}
-          style={{
-            padding: "14px 28px",
-            fontSize: 16,
-            fontWeight: "600",
-            color: "#fff",
-            background: "linear-gradient(90deg, #ff9800, #ffb74d)",
-            border: "none",
-            borderRadius: 10,
-            cursor: "pointer",
-            boxShadow: "0 5px 15px rgba(255, 152, 0, 0.4)",
-            transition: "all 0.3s ease",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
-          Track Your Order
-        </button>
+        {/* Order Info Grid */}
+        <div className="order-info-grid">
+          <div className="info-item">
+            <span className="info-label">Order no.:</span>
+            <span className="info-value">S{order.id}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Order date:</span>
+            <span className="info-value">{new Date(order.date_created).toLocaleDateString('en-GB')}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Total:</span>
+            <span className="info-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Payment method:</span>
+            <span className="info-value">{order.payment_method_title || 'COD'}</span>
+          </div>
+        </div>
 
+        {/* Order Summary Section */}
+        <div className="order-summary-section">
+          <button className="order-summary-btn">Order summary</button>
+        </div>
+
+        {/* Products Table */}
+        <div className="products-table">
+          <div className="table-header">
+            <span className="product-header">Product</span>
+            <span className="total-header">Total</span>
+          </div>
+          
+          {order.line_items.map((item) => (
+            <div key={item.id} className="table-row">
+              <div className="product-info">
+                <div className="product-image">
+                  {item.image?.src ? (
+                    <img src={item.image.src} alt={item.name} />
+                  ) : (
+                    <div style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      backgroundColor: '#f0f0f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      color: '#999'
+                    }}>
+                      No Image
+                    </div>
+                  )}
+                </div>
+                <div className="product-details">
+                  <div className="product-name">[{item.product_id}] {item.name}</div>
+                  <div className="product-quantity">× {item.quantity}</div>
+                </div>
+              </div>
+              <div className="product-total">د.إ {parseFloat(item.total).toFixed(3)}</div>
+            </div>
+          ))}
+
+          {/* Summary Section */}
+          <div className="order-summary-details">
+            <div className="summary-row">
+              <span className="summary-label">Items</span>
+              <span className="summary-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+            </div>
+            
+            <div className="summary-row">
+              <span className="summary-label">Discount</span>
+              <span className="summary-value"></span>
+            </div>
+            
+            {order.shipping_total && parseFloat(order.shipping_total) > 0 && (
+              <div className="summary-row">
+                <span className="summary-label">Shipping & handling</span>
+                <span className="summary-value">د.إ {parseFloat(order.shipping_total).toFixed(0)}</span>
+              </div>
+            )}
+            
+            <div className="summary-row total-row">
+              <span className="summary-label">Total</span>
+              <span className="summary-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Track Order Button */}
+        <div className="track-order-section">
+          <button className="track-order-btn" onClick={handleTrackOrder}>
+            Track Your Order
+          </button>
+        </div>
+
+        {/* Note for guests */}
         {!user && (
-          <p style={{ marginTop: 20, fontSize: 14, color: "#555" }}>
-            Note: Guests can only track their order. Updates will be sent via WhatsApp.
-          </p>
+          <div className="guest-note">
+            <p>Note: Guests can only track their order. Updates will be sent via WhatsApp.</p>
+          </div>
         )}
 
-        <p style={{ marginTop: 30, fontSize: 14, color: "#777" }}>
-          You will be redirected to the homepage in{" "}
-          <strong>{seconds}</strong> seconds...
-        </p>
+        {/* Popular Search Terms */}
+        <div className="popular-search-section">
+          <h3>Most popular search words</h3>
+          <div className="search-tags">
+            <span className="search-tag">Mosquito killer machine</span>
+            <span className="search-tag">Electric mosquito killer</span>
+            <span className="search-tag">Installment mobile phones</span>
+            <span className="search-tag">Hair curling iron</span>
+            <span className="search-tag">Portable Screen</span>
+            <span className="search-tag">Oral irrigator</span>
+            <span className="search-tag">Water Flosser</span>
+            <span className="search-tag">Water tooth flosser</span>
+            <span className="search-tag">Toothbrush</span>
+            <span className="search-tag">Oral</span>
+            <span className="search-tag">Electric toothbrush</span>
+            <span className="search-tag">Bluetooth headphones</span>
+            <span className="search-tag">Wireless earphones</span>
+            <span className="search-tag">Travel kit</span>
+            <span className="search-tag">Coffee bean grinder</span>
+            <span className="search-tag">Treadmill</span>
+            <span className="search-tag">Coffee maker machine</span>
+            <span className="search-tag">Coffee grinder</span>
+            <span className="search-tag">Home projector</span>
+            <span className="search-tag">Candle Machines</span>
+            <span className="search-tag">Gym equipment</span>
+          </div>
+        </div>
       </div>
     </div>
   );

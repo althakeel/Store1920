@@ -2,6 +2,16 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 
+// Safely import staticProducts with fallback
+let staticProducts = [];
+try {
+  const staticProductsModule = require('../../data/staticProducts');
+  staticProducts = staticProductsModule.default || staticProductsModule || [];
+} catch (error) {
+  console.warn('Could not load static products data:', error);
+  staticProducts = [];
+}
+
 // Utility: convert product name to slug
 const slugify = (text) =>
   text
@@ -17,6 +27,28 @@ const ItemList = ({ items = [], onRemove, onUpdateQuantity }) => {
   const { removeFromCart, updateQuantity } = useCart();
 
   if (!items.length) return <p style={{ textAlign: 'center', marginTop: 20 }}>Your cart is empty.</p>;
+
+  // Get all static product IDs for COD checking
+  let staticProductIds = [];
+  try {
+    staticProductIds = staticProducts.flatMap(product => {
+      const ids = [];
+      if (product.id) {
+        ids.push(product.id);
+      }
+      if (product.bundles && Array.isArray(product.bundles)) {
+        product.bundles.forEach(bundle => {
+          if (bundle.id) {
+            ids.push(bundle.id);
+          }
+        });
+      }
+      return ids;
+    });
+  } catch (error) {
+    console.warn('Error loading static products for COD checking:', error);
+    staticProductIds = [];
+  }
 
   const handleItemClick = (item) => {
     if (!item || !item.name) return;
@@ -90,6 +122,9 @@ const ItemList = ({ items = [], onRemove, onUpdateQuantity }) => {
             (!price || parseFloat(price) <= 0) &&
             (hasStockInfo && (stockOutByQuantity || stockOutByFlag));
 
+          // Check if this item supports COD
+          const isCodAvailable = staticProductIds.includes(item.id);
+
           return (
             <div
               key={key}
@@ -132,6 +167,37 @@ const ItemList = ({ items = [], onRemove, onUpdateQuantity }) => {
               <div style={{ flex: 1 }}>
                 <p style={{ margin: 0, fontWeight: 600 }}>{item.name}</p>
                 <p style={{ margin: '4px 0' }}>AED {price} × <span style={{fontWeight:"bold"}}>{item.quantity ?? 1}</span></p>
+                
+                {/* COD Availability Badge */}
+                <div style={{ marginTop: 6 }}>
+                  {isCodAvailable ? (
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '3px 8px',
+                      backgroundColor: '#d4edda',
+                      color: '#155724',
+                      border: '1px solid #c3e6cb',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                    }}>
+                      ✓ COD Available
+                    </span>
+                  ) : (
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '3px 8px',
+                      backgroundColor: '#f8d7da',
+                      color: '#721c24',
+                      border: '1px solid #f5c6cb',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                    }}>
+                      ✗ COD Not Available
+                    </span>
+                  )}
+                </div>
 
                 <div style={quantityStyle}>
                   <button

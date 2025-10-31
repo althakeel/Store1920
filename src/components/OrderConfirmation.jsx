@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getOrderById } from "../api/woocommerce"; // adjust path
+import "../assets/styles/OrderConfirmation.css";
 
 export default function OrderConfirmation() {
-  const { orderId } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Get order_id from URL parameters
+  const queryParams = new URLSearchParams(location.search);
+  const orderId = queryParams.get("order_id");
+
   useEffect(() => {
     async function fetchOrder() {
+      if (!orderId) {
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       const data = await getOrderById(orderId);
       setOrder(data);
@@ -17,47 +27,172 @@ export default function OrderConfirmation() {
     fetchOrder();
   }, [orderId]);
 
-  if (loading) return <div>Loading order details...</div>;
-  if (!order) return <div>Order not found.</div>;
+  const handleCopyOrderId = () => {
+    navigator.clipboard.writeText(order.id);
+    alert('Order ID copied to clipboard!');
+  };
+
+  if (loading) {
+    return (
+      <div className="order-confirmation-container">
+        <div className="loading-spinner">Loading order details...</div>
+      </div>
+    );
+  }
+
+  if (!order || !orderId) {
+    return (
+      <div className="order-confirmation-container">
+        <div className="error-message">Order not found.</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="orderConfirmation" style={{ maxWidth: "600px", margin: "0 auto" }}>
-      <h2>Thank you! Your order has been placed.</h2>
-      <p>Expected delivery: 1–7 business days.</p>
-      <p><strong>Order Number:</strong> #{order.id}</p>
-      <p><strong>Status:</strong> {order.status}</p>
+    <div className="order-confirmation-containe">
+      <div className="order-confirmation-card">
+        {/* Header Section */}
+        <div className="order-header">
+          <div className="success-icon">✓</div>
+          <h1 className="thank-you-title">Thank you</h1>
+          <p className="thank-you-subtitle">Thank you. Your order has been received.</p>
+          
+          <button className="order-btn" onClick={() => navigate('/orders')}>
+            Order no.
+          </button>
+        </div>
 
-      <h3>Items:</h3>
-      <ul>
-        {order.line_items.map((item) => (
-          <li key={item.id}>
-            {item.name} × {item.quantity} — ${parseFloat(item.total).toFixed(2)}
-          </li>
-        ))}
-      </ul>
+        {/* Order Number Section */}
+        <div className="order-number-section">
+          <h2 className="order-id" onClick={handleCopyOrderId} style={{ cursor: 'pointer' }}>
+            #S{order.id}
+          </h2>
+          <p className="copy-order-text" onClick={handleCopyOrderId}>
+            📋 Copy order number
+          </p>
+        </div>
 
-      <p><strong>Subtotal:</strong> ${parseFloat(order.subtotal).toFixed(2)}</p>
-      <p><strong>Total Paid:</strong> ${parseFloat(order.total).toFixed(2)}</p>
+        {/* Order Details Button */}
+        <div className="order-details-section">
+          <button className="order-details-btn">Order details</button>
+        </div>
 
-      {order.billing && (
-        <>
-          <h3>Billing Details:</h3>
-          <p>{order.billing.first_name} {order.billing.last_name}</p>
-          <p>{order.billing.address_1}, {order.billing.city}</p>
-          <p>{order.billing.country}</p>
-          <p>Email: {order.billing.email}</p>
-          <p>Phone: {order.billing.phone}</p>
-        </>
-      )}
+        {/* Order Info Grid */}
+        <div className="order-info-grid">
+          <div className="info-item">
+            <span className="info-label">Order no.</span>
+            <span className="info-value">S{order.id}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Order date</span>
+            <span className="info-value">{new Date(order.date_created).toLocaleDateString('en-GB')}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Total</span>
+            <span className="info-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Payment method</span>
+            <span className="info-value">{order.payment_method_title || 'COD'}</span>
+          </div>
+        </div>
 
-      {order.shipping && (
-        <>
-          <h3>Shipping Details:</h3>
-          <p>{order.shipping.first_name} {order.shipping.last_name}</p>
-          <p>{order.shipping.address_1}, {order.shipping.city}</p>
-          <p>{order.shipping.country}</p>
-        </>
-      )}
+        {/* Order Summary Button */}
+        <div className="order-summary-section">
+          <button className="order-summary-btn">Order summary</button>
+        </div>
+
+        {/* Products Table */}
+        <div className="products-table">
+          <div className="table-header">
+            <span className="product-header">Product</span>
+            <span className="total-header">Total</span>
+          </div>
+          
+          {order.line_items.map((item) => (
+            <div key={item.id} className="table-row">
+              <div className="product-info">
+                <div className="product-image">
+                  {item.image?.src ? (
+                    <img src={item.image.src} alt={item.name} />
+                  ) : (
+                    <div style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      backgroundColor: '#f0f0f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      color: '#999'
+                    }}>
+                      No Image
+                    </div>
+                  )}
+                </div>
+                <div className="product-details">
+                  <div className="product-name">[{item.product_id}] {item.name}</div>
+                  <div className="product-quantity">× {item.quantity}</div>
+                </div>
+              </div>
+              <div className="product-total">د.إ {parseFloat(item.total).toFixed(3)}</div>
+            </div>
+          ))}
+
+          {/* Summary Section */}
+          <div className="order-summary-details">
+            <div className="summary-row">
+              <span className="summary-label">Items</span>
+              <span className="summary-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+            </div>
+            
+            <div className="summary-row">
+              <span className="summary-label">Discount</span>
+              <span className="summary-value"></span>
+            </div>
+            
+            {order.shipping_total && parseFloat(order.shipping_total) > 0 && (
+              <div className="summary-row">
+                <span className="summary-label">Shipping & handling</span>
+                <span className="summary-value">د.إ {parseFloat(order.shipping_total).toFixed(0)}</span>
+              </div>
+            )}
+            
+            <div className="summary-row total-row">
+              <span className="summary-label">Total</span>
+              <span className="summary-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Popular Search Terms */}
+        <div className="popular-search-section">
+          <h3>Most popular search words</h3>
+          <div className="search-tags">
+            <span className="search-tag">Mosquito killer machine</span>
+            <span className="search-tag">Electric mosquito killer</span>
+            <span className="search-tag">Installment mobile phones</span>
+            <span className="search-tag">Hair curling iron</span>
+            <span className="search-tag">Portable Screen</span>
+            <span className="search-tag">Oral irrigator</span>
+            <span className="search-tag">Water Flosser</span>
+            <span className="search-tag">Water tooth flosser</span>
+            <span className="search-tag">Toothbrush</span>
+            <span className="search-tag">Oral</span>
+            <span className="search-tag">Electric toothbrush</span>
+            <span className="search-tag">Bluetooth headphones</span>
+            <span className="search-tag">Wireless earphones</span>
+            <span className="search-tag">Travel kit</span>
+            <span className="search-tag">Coffee bean grinder</span>
+            <span className="search-tag">Treadmill</span>
+            <span className="search-tag">Coffee maker machine</span>
+            <span className="search-tag">Coffee grinder</span>
+            <span className="search-tag">Home projector</span>
+            <span className="search-tag">Candle Machines</span>
+            <span className="search-tag">Gym equipment</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
