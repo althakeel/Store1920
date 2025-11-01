@@ -193,10 +193,10 @@ const PaymentMethods = ({ selectedMethod, onMethodSelect, subtotal, cartItems = 
               <div className="card-payment-header">
                 <span className="card-text">Card</span>
                 <div className="card-icons-group">
-                  <img src='http://localhost:3000/static/media/19.596d7738d41ca6630085.webp' alt="Visa" className="card-icon" />
+                  {/* <img src='http://localhost:3000/static/media/19.596d7738d41ca6630085.webp' alt="Visa" className="card-icon" /> */}
                   <img src={MasterCardIcon} alt="Mastercard" className="card-icon" />
                   <img src={AmexIcon} alt="American Express" className="card-icon" />
-                   <img src='http://localhost:3000/static/media/20.c033ec0799cf09bb276d.webp' alt="American Express" className="card-icon" />
+                   {/* <img src='http://localhost:3000/static/media/20.c033ec0799cf09bb276d.webp' alt="American Express" className="card-icon" /> */}
                   <img src="https://aimg.kwcdn.com/upload_aimg/temu/ebeb26a5-1ac2-4101-862e-efdbc11544f3.png.slim.png" alt="Discover" className="card-icon" />
                   <img src={ApplePayIcon} alt="Diners Club" className="card-icon" />
                   <img src={GooglePayIcon} alt="JCB" className="card-icon" />
