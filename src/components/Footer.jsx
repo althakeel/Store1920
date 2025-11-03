@@ -173,7 +173,8 @@ const Footer = () => {
 
 </p>
           <ul className="legal-links">
-            <li><Link to="/Terms-0f-use">Terms of Use</Link></li>
+             <li><Link to="/terms-0f-use">Terms of Use</Link></li>
+            <li><Link to="/return-policy">Return Policy</Link></li>
             <li><Link to="/privacy-policy">Privacy Policy</Link></li>
             <li><Link to="/cookies-settings">Cookie Settings</Link></li>
           </ul>
