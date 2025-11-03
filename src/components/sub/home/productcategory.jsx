@@ -106,9 +106,9 @@ const staticProducts = [
    {
     id: "850w-electric-paint-sprayer-uae",
     name: "Electric Paint Sprayer",
-    price: "99.99",
+    price: "89.99",
     regular_price: "250.0",
-    sale_price: "99.99",
+    sale_price: "89.99",
     images: [{ src:Product3 }],
     slug: "850w-electric-paint-sprayer-uae",
     path: "/products/850w-electric-paint-sprayer-uae",
@@ -514,7 +514,7 @@ useEffect(() => {
       <div className="pcus-categories-products1" style={{ width: "100%", transition: "width 0.3s ease" }}>
         {/* Banner */}
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <img src={TitleImage} className="schoolimage" style={{ maxWidth: "400px", width: "100%", height: "auto" }} alt="Category banner" />
+          <img src='https://db.store1920.com/wp-content/uploads/2025/11/Mini-Sub-Banner-2.webp' className="schoolimage" style={{ maxWidth: "400px", width: "100%", height: "auto" }} alt="Category banner" />
         </div>
 
         {/* Categories */}

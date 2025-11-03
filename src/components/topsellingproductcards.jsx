@@ -9,11 +9,10 @@ import Adsicon from '../assets/images/summer-saving-coloured.png';
 import IconAED from '../assets/images/Dirham 2.png';
 import ProductCardReviews from '../components/temp/productcardreviews';
 
-import { getProductsByTagSlugs, getFirstVariation, getCurrencySymbol } from '../api/woocommerce';
+import { getTopSellingItemsProducts, getPopularProducts, getFirstVariation, getCurrencySymbol } from '../api/woocommerce';
 
 const PRODUCTS_PER_PAGE = 24;
 const TITLE_LIMIT = 35;
-const NEW_TAG_SLUG = 'new-arrival'; // You will handle PHP side for this tag
 
 // ===================== Utility functions =====================
 const decodeHTML = (html) => {
@@ -69,11 +68,18 @@ const New = () => {
   }, []);
 
   // ===================== Fetch products =====================
-const fetchProducts = useCallback(async (page = 1) => {
+  const fetchProducts = useCallback(async (page = 1) => {
   setLoadingProducts(true);
   try {
-    const data = await getProductsByTagSlugs([NEW_TAG_SLUG], page, PRODUCTS_PER_PAGE);
-    const validData = Array.isArray(data) ? data : [];
+      // Try tagged "top-selling" products first
+      let data = await getTopSellingItemsProducts(page, PRODUCTS_PER_PAGE);
+      let validData = Array.isArray(data) ? data : [];
+
+      // Fallback if no tag-based products found on production
+      if (!validData.length) {
+        data = await getPopularProducts(page, PRODUCTS_PER_PAGE);
+        validData = Array.isArray(data) ? data : [];
+      }
     setProducts(prev => page === 1 ? shuffleArray(validData) : [...prev, ...validData]);
     setHasMoreProducts(validData.length >= PRODUCTS_PER_PAGE);
   } catch (error) {

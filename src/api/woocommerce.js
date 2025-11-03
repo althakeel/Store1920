@@ -193,7 +193,13 @@ export const getProductsByTagSlugs = async (slugs = [], page = 1, perPage = 42, 
 export const getNewArrivalsProducts = (page = 1, perPage = 24) => getProductsByTagSlugs(["new-arrivals"], page, perPage);
 export const getRatedProducts = (page = 1, perPage = 24) => getProductsByTagSlugs(["rated"], page, perPage, "rating");
 export const getFestSaleProducts = (page = 1, perPage = 24) => getProductsByTagSlugs(["fest-sale"], page, perPage);
-export const getTopSellingItemsProducts = (page = 1, perPage = 24) => getProductsByTagSlugs(["top-selling"], page, perPage, "total_sales");
+// Use Woo's supported alias 'popularity' (maps to total_sales)
+export const getTopSellingItemsProducts = (page = 1, perPage = 24) =>
+  getProductsByTagSlugs(["top-selling"], page, perPage, "popularity");
+
+// Fallback: get popular products irrespective of tag
+export const getPopularProducts = (page = 1, perPage = 24) =>
+  fetchAPI(`/products?per_page=${perPage}&page=${page}&orderby=popularity&order=desc&_fields=id,name,slug,images,price,total_sales,enable_saving_badge`);
 
 // ===================== Variations =====================
 export const getFirstVariation = async (productId) => {
@@ -299,19 +305,33 @@ export const getOrdersByEmail = (email, perPage = 20) =>
 
 // ===================== Top Sold Products =====================
 export const getTopSoldProducts = async (hours = 24, limit = 5) => {
-  try {
-    const res = await fetch(
-      `${API_BASE}/products?per_page=${limit}&orderby=total_sales&order=desc&date_modified_min=${new Date(
-        Date.now() - hours * 60 * 60 * 1000
-      ).toISOString()}&${authParams}`
-    );
-    if (!res.ok) throw new Error("Top sold products API error");
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch (err) {
-    console.error("getTopSoldProducts error:", err);
-    return [];
+  // Some WooCommerce installs do not support orderby=total_sales or date_modified_min.
+  // We try a compatibility chain: popularity -> rating -> recent.
+  const attempts = [
+    `${API_BASE}/products?per_page=${limit}&orderby=popularity&order=desc&status=publish&${authParams}`,
+    `${API_BASE}/products?per_page=${limit}&orderby=rating&order=desc&status=publish&${authParams}`,
+    `${API_BASE}/products?per_page=${limit}&orderby=date&order=desc&status=publish&${authParams}`,
+  ];
+
+  for (const url of attempts) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        // Read response text to aid debugging, but keep going to next attempt
+        const txt = await res.text().catch(() => '');
+        console.warn(`getTopSoldProducts attempt failed: ${url} -> ${res.status} ${txt}`);
+        continue;
+      }
+      const data = await res.json();
+      if (Array.isArray(data) && data.length) return data;
+    } catch (err) {
+      console.warn(`getTopSoldProducts network error for ${url}:`, err?.message || err);
+      continue;
+    }
   }
+
+  // Final fallback: return empty list
+  return [];
 };
 // ===================== New: Products by Category Slug =====================
 export const getProductsByCategorySlug = async (slug, page = 1, perPage = 42, order = "desc") => {

@@ -356,7 +356,7 @@ const staticProducts = [
     bundles: [
       {
         type: "Air Bed Single ",
-        id: 522826,
+        id: 525034,
         name: "twin-size-air-matt",
         label: "Buy 1 for Only 139 AED",
         discount: 54, // (300 - 139) / 300 * 100 = 53.67% ≈ 54%
@@ -367,7 +367,7 @@ const staticProducts = [
       },
       {
         type: "Air Bed Double",
-        id: 523380,
+        id: 525035,
         name: "twin-size-air-matt",
         label: "Dimensions: 190 cm (L) × 100 cm (W) × 40 cm (H)",
         discount: 58, // (600 - 250.2) / 600 * 100 = 58.3% ≈ 58%
@@ -556,7 +556,7 @@ const staticProducts = [
     id: 522827,
     name: "Electric Paint Sprayer",
     slug: "850w-electric-paint-sprayer-uae",
-    price: 85,
+    price: 89,
     description: "Paint Like a Pro – Anywhere, Anytime",
     shortdesc:
       "Transform your DIY projects with the 850W Electric Paint Sprayer. Whether it’s walls, furniture, fences, or your car — enjoy a flawless, even finish with ease. ",
@@ -587,7 +587,7 @@ const staticProducts = [
         name: "Electric Paint Sprayer",
         label: "Buy 1 for Only 85 AED",
         discount: 0,
-        price: 99.99,
+        price: 89.99,
         originalPrice: 250,
         image: Product41,
       },
@@ -1877,6 +1877,8 @@ const staticProducts = [
       },
     ],
   },
+
+ 
 ];
 
 export default staticProducts;
