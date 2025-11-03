@@ -26,7 +26,7 @@ const MainBanner = ({ banners = [], bannerKey }) => {
   const handleImageLoad = () => {};
 
  const handleClick = () => {
-    navigate('/season-sale'); 
+    // navigate('/season-sale'); git 
   };
 
   if (!currentBanner) {
