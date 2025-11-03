@@ -338,6 +338,8 @@ const AppContent = () => {
                     <Route path="/purchaseprotection" element={<PurchaseProtection />} />
                     <Route path="/partnerwithus" element={<PartnerWithUs />} />
                     <Route path="/returnandrefundpolicy" element={<Returnandrefundpolicy />} />
+                    {/* SEO-friendly alias */}
+                    <Route path="/return-policy" element={<Returnandrefundpolicy />} />
                     <Route path="/Intellectual-property-policy" element={<Intellectualproperty />} />
                     <Route path="/shippinginfo" element={<Shippinginfo />} />
                     <Route path="/about" element={<About />} />
