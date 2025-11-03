@@ -215,7 +215,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
         };
 
         try {
-          const res = await fetch('https://db.store1920.com/wp-json/custom/v1/paymob-intent', {
+          const res = await fetch('https://db.store1920.com/wp-json/custom/v3/stripe-direct', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
