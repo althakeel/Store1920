@@ -100,7 +100,7 @@ const PaymentMethods = ({ selectedMethod, onMethodSelect, subtotal, cartItems = 
   React.useEffect(() => {
     const isCodAvailable = hasOnlyStaticProducts && !hasNonStaticProducts && staticProductIds.length > 0;
     if (selectedMethod === 'cod' && !isCodAvailable) {
-      onMethodSelect('card', 'Credit/Debit Card');
+      onMethodSelect('card', 'Credit/Debit Card', CardIcon);
     }
   }, [cartItems, selectedMethod, onMethodSelect, hasOnlyStaticProducts, hasNonStaticProducts, staticProductIds.length]);
     

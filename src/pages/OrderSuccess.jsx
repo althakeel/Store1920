@@ -5,6 +5,36 @@ import { useCart } from "../contexts/CartContext";
 import { getOrderById } from "../api/woocommerce";
 import "../assets/styles/OrderSuccess.css";
 
+const formatPrice = (value) => {
+  const amount = Number.parseFloat(value);
+  const safeAmount = Number.isFinite(amount) ? amount : 0;
+  return `AED ${safeAmount.toFixed(2)}`;
+};
+
+const popularSearchTerms = [
+  "Mosquito killer machine",
+  "Electric mosquito killer",
+  "Installment mobile phones",
+  "Hair curling iron",
+  "Portable Screen",
+  "Oral irrigator",
+  "Water Flosser",
+  "Water tooth flosser",
+  "Toothbrush",
+  "Oral",
+  "Electric toothbrush",
+  "Bluetooth headphones",
+  "Wireless earphones",
+  "Travel kit",
+  "Coffee bean grinder",
+  "Treadmill",
+  "Coffee maker machine",
+  "Coffee grinder",
+  "Home projector",
+  "Candle Machines",
+  "Gym equipment",
+];
+
 export default function OrderSuccess() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,25 +68,20 @@ export default function OrderSuccess() {
   }, [orderId]);
 
   useEffect(() => {
-    // ✅ if user manually opens this page or no order_id present
     if (!orderId) {
       navigate("/", { replace: true });
       return;
     }
-   
+
     setAnimate(true);
 
-    // ✅ Prevent going back entirely
-    const blockBack = () => {
-      window.history.pushState(null, "", window.location.href);
+    const handlePopState = () => {
+      navigate("/", { replace: true });
     };
 
-    // Push a dummy state and keep re-pushing if back is attempted
-    blockBack();
-    window.addEventListener("popstate", blockBack);
-
+    window.addEventListener("popstate", handlePopState);
     return () => {
-      window.removeEventListener("popstate", blockBack);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, [navigate, orderId]);
 
@@ -67,6 +92,10 @@ export default function OrderSuccess() {
   const handleCopyOrderId = () => {
     navigator.clipboard.writeText(orderId);
     alert('Order ID copied to clipboard!');
+  };
+
+  const handlePopularSearchClick = (term) => {
+    navigate(`/search?q=${encodeURIComponent(term)}`);
   };
 
   if (loading) {
@@ -130,7 +159,7 @@ export default function OrderSuccess() {
           </div>
           <div className="info-item">
             <span className="info-label">Total:</span>
-            <span className="info-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+            <span className="info-value">{formatPrice(order.total)}</span>
           </div>
           <div className="info-item">
             <span className="info-label">Payment method:</span>
@@ -176,7 +205,7 @@ export default function OrderSuccess() {
                   <div className="product-quantity">× {item.quantity}</div>
                 </div>
               </div>
-              <div className="product-total">د.إ {parseFloat(item.total).toFixed(3)}</div>
+              <div className="product-total">{formatPrice(item.total)}</div>
             </div>
           ))}
 
@@ -184,7 +213,7 @@ export default function OrderSuccess() {
           <div className="order-summary-details">
             <div className="summary-row">
               <span className="summary-label">Items</span>
-              <span className="summary-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+              <span className="summary-value">{formatPrice(order.total)}</span>
             </div>
             
             <div className="summary-row">
@@ -195,13 +224,13 @@ export default function OrderSuccess() {
             {order.shipping_total && parseFloat(order.shipping_total) > 0 && (
               <div className="summary-row">
                 <span className="summary-label">Shipping & handling</span>
-                <span className="summary-value">د.إ {parseFloat(order.shipping_total).toFixed(0)}</span>
+                <span className="summary-value">{formatPrice(order.shipping_total)}</span>
               </div>
             )}
             
             <div className="summary-row total-row">
               <span className="summary-label">Total</span>
-              <span className="summary-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+              <span className="summary-value">{formatPrice(order.total)}</span>
             </div>
           </div>
         </div>
@@ -224,27 +253,16 @@ export default function OrderSuccess() {
         <div className="popular-search-section">
           <h3>Most popular search words</h3>
           <div className="search-tags">
-            <span className="search-tag">Mosquito killer machine</span>
-            <span className="search-tag">Electric mosquito killer</span>
-            <span className="search-tag">Installment mobile phones</span>
-            <span className="search-tag">Hair curling iron</span>
-            <span className="search-tag">Portable Screen</span>
-            <span className="search-tag">Oral irrigator</span>
-            <span className="search-tag">Water Flosser</span>
-            <span className="search-tag">Water tooth flosser</span>
-            <span className="search-tag">Toothbrush</span>
-            <span className="search-tag">Oral</span>
-            <span className="search-tag">Electric toothbrush</span>
-            <span className="search-tag">Bluetooth headphones</span>
-            <span className="search-tag">Wireless earphones</span>
-            <span className="search-tag">Travel kit</span>
-            <span className="search-tag">Coffee bean grinder</span>
-            <span className="search-tag">Treadmill</span>
-            <span className="search-tag">Coffee maker machine</span>
-            <span className="search-tag">Coffee grinder</span>
-            <span className="search-tag">Home projector</span>
-            <span className="search-tag">Candle Machines</span>
-            <span className="search-tag">Gym equipment</span>
+            {popularSearchTerms.map((term) => (
+              <button
+                key={term}
+                type="button"
+                className="search-tag"
+                onClick={() => handlePopularSearchClick(term)}
+              >
+                {term}
+              </button>
+            ))}
           </div>
         </div>
       </div>

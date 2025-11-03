@@ -25,10 +25,11 @@ import Product6 from '../../../assets/images/staticproducts/Peeler/1.webp'
 
 
 const PAGE_SIZE = 10;
-const INITIAL_VISIBLE = 30;
-const PRODUCT_FETCH_LIMIT = 20;
-const MAX_PRODUCTS = 5000;
-const PAGE_LIMIT = 20;
+const INITIAL_VISIBLE = 24;
+const PRODUCT_FETCH_LIMIT = 12;
+const RECOMMENDED_CATEGORY_LIMIT = 8;
+const CATEGORY_PAGE_LIMIT = 4;
+const MAX_PRODUCTS = 180;
 
 
 // Utility to decode HTML entities
@@ -270,34 +271,55 @@ const [categoryHasMore, setCategoryHasMore] = useState(true);
       let fetchedProducts = [];
 
       if (categoryId === "all") {
-        const catRes = await fetch(`${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=30`);
+        const catRes = await fetch(`${API_BASE}/products/categories?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${RECOMMENDED_CATEGORY_LIMIT}`);
         const categoriesData = await catRes.json();
+        let limitedCategories = Array.isArray(categoriesData)
+          ? categoriesData
+              .filter(cat => {
+                const count = Number(cat?.count ?? 0);
+                return !Number.isNaN(count) && count > 0;
+              })
+              .slice(0, RECOMMENDED_CATEGORY_LIMIT)
+          : [];
 
-        const productPromises = categoriesData.map(cat =>
-          fetch(`${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCT_FETCH_LIMIT}&_fields=id,slug,name,images,price,regular_price,sale_price,date_created&category=${cat.id}`)
-            .then(res => res.json())
-            .catch(() => [])
-        );
+        if ((!limitedCategories || limitedCategories.length === 0) && Array.isArray(categoriesData)) {
+          limitedCategories = categoriesData.slice(0, RECOMMENDED_CATEGORY_LIMIT);
+        }
 
-        const allProductsArrays = await Promise.all(productPromises);
-        fetchedProducts = allProductsArrays.flat().slice(0, MAX_PRODUCTS);
+        for (const cat of limitedCategories) {
+          try {
+            const res = await fetch(
+              `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCT_FETCH_LIMIT}&_fields=id,slug,name,images,price,regular_price,sale_price&category=${cat.id}`
+            );
+            const data = await res.json();
+            if (Array.isArray(data) && data.length) {
+              fetchedProducts.push(...data);
+            }
+          } catch (err) {
+            console.error("Recommended products fetch error", err);
+          }
+          if (fetchedProducts.length >= MAX_PRODUCTS) break;
+        }
+        fetchedProducts = fetchedProducts.slice(0, MAX_PRODUCTS);
       } else {
         let page = 1;
-        while (fetchedProducts.length < MAX_PRODUCTS) {
-          const res = await fetch(`${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCT_FETCH_LIMIT}&page=${page}&category=${categoryId}&_fields=id,slug,name,images,price,regular_price,sale_price,date_created`);
+        while (page <= CATEGORY_PAGE_LIMIT && fetchedProducts.length < MAX_PRODUCTS) {
+          const res = await fetch(
+            `${API_BASE}/products?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}&per_page=${PRODUCT_FETCH_LIMIT}&page=${page}&category=${categoryId}&_fields=id,slug,name,images,price,regular_price,sale_price`
+          );
           const data = await res.json();
-          if (!data.length) break;
+          if (!Array.isArray(data) || !data.length) break;
           fetchedProducts.push(...data);
           page++;
         }
         fetchedProducts = fetchedProducts.slice(0, MAX_PRODUCTS);
       }
 
-     if (fetchedProducts.length > 0) {
-  setAllProducts(shuffleArray(fetchedProducts));
-} else {
-  setAllProducts([]);
-}
+      if (fetchedProducts.length > 0) {
+        setAllProducts(shuffleArray(fetchedProducts));
+      } else {
+        setAllProducts([]);
+      }
     } catch (err) {
       console.error(err);
       setAllProducts([]);
@@ -330,7 +352,7 @@ const [categoryHasMore, setCategoryHasMore] = useState(true);
 
   // Load more products
   const loadMoreProducts = () => {
-    setVisibleCount(prev => Math.min(prev + 30, allProducts.length));
+    setVisibleCount(prev => Math.min(prev + INITIAL_VISIBLE, allProducts.length));
   };
 
   // Fly to cart animation
@@ -555,7 +577,7 @@ useEffect(() => {
               Load More
             </button>
           ) : (
-            <span style={{ color: "#666", fontSize: "14px" }}>No more products</span>
+            <span style={{ color: "#666", fontSize: "14px" }}></span>
           )}
         </div>
       </div>
