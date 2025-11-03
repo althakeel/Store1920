@@ -180,7 +180,7 @@ const staticProducts = [
     path: "/products/steam-cleaner-df-a001-japan-technology",
     rating: 5,
     reviews: 125,
-    sold: 299,
+    sold: 299,   
   },
   {
     id: "10",

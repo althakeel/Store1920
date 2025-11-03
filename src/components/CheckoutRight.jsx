@@ -86,6 +86,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   const subtotal = Math.max(0, itemsTotal - discount - coinDiscount);
   const totalWithDelivery = subtotal;
   const amountToSend = Math.max(totalWithDelivery, 0.01);
+  const hasCartItems = cartItems.some((item) => (parseInt(item.quantity, 10) || 0) > 0);
 
   const requiredFields = [
     'first_name',
@@ -98,7 +99,7 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   ];
   const shippingOrBilling = formData.shipping || formData.billing || {};
   const isAddressComplete = requiredFields.every((f) => shippingOrBilling[f]?.trim());
-  const canPlaceOrder = isAddressComplete;
+  const canPlaceOrder = isAddressComplete && hasCartItems;
 
   // Capture order items
   const captureOrderItems = async (orderId, cartItems, customer) => {
@@ -129,7 +130,8 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
   // Place Order
   // -----------------------------
   const handlePlaceOrder = async () => {
-    if (!canPlaceOrder) return showAlert('Please fill all required address fields.', 'error');
+    if (!hasCartItems) return showAlert('Your cart is empty.', 'error');
+    if (!isAddressComplete) return showAlert('Please fill all required address fields.', 'error');
     if (!formData.paymentMethod) return showAlert('Select a payment method', 'error');
     setIsPlacingOrder(true);
 
