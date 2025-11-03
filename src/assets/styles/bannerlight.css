@@ -1,5 +1,5 @@
 .lightning-banner {
-  background-image: url('https://db.store1920.com/wp-content/uploads/2025/10/15-1-scaled.webp');
+    background-image: url('https://db.store1920.com/wp-content/uploads/2025/11/19-scaled.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -16,7 +16,7 @@
 
 @media (max-width: 768px) {
   .lightning-banner {
-    background-image: url('https://db.store1920.com/wp-content/uploads/2025/10/15-1-scaled.webp');
+    background-image: url('https://db.store1920.com/wp-content/uploads/2025/11/19-scaled.webp');
   }
 }
 

@@ -4,14 +4,19 @@ import { themes } from '../theme/theme';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  // Initialize theme from localStorage or default to theme 1
+  const defaultThemeId = 1;
+
+  // Initialize theme from localStorage or default to theme 6
   const [currentThemeId, setCurrentThemeId] = useState(() => {
     const savedThemeId = localStorage.getItem('currentThemeId');
     if (savedThemeId) {
-      return parseInt(savedThemeId);
+      const parsedValue = parseInt(savedThemeId, 10);
+      if (!Number.isNaN(parsedValue) && themes[parsedValue]) {
+        return parsedValue;
+      }
     }
-    // Default to theme 1 on first load (no random)
-    return 1;
+  // Default to theme 1 on first load
+    return defaultThemeId;
   });
 
   const currentTheme = themes[currentThemeId];
@@ -34,25 +39,22 @@ export const ThemeProvider = ({ children }) => {
         localStorage.removeItem('pageClosed');
         
         // Only trigger if the page was closed for more than 30 seconds
-        if (timeSinceClose > 5 * 1000) {
-          // Website reopened after being closed for more than 30 seconds - change theme immediately
-          // Get current theme ID from localStorage to ensure we have the latest value
-          const currentThemeFromStorage = parseInt(localStorage.getItem('currentThemeId')) || 1;
-          const themeIds = Object.keys(themes).map(Number);
-          
-          // If only one theme is available, just keep using it
+        if (timeSinceClose > 30 * 1000) {
+          // Website reopened after being closed for more than 30 seconds - advance to the next theme
+          const currentThemeFromStorage = parseInt(localStorage.getItem('currentThemeId'), 10) || defaultThemeId;
+          const themeIds = Object.keys(themes)
+            .map(Number)
+            .sort((a, b) => a - b);
+
           if (themeIds.length <= 1) {
-            setCurrentThemeId(1);
-            localStorage.setItem('currentThemeId', '1');
+            setCurrentThemeId(defaultThemeId);
+            localStorage.setItem('currentThemeId', defaultThemeId.toString());
           } else {
-            // Filter out the current theme to ensure we get a different theme
-            const availableThemes = themeIds.filter(id => id !== currentThemeFromStorage);
-            const randomThemeId = availableThemes.length > 0 
-              ? availableThemes[Math.floor(Math.random() * availableThemes.length)]
-              : 1; // fallback to theme 1
-            
-            setCurrentThemeId(randomThemeId);
-            localStorage.setItem('currentThemeId', randomThemeId.toString());
+            const currentIndex = Math.max(0, themeIds.indexOf(currentThemeFromStorage));
+            const nextThemeId = themeIds[(currentIndex + 1) % themeIds.length];
+
+            setCurrentThemeId(nextThemeId);
+            localStorage.setItem('currentThemeId', nextThemeId.toString());
           }
         }
         // If closed for less than 30 seconds, keep the same theme (do nothing)
