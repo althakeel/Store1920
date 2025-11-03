@@ -212,14 +212,56 @@ const styles = {
   },
 };
 
+// Mobile overrides for inline styles (ensures they win over desktop inline styles)
+const mobileStyles = {
+  layout: {
+    display: 'block',
+    height: 'auto',
+    overflow: 'visible',
+  },
+  sidebar: {
+    position: 'sticky',
+    top: 0,
+    width: '100%',
+    height: 'auto',
+    borderRight: 'none',
+    borderBottom: '1px solid #eee',
+    padding: '12px 16px',
+    background: '#fff',
+    zIndex: 2,
+    overflowX: 'auto',
+    whiteSpace: 'nowrap',
+  },
+  item: {
+    display: 'inline-block',
+    marginRight: 16,
+    borderLeft: 'none',
+    paddingLeft: 0,
+    fontSize: '14px',
+  },
+  content: {
+    padding: '16px',
+    height: 'auto',
+    overflow: 'visible',
+  },
+  heading: { fontSize: '18px' },
+  text: { fontSize: '14px' },
+};
+
 const ReturnPolicyPage = () => {
   const [activeSection, setActiveSection] = useState(sections[0].id);
   const contentRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
+    // handle responsive breakpoint
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+
     injectFont();
 
-    if (!contentRef.current) return;
+    // For desktop/tablet we observe inside the scrolling container; on mobile we observe viewport
+    if (!isMobile && !contentRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -230,7 +272,7 @@ const ReturnPolicyPage = () => {
         });
       },
       {
-        root: contentRef.current,
+        root: isMobile ? null : contentRef.current,
         rootMargin: '-50px 0px -60% 0px',
         threshold: 0.1,
       }
@@ -241,40 +283,49 @@ const ReturnPolicyPage = () => {
       if (el) observer.observe(el);
     });
 
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isMobile]);
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
-    if (el && contentRef.current) {
-      contentRef.current.scrollTo({
-        top: el.offsetTop - 20,
-        behavior: 'smooth',
-      });
+    if (!el) return;
+
+    if (isMobile) {
+      // Let the window scroll on mobile; rely on section scroll-margin-top for offset
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (contentRef.current) {
+      contentRef.current.scrollTo({ top: el.offsetTop - 20, behavior: 'smooth' });
     }
-  // Immediately highlight in sidebar
- setActiveSection(id);
+    // Immediately highlight in sidebar
+    setActiveSection(id);
   };
 
 
   return (
-    <div style={styles.layout}>
+    <div style={{ ...styles.layout, ...(isMobile ? mobileStyles.layout : {}) }} className="rp-layout">
       {/* Sidebar */}
       <aside
         style={{
           ...styles.sidebar,
+          ...(isMobile ? mobileStyles.sidebar : {}),
           // Hide scrollbar on Webkit browsers by inline style trick:
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
-          // Need to use global CSS or inject style tag for ::-webkit-scrollbar to hide scrollbar on Chrome/Safari
         }}
-        className="hide-scrollbar"
+        className="hide-scrollbar rp-sidebar"
       >
         {sections.map(({ id, title }) => (
           <div
             key={id}
             onClick={() => scrollToSection(id)}
-            style={styles.sidebarItem(activeSection === id)}
+            style={{
+              ...styles.sidebarItem(activeSection === id),
+              ...(isMobile ? mobileStyles.item : {}),
+            }}
+            className="rp-item"
           >
             {title}
           </div>
@@ -285,25 +336,28 @@ const ReturnPolicyPage = () => {
       <main
         style={{
           ...styles.contentWrapper,
+          ...(isMobile ? mobileStyles.content : {}),
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         }}
         ref={contentRef}
-        className="hide-scrollbar"
+        className="hide-scrollbar rp-content"
       >
       {sections.map(({ id, title, content }) => (
   <section key={id} id={id} style={styles.section}>
     <h2
       style={{
         ...styles.heading,
+        ...(isMobile ? mobileStyles.heading : {}),
         textDecoration: activeSection === id ? 'underline' : 'none',
         textDecorationColor: '#FF6600',
         textDecorationThickness: '2px',
       }}
+      className="rp-heading"
     >
       {title}
     </h2>
-    <div style={styles.text}>{content}</div>
+    <div style={{ ...styles.text, ...(isMobile ? mobileStyles.text : {}) }} className="rp-text">{content}</div>
   </section>
 ))}
       </main>
@@ -314,6 +368,42 @@ const ReturnPolicyPage = () => {
           display: none;
           width: 0 !important;
           height: 0 !important;
+        }
+
+        /* Responsive layout for mobile */
+        @media (max-width: 768px) {
+          .rp-layout {
+            display: block;
+            height: auto;
+            overflow: visible;
+          }
+          .rp-sidebar {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            height: auto;
+            border-right: none;
+            border-bottom: 1px solid #eee;
+            padding: 12px 16px;
+            background: #fff;
+            z-index: 2;
+            overflow-x: auto;
+            white-space: nowrap;
+          }
+          .rp-sidebar .rp-item {
+            display: inline-block;
+            margin-right: 16px;
+            border-left: none !important;
+            padding-left: 0 !important;
+            font-size: 14px;
+          }
+          .rp-content {
+            padding: 16px;
+            height: auto;
+            overflow: visible;
+          }
+          .rp-heading { font-size: 18px; }
+          .rp-text { font-size: 14px; }
         }
       `}</style>
     </div>
