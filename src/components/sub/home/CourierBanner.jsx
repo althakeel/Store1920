@@ -1,5 +1,5 @@
 import React from 'react';
-import Banner from '../../../assets/images/seasontitle/17.webp'
+// import Banner from '../../../assets/images/seasontitle/17.webp'
 
 const CourierBanner = () => {
   return (
@@ -7,7 +7,8 @@ const CourierBanner = () => {
       maxWidth: '1400px',
       width: '100%',
       margin: '20px auto',
-      backgroundColor: '#FF0100',
+      minHeight: '60px',
+      backgroundColor: '#ffffffff',
       display: 'flex',
       justifyContent: 'flex-start'
     }}>
@@ -24,7 +25,7 @@ const CourierBanner = () => {
             objectFit: 'cover',
             objectPosition: 'center center'
           }}
-          src={Banner} 
+          src='https://db.store1920.com/wp-content/uploads/2025/11/18-scaled.webp' 
           alt="Courier Banner" 
         />
       </div>
