@@ -101,6 +101,7 @@ export default function CheckoutPage() {
     (sum, item) => sum + (parseFloat(item.price) || 0) * item.quantity,
     0
   );
+
   useEffect(() => {
     const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (savedData) {
