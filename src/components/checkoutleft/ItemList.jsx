@@ -104,7 +104,7 @@ const ItemList = ({ items = [], onRemove, onUpdateQuantity }) => {
           const key = `${item.id ?? item.product_id ?? 'item'}-${index}`;
           const imageUrl = item.images?.[0]?.src || item.images?.[0]?.url || item.image || '';
           const rawPrice = item.prices?.price ?? item.price ?? 0;
-          const price = parseFloat(rawPrice).toFixed(1);
+          const price = parseFloat(rawPrice).toFixed(2);
 
           const hasStockInfo = ['stock_quantity', 'in_stock', 'is_in_stock', 'stock_status'].some(
             (key) => Object.prototype.hasOwnProperty.call(item, key)
