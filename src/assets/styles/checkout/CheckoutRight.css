@@ -78,15 +78,15 @@
   cursor: pointer;
   width: 100%;
   min-width: 300px;
-
   margin-top: 20px;
   transition: background-color 0.3s ease, transform 0.15s ease;
   user-select: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   text-align: center;
-  white-space: nowrap;
   font-family: "Montserrat", "Segoe UI", sans-serif;
-
 }
 
 .placeOrderBtnCR:disabled {

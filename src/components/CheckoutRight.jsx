@@ -290,85 +290,73 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
       tamara: 'Tamara',
     };
 
-    const logoUrls = {
+    const defaultLogos = {
       tabby: Tabby,
       tamara: Tamara,
     };
-    
-    // For Tabby and Tamara, use the image URLs
-    if ((formData.paymentMethod === 'tabby' || formData.paymentMethod === 'tamara')) {
-      const logoUrl = logoUrls[formData.paymentMethod];
-      const label = labels[formData.paymentMethod];
-      const loadingText = isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with `;
-      
-      // Add background colors for better visibility
-      const logoStyle = {
-        height: '38px',
-        width: '60px',
-        objectFit: 'contain',
-        padding: '2px 4px',
-        borderRadius: '4px',
-      };
-      
-      return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-          {loadingText}
-          {!isPlacingOrder && logoUrl && (
-            <img 
-              src={logoUrl} 
-              alt={label}
-              style={logoStyle}
-            />
-          )}
-          {isPlacingOrder && label}
-        </span>
-      );
+
+    const method = formData.paymentMethod;
+    const hasMethod = Boolean(method);
+    const label = hasMethod ? (labels[method] || method) : 'Order';
+  const rawLogo = hasMethod ? (defaultLogos[method] || formData.paymentMethodLogo || null) : null;
+  const shouldHideLogo = method === 'cod' || method === 'card';
+  const logoUrl = shouldHideLogo ? null : rawLogo;
+    const baseText = isPlacingOrder
+      ? hasMethod
+        ? `Placing Order with ${label}...`
+        : 'Placing Order...'
+      : hasMethod
+        ? `Place Order with ${label}`
+        : 'Place Order';
+
+    const wrapperStyle = {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px',
+      flexWrap: 'wrap',
+      minHeight: '24px',
+      textAlign: 'center',
+    };
+
+    if (!logoUrl) {
+      return <span style={wrapperStyle}>{baseText}</span>;
     }
 
-    // Always show logo if we have one for other payment methods
-    if (formData.paymentMethodLogo) {
-      const label = labels[formData.paymentMethod] || 'Order';
-      const loadingText = isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with `;
-      
-      // Add background colors for COD and Card
-      let logoStyle = {
-        height: '32px',
-        width: 'auto',
-        objectFit: 'contain',
-        padding: '2px 4px',
-        borderRadius: '4px',
-      };
+    const logoStyle = {
+      height: method === 'tabby' || method === 'tamara' ? '38px' : '32px',
+      width: method === 'tabby' || method === 'tamara' ? '60px' : 'auto',
+      objectFit: 'contain',
+      padding: '2px 4px',
+      borderRadius: '4px',
+      backgroundColor: '#f9fafb',
+      border: '1px solid #d1d5db',
+    };
 
-      // Set background color based on payment method
-      if (formData.paymentMethod === 'cod') {
-        logoStyle.backgroundColor = '#fff7ed';
-        logoStyle.border = '1px solid #f97316';
-      } else if (formData.paymentMethod === 'card') {
-        logoStyle.backgroundColor = '#f0fdf4';
-        logoStyle.border = '1px solid #22c55e';
-      } else {
-        logoStyle.backgroundColor = '#f9fafb';
-        logoStyle.border = '1px solid #d1d5db';
-      }
-      
-      return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          {loadingText}
-          {!isPlacingOrder && (
-            <img 
-              src={formData.paymentMethodLogo} 
-              alt={label}
-              style={logoStyle}
-            />
-          )}
-          {isPlacingOrder && label}
-        </span>
-      );
+    if (method === 'tabby' || method === 'tamara') {
+      logoStyle.backgroundColor = 'transparent';
+      logoStyle.border = 'none';
+    } else if (method === 'cod') {
+      logoStyle.backgroundColor = '#fff7ed';
+      logoStyle.border = '1px solid #f97316';
+    } else if (method === 'card') {
+      logoStyle.backgroundColor = '#f0fdf4';
+      logoStyle.border = '1px solid #22c55e';
     }
-    
-    // Default text for other payment methods without logo
-    const label = labels[formData.paymentMethod] || 'Order';
-    return isPlacingOrder ? `Placing Order with ${label}...` : `Place Order with ${label}`;
+
+    return (
+      <span style={wrapperStyle}>
+        <span>{baseText}</span>
+        <img
+          src={logoUrl}
+          alt={label}
+          style={{
+            ...logoStyle,
+            visibility: isPlacingOrder ? 'hidden' : 'visible',
+          }}
+        />
+      </span>
+    );
   };
 
   return (

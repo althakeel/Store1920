@@ -3,6 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getOrderById } from "../api/woocommerce"; // adjust path
 import "../assets/styles/OrderConfirmation.css";
 
+const formatPrice = (value) => {
+  const amount = Number.parseFloat(value);
+  const safeAmount = Number.isFinite(amount) ? amount : 0;
+  return `AED ${safeAmount.toFixed(2)}`;
+};
+
 export default function OrderConfirmation() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -89,7 +95,7 @@ export default function OrderConfirmation() {
           </div>
           <div className="info-item">
             <span className="info-label">Total</span>
-            <span className="info-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+            <span className="info-value">{formatPrice(order.total)}</span>
           </div>
           <div className="info-item">
             <span className="info-label">Payment method</span>
@@ -135,7 +141,7 @@ export default function OrderConfirmation() {
                   <div className="product-quantity">× {item.quantity}</div>
                 </div>
               </div>
-              <div className="product-total">د.إ {parseFloat(item.total).toFixed(3)}</div>
+              <div className="product-total">{formatPrice(item.total)}</div>
             </div>
           ))}
 
@@ -143,7 +149,7 @@ export default function OrderConfirmation() {
           <div className="order-summary-details">
             <div className="summary-row">
               <span className="summary-label">Items</span>
-              <span className="summary-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+              <span className="summary-value">{formatPrice(order.total)}</span>
             </div>
             
             <div className="summary-row">
@@ -154,13 +160,13 @@ export default function OrderConfirmation() {
             {order.shipping_total && parseFloat(order.shipping_total) > 0 && (
               <div className="summary-row">
                 <span className="summary-label">Shipping & handling</span>
-                <span className="summary-value">د.إ {parseFloat(order.shipping_total).toFixed(0)}</span>
+                <span className="summary-value">{formatPrice(order.shipping_total)}</span>
               </div>
             )}
             
             <div className="summary-row total-row">
               <span className="summary-label">Total</span>
-              <span className="summary-value">د.إ {parseFloat(order.total).toFixed(3)}</span>
+              <span className="summary-value">{formatPrice(order.total)}</span>
             </div>
           </div>
         </div>
