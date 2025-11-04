@@ -180,8 +180,47 @@ export default function CheckoutRight({ cartItems, formData, createOrder, clearC
         }
       }
 
+      if (formData.paymentMethod === 'tabby') {
+  const normalized = {
+    first_name: shippingOrBilling.first_name || 'First',
+    last_name:  shippingOrBilling.last_name  || 'Last',
+    email:      shippingOrBilling.email      || 'customer@example.com',
+    phone_number: shippingOrBilling.phone_number?.startsWith('+')
+      ? shippingOrBilling.phone_number
+      : `+${shippingOrBilling.phone_number || '971501234567'}`
+  };
+
+  const payload = {
+    amount: amountToSend,
+    order_id: id.id || id,
+    billing: normalized
+  };
+
+  try {
+    const res = await fetch('https://db.store1920.com/wp-json/custom/v1/tabby-intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    console.log('✅ Tabby Response =>', data);
+
+    if (!res.ok || !data.checkout_url) {
+      throw new Error(data.error || 'Failed to start Tabby session.');
+    }
+
+    window.location.href = data.checkout_url;
+    return;
+  } catch (err) {
+    console.error('❌ TABBY ERROR:', err);
+    showAlert(err.message || 'Failed to initiate Tabby payment.', 'error');
+  }
+}
+
+
       // ✅ PAYMOB / TABBY / TAMARA / CARD FLOW
-      if (['paymob', 'card', 'tabby', 'tamara'].includes(formData.paymentMethod)) {
+      if (['paymob', 'card', 'tamara'].includes(formData.paymentMethod)) {
         const normalized = {
           first_name: shippingOrBilling.first_name?.trim() || 'First',
           last_name: shippingOrBilling.last_name?.trim() || 'Last',
