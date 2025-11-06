@@ -42,6 +42,7 @@ export default function OrderSuccess() {
 
   const queryParams = new URLSearchParams(location.search);
   const orderId = queryParams.get("order_id");
+  const isCancelled = queryParams.get("cancelled") === "1";
 
   const [animate, setAnimate] = useState(false);
   const [order, setOrder] = useState(null);
@@ -113,6 +114,101 @@ export default function OrderSuccess() {
       <div className="order-success-container">
         <div className="order-success-card">
           <div className="error-message">Order not found.</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show cancellation message if order is cancelled
+  if (isCancelled) {
+    return (
+      <div className="order-success-container">
+        <div className="order-success-card">
+          {/* Header Section - Cancelled */}
+          <div className="order-header">
+            <div className="cancel-icon" style={{ 
+              fontSize: '4rem', 
+              color: '#e74c3c', 
+              marginBottom: '1rem' 
+            }}>✕</div>
+            <h1 className="thank-you-title" style={{ color: '#e74c3c' }}>Order Cancelled</h1>
+            <p className="thank-you-subtitle">Your order has been cancelled.</p>
+            
+            <button className="order-btn" onClick={() => navigate('/orders')}>
+              View Orders
+            </button>
+          </div>
+
+          {/* Order Number Section */}
+          <div className="order-number-section">
+            <h2 className="order-id" onClick={handleCopyOrderId}>
+              #S{order.id}
+            </h2>
+            <p className="copy-order-text" onClick={handleCopyOrderId}>
+              📋 Copy order number
+            </p>
+          </div>
+
+          {/* Order Details Tabs */}
+          <div className="order-tabs">
+            <button className="tab-btn active">Order details</button>
+          </div>
+
+          {/* Order Info Grid */}
+          <div className="order-info-grid">
+            <div className="info-item">
+              <span className="info-label">Order no.:</span>
+              <span className="info-value">S{order.id}</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Order date:</span>
+              <span className="info-value">{new Date(order.date_created).toLocaleDateString('en-GB')}</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Status:</span>
+              <span className="info-value" style={{ color: '#e74c3c', fontWeight: 'bold' }}>Cancelled</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Payment method:</span>
+              <span className="info-value">{order.payment_method_title || 'COD'}</span>
+            </div>
+          </div>
+
+          {/* Cancellation Message */}
+          <div style={{ 
+            padding: '20px', 
+            backgroundColor: '#fee', 
+            borderRadius: '8px', 
+            marginTop: '20px',
+            textAlign: 'center'
+          }}>
+            <p style={{ margin: 0, color: '#c0392b' }}>
+              This order has been cancelled. If you have any questions, please contact our support team.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '10px', 
+            marginTop: '20px',
+            justifyContent: 'center'
+          }}>
+            <button 
+              className="track-order-btn" 
+              onClick={() => navigate('/')}
+              style={{ backgroundColor: '#3498db' }}
+            >
+              Continue Shopping
+            </button>
+            <button 
+              className="track-order-btn" 
+              onClick={() => navigate('/contact')}
+              style={{ backgroundColor: '#95a5a6' }}
+            >
+              Contact Support
+            </button>
+          </div>
         </div>
       </div>
     );
