@@ -156,11 +156,21 @@ const AddressForm = ({ formData, onChange, onSubmit, onClose, saving, error, car
       // small delay to ensure react-phone-input updates last digit
       await new Promise((res) => setTimeout(res, 200));
 
-      const res = await fetch('https://db.store1920.com/wp-json/abandoned-checkouts/v1/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+     const res = await fetch('https://db.store1920.com/wp-json/abandoned-checkouts/v1/save', {
+      method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+       shipping: formData.shipping,
+       cart: cartItems.map((item) => ({
+       id: item.id,
+       name: item.name,
+       quantity: item.quantity,
+       price: item.price,
+       subtotal: item.price * item.quantity,
+     })),
+   }),
+ });
+
 
       const result = await res.json();
       console.log('Saved to WordPress:', result);
