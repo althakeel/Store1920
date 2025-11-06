@@ -142,10 +142,6 @@ export default function OrderSuccess() {
           {/* Order Info Grid */}
           <div className="order-info-grid">
             <div className="info-item">
-              <span className="info-label">Order no.:</span>
-              <span className="info-value">S{order.id}</span>
-            </div>
-            <div className="info-item">
               <span className="info-label">Order date:</span>
               <span className="info-value">{new Date(order.date_created).toLocaleDateString('en-GB')}</span>
             </div>
