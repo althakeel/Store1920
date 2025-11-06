@@ -139,21 +139,6 @@ export default function OrderSuccess() {
             </button>
           </div>
 
-          {/* Order Number Section */}
-          <div className="order-number-section">
-            <h2 className="order-id" onClick={handleCopyOrderId}>
-              #S{order.id}
-            </h2>
-            <p className="copy-order-text" onClick={handleCopyOrderId}>
-              📋 Copy order number
-            </p>
-          </div>
-
-          {/* Order Details Tabs */}
-          <div className="order-tabs">
-            <button className="tab-btn active">Order details</button>
-          </div>
-
           {/* Order Info Grid */}
           <div className="order-info-grid">
             <div className="info-item">
