@@ -16,7 +16,7 @@ const TrackDeepOrder = () => {
   const trackingSteps = [
     "Shipment Info Received",
     "Picked Up",
-    "Arrived Facility",
+    "Arrived Facility 1",
     "With Delivery Courier",
     "Out for Delivery",
     "Delivered",
